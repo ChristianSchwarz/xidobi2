@@ -21,6 +21,7 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <windows.h>
+#include "OS_structs.h"
 #include "org_xidobi_OS.h"
 
 JNIEXPORT jint JNICALL
@@ -45,13 +46,21 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz, jstring lpFileName,
 	return (jint) handle;
 }
 
-/*
- * Class:     org_xidobi_OS
- * Method:    CloseHandle
- * Signature: (I)Z
- */JNIEXPORT jboolean JNICALL
+JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jclass clazz, jint handle) {
 	if (CloseHandle((HANDLE) handle))
 		return JNI_TRUE;
 	return JNI_FALSE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz, jint handle, jobject dcbObject) {
+	DCB dcb;
+	FillMemory(&dcb, sizeof(dcb), 0);
+
+	if (!GetCommState((HANDLE) handle, &dcb))
+		return JNI_FALSE;
+	setDCBFields(env, dcbObject, &dcb);
+
+	return JNI_TRUE;
 }
