@@ -16,7 +16,7 @@
 package org.xidobi;
 
 /**
- * 
+ * This Class contains one-to-one mappings of native methods used by the OS to control serial ports. 
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
@@ -39,10 +39,21 @@ public class OS {
 		System.loadLibrary("lib/org.xidobi.native.x86.win32");
 	}
 	
+	/** This class is not intended to be instantiated*/
+	private OS(){}
+	
 	/**
 	 * See <a
 	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx">http
 	 * ://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx</a>
+	 * @param lpFileName {@code LPCTSTR}
+	 * @param dwDesiredAccess {@code DWORD}
+	 * @param dwShareMode {@code DWORD} 
+	 * @param lpSecurityAttributes {@code LPSECURITY_ATTRIBUTES}
+	 * @param dwCreationDisposition {@code DWORD} 
+	 * @param dwFlagsAndAttributes {@code DWORD} 
+	 * @param hTemplateFile {@code HANDLE}
+	 * @return {@code HANDLE}
 	 */
 	public static native int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
 
