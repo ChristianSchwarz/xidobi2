@@ -31,6 +31,11 @@ public class Test {
 		              FILE_FLAG_OVERLAPPED, 
 		              0);
 		System.out.println("Handle: " + handle);
+		
+		DCB dcb = new DCB();
+		OS.GetCommState(handle, dcb);
+		System.out.println("BaudRate: " + dcb.BaudRate);
+		
 		boolean status = OS.CloseHandle(handle);
 		System.out.println("Status: " + status);
 	}

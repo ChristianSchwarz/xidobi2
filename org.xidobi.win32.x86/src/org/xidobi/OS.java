@@ -1,7 +1,4 @@
 /*
- *   Created on: 03.01.2013
- *      Authors: Christian Schwarz, Tobias Breﬂler
- *
  * Copyright 2013 Gemtec GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +36,7 @@ public class OS {
 	public final static int ERROR_FILE_NOT_FOUND = 2;
 
 	static {
-		System.loadLibrary("lib/xidobi_x86_win32");
+		System.loadLibrary("lib/org.xidobi.native.x86.win32");
 	}
 	
 	/**
@@ -51,4 +48,5 @@ public class OS {
 
 	public static native boolean CloseHandle(int handle);
 	
+	public static native boolean GetCommState(int handle, DCB dcb);
 }
