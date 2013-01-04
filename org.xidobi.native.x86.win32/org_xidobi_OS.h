@@ -77,6 +77,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WriteFile
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_GetLastError
   (JNIEnv *, jclass);
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    GetOverlappedResult
+ * Signature: (ILorg/xidobi/OVERLAPPED;Lorg/xidobi/INT;Z)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetOverlappedResult
+  (JNIEnv *, jclass, jint, jobject, jobject, jboolean);
+
 #ifdef __cplusplus
 }
 #endif

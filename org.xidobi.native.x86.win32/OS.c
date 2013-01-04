@@ -22,11 +22,19 @@
 #include "OS_structs.h"
 #include "org_xidobi_OS.h"
 
-
+/*
+ * Class:     org_xidobi_OS
+ * Method:    CreateFile
+ * Signature: (Ljava/lang/String;IIIIII)I
+ */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz, jstring lpFileName,
-		jint dwDesiredAccess, jint dwShareMode, jint lpSecurityAttributes,
-		jint dwCreationDisposition, jint dwFlagsAndAttributes,
+Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz,
+		jstring lpFileName,
+		jint dwDesiredAccess,
+		jint dwShareMode,
+		jint lpSecurityAttributes,
+		jint dwCreationDisposition,
+		jint dwFlagsAndAttributes,
 		jint hTemplateFile) {
 
 	const char* fileName = (*env)->GetStringUTFChars(env, lpFileName, NULL);
@@ -45,15 +53,29 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz, jstring lpFileName,
 	return (jint) handle;
 }
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    CloseHandle
+ * Signature: (I)Z
+ */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jclass clazz, jint handle) {
+Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jclass clazz,
+		jint handle) {
 	if (CloseHandle((HANDLE) handle))
 		return JNI_TRUE;
 	return JNI_FALSE;
 }
 
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    GetCommState
+ * Signature: (ILorg/xidobi/DCB;)Z
+ */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz, jint handle, jobject dcbObject) {
+Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz,
+		jint handle,
+		jobject dcbObject) {
 	DCB dcb;
 	FillMemory(&dcb, sizeof(dcb), 0);
 
@@ -64,8 +86,16 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz, jint handle, jobject 
 	return JNI_TRUE;
 }
 
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    SetCommState
+ * Signature: (ILorg/xidobi/DCB;)Z
+ */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz, jint handle, jobject dcbObject) {
+Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz,
+		jint handle,
+		jobject dcbObject) {
 	DCB dcb;
 	getDCBFields(env, dcbObject, &dcb);
 
@@ -75,9 +105,18 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz, jint handle, jobject 
 	return JNI_TRUE;
 }
 
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    CreateEventA
+ * Signature: (IZZLjava/lang/String;)I
+ */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz, jint lpEventAttributes, jboolean bManualReset,
-		jboolean bInitialState, jstring lpName) {
+Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz,
+		jint lpEventAttributes,
+		jboolean bManualReset,
+		jboolean bInitialState,
+		jstring lpName) {
 
 	const char* name;
 	if (lpName == NULL)
@@ -96,13 +135,23 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz, jint lpEventAttribute
 	return (jint) handle;
 }
 
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    WriteFile
+ * Signature: (I[BILorg/xidobi/INT;Lorg/xidobi/OVERLAPPED;)Z
+ */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz, jint handle, jbyteArray lpBuffer,
-		jint nNumberOfBytesToWrite, jobject lpNumberOfBytesWritten, jobject lpOverlapped) {
+Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
+		jint handle,
+		jbyteArray lpBuffer,
+		jint nNumberOfBytesToWrite,
+		jobject lpNumberOfBytesWritten,
+		jobject lpOverlapped) {
 
 	DWORD bytesWritten;
-
 	OVERLAPPED overlapped = {0};
+
 	getOVERLAPPEDFields(env, lpOverlapped, &overlapped);
 
 	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
@@ -123,8 +172,40 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz, jint handle, jbyteArray 
 	return JNI_FALSE;
 }
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    GetLastError
+ * Signature: ()I
+ */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_GetLastError(JNIEnv *env, jclass clazz) {
 	DWORD error = GetLastError();
 	return (jint) error;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    GetOverlappedResult
+ * Signature: (ILorg/xidobi/OVERLAPPED;Lorg/xidobi/INT;Z)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jclass clazz,
+		  jint handle,
+		  jobject lpOverlapped,
+		  jobject lpNumberOfBytesTransferred,
+		  jboolean bWait){
+
+	OVERLAPPED overlapped={0};
+	getOVERLAPPEDFields(env,lpOverlapped, &overlapped);
+	DWORD written=0;
+
+	BOOL result = GetOverlappedResult((HANDLE) handle,
+									  &overlapped,
+										&written,
+										(BOOL)bWait);
+
+	setINT(env,lpNumberOfBytesTransferred,&written);
+
+	if (result==TRUE)
+		return JNI_TRUE;
+	return JNI_FALSE;
 }
