@@ -1,9 +1,6 @@
 /*
  * OS_structs.h
  *
- *   Created on: 03.01.2013
- *      Authors: Christian Schwarz, Tobias Breﬂler
- *
  * Copyright 2013 Gemtec GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef OS_STRUCTS_H_
 #define OS_STRUCTS_H_
 

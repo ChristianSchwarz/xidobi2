@@ -1,9 +1,6 @@
 /*
  * OS.c
  *
- *   Created on: 03.01.2013
- *      Authors: Christian Schwarz, Tobias Breﬂler
- *
  * Copyright 2013 Gemtec GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +18,10 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <windows.h>
+
 #include "OS_structs.h"
 #include "org_xidobi_OS.h"
+
 
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz, jstring lpFileName,

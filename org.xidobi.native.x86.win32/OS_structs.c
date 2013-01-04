@@ -1,9 +1,6 @@
 /*
  * OS_structs.c
  *
- *   Created on: 03.01.2013
- *      Authors: Christian Schwarz, Tobias Breﬂler
- *
  * Copyright 2013 Gemtec GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <jni.h>
 #include <stdlib.h>
 #include <windows.h>
@@ -58,6 +54,7 @@ typedef struct DCB_FID_CACHE {
 				wReserved,
 				wReserved1;
 } DCB_FID_CACHE;
+
 DCB_FID_CACHE DCBc;
 
 void cacheDCBFields(JNIEnv *env, jobject lpObject) {
