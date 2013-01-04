@@ -29,43 +29,56 @@ import static org.xidobi.OS.OPEN_EXISTING;
 public class Test {
 
 	/**
-	 * @param args
+	 * 
 	 */
-	public static void main(String[] args) {
-		int handle = OS.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
-		System.out.println("Handle: " + handle);
+	private static final byte[] LP_BUFFER = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-		DCB dcb = new DCB();
-		OS.GetCommState(handle, dcb);
-		System.out.println("BaudRate: " + dcb.BaudRate);
+	/**
+	 * @param args
+	 * @throws InterruptedException 
+	 */
+	public static void main(String[] args) throws InterruptedException {
 
-		dcb.BaudRate = 9600;
-		OS.SetCommState(handle, dcb);
+		for (;;) {
 
-		DCB dcb2 = new DCB();
-		OS.GetCommState(handle, dcb2);
-		System.out.println("BaudRate: " + dcb.BaudRate);
+			System.out.println("-----------------");
 
-		int eventHandle = OS.CreateEventA(0, true, false, null);
-		System.out.println("Event-Handle: " + eventHandle);
+			int handle = OS.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+			System.out.println("Handle: " + handle);
 
-		OVERLAPPED overlapped = new OVERLAPPED();
-		overlapped.hEvent = eventHandle;
+			DCB dcb = new DCB();
+			OS.GetCommState(handle, dcb);
+			System.out.println("BaudRate: " + dcb.BaudRate);
 
-		INT lpNumberOfBytesWritten = new INT();
-		lpNumberOfBytesWritten.value = 2;
-		boolean writeFileStatus = OS.WriteFile(handle, new byte[] { 1, 2 }, 2, lpNumberOfBytesWritten, overlapped);
-		System.out.println("Bytes written: " + writeFileStatus + " " + lpNumberOfBytesWritten.value);
+			dcb.BaudRate = 9600;
+			OS.SetCommState(handle, dcb);
 
-		if (writeFileStatus == false) {
-			int lastError = OS.GetLastError();
-			System.err.println("Last error: " + lastError);
+			DCB dcb2 = new DCB();
+			OS.GetCommState(handle, dcb2);
+			System.out.println("BaudRate: " + dcb.BaudRate);
+
+			// int eventHandle = OS.CreateEventA(0, true, false, null);
+//			System.out.println("Event-Handle: " + eventHandle);
+//
+//			OVERLAPPED overlapped = new OVERLAPPED();
+//			overlapped.hEvent = eventHandle;
+
+			INT lpNumberOfBytesWritten = new INT();
+			boolean writeFileStatus = OS.WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, null);
+			System.out.println("Bytes written: " + writeFileStatus + " " + lpNumberOfBytesWritten.value);
+
+			if (writeFileStatus == false) {
+				int lastError = OS.GetLastError();
+				System.err.println("Last error: " + lastError);
+			}
+
+			// OS.CloseHandle(eventHandle);
+
+			boolean status = OS.CloseHandle(handle);
+			System.out.println("Status: " + status);
+
+			Thread.sleep(3000);
 		}
-
-		OS.CloseHandle(eventHandle);
-
-		boolean status = OS.CloseHandle(handle);
-		System.out.println("Status: " + status);
 	}
 
 }
