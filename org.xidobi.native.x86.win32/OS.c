@@ -150,27 +150,22 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
 		jobject lpOverlapped) {
 
 	DWORD bytesWritten;
-
 	OVERLAPPED overlapped = {0};
-	printf("0");
+
 	getOVERLAPPEDFields(env, lpOverlapped, &overlapped);
-	printf("1");
+
 	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
-	printf("2");
 
 	BOOL result = WriteFile( (HANDLE) handle,
 							 jBuffer,
 							 (DWORD) nNumberOfBytesToWrite,
 							 &bytesWritten,
 							 &overlapped);
-	printf("3");
 
 	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
 	setOVERLAPPEDFields(env, lpOverlapped, &overlapped);
-	printf("4");
 
 	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
-	printf("5");
 
 	if (result)
 		return JNI_TRUE;
