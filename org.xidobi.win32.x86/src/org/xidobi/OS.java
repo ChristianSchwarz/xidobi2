@@ -70,16 +70,46 @@ public class OS {
 
 	public static native boolean SetCommState(int handle, DCB dcb);
 
-/**
-	 * See <a
-	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms682396(v=vs.85).aspx">CreateEvent (MSDN)</a> 
+	/**
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms682396(v=vs.85).aspx">
+	 * CreateEvent (MSDN)</a>
 	 * 
-	 * @param lpEventAttributes {@code LPSECURITY_ATTRIBUTES}
-	 * @param bManualReset {@code BOOL}
-	 * @param bInitialState {@code BOOL}
-	 * @param lpName {@code LPCTSTR}
+	 * @param lpEventAttributes
+	 *            {@code LPSECURITY_ATTRIBUTES}
+	 * @param bManualReset
+	 *            {@code BOOL}
+	 * @param bInitialState
+	 *            {@code BOOL}
+	 * @param lpName
+	 *            {@code LPCTSTR}
 	 * @return {@code HANDLE}
 	 */
 	public static native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, String lpName);
+
+	/**
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa365747(v=vs.85).aspx">
+	 * WriteFile (MSDN)</a>
+	 * 
+	 * @param handle
+	 *            {@code HANDLE}
+	 * @param lpBuffer
+	 *            {@code LPCVOID}
+	 * @param nNumberOfBytesToWrite
+	 *            {@code DWORD}
+	 * @param lpNumberOfBytesWritten
+	 *            {@code LPDWORD}
+	 * @param lpOverlapped
+	 *            {@code LPOVERLAPPED}
+	 * @return {@code BOOL}
+	 */
+	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
+
+	/**
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms679360(v=vs.85).aspx">
+	 * GetLastError (MSDN)</a>
+	 * 
+	 * @return {@code DWORD}
+	 */
+	public static native int GetLastError();
 
 }

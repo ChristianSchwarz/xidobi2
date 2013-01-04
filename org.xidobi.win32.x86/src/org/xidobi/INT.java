@@ -16,29 +16,13 @@
 package org.xidobi;
 
 /**
- *
+ * Pointer to an int value in C
+ * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-public class OVERLAPPED {
+public class INT {
 
-	// ULONG_PTR 
-	public long Internal; 
-	// ULONG_PTR 
-	public long InternalHigh;
-	
-	// __GNUC_EXTENSION union {
-	// __GNUC_EXTENSION struct {
-	// DWORD 
-	public int Offset;
-	// DWORD 
-	public int OffsetHigh;
-	// };
-	// PVOID 
-	public int Pointer;
-	// };
-	
-	// HANDLE 
-	public int hEvent;
+	public int value;
 
 }
