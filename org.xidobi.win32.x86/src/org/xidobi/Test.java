@@ -40,45 +40,50 @@ public class Test {
 	public static void main(String[] args) throws InterruptedException {
 
 		for (;;) {
-
-			System.out.println("-----------------");
+			boolean succeed;
+			
 
 			int handle = OS.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 			System.out.println("Handle: " + handle);
 
 			DCB dcb = new DCB();
 			OS.GetCommState(handle, dcb);
-			System.out.println("BaudRate: " + dcb.BaudRate);
-
 			dcb.BaudRate = 9600;
 			OS.SetCommState(handle, dcb);
 
-			DCB dcb2 = new DCB();
-			OS.GetCommState(handle, dcb2);
-			System.out.println("BaudRate: " + dcb.BaudRate);
+			 int eventHandle = OS.CreateEventA(0, true, false, null);
+			println("Event-Handle: " + eventHandle);
 
-			// int eventHandle = OS.CreateEventA(0, true, false, null);
-//			System.out.println("Event-Handle: " + eventHandle);
-//
-//			OVERLAPPED overlapped = new OVERLAPPED();
-//			overlapped.hEvent = eventHandle;
+			OVERLAPPED overlapped = new OVERLAPPED();
+			overlapped.hEvent = eventHandle;
 
 			INT lpNumberOfBytesWritten = new INT();
-			boolean writeFileStatus = OS.WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, null);
-			System.out.println("Bytes written: " + writeFileStatus + " " + lpNumberOfBytesWritten.value);
+			succeed = OS.WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, overlapped);
+			println("WriteFile->"+succeed+" bytes written: "+ lpNumberOfBytesWritten);
 
-			if (writeFileStatus == false) {
+			if (!succeed) {
 				int lastError = OS.GetLastError();
-				System.err.println("Last error: " + lastError);
+				println("Last error: " + lastError);
+				if (lastError==OS.ERROR_IO_PENDING){
+					INT lpNumberOfBytesTransferred = new INT();
+					succeed=OS.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+					println("GetOverlappedResult->"+succeed+" written:"+lpNumberOfBytesTransferred);
+				}
 			}
 
-			// OS.CloseHandle(eventHandle);
-
-			boolean status = OS.CloseHandle(handle);
-			System.out.println("Status: " + status);
-
-			Thread.sleep(3000);
+			println("close eventHandle="+eventHandle+" ->"+OS.CloseHandle(eventHandle));
+			println("close handle="+handle+" ->"+OS.CloseHandle(handle));
+			
+			println("-----------------");
+			Thread.sleep(1000);
 		}
+	}
+
+	/**
+	 * 
+	 */
+	private static void println(Object text) {
+		System.out.println(text);
 	}
 
 }

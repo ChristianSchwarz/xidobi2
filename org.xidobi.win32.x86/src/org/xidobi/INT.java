@@ -15,6 +15,8 @@
  */
 package org.xidobi;
 
+import static java.lang.String.valueOf;
+
 /**
  * Pointer to an int value in C
  * 
@@ -25,4 +27,25 @@ public class INT {
 
 	public int value;
 
+	@Override
+	public int hashCode() {
+		return value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		return value == ((INT) obj).value;
+	}
+
+	@Override
+	public String toString() {
+		return valueOf(value);
+	}
 }

@@ -34,6 +34,8 @@ public class OS {
 
 	public final static int ERROR_ACCESS_DENIED = 5;
 	public final static int ERROR_FILE_NOT_FOUND = 2;
+	/**Overlapped I/O operation is in progress.*/
+	public static final int ERROR_IO_PENDING = 997;
 
 	static {
 		System.loadLibrary("lib/org.xidobi.native.x86.win32");
@@ -111,5 +113,22 @@ public class OS {
 	 * @return {@code DWORD}
 	 */
 	public static native int GetLastError();
+
+	/**
+	 * Retrieves the results of an overlapped operation on the specified file, named pipe, or
+	 * communications device. To specify a timeout interval or wait on an alertable thread, use
+	 * GetOverlappedResultEx.
+	 * 
+	 * @param handle
+	 *            {@code HANDLE}
+	 * @param lpOverlapped
+	 *            {@code LPOVERLAPPED }
+	 * @param lpNumberOfBytesTransferred
+	 *            {@code LPDWORD}
+	 * @param bWait
+	 *            {@code BOOL}
+	 * @return {@code BOOL}
+	 */
+	public static native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
 
 }
