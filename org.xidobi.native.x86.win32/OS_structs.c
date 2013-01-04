@@ -94,6 +94,42 @@ void cacheDCBFields(JNIEnv *env, jobject lpObject) {
 	DCBc.cached = TRUE;
 }
 
+DCB *getDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
+	if (!DCBc.cached)
+		cacheDCBFields(env, dcbObject);
+
+	dcbStruct->BaudRate = (*env)->GetIntField(env, dcbObject, DCBc.BaudRate);
+	dcbStruct->ByteSize = (*env)->GetByteField(env, dcbObject, DCBc.ByteSize);
+	dcbStruct->DCBlength = (*env)->GetIntField(env, dcbObject, DCBc.DCBlength);
+	dcbStruct->EofChar = (*env)->GetCharField(env, dcbObject, DCBc.EofChar);
+	dcbStruct->ErrorChar = (*env)->GetCharField(env, dcbObject, DCBc.ErrorChar);
+	dcbStruct->EvtChar = (*env)->GetCharField(env, dcbObject, DCBc.EvtChar);
+	dcbStruct->Parity = (*env)->GetByteField(env, dcbObject, DCBc.Parity);
+	dcbStruct->StopBits = (*env)->GetByteField(env, dcbObject, DCBc.StopBits);
+	dcbStruct->XoffChar = (*env)->GetCharField(env, dcbObject, DCBc.XoffChar);
+	dcbStruct->XoffLim = (*env)->GetShortField(env, dcbObject, DCBc.XoffLim);
+	dcbStruct->XonChar = (*env)->GetCharField(env, dcbObject, DCBc.XonChar);
+	dcbStruct->XonLim = (*env)->GetShortField(env, dcbObject, DCBc.XonLim);
+	dcbStruct->fAbortOnError = (*env)->GetIntField(env, dcbObject, DCBc.fAbortOnError);
+	dcbStruct->fBinary = (*env)->GetIntField(env, dcbObject, DCBc.fBinary);
+	dcbStruct->fDsrSensitivity = (*env)->GetIntField(env, dcbObject, DCBc.fDsrSensitivity);
+	dcbStruct->fDtrControl = (*env)->GetIntField(env, dcbObject, DCBc.fDtrControl);
+	dcbStruct->fDummy2 = (*env)->GetIntField(env, dcbObject, DCBc.fDummy2);
+	dcbStruct->fErrorChar = (*env)->GetIntField(env, dcbObject, DCBc.fErrorChar);
+	dcbStruct->fInX = (*env)->GetIntField(env, dcbObject, DCBc.fInX);
+	dcbStruct->fNull = (*env)->GetIntField(env, dcbObject, DCBc.fNull);
+	dcbStruct->fOutX = (*env)->GetIntField(env, dcbObject, DCBc.fOutX);
+	dcbStruct->fOutxCtsFlow = (*env)->GetIntField(env, dcbObject, DCBc.fOutxCtsFlow);
+	dcbStruct->fOutxDsrFlow = (*env)->GetIntField(env, dcbObject, DCBc.fOutxDsrFlow);
+	dcbStruct->fParity = (*env)->GetIntField(env, dcbObject, DCBc.fParity);
+	dcbStruct->fRtsControl = (*env)->GetIntField(env, dcbObject, DCBc.fRtsControl);
+	dcbStruct->fTXContinueOnXoff = (*env)->GetIntField(env, dcbObject, DCBc.fTXContinueOnXoff);
+	dcbStruct->wReserved = (*env)->GetShortField(env, dcbObject, DCBc.wReserved);
+	dcbStruct->wReserved1 = (*env)->GetShortField(env, dcbObject, DCBc.wReserved1);
+
+	return dcbStruct;
+}
+
 void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 	if (!DCBc.cached)
 		cacheDCBFields(env, dcbObject);

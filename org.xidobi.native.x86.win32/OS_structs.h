@@ -19,6 +19,7 @@
 #define OS_STRUCTS_H_
 
 void cacheDCBFields(JNIEnv *env, jobject lpObject);
+DCB *getDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct);
 void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct);
 
 #endif /* OS_STRUCTS_H_ */
