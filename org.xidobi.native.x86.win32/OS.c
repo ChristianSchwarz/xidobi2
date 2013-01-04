@@ -63,3 +63,14 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz, jint handle, jobject 
 
 	return JNI_TRUE;
 }
+
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz, jint handle, jobject dcbObject) {
+	DCB dcb;
+	getDCBFields(env, dcbObject, &dcb);
+
+	if (!SetCommState((HANDLE) handle, &dcb))
+		return JNI_FALSE;
+
+	return JNI_TRUE;
+}
