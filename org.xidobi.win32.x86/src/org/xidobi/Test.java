@@ -45,6 +45,17 @@ public class Test {
 		OS.GetCommState(handle, dcb);
 		System.out.println("BaudRate: " + dcb.BaudRate);
 		
+		dcb.BaudRate = 9600;
+		OS.SetCommState(handle, dcb);
+		
+		DCB dcb2 = new DCB();
+		OS.GetCommState(handle, dcb2);
+		System.out.println("BaudRate: " + dcb.BaudRate);
+		
+		int eventHandle = OS.CreateEventA(0,  true, false, null);
+		System.out.println("Event-Handle: " + eventHandle);
+		OS.CloseHandle(eventHandle);
+		
 		boolean status = OS.CloseHandle(handle);
 		System.out.println("Status: " + status);
 	}
