@@ -18,12 +18,16 @@
 #ifndef OS_STRUCTS_H_
 #define OS_STRUCTS_H_
 
-void cacheDCBFields(JNIEnv *env, jobject dcbObject);
-DCB *getDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct);
-void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct);
+void cacheDCBFields(JNIEnv *, jobject);
+DCB *getDCBFields(JNIEnv *, jobject, DCB *);
+void setDCBFields(JNIEnv *, jobject, DCB *);
 
-void cacheOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject);
-OVERLAPPED *getOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject, OVERLAPPED *overlappedStruct);
-void setOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject, OVERLAPPED *overlappedStruct);
+void cacheOVERLAPPEDFields(JNIEnv *, jobject);
+OVERLAPPED *getOVERLAPPEDFields(JNIEnv *, jobject, OVERLAPPED *);
+void setOVERLAPPEDFields(JNIEnv *, jobject, OVERLAPPED *);
+
+void cacheINT(JNIEnv *env, jobject);
+DWORD *getINT(JNIEnv *, jobject, DWORD *);
+void setINT(JNIEnv *, jobject, DWORD *);
 
 #endif /* OS_STRUCTS_H_ */

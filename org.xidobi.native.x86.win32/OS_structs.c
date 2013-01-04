@@ -185,8 +185,8 @@ void cacheOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject) {
 		return;
 
 	OVERLAPPEDc.clazz = (*env)->GetObjectClass(env, overlappedObject);
-	OVERLAPPEDc.Internal = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Internal", "L");
-	OVERLAPPEDc.InternalHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "InternalHigh", "L");
+	OVERLAPPEDc.Internal = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Internal", "J");
+	OVERLAPPEDc.InternalHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "InternalHigh", "J");
 	OVERLAPPEDc.Offset = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Offset", "I");
 	OVERLAPPEDc.OffsetHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "OffsetHigh", "I");
 	OVERLAPPEDc.Pointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Pointer", "I");
@@ -219,4 +219,40 @@ void setOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject, OVERLAPPED *over
 	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.OffsetHigh, (jint) overlappedStruct->OffsetHigh);
 	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Pointer, (jint) overlappedStruct->Pointer);
 	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.hEvent, (jint) overlappedStruct->hEvent);
+}
+
+// **** INT: ******************************************************
+
+typedef struct INT_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID 	value;
+} INT_FID_CACHE;
+
+INT_FID_CACHE INTc;
+
+void cacheINT(JNIEnv *env, jobject intObject) {
+	if (INTc.cached)
+		return;
+
+	INTc.clazz = (*env)->GetObjectClass(env, intObject);
+	INTc.value = (*env)->GetFieldID(env, INTc.clazz, "value", "I");
+
+	INTc.cached = TRUE;
+}
+
+DWORD *getINT(JNIEnv *env, jobject intObject, DWORD *intPointer) {
+	if (!INTc.cached)
+		cacheINT(env, intObject);
+
+	*intPointer = (DWORD) (*env)->GetIntField(env, intObject, INTc.value);
+
+	return intPointer;
+}
+
+void setINT(JNIEnv *env, jobject intObject, DWORD *intPointer) {
+	if (!INTc.cached)
+		cacheINT(env, intObject);
+
+	(*env)->SetIntField(env, intObject, INTc.value, (jint) *intPointer);
 }

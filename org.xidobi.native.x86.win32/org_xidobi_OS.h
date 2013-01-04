@@ -61,6 +61,22 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_SetCommState
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateEventA
   (JNIEnv *, jclass, jint, jboolean, jboolean, jstring);
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    WriteFile
+ * Signature: (I[BILorg/xidobi/INT;Lorg/xidobi/OVERLAPPED;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WriteFile
+  (JNIEnv *, jclass, jint, jbyteArray, jint, jobject, jobject);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    GetLastError
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_GetLastError
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

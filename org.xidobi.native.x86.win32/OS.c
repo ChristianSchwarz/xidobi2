@@ -96,3 +96,35 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz, jint lpEventAttribute
 	return (jint) handle;
 }
 
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz, jint handle, jbyteArray lpBuffer,
+		jint nNumberOfBytesToWrite, jobject lpNumberOfBytesWritten, jobject lpOverlapped) {
+
+	DWORD bytesWritten;
+
+	OVERLAPPED overlapped;
+	getOVERLAPPEDFields(env, lpOverlapped, &overlapped);
+
+	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, JNI_FALSE);
+
+	BOOL result = WriteFile((HANDLE) handle,
+			 				jBuffer,
+							nNumberOfBytesToWrite,
+							&bytesWritten,
+							&overlapped);
+
+	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
+
+	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
+	setOVERLAPPEDFields(env, lpOverlapped, &overlapped);
+
+	if (result)
+		return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_GetLastError(JNIEnv *env, jclass clazz) {
+	DWORD error = GetLastError();
+	return (jint) error;
+}
