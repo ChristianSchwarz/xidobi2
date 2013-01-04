@@ -53,6 +53,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetCommState
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_SetCommState
   (JNIEnv *, jclass, jint, jobject);
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    CreateEventA
+ * Signature: (IZZLjava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateEventA
+  (JNIEnv *, jclass, jint, jboolean, jboolean, jstring);
+
 #ifdef __cplusplus
 }
 #endif

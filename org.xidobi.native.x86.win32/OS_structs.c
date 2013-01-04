@@ -21,6 +21,7 @@
 
 #include "OS_structs.h"
 
+// **** DCB: **************************************************************
 
 typedef struct DCB_FID_CACHE {
 	int cached;
@@ -57,11 +58,11 @@ typedef struct DCB_FID_CACHE {
 
 DCB_FID_CACHE DCBc;
 
-void cacheDCBFields(JNIEnv *env, jobject lpObject) {
+void cacheDCBFields(JNIEnv *env, jobject dcbObject) {
 	if (DCBc.cached)
 		return;
 
-	DCBc.clazz = (*env)->GetObjectClass(env, lpObject);
+	DCBc.clazz = (*env)->GetObjectClass(env, dcbObject);
 	DCBc.BaudRate = (*env)->GetFieldID(env, DCBc.clazz, "BaudRate", "I");
 	DCBc.ByteSize = (*env)->GetFieldID(env, DCBc.clazz, "ByteSize", "B");
 	DCBc.DCBlength = (*env)->GetFieldID(env, DCBc.clazz, "DCBlength", "I");
@@ -162,4 +163,60 @@ void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 	(*env)->SetIntField(env, dcbObject, DCBc.fTXContinueOnXoff, (jint) dcbStruct->fTXContinueOnXoff);
 	(*env)->SetShortField(env, dcbObject, DCBc.wReserved, (jshort) dcbStruct->wReserved);
 	(*env)->SetShortField(env, dcbObject, DCBc.wReserved1, (jshort) dcbStruct->wReserved1);
+}
+
+// **** OVERLAPPED: ******************************************************
+
+typedef struct OVERLAPPED_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID 	Internal,
+				InternalHigh,
+				Offset,
+				OffsetHigh,
+				Pointer,
+				hEvent;
+} OVERLAPPED_FID_CACHE;
+
+OVERLAPPED_FID_CACHE OVERLAPPEDc;
+
+void cacheOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject) {
+	if (OVERLAPPEDc.cached)
+		return;
+
+	OVERLAPPEDc.clazz = (*env)->GetObjectClass(env, overlappedObject);
+	OVERLAPPEDc.Internal = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Internal", "L");
+	OVERLAPPEDc.InternalHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "InternalHigh", "L");
+	OVERLAPPEDc.Offset = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Offset", "I");
+	OVERLAPPEDc.OffsetHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "OffsetHigh", "I");
+	OVERLAPPEDc.Pointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Pointer", "I");
+	OVERLAPPEDc.hEvent = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "hEvent", "I");
+
+	OVERLAPPEDc.cached = TRUE;
+}
+
+OVERLAPPED *getOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject, OVERLAPPED *overlappedStruct) {
+	if (!OVERLAPPEDc.cached)
+		cacheOVERLAPPEDFields(env, overlappedObject);
+
+	overlappedStruct->Internal = (*env)->GetLongField(env, overlappedObject, OVERLAPPEDc.Internal);
+	overlappedStruct->InternalHigh = (*env)->GetLongField(env, overlappedObject, OVERLAPPEDc.InternalHigh);
+	overlappedStruct->Offset = (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.Offset);
+	overlappedStruct->OffsetHigh = (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.OffsetHigh);
+	overlappedStruct->Pointer = (PVOID) (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.Pointer);
+	overlappedStruct->hEvent = (HANDLE) (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.hEvent);
+
+	return overlappedStruct;
+}
+
+void setOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject, OVERLAPPED *overlappedStruct) {
+	if (!OVERLAPPEDc.cached)
+			cacheOVERLAPPEDFields(env, overlappedObject);
+
+	(*env)->SetLongField(env, overlappedObject, OVERLAPPEDc.Internal, (jlong) overlappedStruct->Internal);
+	(*env)->SetLongField(env, overlappedObject, OVERLAPPEDc.InternalHigh, (jlong) overlappedStruct->InternalHigh);
+	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Offset, (jint) overlappedStruct->Offset);
+	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.OffsetHigh, (jint) overlappedStruct->OffsetHigh);
+	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Pointer, (jint) overlappedStruct->Pointer);
+	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.hEvent, (jint) overlappedStruct->hEvent);
 }

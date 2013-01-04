@@ -74,3 +74,25 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz, jint handle, jobject 
 
 	return JNI_TRUE;
 }
+
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz, jint lpEventAttributes, jboolean bManualReset,
+		jboolean bInitialState, jstring lpName) {
+
+	const char* name;
+	if (lpName == NULL)
+		name = NULL;
+	else
+		name = (*env)->GetStringUTFChars(env, lpName, NULL);
+
+	HANDLE handle = CreateEventA(	(LPSECURITY_ATTRIBUTES) lpEventAttributes,
+									bManualReset,
+									bInitialState,
+									name) ;
+
+	if (name != NULL)
+		(*env)->ReleaseStringUTFChars(env, lpName, name);
+
+	return (jint) handle;
+}
+
