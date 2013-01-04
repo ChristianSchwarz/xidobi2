@@ -45,6 +45,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_CloseHandle
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetCommState
   (JNIEnv *, jclass, jint, jobject);
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    SetCommState
+ * Signature: (ILorg/xidobi/DCB;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_SetCommState
+  (JNIEnv *, jclass, jint, jobject);
+
 #ifdef __cplusplus
 }
 #endif

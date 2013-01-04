@@ -60,4 +60,7 @@ public class OS {
 	public static native boolean CloseHandle(int handle);
 	
 	public static native boolean GetCommState(int handle, DCB dcb);
+	
+	public static native boolean SetCommState(int handle, DCB dcb);
+	
 }

@@ -1,9 +1,6 @@
 /*
  * OS.c
  *
- *   Created on: 03.01.2013
- *      Authors: Christian Schwarz, Tobias Breﬂler
- *
  * Copyright 2013 Gemtec GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +18,10 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <windows.h>
+
 #include "OS_structs.h"
 #include "org_xidobi_OS.h"
+
 
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz, jstring lpFileName,
@@ -61,6 +60,17 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz, jint handle, jobject 
 	if (!GetCommState((HANDLE) handle, &dcb))
 		return JNI_FALSE;
 	setDCBFields(env, dcbObject, &dcb);
+
+	return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz, jint handle, jobject dcbObject) {
+	DCB dcb;
+	getDCBFields(env, dcbObject, &dcb);
+
+	if (!SetCommState((HANDLE) handle, &dcb))
+		return JNI_FALSE;
 
 	return JNI_TRUE;
 }
