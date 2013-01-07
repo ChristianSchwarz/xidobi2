@@ -18,15 +18,14 @@ package org.xidobi;
 import static org.xidobi.OS.CloseHandle;
 import static org.xidobi.OS.CreateEventA;
 import static org.xidobi.OS.CreateFile;
-import static org.xidobi.OS.ERROR_IO_PENDING;
 import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.OS.GENERIC_READ;
 import static org.xidobi.OS.GENERIC_WRITE;
 import static org.xidobi.OS.GetCommState;
-import static org.xidobi.OS.GetLastError;
 import static org.xidobi.OS.GetOverlappedResult;
 import static org.xidobi.OS.OPEN_EXISTING;
 import static org.xidobi.OS.SetCommState;
+import static org.xidobi.OS.WaitForSingleObject;
 import static org.xidobi.OS.WriteFile;
 
 import org.xidobi.structs.DCB;
@@ -53,12 +52,16 @@ public class Test {
 	public static void main(String[] args) throws InterruptedException {
 
 		for (;;) {
+			println("-----------------");
+
 			boolean succeed;
 
 			int handle = CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
-			if (handle == -1)
+			if (handle == -1) {
+				System.err.println("No handle!");
 				continue;
+			}
 			System.out.println("Handle: " + handle);
 
 			DCB dcb = new DCB();
@@ -76,14 +79,16 @@ public class Test {
 			succeed = WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, overlapped);
 			println("WriteFile->" + succeed + " bytes written: " + lpNumberOfBytesWritten);
 
-			int waitForSingleObject = OS.WaitForSingleObject(eventHandle, 2000);
+			int waitForSingleObject = WaitForSingleObject(eventHandle, 2000);
 			System.out.println("WaitForSingleObject->" + waitForSingleObject);
 
 			if (waitForSingleObject == OS.WAIT_OBJECT_0) {
 				INT lpNumberOfBytesTransferred = new INT();
 				succeed = GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
 				println("GetOverlappedResult->" + succeed + " written:" + lpNumberOfBytesTransferred);
-
+			}
+			else {
+				System.err.println("Wait: " + waitForSingleObject);
 			}
 
 			overlapped.dispose();
@@ -91,8 +96,6 @@ public class Test {
 			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
 			println("close handle=" + handle + " ->" + CloseHandle(handle));
 
-			println("-----------------");
-			Thread.sleep(1000);
 		}
 	}
 

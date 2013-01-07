@@ -31,19 +31,19 @@ public class OVERLAPPED {
 	private final int cPointer;
 
 	// ULONG_PTR
-	public long Internal;
+	// public long Internal;
 	// ULONG_PTR
-	public long InternalHigh;
+	// public long InternalHigh;
 
 	// __GNUC_EXTENSION union {
 	// __GNUC_EXTENSION struct {
 	// DWORD
-	public int Offset;
+	// public int Offset;
 	// DWORD
-	public int OffsetHigh;
+	// public int OffsetHigh;
 	// };
 	// PVOID
-	public int Pointer;
+	// public int Pointer;
 	// };
 
 	// HANDLE
@@ -58,6 +58,7 @@ public class OVERLAPPED {
 	 */
 	public OVERLAPPED() {
 		cPointer = OS.malloc(SIZE_OF);
+		System.err.println("cPointer: " + cPointer);
 	}
 
 	public void dispose() {

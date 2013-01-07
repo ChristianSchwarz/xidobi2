@@ -27,16 +27,33 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public class OS {
 
+	/** Opens port for input. */
 	public final static int GENERIC_READ = 0x80000000;
+	/** Opens port for output. */
 	public final static int GENERIC_WRITE = 0x40000000;
 
+	/**
+	 * Opens a file or device, only if it exists. If the specified file or device does not exist,
+	 * the function fails and the last-error code is set to ERROR_FILE_NOT_FOUND (2).
+	 */
 	public final static int OPEN_EXISTING = 3;
 
-	public final static int FILE_FLAG_OVERLAPPED = 1073741824;
+	/**
+	 * The file or device is being opened or created for asynchronous I/O. When subsequent I/O
+	 * operations are completed on this handle, the event specified in the OVERLAPPED structure will
+	 * be set to the signaled state. If this flag is specified, the file can be used for
+	 * simultaneous read and write operations. If this flag is not specified, then I/O operations
+	 * are serialized, even if the calls to the read and write functions specify an OVERLAPPED
+	 * structure.
+	 */
+	public final static int FILE_FLAG_OVERLAPPED = 0x40000000;
 
+	/** Invalid handle value. */
 	public final static int INVALID_HANDLE_VALUE = -1;
 
+	/** Access denied or port busy. */
 	public final static int ERROR_ACCESS_DENIED = 5;
+	/** File not found or port unavailable. */
 	public final static int ERROR_FILE_NOT_FOUND = 2;
 	/** Overlapped I/O operation is in progress. */
 	public static final int ERROR_IO_PENDING = 997;
@@ -63,6 +80,15 @@ public class OS {
 	private OS() {}
 
 	/**
+	 * Creates or opens a file or I/O device. The most commonly used I/O devices are as follows:
+	 * file, file stream, directory, physical disk, volume, console buffer, tape drive,
+	 * communications resource, mailslot, and pipe. The function returns a handle that can be used
+	 * to access the file or device for various types of I/O depending on the file or device and the
+	 * flags and attributes specified.
+	 * <p>
+	 * To perform this operation as a transacted operation, which results in a handle that can be
+	 * used for transacted I/O, use the CreateFileTransacted function.
+	 * <p>
 	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx">
 	 * CreateFile (MSDN)</a>
 	 * 
@@ -84,13 +110,51 @@ public class OS {
 	 */
 	public static native int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
 
+	/**
+	 * Closes an open object handle.
+	 * 
+	 * @param handle
+	 *            {@code HANDLE}
+	 * @return <ul>
+	 *         <li> <code>true</code> on success
+	 *         <li> <code>false</code> on failure, for more information call {@link #GetLastError()}
+	 *         </ul>
+	 */
 	public static native boolean CloseHandle(int handle);
 
+	/**
+	 * Retrieves the current control settings for a specified communications device.
+	 * 
+	 * @param handle
+	 *            {@code HANDLE}
+	 * @param dcb
+	 *            {@code LPDCB}
+	 * @return <ul>
+	 *         <li> <code>true</code> on success
+	 *         <li> <code>false</code> on failure, for more information call {@link #GetLastError()}
+	 *         </ul>
+	 */
 	public static native boolean GetCommState(int handle, DCB dcb);
 
+	/**
+	 * Configures a communications device according to the specifications in a device-control block
+	 * (a DCB structure). The function reinitializes all hardware and control settings, but it does
+	 * not empty output or input queues.
+	 * 
+	 * @param handle
+	 *            {@code HANDLE}
+	 * @param dcb
+	 *            {@code LPDCB}
+	 * @return <ul>
+	 *         <li> <code>true</code> on success
+	 *         <li> <code>false</code> on failure, for more information call {@link #GetLastError()}
+	 *         </ul>
+	 */
 	public static native boolean SetCommState(int handle, DCB dcb);
 
 	/**
+	 * Creates or opens a named or unnamed event object.
+	 * <p>
 	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms682396(v=vs.85).aspx">
 	 * CreateEvent (MSDN)</a>
 	 * 
@@ -107,6 +171,10 @@ public class OS {
 	public static native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, String lpName);
 
 	/**
+	 * Writes data to the specified file or input/output (I/O) device.
+	 * <p>
+	 * This function is designed for both synchronous and asynchronous operation.
+	 * <p>
 	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa365747(v=vs.85).aspx">
 	 * WriteFile (MSDN)</a>
 	 * 
@@ -125,6 +193,9 @@ public class OS {
 	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
 
 	/**
+	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
+	 * per-thread basis. Multiple threads do not overwrite each other's last-error code.
+	 * <p>
 	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms679360(v=vs.85).aspx">
 	 * GetLastError (MSDN)</a>
 	 * 
@@ -166,11 +237,29 @@ public class OS {
 	 *         </ul>
 	 */
 	public static native int WaitForSingleObject(int hHandle, int dwMilliseconds);
-	
+
+	/**
+	 * Returns a pointer to the allocated memory of the given size.
+	 * 
+	 * @param size
+	 *            the size of the memory
+	 * @return pointer to the allocated memory
+	 */
 	public static native int malloc(int size);
-	
+
+	/**
+	 * Frees the memory of the given pointer.
+	 * 
+	 * @param pointer
+	 *            pointer to the memory
+	 */
 	public static native void free(int pointer);
 
+	/**
+	 * Size of an OVERLAPPED struct.
+	 * 
+	 * @return the size of the OVERLAPPED struct
+	 */
 	public static native int sizeOf_OVERLAPPED();
 
 }
