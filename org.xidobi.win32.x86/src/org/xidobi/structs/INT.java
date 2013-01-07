@@ -25,6 +25,7 @@ import static java.lang.String.valueOf;
  */
 public class INT {
 
+	/** the shared int value */
 	public int value;
 
 	@Override
@@ -40,7 +41,7 @@ public class INT {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		return value == ((INT) obj).value;
 	}
 

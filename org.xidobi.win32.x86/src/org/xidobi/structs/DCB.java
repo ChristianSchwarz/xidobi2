@@ -23,19 +23,33 @@ package org.xidobi.structs;
  */
 public class DCB {
 
+	/** Baudrate: 110 */
 	public final static int CBR_110 = 110;
+	/** Baudrate: 300 */
 	public final static int CBR_300 = 300;
+	/** Baudrate: 600 */
 	public final static int CBR_600 = 600;
+	/** Baudrate: 1200 */
 	public final static int CBR_1200 = 1200;
+	/** Baudrate: 2400 */
 	public final static int CBR_2400 = 2400;
+	/** Baudrate: 4800 */
 	public final static int CBR_4800 = 4800;
+	/** Baudrate: 9600 */
 	public final static int CBR_9600 = 9600;
+	/** Baudrate: 14400 */
 	public final static int CBR_14400 = 14400;
+	/** Baudrate: 19200 */
 	public final static int CBR_19200 = 19200;
+	/** Baudrate: 38400 */
 	public final static int CBR_38400 = 38400;
+	/** Baudrate: 57600 */
 	public final static int CBR_57600 = 57600;
+	/** Baudrate: 115200 */
 	public final static int CBR_115200 = 115200;
+	/** Baudrate: 128000 */
 	public final static int CBR_128000 = 128000;
+	/** Baudrate: 256000 */
 	public final static int CBR_256000 = 256000;
 
 	/** Disables the DTR line when the device is opened and leaves it disabled. */
@@ -66,10 +80,15 @@ public class DCB {
 	 */
 	public final static int RTS_CONTROL_TOGGLE = 0x03;
 
+	/** Parity: None */
 	public final static int NOPARITY = 0;
+	/** Parity: Odd */
 	public final static int ODDPARITY = 1;
+	/** Parity: Even */
 	public final static int EVENPARITY = 2;
+	/** Parity: Mark */
 	public final static int MARKPARITY = 3;
+	/** Parity: Space */
 	public final static int SPACEPARITY = 4;
 
 	/** 1 stop bit. */
