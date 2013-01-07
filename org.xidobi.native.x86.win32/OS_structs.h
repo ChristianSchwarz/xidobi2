@@ -23,8 +23,8 @@ DCB *getDCBFields(JNIEnv *, jobject, DCB *);
 void setDCBFields(JNIEnv *, jobject, DCB *);
 
 void cacheOVERLAPPEDFields(JNIEnv *, jobject);
-OVERLAPPED *getOVERLAPPEDFields(JNIEnv *, jobject, OVERLAPPED *);
-void setOVERLAPPEDFields(JNIEnv *, jobject, OVERLAPPED *);
+OVERLAPPED *getOVERLAPPED(JNIEnv *, jobject);
+void setOVERLAPPED(JNIEnv *, jobject, OVERLAPPED *);
 
 void cacheINT(JNIEnv *env, jobject);
 DWORD *getINT(JNIEnv *, jobject, DWORD *);

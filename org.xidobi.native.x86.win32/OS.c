@@ -147,10 +147,10 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
 		jbyteArray lpBuffer,
 		jint nNumberOfBytesToWrite,
 		jobject lpNumberOfBytesWritten,
-		jint lpOverlapped) {
+		jobject lpOverlapped) {
 
 	DWORD bytesWritten = 0;
-	OVERLAPPED *overlapped = (OVERLAPPED *) lpOverlapped;
+	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
 	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
 
@@ -163,6 +163,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
 	printf("%i", (int)  GetLastError());
 
 	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
+	setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
 
@@ -189,12 +190,13 @@ Java_org_xidobi_OS_GetLastError(JNIEnv *env, jclass clazz) {
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jclass clazz,
 		  jint handle,
-		  jint lpOverlapped,
+		  jobject lpOverlapped,
 		  jobject lpNumberOfBytesTransferred,
 		  jboolean bWait){
 
 	DWORD written = 0;
-	OVERLAPPED *overlapped = (OVERLAPPED *) lpOverlapped;
+
+	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
 	BOOL result = GetOverlappedResult((HANDLE) handle,
 									  overlapped,
@@ -202,6 +204,7 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jclass clazz,
 									  (BOOL) bWait);
 
 	setINT(env, lpNumberOfBytesTransferred, &written);
+	setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	if (result)
 		return JNI_TRUE;
@@ -224,32 +227,32 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
 
 /*
  * Class:     org_xidobi_OS
- * Method:    newOverlapped
- * Signature: ()J
+ * Method:    malloc
+ * Signature: (I)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_newOverlapped(JNIEnv *env, jclass clazz) {
-	return (jint) malloc(sizeof(OVERLAPPED));
+Java_org_xidobi_OS_malloc(JNIEnv *env, jclass clazz,
+		jint size) {
+	return (jint) malloc(size);
 }
 
 /*
  * Class:     org_xidobi_OS
- * Method:    setOverlappedHEvent
- * Signature: (JI)V
+ * Method:    free
+ * Signature: (I)V
  */
-JNIEXPORT void JNICALL
-Java_org_xidobi_OS_setOverlappedHEvent(JNIEnv *env, jclass clazz, jint overlapped, jint hEvent) {
-	OVERLAPPED *poverlapped = (OVERLAPPED *) overlapped;
-	poverlapped->hEvent = (HANDLE) hEvent;
+JNIEXPORT void JNICALL Java_org_xidobi_OS_free(JNIEnv *env, jclass clazz,
+		jint pointer) {
+	free((void *) pointer);
 }
 
 /*
  * Class:     org_xidobi_OS
- * Method:    deleteOverlapped
- * Signature: (J)V
+ * Method:    sizeOf_OVERLAPPED
+ * Signature: ()I
  */
-JNIEXPORT void JNICALL
-Java_org_xidobi_OS_deleteOverlapped(JNIEnv *env, jclass clazz, jint overlapped) {
-	OVERLAPPED *poverlapped = (OVERLAPPED *) overlapped;
-	free(poverlapped);
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_sizeOf_1OVERLAPPED(JNIEnv *env, jclass clazz) {
+	return (jint) sizeof(OVERLAPPED);
 }
+

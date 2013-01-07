@@ -74,10 +74,10 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateEventA
 /*
  * Class:     org_xidobi_OS
  * Method:    WriteFile
- * Signature: (I[BILorg/xidobi/structs/INT;I)Z
+ * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WriteFile
-  (JNIEnv *, jclass, jint, jbyteArray, jint, jobject, jint);
+  (JNIEnv *, jclass, jint, jbyteArray, jint, jobject, jobject);
 
 /*
  * Class:     org_xidobi_OS
@@ -90,10 +90,10 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_GetLastError
 /*
  * Class:     org_xidobi_OS
  * Method:    GetOverlappedResult
- * Signature: (IILorg/xidobi/structs/INT;Z)Z
+ * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;Z)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetOverlappedResult
-  (JNIEnv *, jclass, jint, jint, jobject, jboolean);
+  (JNIEnv *, jclass, jint, jobject, jobject, jboolean);
 
 /*
  * Class:     org_xidobi_OS
@@ -105,27 +105,27 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_WaitForSingleObject
 
 /*
  * Class:     org_xidobi_OS
- * Method:    newOverlapped
- * Signature: ()I
+ * Method:    malloc
+ * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_org_xidobi_OS_newOverlapped
-  (JNIEnv *, jclass);
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_malloc
+  (JNIEnv *, jclass, jint);
 
 /*
  * Class:     org_xidobi_OS
- * Method:    setOverlappedHEvent
- * Signature: (II)V
- */
-JNIEXPORT void JNICALL Java_org_xidobi_OS_setOverlappedHEvent
-  (JNIEnv *, jclass, jint, jint);
-
-/*
- * Class:     org_xidobi_OS
- * Method:    deleteOverlapped
+ * Method:    free
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_org_xidobi_OS_deleteOverlapped
+JNIEXPORT void JNICALL Java_org_xidobi_OS_free
   (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    sizeOf_OVERLAPPED
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1OVERLAPPED
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }
