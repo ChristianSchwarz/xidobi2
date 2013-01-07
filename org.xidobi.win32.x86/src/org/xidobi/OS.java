@@ -38,8 +38,22 @@ public class OS {
 
 	public final static int ERROR_ACCESS_DENIED = 5;
 	public final static int ERROR_FILE_NOT_FOUND = 2;
-	/**Overlapped I/O operation is in progress.*/
+	/** Overlapped I/O operation is in progress. */
 	public static final int ERROR_IO_PENDING = 997;
+
+	/**
+	 * The specified object is a mutex object that was not released by the thread that owned the
+	 * mutex object before the owning thread terminated. Ownership of the mutex object is granted to
+	 * the calling thread and the mutex state is set to nonsignaled. If the mutex was protecting
+	 * persistent state information, you should check it for consistency.
+	 */
+	public static final int WAIT_ABANDONED = 0x00000080;
+	/** The state of the specified object is signaled. */
+	public static final int WAIT_OBJECT_0 = 0x00000000;
+	/** The time-out interval elapsed, and the object's state is nonsignaled. */
+	public static final int WAIT_TIMEOUT = 0x00000102;
+	/** The function has failed. To get extended error information, call GetLastError. */
+	public static final int WAIT_FAILED = 0xFFFFFFFF;
 
 	static {
 		System.loadLibrary("lib/org.xidobi.native.x86.win32");
@@ -108,7 +122,7 @@ public class OS {
 	 *            {@code LPOVERLAPPED}
 	 * @return {@code BOOL}
 	 */
-	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
+	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, int lpOverlapped);
 
 	/**
 	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms679360(v=vs.85).aspx">
@@ -133,6 +147,30 @@ public class OS {
 	 *            {@code BOOL}
 	 * @return {@code BOOL}
 	 */
-	public static native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
+	public static native boolean GetOverlappedResult(int handle, int lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
+
+	/**
+	 * Waits until the specified object is in the signaled state or the time-out interval elapses.
+	 * <p>
+	 * To enter an alertable wait state, use the WaitForSingleObjectEx function. To wait for
+	 * multiple objects, use the WaitForMultipleObjects.
+	 * 
+	 * @param hHandle
+	 *            {@code HANDLE}
+	 * @param dwMilliseconds
+	 *            {@code DWORD}
+	 * @return {@code DWORD}
+	 *         <ul>
+	 *         <li>{@link #WAIT_ABANDONED} <li>{@link #WAIT_FAILED} <li>{@link #WAIT_OBJECT_0} <li>
+	 *         {@link #WAIT_TIMEOUT}
+	 *         </ul>
+	 */
+	public static native int WaitForSingleObject(int hHandle, int dwMilliseconds);
+
+	public static native int newOverlapped();
+
+	public static native void setOverlappedHEvent(int overlapped, int hEvent);
+
+	public static native void deleteOverlapped(int overlapped);
 
 }

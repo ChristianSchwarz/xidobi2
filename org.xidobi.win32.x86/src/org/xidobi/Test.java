@@ -29,6 +29,10 @@ import static org.xidobi.OS.OPEN_EXISTING;
 import static org.xidobi.OS.SetCommState;
 import static org.xidobi.OS.WriteFile;
 
+import org.xidobi.structs.DCB;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.OVERLAPPED;
+
 /**
  * 
  * 
@@ -52,6 +56,9 @@ public class Test {
 			boolean succeed;
 
 			int handle = CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+
+			if (handle == -1)
+				continue;
 			System.out.println("Handle: " + handle);
 
 			DCB dcb = new DCB();
@@ -62,22 +69,24 @@ public class Test {
 			int eventHandle = CreateEventA(0, true, false, null);
 			println("Event-Handle: " + eventHandle);
 
-			OVERLAPPED overlapped = new OVERLAPPED();
-			overlapped.hEvent = eventHandle;
+			int overlapped = OS.newOverlapped();
+			OS.setOverlappedHEvent(overlapped, eventHandle);
 
 			INT lpNumberOfBytesWritten = new INT();
 			succeed = WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, overlapped);
 			println("WriteFile->" + succeed + " bytes written: " + lpNumberOfBytesWritten);
 
-			if (!succeed) {
-				int lastError = GetLastError();
-				println("Last error: " + lastError);
-				if (lastError == ERROR_IO_PENDING) {
-					INT lpNumberOfBytesTransferred = new INT();
-					succeed = GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
-					println("GetOverlappedResult->" + succeed + " written:" + lpNumberOfBytesTransferred);
-				}
+			int waitForSingleObject = OS.WaitForSingleObject(eventHandle, 2000);
+			System.out.println("WaitForSingleObject->" + waitForSingleObject);
+
+			if (waitForSingleObject == OS.WAIT_OBJECT_0) {
+				INT lpNumberOfBytesTransferred = new INT();
+				succeed = GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+				println("GetOverlappedResult->" + succeed + " written:" + lpNumberOfBytesTransferred);
+
 			}
+
+			OS.deleteOverlapped(overlapped);
 
 			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
 			println("close handle=" + handle + " ->" + CloseHandle(handle));

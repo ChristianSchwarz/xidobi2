@@ -41,4 +41,11 @@ public class OVERLAPPED {
 	// HANDLE 
 	public int hEvent;
 
+	@Override
+	public String toString() {
+		return "OVERLAPPED [Internal=" + Internal + ", InternalHigh=" + InternalHigh + ", Offset=" + Offset + ", OffsetHigh=" + OffsetHigh + ", Pointer=" + Pointer + ", hEvent=" + hEvent + "]";
+	}
+
+	
+	
 }
