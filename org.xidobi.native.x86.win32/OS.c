@@ -188,7 +188,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
 
 	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
 
-	BOOL result = WriteFile( (HANDLE) handle,
+	BOOL result = ReadFile( (HANDLE) handle,
 							 jBuffer,
 							 (DWORD) nNumberOfBytesToRead,
 							 &bytesRead,
