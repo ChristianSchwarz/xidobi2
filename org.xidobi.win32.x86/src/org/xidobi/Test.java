@@ -44,13 +44,12 @@ public class Test {
 
 	/**
 	 * @param args
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public static void main(String[] args) throws InterruptedException {
 
 		for (;;) {
 			boolean succeed;
-			
 
 			int handle = CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 			System.out.println("Handle: " + handle);
@@ -60,7 +59,7 @@ public class Test {
 			dcb.BaudRate = 9600;
 			SetCommState(handle, dcb);
 
-			 int eventHandle = CreateEventA(0, true, false, null);
+			int eventHandle = CreateEventA(0, true, false, null);
 			println("Event-Handle: " + eventHandle);
 
 			OVERLAPPED overlapped = new OVERLAPPED();
@@ -68,21 +67,21 @@ public class Test {
 
 			INT lpNumberOfBytesWritten = new INT();
 			succeed = WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, overlapped);
-			println("WriteFile->"+succeed+" bytes written: "+ lpNumberOfBytesWritten);
+			println("WriteFile->" + succeed + " bytes written: " + lpNumberOfBytesWritten);
 
 			if (!succeed) {
 				int lastError = GetLastError();
 				println("Last error: " + lastError);
-				if (lastError==ERROR_IO_PENDING){
+				if (lastError == ERROR_IO_PENDING) {
 					INT lpNumberOfBytesTransferred = new INT();
-					succeed=GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
-					println("GetOverlappedResult->"+succeed+" written:"+lpNumberOfBytesTransferred);
+					succeed = GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+					println("GetOverlappedResult->" + succeed + " written:" + lpNumberOfBytesTransferred);
 				}
 			}
 
-			println("close eventHandle="+eventHandle+" ->"+CloseHandle(eventHandle));
-			println("close handle="+handle+" ->"+CloseHandle(handle));
-			
+			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
+			println("close handle=" + handle + " ->" + CloseHandle(handle));
+
 			println("-----------------");
 			Thread.sleep(1000);
 		}

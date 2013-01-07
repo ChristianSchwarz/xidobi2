@@ -15,6 +15,10 @@
  */
 package org.xidobi;
 
+import org.xidobi.structs.DCB;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.OVERLAPPED;
+
 /**
  * This Class contains one-to-one mappings of native methods used by the OS to control serial ports.
  * 

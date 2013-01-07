@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.xidobi;
+package org.xidobi.structs;
 
 import static java.lang.String.valueOf;
 
