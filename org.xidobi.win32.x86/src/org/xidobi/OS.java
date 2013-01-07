@@ -193,6 +193,29 @@ public class OS {
 	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
 
 	/**
+	 * Reads data from the specified file or input/output (I/O) device. Reads occur at the position
+	 * specified by the file pointer if supported by the device.
+	 * <p>
+	 * This function is designed for both synchronous and asynchronous operations.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa365467(v=vs.85).aspx">
+	 * ReadFile (MSDN)</a>
+	 * 
+	 * @param handle
+	 *            {@code HANDLE}
+	 * @param lpBuffer
+	 *            {@code LPCVOID}
+	 * @param nNumberOfBytesToRead
+	 *            {@code DWORD}
+	 * @param lpNumberOfBytesRead
+	 *            {@code LPDWORD}
+	 * @param lpOverlapped
+	 *            {@code LPOVERLAPPED}
+	 * @return {@code BOOL}
+	 */
+	public static native boolean ReadFile(int handle, byte[] lpBuffer, int nNumberOfBytesToRead, INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
+
+	/**
 	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
 	 * per-thread basis. Multiple threads do not overwrite each other's last-error code.
 	 * <p>
