@@ -160,9 +160,41 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
 							 &bytesWritten,
 							 overlapped);
 
-	printf("%i", (int)  GetLastError());
-
 	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
+	setOVERLAPPED(env, lpOverlapped, overlapped);
+
+	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
+
+	if (result)
+		return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    ReadFile
+ * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
+		jint handle,
+		jbyteArray lpBuffer,
+		jint nNumberOfBytesToRead,
+		jobject lpNumberOfBytesRead,
+		jobject lpOverlapped) {
+
+	DWORD bytesRead = 0;
+	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
+
+	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
+
+	BOOL result = WriteFile( (HANDLE) handle,
+							 jBuffer,
+							 (DWORD) nNumberOfBytesToRead,
+							 &bytesRead,
+							 overlapped);
+
+	setINT(env, lpNumberOfBytesRead, &bytesRead);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
