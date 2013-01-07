@@ -18,7 +18,7 @@ package org.xidobi.structs;
 import static java.lang.String.valueOf;
 
 /**
- * Pointer to an int value in C
+ * Pointer to an int value in C.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler

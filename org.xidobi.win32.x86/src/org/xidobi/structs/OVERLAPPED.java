@@ -30,6 +30,9 @@ public class OVERLAPPED {
 	/** The pointer to the C instance */
 	private final int cPointer;
 
+	/** <code>true</code> if the instance is disposed */
+	private boolean isDisposed = false;
+
 	// ULONG_PTR
 	// public long Internal;
 	// ULONG_PTR
@@ -46,7 +49,7 @@ public class OVERLAPPED {
 	// public int Pointer;
 	// };
 
-	// HANDLE
+	/** {@code HANDLE} - Event handle */
 	public int hEvent;
 
 	static {
@@ -54,15 +57,38 @@ public class OVERLAPPED {
 	}
 
 	/**
-	 * 
+	 * Creates a new instance on the heap. The instance must be disposed, when it isn't used
+	 * anymore.
 	 */
 	public OVERLAPPED() {
 		cPointer = OS.malloc(SIZE_OF);
-		System.err.println("cPointer: " + cPointer);
 	}
 
+	/**
+	 * Disposed this instance and frees the memory on the heap.
+	 */
 	public void dispose() {
 		OS.free(cPointer);
+		isDisposed = true;
+	}
+
+	/**
+	 * Returns <code>true</code>, if this instance is disposed.
+	 * 
+	 * @return <ul>
+	 *         <li> <code>true</code>, if the instance is disposed
+	 *         <li> <code>false</code>, if the instance is not disposed
+	 *         </ul>
+	 */
+	public boolean isDisposed() {
+		return isDisposed;
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		if (!isDisposed)
+			dispose();
+		super.finalize();
 	}
 
 }
