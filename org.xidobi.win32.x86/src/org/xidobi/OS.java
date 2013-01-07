@@ -122,7 +122,7 @@ public class OS {
 	 *            {@code LPOVERLAPPED}
 	 * @return {@code BOOL}
 	 */
-	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, int lpOverlapped);
+	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
 
 	/**
 	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms679360(v=vs.85).aspx">
@@ -147,7 +147,7 @@ public class OS {
 	 *            {@code BOOL}
 	 * @return {@code BOOL}
 	 */
-	public static native boolean GetOverlappedResult(int handle, int lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
+	public static native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
 
 	/**
 	 * Waits until the specified object is in the signaled state or the time-out interval elapses.
@@ -166,11 +166,11 @@ public class OS {
 	 *         </ul>
 	 */
 	public static native int WaitForSingleObject(int hHandle, int dwMilliseconds);
+	
+	public static native int malloc(int size);
+	
+	public static native void free(int pointer);
 
-	public static native int newOverlapped();
-
-	public static native void setOverlappedHEvent(int overlapped, int hEvent);
-
-	public static native void deleteOverlapped(int overlapped);
+	public static native int sizeOf_OVERLAPPED();
 
 }

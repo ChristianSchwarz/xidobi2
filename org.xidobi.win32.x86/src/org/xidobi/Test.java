@@ -69,8 +69,8 @@ public class Test {
 			int eventHandle = CreateEventA(0, true, false, null);
 			println("Event-Handle: " + eventHandle);
 
-			int overlapped = OS.newOverlapped();
-			OS.setOverlappedHEvent(overlapped, eventHandle);
+			OVERLAPPED overlapped = new OVERLAPPED();
+			overlapped.hEvent = eventHandle;
 
 			INT lpNumberOfBytesWritten = new INT();
 			succeed = WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, overlapped);
@@ -86,7 +86,7 @@ public class Test {
 
 			}
 
-			OS.deleteOverlapped(overlapped);
+			overlapped.dispose();
 
 			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
 			println("close handle=" + handle + " ->" + CloseHandle(handle));

@@ -15,37 +15,53 @@
  */
 package org.xidobi.structs;
 
+import org.xidobi.OS;
+
 /**
- *
+ * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
 public class OVERLAPPED {
 
-	// ULONG_PTR 
-	public long Internal; 
-	// ULONG_PTR 
+	/** The size of the OVERLAPPED struct */
+	private static int SIZE_OF;
+
+	/** The pointer to the C instance */
+	private final int cPointer;
+
+	// ULONG_PTR
+	public long Internal;
+	// ULONG_PTR
 	public long InternalHigh;
-	
+
 	// __GNUC_EXTENSION union {
 	// __GNUC_EXTENSION struct {
-	// DWORD 
+	// DWORD
 	public int Offset;
-	// DWORD 
+	// DWORD
 	public int OffsetHigh;
 	// };
-	// PVOID 
+	// PVOID
 	public int Pointer;
 	// };
-	
-	// HANDLE 
+
+	// HANDLE
 	public int hEvent;
 
-	@Override
-	public String toString() {
-		return "OVERLAPPED [Internal=" + Internal + ", InternalHigh=" + InternalHigh + ", Offset=" + Offset + ", OffsetHigh=" + OffsetHigh + ", Pointer=" + Pointer + ", hEvent=" + hEvent + "]";
+	static {
+		SIZE_OF = OS.sizeOf_OVERLAPPED();
 	}
 
-	
-	
+	/**
+	 * 
+	 */
+	public OVERLAPPED() {
+		cPointer = OS.malloc(SIZE_OF);
+	}
+
+	public void dispose() {
+		OS.free(cPointer);
+	}
+
 }
