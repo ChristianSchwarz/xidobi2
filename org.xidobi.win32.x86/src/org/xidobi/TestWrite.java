@@ -38,7 +38,7 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Tobias Breﬂler
  * 
  */
-public class Test {
+public class TestWrite {
 
 	/**
 	 * 
