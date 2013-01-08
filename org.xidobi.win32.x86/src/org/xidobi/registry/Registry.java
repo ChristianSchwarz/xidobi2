@@ -21,5 +21,15 @@ package org.xidobi.registry;
  * @author Tobias Breﬂler
  */
 public class Registry {
+	
+	  public static final int HKEY_CURRENT_USER = 0x80000001;
+	  public static final int HKEY_LOCAL_MACHINE = 0x80000002;
+	  
+	  public static final int ERROR_SUCCESS = 0;
+	  public static final int ERROR_FILE_NOT_FOUND = 2;
+	  public static final int ERROR_ACCESS_DENIED = 5;
 
+	  private static final int KEY_ALL_ACCESS = 0xf003f;
+	  private static final int KEY_READ = 0x20019;
+	  
 }
