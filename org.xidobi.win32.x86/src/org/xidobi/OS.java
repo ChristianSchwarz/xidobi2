@@ -20,7 +20,7 @@ import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
- * This Class contains one-to-one mappings of native methods used by the OS to control serial ports.
+ * This class contains one-to-one mappings of native methods used by the OS to control serial ports.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
@@ -57,6 +57,8 @@ public class OS {
 	public final static int ERROR_FILE_NOT_FOUND = 2;
 	/** Overlapped I/O operation is in progress. */
 	public static final int ERROR_IO_PENDING = 997;
+	/** No more data is available. Indicates in an enumeration that no more elements are available. */
+	public static final int ERROR_NO_MORE_ITEMS = 259;
 
 	/**
 	 * The specified object is a mutex object that was not released by the thread that owned the
@@ -71,6 +73,16 @@ public class OS {
 	public static final int WAIT_TIMEOUT = 0x00000102;
 	/** The function has failed. To get extended error information, call GetLastError. */
 	public static final int WAIT_FAILED = 0xFFFFFFFF;
+
+	/** Combines the STANDARD_RIGHTS_WRITE, KEY_SET_VALUE, and KEY_CREATE_SUB_KEY access rights. */
+	public static final int KEY_WRITE = 0x20006;
+	/** Equivalent to {@link #KEY_READ}. */
+	public static final int KEY_EXECUTE = 0x20019;
+	/**
+	 * Combines the STANDARD_RIGHTS_READ, KEY_QUERY_VALUE, KEY_ENUMERATE_SUB_KEYS, and KEY_NOTIFY
+	 * values.
+	 */
+	public static final int KEY_READ = 0x20019;
 
 	static {
 		System.loadLibrary("lib/org.xidobi.native.x86.win32");
@@ -112,26 +124,32 @@ public class OS {
 
 	/**
 	 * Closes an open object handle.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724211(v=vs.85).aspx">
+	 * CloseHandle (MSDN)</a>
 	 * 
 	 * @param handle
 	 *            {@code HANDLE}
 	 * @return <ul>
-	 *         <li> <code>true</code> on success
-	 *         <li> <code>false</code> on failure, for more information call {@link #GetLastError()}
+	 *         <li> <code>true</code> on success <li> <code>false</code> on failure, for more
+	 *         information call {@link #GetLastError()}
 	 *         </ul>
 	 */
 	public static native boolean CloseHandle(int handle);
 
 	/**
 	 * Retrieves the current control settings for a specified communications device.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363260(v=vs.85).aspx">
+	 * GetCommState (MSDN)</a>
 	 * 
 	 * @param handle
 	 *            {@code HANDLE}
 	 * @param dcb
 	 *            {@code LPDCB}
 	 * @return <ul>
-	 *         <li> <code>true</code> on success
-	 *         <li> <code>false</code> on failure, for more information call {@link #GetLastError()}
+	 *         <li> <code>true</code> on success <li> <code>false</code> on failure, for more
+	 *         information call {@link #GetLastError()}
 	 *         </ul>
 	 */
 	public static native boolean GetCommState(int handle, DCB dcb);
@@ -140,14 +158,17 @@ public class OS {
 	 * Configures a communications device according to the specifications in a device-control block
 	 * (a DCB structure). The function reinitializes all hardware and control settings, but it does
 	 * not empty output or input queues.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363436(v=vs.85).aspx">
+	 * SetCommState (MSDN)</a>
 	 * 
 	 * @param handle
 	 *            {@code HANDLE}
 	 * @param dcb
 	 *            {@code LPDCB}
 	 * @return <ul>
-	 *         <li> <code>true</code> on success
-	 *         <li> <code>false</code> on failure, for more information call {@link #GetLastError()}
+	 *         <li> <code>true</code> on success <li> <code>false</code> on failure, for more
+	 *         information call {@link #GetLastError()}
 	 *         </ul>
 	 */
 	public static native boolean SetCommState(int handle, DCB dcb);
@@ -230,6 +251,9 @@ public class OS {
 	 * Retrieves the results of an overlapped operation on the specified file, named pipe, or
 	 * communications device. To specify a timeout interval or wait on an alertable thread, use
 	 * GetOverlappedResultEx.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms683209(v=vs.85).aspx">
+	 * GetOverlappedResult (MSDN)</a>
 	 * 
 	 * @param handle
 	 *            {@code HANDLE}
@@ -248,6 +272,9 @@ public class OS {
 	 * <p>
 	 * To enter an alertable wait state, use the WaitForSingleObjectEx function. To wait for
 	 * multiple objects, use the WaitForMultipleObjects.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms687032(v=vs.85).aspx">
+	 * WaitForSingleObject (MSDN)</a>
 	 * 
 	 * @param hHandle
 	 *            {@code HANDLE}
@@ -260,6 +287,58 @@ public class OS {
 	 *         </ul>
 	 */
 	public static native int WaitForSingleObject(int hHandle, int dwMilliseconds);
+
+	/**
+	 * Opens the specified registry key. Note that key names are not case sensitive.
+	 * <p>
+	 * To perform transacted registry operations on a key, call the RegOpenKeyTransacted function.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724897(v=vs.85).aspx">
+	 * RegOpenKeyEx (MSDN)</a>
+	 * 
+	 * @param hKey
+	 *            {@code HKEY}
+	 * @param lpSubKey
+	 *            {@code LPCTSTR}
+	 * @param ulOptions
+	 *            {@code DWORD}
+	 * @param samDesired
+	 *            {@code REGSAM}
+	 *            <ul>
+	 *            <li> {@link #KEY_WRITE} <li> {@link #KEY_READ} <li> {@link #KEY_EXECUTE}
+	 *            </ul>
+	 * @param phkResult
+	 *            {@code PHKEY}
+	 * @return {@code LONG}
+	 */
+	public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, int phkResult);
+
+	/**
+	 * Enumerates the values for the specified open registry key. The function copies one indexed
+	 * value name and data block for the key each time it is called.
+	 * <p>
+	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724865(v=vs.85).aspx">
+	 * RegEnumValue (MSDN)</a>
+	 * 
+	 * @param hKey
+	 *            {@code HKEY}
+	 * @param dwIndex
+	 *            {@code DWORD}
+	 * @param lpValueName
+	 *            {@code  LPTSTR}
+	 * @param lpcchValueName
+	 *            {@code LPDWORD}
+	 * @param lpReserved
+	 *            {@code LPDWORD}
+	 * @param lpType
+	 *            {@code  LPDWORD}
+	 * @param lpData
+	 *            {@code LPBYTE}
+	 * @param lpcbData
+	 *            {@code  LPDWORD}
+	 * @return {@code LONG}
+	 */
+	public static native int RegEnumValue(int hKey, int dwIndex, String lpValueName, int lpcchValueName, int lpReserved, int lpType, byte[] lpData, int lpcbData);
 
 	/**
 	 * Returns a pointer to the allocated memory of the given size.
