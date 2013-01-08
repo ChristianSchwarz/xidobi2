@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "jni.h"
 #include <stdlib.h>
 #include <windows.h>
+
+#include "jni.h"
 
 #include "OS_structs.h"
 
