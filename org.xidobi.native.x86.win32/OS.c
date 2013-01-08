@@ -260,60 +260,6 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
 
 /*
  * Class:     org_xidobi_OS
- * Method:    RegOpenKeyExA
- * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
- */
-JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
-		jint hKey,
-		jstring lpSubKey,
-		jint ulOptions,
-		jint samDesired,
-		jobject phkResult) {
-
-//	const char* subKey;
-//	if (lpSubKey == NULL)
-//		subKey = NULL;
-//	else
-//		subKey = (*env)->GetStringUTFChars(env, lpSubKey, NULL);
-//
-//	PHKEY hkResult;
-//
-//	LONG result = RegOpenKeyExA((HKEY) hKey,
-//								(LPCSTR) subKey,
-//								(DWORD) ulOptions,
-//								(REGSAM) samDesired,
-//								hkResult);
-//
-//	if (subKey != NULL)
-//		(*env)->ReleaseStringUTFChars(env, lpSubKey, subKey);
-//
-//	setINT(env, phkResult, &hkResult);
-//
-//	return (jint) result;
-	return (jint) 0;
-}
-
-/*
- * Class:     org_xidobi_OS
- * Method:    RegEnumValue
- * Signature: (IILjava/lang/String;III[BI)I
- */
-JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
-		jint hKey,
-		jint dwIndex,
-		jstring lpValueName,
-		jint lpcchValueName,
-		jint lpReserved,
-		jint lpType,
-		jbyteArray lpData,
-		jint lpcbData) {
-	return (jint) 0;
-}
-
-/*
- * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */
