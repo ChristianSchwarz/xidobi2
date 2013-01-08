@@ -87,7 +87,7 @@ public class TestRead {
 				succeed = GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
 				println("GetOverlappedResult->" + succeed + " read:" + numberOfBytesRead);
 				
-				System.out.println(new String(LP_BUFFER));
+				System.out.println("Read: " + new String(LP_BUFFER));
 				
 			} else {
 				System.err.println("Wait: " + waitForSingleObject);
