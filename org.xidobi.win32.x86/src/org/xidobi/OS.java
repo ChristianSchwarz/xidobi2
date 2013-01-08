@@ -84,6 +84,16 @@ public class OS {
 	 */
 	public static final int KEY_READ = 0x20019;
 
+	/**
+	 * Registry entries subordinate to this key define the physical state of the computer, including
+	 * data about the bus type, system memory, and installed hardware and software. It contains
+	 * subkeys that hold current configuration data, including Plug and Play information (the Enum
+	 * branch, which includes a complete list of all hardware that has ever been on the system),
+	 * network logon preferences, network security information, software-related information (such as
+	 * server names and the location of the server), and other system information.
+	 */
+	public static final int HKEY_LOCAL_MACHINE = 0x80000002;
+
 	static {
 		System.loadLibrary("lib/org.xidobi.native.x86.win32");
 	}
@@ -311,7 +321,7 @@ public class OS {
 	 *            {@code PHKEY}
 	 * @return {@code LONG}
 	 */
-	public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, int phkResult);
+	public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, INT phkResult);
 
 	/**
 	 * Enumerates the values for the specified open registry key. The function copies one indexed
