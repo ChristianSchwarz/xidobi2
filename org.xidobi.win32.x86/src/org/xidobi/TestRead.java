@@ -22,6 +22,7 @@ import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.OS.GENERIC_READ;
 import static org.xidobi.OS.GENERIC_WRITE;
 import static org.xidobi.OS.GetCommState;
+import static org.xidobi.OS.GetLastError;
 import static org.xidobi.OS.GetOverlappedResult;
 import static org.xidobi.OS.OPEN_EXISTING;
 import static org.xidobi.OS.ReadFile;
@@ -43,7 +44,6 @@ public class TestRead {
 	/**
 	 * 
 	 */
-	private static byte[] LP_BUFFER = new byte[9];
 
 	/**
 	 * @param args
@@ -51,7 +51,6 @@ public class TestRead {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 
-		println("-----------------");
 
 		boolean succeed;
 
@@ -69,7 +68,11 @@ public class TestRead {
 		SetCommState(handle, dcb);
 
 		for (;;) {
+			byte[] LP_BUFFER = new byte[9];
+
+			println("-----------------");
 			int eventHandle = CreateEventA(0, true, false, null);
+			System.err.println("Error?" + GetLastError());
 			println("Event-Handle: " + eventHandle);
 
 			OVERLAPPED overlapped = new OVERLAPPED();
@@ -77,27 +80,30 @@ public class TestRead {
 
 			INT lpNumberOfBytesRead = new INT();
 			succeed = ReadFile(handle, LP_BUFFER, 9, lpNumberOfBytesRead, overlapped);
+			System.err.println("Error?" + GetLastError());
 			println("ReadFile->" + succeed + " bytes read: " + lpNumberOfBytesRead);
 
 			int waitForSingleObject = WaitForSingleObject(eventHandle, 2000);
+			System.err.println("Error?" + GetLastError());
 			System.out.println("WaitForSingleObject->" + waitForSingleObject);
 
 			if (waitForSingleObject == OS.WAIT_OBJECT_0) {
 				INT numberOfBytesRead = new INT();
 				succeed = GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
+				System.err.println("Error?" + GetLastError());
 				println("GetOverlappedResult->" + succeed + " read:" + numberOfBytesRead);
 				
 				System.out.println("Read: " + new String(LP_BUFFER));
 				
 			} else {
-				System.err.println("Wait: " + waitForSingleObject);
+				System.out.println("Wait error: " + waitForSingleObject);
 			}
 			
-			
-
 			overlapped.dispose();
 
 			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
+			
+			Thread.sleep(100);
 
 		}
 
