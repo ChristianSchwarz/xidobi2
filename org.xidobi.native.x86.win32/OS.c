@@ -186,10 +186,11 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
 	DWORD bytesRead = 0;
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
-	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
+	jsize size = (*env)->GetArrayLength(env, lpBuffer);
+	const jbyte jBuffer[size];
 
 	BOOL result = ReadFile( (HANDLE) handle,
-							 jBuffer,
+							 &jBuffer,
 							 (DWORD) nNumberOfBytesToRead,
 							 &bytesRead,
 							 overlapped);
@@ -197,7 +198,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
 	setINT(env, lpNumberOfBytesRead, &bytesRead);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
 
-	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
+	(*env)->SetByteArrayRegion(env, lpBuffer, 0, bytesRead, jBuffer);
 
 	if (result)
 		return JNI_TRUE;
@@ -255,60 +256,6 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
 	DWORD error = WaitForSingleObject(	(HANDLE) hhandle,
 										dwMilliseconds);
 	return (jint) error;
-}
-
-/*
- * Class:     org_xidobi_OS
- * Method:    RegOpenKeyExA
- * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
- */
-JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
-		jint hKey,
-		jstring lpSubKey,
-		jint ulOptions,
-		jint samDesired,
-		jobject phkResult) {
-
-//	const char* subKey;
-//	if (lpSubKey == NULL)
-//		subKey = NULL;
-//	else
-//		subKey = (*env)->GetStringUTFChars(env, lpSubKey, NULL);
-//
-//	PHKEY hkResult;
-//
-//	LONG result = RegOpenKeyExA((HKEY) hKey,
-//								(LPCSTR) subKey,
-//								(DWORD) ulOptions,
-//								(REGSAM) samDesired,
-//								hkResult);
-//
-//	if (subKey != NULL)
-//		(*env)->ReleaseStringUTFChars(env, lpSubKey, subKey);
-//
-//	setINT(env, phkResult, &hkResult);
-//
-//	return (jint) result;
-	return (jint) 0;
-}
-
-/*
- * Class:     org_xidobi_OS
- * Method:    RegEnumValue
- * Signature: (IILjava/lang/String;III[BI)I
- */
-JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
-		jint hKey,
-		jint dwIndex,
-		jstring lpValueName,
-		jint lpcchValueName,
-		jint lpReserved,
-		jint lpType,
-		jbyteArray lpData,
-		jint lpcbData) {
-	return (jint) 0;
 }
 
 /*

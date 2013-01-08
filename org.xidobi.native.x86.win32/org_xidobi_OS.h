@@ -123,22 +123,6 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_WaitForSingleObject
 
 /*
  * Class:     org_xidobi_OS
- * Method:    RegOpenKeyExA
- * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
- */
-JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegOpenKeyExA
-  (JNIEnv *, jclass, jint, jstring, jint, jint, jobject);
-
-/*
- * Class:     org_xidobi_OS
- * Method:    RegEnumValue
- * Signature: (IILjava/lang/String;III[BI)I
- */
-JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegEnumValue
-  (JNIEnv *, jclass, jint, jint, jstring, jint, jint, jint, jbyteArray, jint);
-
-/*
- * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */
