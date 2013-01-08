@@ -43,7 +43,7 @@ public class TestWrite {
 	/**
 	 * 
 	 */
-	private static byte[] LP_BUFFER = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	private static byte[] LP_BUFFER = "Hello!".getBytes();
 
 	/**
 	 * @param args
