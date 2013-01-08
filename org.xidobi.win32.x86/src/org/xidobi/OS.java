@@ -89,8 +89,8 @@ public class OS {
 	 * data about the bus type, system memory, and installed hardware and software. It contains
 	 * subkeys that hold current configuration data, including Plug and Play information (the Enum
 	 * branch, which includes a complete list of all hardware that has ever been on the system),
-	 * network logon preferences, network security information, software-related information (such as
-	 * server names and the location of the server), and other system information.
+	 * network logon preferences, network security information, software-related information (such
+	 * as server names and the location of the server), and other system information.
 	 */
 	public static final int HKEY_LOCAL_MACHINE = 0x80000002;
 
@@ -298,57 +298,61 @@ public class OS {
 	 */
 	public static native int WaitForSingleObject(int hHandle, int dwMilliseconds);
 
-	/**
-	 * Opens the specified registry key. Note that key names are not case sensitive.
-	 * <p>
-	 * To perform transacted registry operations on a key, call the RegOpenKeyTransacted function.
-	 * <p>
-	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724897(v=vs.85).aspx">
-	 * RegOpenKeyEx (MSDN)</a>
-	 * 
-	 * @param hKey
-	 *            {@code HKEY}
-	 * @param lpSubKey
-	 *            {@code LPCTSTR}
-	 * @param ulOptions
-	 *            {@code DWORD}
-	 * @param samDesired
-	 *            {@code REGSAM}
-	 *            <ul>
-	 *            <li> {@link #KEY_WRITE} <li> {@link #KEY_READ} <li> {@link #KEY_EXECUTE}
-	 *            </ul>
-	 * @param phkResult
-	 *            {@code PHKEY}
-	 * @return {@code LONG}
-	 */
-	public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, INT phkResult);
-
-	/**
-	 * Enumerates the values for the specified open registry key. The function copies one indexed
-	 * value name and data block for the key each time it is called.
-	 * <p>
-	 * See <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724865(v=vs.85).aspx">
-	 * RegEnumValue (MSDN)</a>
-	 * 
-	 * @param hKey
-	 *            {@code HKEY}
-	 * @param dwIndex
-	 *            {@code DWORD}
-	 * @param lpValueName
-	 *            {@code  LPTSTR}
-	 * @param lpcchValueName
-	 *            {@code LPDWORD}
-	 * @param lpReserved
-	 *            {@code LPDWORD}
-	 * @param lpType
-	 *            {@code  LPDWORD}
-	 * @param lpData
-	 *            {@code LPBYTE}
-	 * @param lpcbData
-	 *            {@code  LPDWORD}
-	 * @return {@code LONG}
-	 */
-	public static native int RegEnumValue(int hKey, int dwIndex, String lpValueName, int lpcchValueName, int lpReserved, int lpType, byte[] lpData, int lpcbData);
+	// /**
+	// * Opens the specified registry key. Note that key names are not case sensitive.
+	// * <p>
+	// * To perform transacted registry operations on a key, call the RegOpenKeyTransacted function.
+	// * <p>
+	// * See <a
+	// href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724897(v=vs.85).aspx">
+	// * RegOpenKeyEx (MSDN)</a>
+	// *
+	// * @param hKey
+	// * {@code HKEY}
+	// * @param lpSubKey
+	// * {@code LPCTSTR}
+	// * @param ulOptions
+	// * {@code DWORD}
+	// * @param samDesired
+	// * {@code REGSAM}
+	// * <ul>
+	// * <li> {@link #KEY_WRITE} <li> {@link #KEY_READ} <li> {@link #KEY_EXECUTE}
+	// * </ul>
+	// * @param phkResult
+	// * {@code PHKEY}
+	// * @return {@code LONG}
+	// */
+	// public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int
+	// samDesired, INT phkResult);
+	//
+	// /**
+	// * Enumerates the values for the specified open registry key. The function copies one indexed
+	// * value name and data block for the key each time it is called.
+	// * <p>
+	// * See <a
+	// href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms724865(v=vs.85).aspx">
+	// * RegEnumValue (MSDN)</a>
+	// *
+	// * @param hKey
+	// * {@code HKEY}
+	// * @param dwIndex
+	// * {@code DWORD}
+	// * @param lpValueName
+	// * {@code LPTSTR}
+	// * @param lpcchValueName
+	// * {@code LPDWORD}
+	// * @param lpReserved
+	// * {@code LPDWORD}
+	// * @param lpType
+	// * {@code LPDWORD}
+	// * @param lpData
+	// * {@code LPBYTE}
+	// * @param lpcbData
+	// * {@code LPDWORD}
+	// * @return {@code LONG}
+	// */
+	// public static native int RegEnumValue(int hKey, int dwIndex, String lpValueName, int
+	// lpcchValueName, int lpReserved, int lpType, byte[] lpData, int lpcbData);
 
 	/**
 	 * Returns a pointer to the allocated memory of the given size.
