@@ -186,10 +186,11 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
 	DWORD bytesRead = 0;
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
-	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
+	jsize size = (*env)->GetArrayLength(env, lpBuffer);
+	const jbyte jBuffer[size];
 
 	BOOL result = ReadFile( (HANDLE) handle,
-							 jBuffer,
+							 &jBuffer,
 							 (DWORD) nNumberOfBytesToRead,
 							 &bytesRead,
 							 overlapped);
@@ -197,7 +198,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
 	setINT(env, lpNumberOfBytesRead, &bytesRead);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
 
-	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
+	(*env)->SetByteArrayRegion(env, lpBuffer, 0, bytesRead, jBuffer);
 
 	if (result)
 		return JNI_TRUE;
