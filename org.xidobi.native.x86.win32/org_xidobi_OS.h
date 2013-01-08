@@ -23,6 +23,8 @@ extern "C" {
 #define org_xidobi_OS_ERROR_FILE_NOT_FOUND 2L
 #undef org_xidobi_OS_ERROR_IO_PENDING
 #define org_xidobi_OS_ERROR_IO_PENDING 997L
+#undef org_xidobi_OS_ERROR_NO_MORE_ITEMS
+#define org_xidobi_OS_ERROR_NO_MORE_ITEMS 259L
 #undef org_xidobi_OS_WAIT_ABANDONED
 #define org_xidobi_OS_WAIT_ABANDONED 128L
 #undef org_xidobi_OS_WAIT_OBJECT_0
@@ -31,6 +33,12 @@ extern "C" {
 #define org_xidobi_OS_WAIT_TIMEOUT 258L
 #undef org_xidobi_OS_WAIT_FAILED
 #define org_xidobi_OS_WAIT_FAILED -1L
+#undef org_xidobi_OS_KEY_WRITE
+#define org_xidobi_OS_KEY_WRITE 131078L
+#undef org_xidobi_OS_KEY_EXECUTE
+#define org_xidobi_OS_KEY_EXECUTE 131097L
+#undef org_xidobi_OS_KEY_READ
+#define org_xidobi_OS_KEY_READ 131097L
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateFile
@@ -110,6 +118,22 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetOverlappedResult
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_WaitForSingleObject
   (JNIEnv *, jclass, jint, jint);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    RegOpenKeyExA
+ * Signature: (ILjava/lang/String;III)I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegOpenKeyExA
+  (JNIEnv *, jclass, jint, jstring, jint, jint, jint);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    RegEnumValue
+ * Signature: (IILjava/lang/String;III[BI)I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegEnumValue
+  (JNIEnv *, jclass, jint, jint, jstring, jint, jint, jint, jbyteArray, jint);
 
 /*
  * Class:     org_xidobi_OS
