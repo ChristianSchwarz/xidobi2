@@ -260,7 +260,7 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
 /*
  * Class:     org_xidobi_OS
  * Method:    RegOpenKeyExA
- * Signature: (ILjava/lang/String;III)I
+ * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
@@ -268,7 +268,28 @@ Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
 		jstring lpSubKey,
 		jint ulOptions,
 		jint samDesired,
-		jint phkResult) {
+		jobject phkResult) {
+
+//	const char* subKey;
+//	if (lpSubKey == NULL)
+//		subKey = NULL;
+//	else
+//		subKey = (*env)->GetStringUTFChars(env, lpSubKey, NULL);
+//
+//	PHKEY hkResult;
+//
+//	LONG result = RegOpenKeyExA((HKEY) hKey,
+//								(LPCSTR) subKey,
+//								(DWORD) ulOptions,
+//								(REGSAM) samDesired,
+//								hkResult);
+//
+//	if (subKey != NULL)
+//		(*env)->ReleaseStringUTFChars(env, lpSubKey, subKey);
+//
+//	setINT(env, phkResult, &hkResult);
+//
+//	return (jint) result;
 	return (jint) 0;
 }
 

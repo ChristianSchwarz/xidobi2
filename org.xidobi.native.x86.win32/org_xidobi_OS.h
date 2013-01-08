@@ -39,6 +39,8 @@ extern "C" {
 #define org_xidobi_OS_KEY_EXECUTE 131097L
 #undef org_xidobi_OS_KEY_READ
 #define org_xidobi_OS_KEY_READ 131097L
+#undef org_xidobi_OS_HKEY_LOCAL_MACHINE
+#define org_xidobi_OS_HKEY_LOCAL_MACHINE -2147483646L
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateFile
@@ -122,10 +124,10 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_WaitForSingleObject
 /*
  * Class:     org_xidobi_OS
  * Method:    RegOpenKeyExA
- * Signature: (ILjava/lang/String;III)I
+ * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegOpenKeyExA
-  (JNIEnv *, jclass, jint, jstring, jint, jint, jint);
+  (JNIEnv *, jclass, jint, jstring, jint, jint, jobject);
 
 /*
  * Class:     org_xidobi_OS
