@@ -51,30 +51,30 @@ public class TestRead {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 
+		println("-----------------");
+
+		boolean succeed;
+
+		int handle = CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+
+		if (handle == -1) {
+			System.err.println("No handle!");
+			return;
+		}
+		System.out.println("Handle: " + handle);
+
+		DCB dcb = new DCB();
+		GetCommState(handle, dcb);
+		dcb.BaudRate = 9600;
+		SetCommState(handle, dcb);
+
 		for (;;) {
-			println("-----------------");
-
-			boolean succeed;
-
-			int handle = CreateFile("\\\\.\\COM2", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
-
-			if (handle == -1) {
-				System.err.println("No handle!");
-				continue;
-			}
-			System.out.println("Handle: " + handle);
-
-			DCB dcb = new DCB();
-			GetCommState(handle, dcb);
-			dcb.BaudRate = 9600;
-			SetCommState(handle, dcb);
-
 			int eventHandle = CreateEventA(0, true, false, null);
 			println("Event-Handle: " + eventHandle);
 
 			OVERLAPPED overlapped = new OVERLAPPED();
 			overlapped.hEvent = eventHandle;
-			
+
 			INT lpNumberOfBytesRead = new INT();
 			succeed = ReadFile(handle, LP_BUFFER, 9, lpNumberOfBytesRead, overlapped);
 			println("ReadFile->" + succeed + " bytes read: " + lpNumberOfBytesRead);
@@ -86,17 +86,22 @@ public class TestRead {
 				INT numberOfBytesRead = new INT();
 				succeed = GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
 				println("GetOverlappedResult->" + succeed + " read:" + numberOfBytesRead);
-			}
-			else {
+				
+				System.out.println(new String(LP_BUFFER));
+				
+			} else {
 				System.err.println("Wait: " + waitForSingleObject);
 			}
+			
+			
 
 			overlapped.dispose();
 
 			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
-			println("close handle=" + handle + " ->" + CloseHandle(handle));
 
 		}
+
+//		println("close handle=" + handle + " ->" + CloseHandle(handle));
 	}
 
 	/**
