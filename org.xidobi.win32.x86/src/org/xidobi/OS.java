@@ -51,6 +51,8 @@ public class OS {
 	/** Invalid handle value. */
 	public final static int INVALID_HANDLE_VALUE = -1;
 
+	/** No errors. */
+	public final static int ERROR_SUCCESS = 0;
 	/** Access denied or port busy. */
 	public final static int ERROR_ACCESS_DENIED = 5;
 	/** File not found or port unavailable. */
