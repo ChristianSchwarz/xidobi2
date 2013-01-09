@@ -34,15 +34,18 @@ public class Registry {
 	/** Security mask that grants access for reading keys. */
 	public static final int KEY_READ = 0x20019;
 
+	/** System root node. */
 	private static Preferences systemRoot = Preferences.systemRoot();
 
+	/** <code>WindowsRegOpenKey(int, btye[], int) : int[]</code> */
 	private static Method _RegOpenKey;
+	/** <code>WindowsRegCloseKey(int) : int</code> */
 	private static Method _RegCloseKey;
+	/** <code>WindowsRegEnumValue(int, int, int) : byte[]</code> */
 	private static Method _RegEnumValue;
 
 	static {
 		Class<? extends Preferences> clazz = systemRoot.getClass();
-
 		try {
 			_RegOpenKey = clazz.getDeclaredMethod("WindowsRegOpenKey", new Class[] { int.class, byte[].class, int.class });
 			_RegOpenKey.setAccessible(true);
@@ -74,8 +77,17 @@ public class Registry {
 	 * @return
 	 * 
 	 * @throws IllegalAccessException
+	 *             if this Method object is enforcing Java language access control and the
+	 *             underlying method is inaccessible.
 	 * @throws IllegalArgumentException
+	 *             if the method is an instance method and the specified object argument is not an
+	 *             instance of the class or interface declaring the underlying method (or of a
+	 *             subclass or implementor thereof); if the number of actual and formal parameters
+	 *             differ; if an unwrapping conversion for primitive arguments fails; or if, after
+	 *             possible unwrapping, a parameter value cannot be converted to the corresponding
+	 *             formal parameter type by a method invocation conversion.
 	 * @throws InvocationTargetException
+	 *             if the underlying method throws an exception.
 	 */
 	public static int[] RegOpenKey(int hkey, byte[] subKey, int securityMask) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return (int[]) _RegOpenKey.invoke(systemRoot, hkey, subKey, securityMask);
@@ -92,8 +104,17 @@ public class Registry {
 	 *         function fails, the return value is a nonzero error code.
 	 * 
 	 * @throws IllegalAccessException
+	 *             if this Method object is enforcing Java language access control and the
+	 *             underlying method is inaccessible.
 	 * @throws IllegalArgumentException
+	 *             if the method is an instance method and the specified object argument is not an
+	 *             instance of the class or interface declaring the underlying method (or of a
+	 *             subclass or implementor thereof); if the number of actual and formal parameters
+	 *             differ; if an unwrapping conversion for primitive arguments fails; or if, after
+	 *             possible unwrapping, a parameter value cannot be converted to the corresponding
+	 *             formal parameter type by a method invocation conversion.
 	 * @throws InvocationTargetException
+	 *             if the underlying method throws an exception.
 	 */
 	public static int RegCloseKey(int hkey) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return (Integer) _RegCloseKey.invoke(systemRoot, hkey);
@@ -116,11 +137,20 @@ public class Registry {
 	 *            parameter, in characters. When the function returns, the variable receives the
 	 *            number of characters stored in the buffer, not including the terminating null
 	 *            character.
-	 * @return
+	 * @return The data for the value entry.
 	 * 
 	 * @throws IllegalAccessException
+	 *             if this Method object is enforcing Java language access control and the
+	 *             underlying method is inaccessible.
 	 * @throws IllegalArgumentException
+	 *             if the method is an instance method and the specified object argument is not an
+	 *             instance of the class or interface declaring the underlying method (or of a
+	 *             subclass or implementor thereof); if the number of actual and formal parameters
+	 *             differ; if an unwrapping conversion for primitive arguments fails; or if, after
+	 *             possible unwrapping, a parameter value cannot be converted to the corresponding
+	 *             formal parameter type by a method invocation conversion.
 	 * @throws InvocationTargetException
+	 *             if the underlying method throws an exception.
 	 */
 	public static byte[] RegEnumValue(int hkey, int valueIndex, int maxValueNameLength) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return (byte[]) _RegEnumValue.invoke(systemRoot, hkey, valueIndex, maxValueNameLength);
