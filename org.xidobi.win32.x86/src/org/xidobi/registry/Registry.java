@@ -72,14 +72,22 @@ public class Registry {
 	 *            A handle to an open registry key.
 	 * @param subKey
 	 *            The name of the registry key to be opened. This key must be a subkey of the key
-	 *            identified by the hKey parameter. Key names are not case sensitive. If this
-	 *            parameter is NULL or a pointer to an empty string, the function returns the same
-	 *            handle that was passed in.
+	 *            identified by the <code>hkey</code> parameter. Key names are not case sensitive.
+	 *            If this parameter is <code>null</code> the function returns the same handle that
+	 *            was passed in.
 	 * @param securityMask
 	 *            A mask that specifies the desired access rights to the key to be opened. The
 	 *            function fails if the security descriptor of the key does not permit the requested
 	 *            access for the calling process. See {@link #KEY_READ}.
-	 * @return
+	 * @return an array containing:
+	 *         <ul>
+	 *         <li><code>[0]</code> - The handle to the opened key. If the key is not one of the
+	 *         predefined registry keys, call the {@link #RegCloseKey(int)} function after you have
+	 *         finished using the handle.</li>
+	 *         <li><code>[1]</code> - If the function succeeds, this value is
+	 *         {@link OS#ERROR_SUCCESS}. If the function fails, the return value is a nonzero error
+	 *         code.</li>
+	 *         </ul>
 	 * 
 	 * @throws IllegalAccessException
 	 *             if this Method object is enforcing Java language access control and the
