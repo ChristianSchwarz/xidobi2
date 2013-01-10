@@ -22,7 +22,10 @@ import java.util.prefs.Preferences;
 import org.xidobi.OS;
 
 /**
- * Provides access to the windows registry.
+ * Provides access to the Windows Registry.
+ * <p>
+ * This class uses private functions from the Java JDK, that can be found in the class
+ * <code>java.util.prefs.WindowsPreferences</code>.
  * 
  * @author Tobias Breﬂler
  */
