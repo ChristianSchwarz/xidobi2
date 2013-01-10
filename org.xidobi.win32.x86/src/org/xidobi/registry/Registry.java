@@ -43,6 +43,8 @@ public class Registry {
 	private static Method _RegCloseKey;
 	/** <code>WindowsRegEnumValue(int, int, int) : byte[]</code> */
 	private static Method _RegEnumValue;
+	/** <code>WindowsRegQueryValueEx(int, byte[]) : byte[]</code> */
+	private static Method _RegQueryValueEx;
 
 	static {
 		Class<? extends Preferences> clazz = systemRoot.getClass();
@@ -55,6 +57,9 @@ public class Registry {
 
 			_RegEnumValue = clazz.getDeclaredMethod("WindowsRegEnumValue", new Class[] { int.class, int.class, int.class });
 			_RegEnumValue.setAccessible(true);
+
+			_RegQueryValueEx = clazz.getDeclaredMethod("WindowsRegQueryValueEx", new Class[] { int.class, byte[].class });
+			_RegQueryValueEx.setAccessible(true);
 		}
 		catch (NoSuchMethodException e) {}
 		catch (SecurityException e) {}
@@ -154,6 +159,34 @@ public class Registry {
 	 */
 	public static byte[] RegEnumValue(int hkey, int valueIndex, int maxValueNameLength) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return (byte[]) _RegEnumValue.invoke(systemRoot, hkey, valueIndex, maxValueNameLength);
+	}
+
+	/**
+	 * Retrieves the type and data for the specified value name associated with an open registry
+	 * key.
+	 * 
+	 * @param hkey
+	 *            A handle to an open registry key. The key must have been opened with the
+	 *            KEY_QUERY_VALUE access right.
+	 * @param valueName
+	 *            The name of the registry value.
+	 * @return The value's data.
+	 * 
+	 * @throws IllegalAccessException
+	 *             if this Method object is enforcing Java language access control and the
+	 *             underlying method is inaccessible.
+	 * @throws IllegalArgumentException
+	 *             if the method is an instance method and the specified object argument is not an
+	 *             instance of the class or interface declaring the underlying method (or of a
+	 *             subclass or implementor thereof); if the number of actual and formal parameters
+	 *             differ; if an unwrapping conversion for primitive arguments fails; or if, after
+	 *             possible unwrapping, a parameter value cannot be converted to the corresponding
+	 *             formal parameter type by a method invocation conversion.
+	 * @throws InvocationTargetException
+	 *             if the underlying method throws an exception.
+	 */
+	public static byte[] RegQueryValueEx(int hkey, byte[] valueName) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		return (byte[]) _RegQueryValueEx.invoke(systemRoot, hkey, valueName);
 	}
 
 }

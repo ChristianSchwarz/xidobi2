@@ -12,8 +12,7 @@ import static org.xidobi.registry.Registry.KEY_READ;
 import static org.xidobi.registry.Registry.RegCloseKey;
 import static org.xidobi.registry.Registry.RegEnumValue;
 import static org.xidobi.registry.Registry.RegOpenKey;
-
-import org.xidobi.registry.Registry;
+import static org.xidobi.registry.Registry.RegQueryValueEx;
 
 /**
  * 
@@ -34,10 +33,12 @@ public class TestRegistry {
 
 			byte[] value;
 			int i = 0;
-			while ((value = RegEnumValue(hkey, ++i, 255)) != null) {
-				System.out.println(new String(value));
+			while ((value = RegEnumValue(hkey, i, 255)) != null) {
+				byte[] data = RegQueryValueEx(hkey, value);
+				System.out.println(new String(value) + "= " + new String(data));
+				i++;
 			}
-			
+
 			RegCloseKey(hkey);
 		}
 	}
