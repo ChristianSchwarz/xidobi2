@@ -300,8 +300,6 @@ Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
 
 	LONG result = RegCloseKey((HKEY) *phkey);
 
-	setHKEY(env, hKey, phkey);
-
 	return (jint) result;
 }
 
@@ -321,7 +319,12 @@ Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
 		jbyteArray lpData,
 		jint lpcbData) {
 
+	HKEY *phkey = getHKEY(env, hKey);
+	const char *pValueName = (*env)->GetStringUTFChars(env, lpValueName, NULL);
+
 	// NOT IMPLEMENTED YET!
+
+	(*env)->ReleaseStringUTFChars(env, lpValueName, pValueName);
 
 	return (jint) 0;
 }
