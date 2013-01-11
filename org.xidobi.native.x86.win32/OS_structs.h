@@ -30,4 +30,8 @@ void cacheINT(JNIEnv *env, jobject);
 DWORD *getINT(JNIEnv *, jobject, DWORD *);
 void setINT(JNIEnv *, jobject, DWORD *);
 
+void cacheHKEYFields(JNIEnv *, jobject);
+HKEY *getHKEY(JNIEnv *, jobject);
+void setHKEY(JNIEnv *, jobject, HKEY *);
+
 #endif /* OS_STRUCTS_H_ */

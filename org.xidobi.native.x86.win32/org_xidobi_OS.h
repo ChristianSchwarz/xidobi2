@@ -126,7 +126,7 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_WaitForSingleObject
 /*
  * Class:     org_xidobi_OS
  * Method:    RegOpenKeyExA
- * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
+ * Signature: (ILjava/lang/String;IILorg/xidobi/structs/HKEY;)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegOpenKeyExA
   (JNIEnv *, jclass, jint, jstring, jint, jint, jobject);
@@ -134,18 +134,18 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegOpenKeyExA
 /*
  * Class:     org_xidobi_OS
  * Method:    RegCloseKey
- * Signature: (I)I
+ * Signature: (Lorg/xidobi/structs/HKEY;)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegCloseKey
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    RegEnumValue
- * Signature: (IILjava/lang/String;III[BI)I
+ * Signature: (Lorg/xidobi/structs/HKEY;ILjava/lang/String;III[BI)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegEnumValue
-  (JNIEnv *, jclass, jint, jint, jstring, jint, jint, jint, jbyteArray, jint);
+  (JNIEnv *, jclass, jobject, jint, jstring, jint, jint, jint, jbyteArray, jint);
 
 /*
  * Class:     org_xidobi_OS
@@ -169,6 +169,14 @@ JNIEXPORT void JNICALL Java_org_xidobi_OS_free
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1OVERLAPPED
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    sizeOf_HKEY
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1HKEY
   (JNIEnv *, jclass);
 
 #ifdef __cplusplus

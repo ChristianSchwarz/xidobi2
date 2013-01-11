@@ -272,9 +272,19 @@ Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
 		jint samDesired,
 		jobject phkResult) {
 
-	// NOT IMPLEMENTED YET!
+	HKEY *hkresult = getHKEY(env, phkResult);
+	const char *subKey = (*env)->GetStringUTFChars(env, lpSubKey, NULL);
 
-	return (jint) 0;
+	LONG result = RegOpenKeyExA((HKEY) hkey,
+								(LPCSTR) subKey,
+								(DWORD) ulOptions,
+								(REGSAM) samDesired,
+								(PHKEY) hkresult);
+
+	(*env)->ReleaseStringUTFChars(env, lpSubKey, subKey);
+	setHKEY(env, phkResult, hkresult);
+
+	return (jint) result;
 }
 
 /*
@@ -284,11 +294,15 @@ Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
-		jint hKey) {
+		jobject hKey) {
 
-	// NOT IMPLEMENTED YET!
+	HKEY *phkey = getHKEY(env, hKey);
 
-	return (jint) 0;
+	LONG result = RegCloseKey((HKEY) *phkey);
+
+	setHKEY(env, hKey, phkey);
+
+	return (jint) result;
 }
 
 /*
@@ -298,7 +312,7 @@ Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
-		jint hKey,
+		jobject hKey,
 		jint dwIndex,
 		jstring lpValueName,
 		jint lpcchValueName,
@@ -343,3 +357,12 @@ Java_org_xidobi_OS_sizeOf_1OVERLAPPED(JNIEnv *env, jclass clazz) {
 	return (jint) sizeof(OVERLAPPED);
 }
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    sizeOf_HKEY
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_sizeOf_1HKEY(JNIEnv *env, jclass clazz) {
+	return (jint) sizeof(HKEY);
+}

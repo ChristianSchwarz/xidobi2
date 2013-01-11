@@ -268,3 +268,40 @@ void setINT(JNIEnv *env, jobject intObject, DWORD *intPointer) {
 
 	(*env)->SetIntField(env, intObject, INTc.value, (jint) *intPointer);
 }
+
+// ***********************************************************************
+// **** HKEY: ************************************************************
+// ***********************************************************************
+
+typedef struct HKEY_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID 	cPointer;
+} HKEY_FID_CACHE;
+
+HKEY_FID_CACHE HKEYc;
+
+void cacheHKEYFields(JNIEnv *env, jobject hkeyObject) {
+	if (HKEYc.cached)
+		return;
+
+	HKEYc.clazz = (*env)->GetObjectClass(env, hkeyObject);
+
+	HKEYc.cPointer = (*env)->GetFieldID(env, HKEYc.clazz, "cPointer", "I");
+
+	HKEYc.cached = TRUE;
+}
+
+HKEY *getHKEY(JNIEnv *env, jobject hkeyObject) {
+	if (!HKEYc.cached)
+		cacheHKEYFields(env, hkeyObject);
+
+	HKEY *hkey = (HKEY *) (*env)->GetIntField(env, hkeyObject, HKEYc.cPointer);
+
+	return hkey;
+}
+
+void setHKEY(JNIEnv *env, jobject hkeyObject, HKEY *hkeyStruct) {
+	if (!HKEYc.cached)
+		cacheHKEYFields(env, hkeyObject);
+}
