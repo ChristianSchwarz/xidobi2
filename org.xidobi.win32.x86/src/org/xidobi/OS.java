@@ -16,6 +16,7 @@
 package org.xidobi;
 
 import org.xidobi.structs.DCB;
+import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
@@ -323,7 +324,7 @@ public class OS {
 	 *            {@code PHKEY}
 	 * @return {@code LONG}
 	 */
-	public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, INT phkResult);
+	public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, HKEY phkResult);
 
 	/**
 	 * Closes a handle to the specified registry key.
@@ -335,7 +336,7 @@ public class OS {
 	 *            {@code HKEY}
 	 * @return {@code LONG}
 	 */
-	public static native int RegCloseKey(int hKey);
+	public static native int RegCloseKey(HKEY hKey);
 
 	/**
 	 * Enumerates the values for the specified open registry key. The function copies one indexed
@@ -362,7 +363,7 @@ public class OS {
 	 *            {@code LPDWORD}
 	 * @return {@code LONG}
 	 */
-	public static native int RegEnumValue(int hKey, int dwIndex, String lpValueName, int lpcchValueName, int lpReserved, int lpType, byte[] lpData, int lpcbData);
+	public static native int RegEnumValue(HKEY hKey, int dwIndex, String lpValueName, int lpcchValueName, int lpReserved, int lpType, byte[] lpData, int lpcbData);
 
 	/**
 	 * Returns a pointer to the allocated memory of the given size.
@@ -387,5 +388,12 @@ public class OS {
 	 * @return the size of the OVERLAPPED struct
 	 */
 	public static native int sizeOf_OVERLAPPED();
+
+	/**
+	 * Size of an HKEY struct.
+	 * 
+	 * @return the size of the OVERLAPPED struct
+	 */
+	public static native int sizeOf_HKEY();
 
 }
