@@ -36,6 +36,8 @@ public class TestRegistry {
 
 			int status2 = OS.RegCloseKey(phkResult);
 			System.err.println(status2);
+			
+			phkResult.dispose();
 		}
 
 	}
