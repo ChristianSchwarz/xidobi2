@@ -261,6 +261,59 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    RegOpenKeyExA
+ * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
+		jint hkey,
+		jstring lpSubKey,
+		jint ulOptions,
+		jint samDesired,
+		jobject phkResult) {
+
+	// NOT IMPLEMENTED YET!
+
+	return (jint) 0;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    RegCloseKey
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
+		jint hKey) {
+
+	// NOT IMPLEMENTED YET!
+
+	return (jint) 0;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    RegEnumValue
+ * Signature: (IILjava/lang/String;III[BI)I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
+		jint hKey,
+		jint dwIndex,
+		jstring lpValueName,
+		jint lpcchValueName,
+		jint lpReserved,
+		jint lpType,
+		jbyteArray lpData,
+		jint lpcbData) {
+
+	// NOT IMPLEMENTED YET!
+
+	return (jint) 0;
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */
