@@ -18,7 +18,9 @@ package org.xidobi.structs;
 import org.xidobi.OS;
 
 /**
+ * Java representation of the C-struct OVERLAPPED.
  * 
+ * <b></b>
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
@@ -27,7 +29,7 @@ public class OVERLAPPED {
 	/** The size of the OVERLAPPED struct */
 	private static int SIZE_OF;
 
-	/** The pointer to the C instance */
+	/** The pointer to the C struct */
 	private final int cPointer;
 
 	/** <code>true</code> if the instance is disposed */
@@ -65,7 +67,7 @@ public class OVERLAPPED {
 	}
 
 	/**
-	 * Disposed this instance and frees the memory on the heap.
+	 * Frees the resources of this instance ( memory on the heap).
 	 */
 	public void dispose() {
 		OS.free(cPointer);
@@ -73,10 +75,10 @@ public class OVERLAPPED {
 	}
 
 	/**
-	 * Returns <code>true</code>, if this instance is disposed.
+	 * Returns <code>true</code>, if this instance was disposed.
 	 * 
 	 * @return <ul>
-	 *         <li> <code>true</code>, if the instance is disposed
+	 *         <li> <code>true</code>, if the instance was disposed
 	 *         <li> <code>false</code>, if the instance is not disposed
 	 *         </ul>
 	 */
@@ -86,9 +88,9 @@ public class OVERLAPPED {
 
 	@Override
 	protected void finalize() throws Throwable {
+		super.finalize();
 		if (!isDisposed)
 			dispose();
-		super.finalize();
 	}
 
 }

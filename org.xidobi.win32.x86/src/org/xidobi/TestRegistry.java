@@ -9,7 +9,6 @@ package org.xidobi;
 import static org.xidobi.OS.ERROR_SUCCESS;
 
 import org.xidobi.structs.HKEY;
-import org.xidobi.structs.INT;
 
 /**
  * 

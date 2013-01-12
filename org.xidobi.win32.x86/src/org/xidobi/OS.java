@@ -98,7 +98,7 @@ public class OS {
 	public static final int HKEY_LOCAL_MACHINE = 0x80000002;
 
 	static {
-		System.loadLibrary("lib/org.xidobi.native.x86.win32");
+		System.loadLibrary("lib/xidobi");
 	}
 
 	/** This class is not intended to be instantiated */
