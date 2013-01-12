@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test
+Bundle-SymbolicName: org.xidobi.test
+Bundle-Version: 0.0.1.qualifier
+Fragment-Host: org.xidobi;bundle-version="0.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
