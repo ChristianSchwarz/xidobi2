@@ -363,7 +363,7 @@ public class OS {
 	 *            {@code LPDWORD}
 	 * @return {@code LONG}
 	 */
-	public static native int RegEnumValueA(HKEY hKey, int dwIndex, String lpValueName, INT lpcchValueName, int lpReserved, INT lpType, byte[] lpData, INT lpcbData);
+	public static native int RegEnumValueA(HKEY hKey, int dwIndex, char[] lpValueName, INT lpcchValueName, int lpReserved, INT lpType, byte[] lpData, INT lpcbData);
 
 	/**
 	 * Returns a pointer to the allocated memory of the given size.
