@@ -309,10 +309,10 @@ Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
  * Signature: (IILjava/lang/String;III[BI)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jclass clazz,
 		jobject hKey,
 		jint dwIndex,
-		jstring lpValueName,
+		jcharArray lpValueName,
 		jobject lpcchValueName,
 		jint lpReserved,
 		jobject lpType,
@@ -321,7 +321,8 @@ Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
 
 	HKEY *phkey = getHKEY(env, hKey);
 
-	const char *pValueName = (*env)->GetStringUTFChars(env, lpValueName, NULL);
+	jsize vnSize = (*env)->GetArrayLength(env, lpValueName);
+	const jchar pValueName[vnSize];
 
 	DWORD pcchValueName = 0;
 	getINT(env, lpcchValueName, &pcchValueName);
@@ -333,7 +334,6 @@ Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
 	DWORD pcbData;
 	getINT(env, lpcbData, &pcbData);
 
-
 	LONG result = RegEnumValueA((HKEY) *phkey,
 								(DWORD) dwIndex,
 								(LPTSTR) pValueName,
@@ -344,7 +344,7 @@ Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
 								(LPDWORD) &pcbData);
 
 	(*env)->SetByteArrayRegion(env, lpData, 0, size, jBuffer);
-	(*env)->ReleaseStringUTFChars(env, lpValueName, pValueName);
+	(*env)->SetCharArrayRegion(env, lpValueName, 0, pcchValueName, pValueName);
 
 	setINT(env, lpcchValueName, &pcchValueName);
 	setINT(env, lpType, &pType);
