@@ -38,7 +38,7 @@ public class TestRegistry {
 			INT lpcchValueName = new INT(255);
 			byte[] lpData = new byte[255];
 			INT lpcbData = new INT(255);
-			int regEnumValue = OS.RegEnumValue(phkResult, 0, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
+			int regEnumValue = OS.RegEnumValueA(phkResult, 0, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
 			System.err.println(regEnumValue);
 			System.out.println(lpValueName + " --> " + lpcchValueName.value);
 			System.out.println(new String(lpData, 0, lpcbData.value));
