@@ -1,14 +1,17 @@
 package org.xidobi;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
 /**
+ * Repesents a connected Serial-Port. Clients must call {@link #close()} to free the SerialPort
+ * after usage!
  * 
  * @author Christian Schwarz
  * 
  */
-public interface SerialPort {
+public interface SerialPort extends Closeable {
 
 	/**
 	 * Writes the given byte[].All bytes of the array were written.
@@ -21,28 +24,29 @@ public interface SerialPort {
 	void write(byte[] data) throws IOException;
 
 	/**
-	 * Set the {@link Receiver} to be notified when data was received, or
-	 * <code>null</code> to remove the current {@link Receiver}.
+	 * Set the {@link Receiver} to be notified when data was received, or <code>null</code> to
+	 * remove the current {@link Receiver}.
 	 * 
 	 * @param receiver
-	 *            the {@link Receiver} to be notified or <code>null</code> to
-	 *            remove the current
+	 *            the {@link Receiver} to be notified or <code>null</code> to remove the current
 	 */
 	void setReceiver(Receiver receiver);
 
 	/**
-	 * Set the {@link Receiver} to be notified when data was received, or
-	 * <code>null</code> to remove the current {@link Receiver}. The given
-	 * {@link Executor} will be used to notify the receiver.
+	 * Set the {@link Receiver} to be notified when data was received, or <code>null</code> to
+	 * remove the current {@link Receiver}. The given {@link Executor} will be used to notify the
+	 * receiver.
 	 * 
 	 * @param receiver
-	 *            the {@link Receiver} to be notified or <code>null</code> to
-	 *            remove the current {@link Receiver}
+	 *            the {@link Receiver} to be notified or <code>null</code> to remove the current
+	 *            {@link Receiver}
 	 * 
 	 * @param executor
 	 *            the {@link Executor} to be used to notifiy the <b>receiver</b>
-	 *            
-	 *            @exception IllegalArgumentException if <code>executor==null</code>
+	 * 
+	 * @exception IllegalArgumentException
+	 *                if <code>executor==null</code>
 	 */
 	void setReceiver(Receiver receiver, Executor executor);
+
 }
