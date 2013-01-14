@@ -28,6 +28,15 @@ public class INT {
 	/** the shared int value */
 	public int value;
 
+	public INT() {}
+
+	/**
+	 * @param value
+	 */
+	public INT(int value) {
+		this.value = value;
+	}
+
 	@Override
 	public int hashCode() {
 		return value;

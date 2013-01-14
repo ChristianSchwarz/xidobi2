@@ -9,6 +9,7 @@ package org.xidobi;
 import static org.xidobi.OS.ERROR_SUCCESS;
 
 import org.xidobi.structs.HKEY;
+import org.xidobi.structs.INT;
 
 /**
  * 
@@ -33,9 +34,18 @@ public class TestRegistry {
 		if (status == ERROR_SUCCESS) {
 			System.out.println("Success");
 
+			String lpValueName = new String(new byte[255]);
+			INT lpcchValueName = new INT(255);
+			byte[] lpData = new byte[255];
+			INT lpcbData = new INT(255);
+			int regEnumValue = OS.RegEnumValue(phkResult, 0, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
+			System.err.println(regEnumValue);
+			System.out.println(lpValueName + " --> " + lpcchValueName.value);
+			System.out.println(new String(lpData, 0, lpcbData.value));
+
 			int status2 = OS.RegCloseKey(phkResult);
 			System.err.println(status2);
-			
+
 			phkResult.dispose();
 		}
 
