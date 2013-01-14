@@ -313,20 +313,44 @@ Java_org_xidobi_OS_RegEnumValue(JNIEnv *env, jclass clazz,
 		jobject hKey,
 		jint dwIndex,
 		jstring lpValueName,
-		jint lpcchValueName,
+		jobject lpcchValueName,
 		jint lpReserved,
-		jint lpType,
+		jobject lpType,
 		jbyteArray lpData,
-		jint lpcbData) {
+		jobject lpcbData) {
 
 	HKEY *phkey = getHKEY(env, hKey);
+
 	const char *pValueName = (*env)->GetStringUTFChars(env, lpValueName, NULL);
 
-	// NOT IMPLEMENTED YET!
+	DWORD pcchValueName = 0;
+	getINT(env, lpcchValueName, &pcchValueName);
+	DWORD pType = 0;
 
+	jsize size = (*env)->GetArrayLength(env, lpData);
+	const jbyte jBuffer[size];
+
+	DWORD pcbData;
+	getINT(env, lpcbData, &pcbData);
+
+
+	LONG result = RegEnumValueA((HKEY) *phkey,
+								(DWORD) dwIndex,
+								(LPTSTR) pValueName,
+								(LPDWORD) &pcchValueName,
+								NULL,
+								(LPDWORD) &pType,
+								(LPBYTE) &jBuffer,
+								(LPDWORD) &pcbData);
+
+	(*env)->SetByteArrayRegion(env, lpData, 0, size, jBuffer);
 	(*env)->ReleaseStringUTFChars(env, lpValueName, pValueName);
 
-	return (jint) 0;
+	setINT(env, lpcchValueName, &pcchValueName);
+	setINT(env, lpType, &pType);
+	setINT(env, lpcbData, &pcbData);
+
+	return (jint) result;
 }
 
 /*

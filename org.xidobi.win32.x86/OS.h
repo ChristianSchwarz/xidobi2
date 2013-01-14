@@ -145,7 +145,7 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegCloseKey
  * Signature: (Lorg/xidobi/structs/HKEY;ILjava/lang/String;III[BI)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegEnumValue
-  (JNIEnv *, jclass, jobject, jint, jstring, jint, jint, jint, jbyteArray, jint);
+  (JNIEnv *, jclass, jobject, jint, jstring, jobject, jint, jobject, jbyteArray, jobject);
 
 /*
  * Class:     org_xidobi_OS
