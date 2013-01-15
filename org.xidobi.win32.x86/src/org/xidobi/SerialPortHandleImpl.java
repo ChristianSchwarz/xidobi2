@@ -17,36 +17,35 @@ import org.xidobi.structs.DCB;
 
 /**
  * @author Christian Schwarz
- *
+ * 
  */
 public class SerialPortHandleImpl implements SerialPortHandle {
 
-	
 	private final OS os;
 
-
 	/**
+	 * Creates a new Handle using the native win32-API provided by the {@link OS}.
 	 * 
+	 * @param os
+	 *            must not be <code>null</code>
 	 */
 	public SerialPortHandleImpl(OS os) {
-		this.os = os;
 		
+		this.os = os;
+
 	}
-	
-	
+
 	public SerialPort open(String portName, SerialPortSettings settings) throws IOException {
-		int handle = os.CreateFile("\\\\.\\"+portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle == -1)
-			throw new IOException("Unable to open "+portName+" :"+os.GetLastError());
-		
-		
+			throw new IOException("Unable to open " + portName + " :" + os.GetLastError());
 
 		DCB dcb = new DCB();
 		os.GetCommState(handle, dcb);
 		dcb.BaudRate = 9600;
 		os.SetCommState(handle, dcb);
-		
+
 		return new SerialPortImpl(os, handle);
 	}
 
