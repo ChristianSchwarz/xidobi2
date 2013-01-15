@@ -36,7 +36,13 @@ public class Preconditions {
 	 */
 	public static <T> T checkNotNull(T arg, String argName) {
 		if (arg == null)
-			throw new IllegalArgumentException("The argument >" + argName + "< must not be null!");
+			throw new IllegalArgumentException("The argument " + wrap(argName) + "must not be null!");
 		return arg;
+	}
+	
+	private static String wrap(String argName){
+		if (argName==null)
+			return "";
+		return '>'+argName+"< ";
 	}
 }

@@ -21,6 +21,7 @@ import org.junit.rules.ExpectedException;
  */
 public class TestPreconditions {
 
+	/** check exceptions*/
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 	
@@ -43,5 +44,26 @@ public class TestPreconditions {
 		exception.expectMessage("The argument >argName< must not be null!");
 		
 		Preconditions.checkNotNull(null, "argName");
+	}
+	
+	/**
+	 * Verifies that the argument is returned if it is not <code>null</code>
+	 */
+	@Test
+	public void checkNotNull_nonNullValue_noArgName() {
+		String result = Preconditions.checkNotNull("i'am not null", null);
+		assertThat(result, is("i'am not null"));
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, if the argument is
+	 * <code>null</code>.
+	 */
+	@Test
+	public void checkNotNull_nullValue_noArgName()  {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("The argument must not be null!");
+		
+		Preconditions.checkNotNull(null, null);
 	}
 }
