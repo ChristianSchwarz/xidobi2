@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -192,5 +193,6 @@ public class TestSerialPortHandleImpl {
 		verify(os).CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 		verify(os).GetCommState(eq(A_PORT_HANDLE), any(DCB.class));
 		verify(os).SetCommState(eq(A_PORT_HANDLE), any(DCB.class));
+		verify(os, never()).CloseHandle(A_PORT_HANDLE);
 	}
 }
