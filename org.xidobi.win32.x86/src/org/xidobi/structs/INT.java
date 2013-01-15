@@ -28,10 +28,16 @@ public class INT {
 	/** the shared int value */
 	public int value;
 
+	/**
+	 * Creates a new pointer to an int value in C.
+	 */
 	public INT() {}
 
 	/**
+	 * Creates a new pointer to an int value in C.
+	 * 
 	 * @param value
+	 *            the shared int value
 	 */
 	public INT(int value) {
 		this.value = value;
@@ -50,7 +56,6 @@ public class INT {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-
 		return value == ((INT) obj).value;
 	}
 

@@ -20,7 +20,6 @@ import org.xidobi.OS;
 /**
  * Java representation of the C-struct OVERLAPPED.
  * 
- * <b></b>
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */

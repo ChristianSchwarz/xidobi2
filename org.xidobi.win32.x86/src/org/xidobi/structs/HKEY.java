@@ -9,7 +9,7 @@ package org.xidobi.structs;
 import org.xidobi.OS;
 
 /**
- * 
+ * A pointer to an HKEY in C.
  * 
  * @author Tobias Breﬂler
  */
