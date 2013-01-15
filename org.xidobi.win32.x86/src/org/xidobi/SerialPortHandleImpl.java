@@ -74,14 +74,18 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		DCB dcb = new DCB();
 
 		boolean isGetCommStateSuccessful = os.GetCommState(handle, dcb);
-		if (!isGetCommStateSuccessful)
+		if (!isGetCommStateSuccessful) {
+			os.CloseHandle(handle);
 			throw newIOExceptionWithLastErrorCode("Unable to retrieve the current control settings for port >" + portName + "<!");
+		}
 
 		// dcb.BaudRate = 9600;
 
 		boolean isSetCommStateSuccessful = os.SetCommState(handle, dcb);
-		if (!isSetCommStateSuccessful)
+		if (!isSetCommStateSuccessful) {
+			os.CloseHandle(handle);
 			throw newIOExceptionWithLastErrorCode("Unable to set the control settings for port >" + portName + "<!");
+		}
 
 		return new SerialPortImpl(os, handle);
 	}

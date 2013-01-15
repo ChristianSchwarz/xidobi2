@@ -140,7 +140,12 @@ public class TestSerialPortHandleImpl {
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to retrieve the current control settings for port >portName<! (Error-Code: 1)");
 
-		handle.open("portName", settings);
+		try {
+			handle.open("portName", settings);
+		}
+		finally {
+			verify(os).CloseHandle(A_PORT_HANDLE);
+		}
 	}
 
 	/**
@@ -161,7 +166,12 @@ public class TestSerialPortHandleImpl {
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to set the control settings for port >portName<! (Error-Code: 1)");
 
-		handle.open("portName", settings);
+		try {
+			handle.open("portName", settings);
+		}
+		finally {
+			verify(os).CloseHandle(A_PORT_HANDLE);
+		}
 	}
 
 	/**
