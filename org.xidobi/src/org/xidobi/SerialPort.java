@@ -2,7 +2,6 @@ package org.xidobi;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.Executor;
 
 /**
  * Repesents a connected Serial-Port. Clients must call {@link #close()} to free the SerialPort
@@ -24,29 +23,14 @@ public interface SerialPort extends Closeable {
 	void write(byte[] data) throws IOException;
 
 	/**
-	 * Set the {@link Receiver} to be notified when data was received, or <code>null</code> to
-	 * remove the current {@link Receiver}.
+	 * Reads from this Serialport and returns the read byte's or throws an {@link IOException} when
+	 * the port was closed or an other IO-Error occurs. This method blocks until at least one byte
+	 * can be returned or an {@link IOException} is thrown.
 	 * 
-	 * @param receiver
-	 *            the {@link Receiver} to be notified or <code>null</code> to remove the current
+	 * @return the received byte[]
+	 * @throws IOException
+	 *             if this port was closed or an unexpected IO-Error occurs.
 	 */
-	void setReceiver(Receiver receiver);
-
-	/**
-	 * Set the {@link Receiver} to be notified when data was received, or <code>null</code> to
-	 * remove the current {@link Receiver}. The given {@link Executor} will be used to notify the
-	 * receiver.
-	 * 
-	 * @param receiver
-	 *            the {@link Receiver} to be notified or <code>null</code> to remove the current
-	 *            {@link Receiver}
-	 * 
-	 * @param executor
-	 *            the {@link Executor} to be used to notifiy the <b>receiver</b>
-	 * 
-	 * @exception IllegalArgumentException
-	 *                if <code>executor==null</code>
-	 */
-	void setReceiver(Receiver receiver, Executor executor);
+	byte[] read() throws IOException;
 
 }
