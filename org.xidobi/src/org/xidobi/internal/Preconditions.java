@@ -7,17 +7,36 @@
 package org.xidobi.internal;
 
 /**
+ * Utility to check preconditions.
+ * 
  * @author Christian Schwarz
- *
+ * 
  */
 public class Preconditions {
 	/**
 	 * This class can not be instantiated
 	 */
 	private Preconditions() {}
-	
-	
-	public static <T> T checkNotNull(T arg, String argName){
+
+	/**
+	 * Return the argument {@code arg} if it is not null, otherwise an
+	 * {@link IllegalArgumentException} will be thrown. In that case {@code argName} will be used in
+	 * the description as the argument.
+	 * 
+	 * <pre>
+	 * 	checkNotNull("xy","arg1") -> returns "xy";
+	 * 	checkNotNull(null,"arg1") -> throws new IllegalArgumentException("The argument >arg1< must not be null!");
+	 * </pre>
+	 * 
+	 * @param arg
+	 *            the value to check
+	 * @param argName
+	 *            the name of argument {@code arg}
+	 * @return {@code arg}
+	 */
+	public static <T> T checkNotNull(T arg, String argName) {
+		if (arg == null)
+			throw new IllegalArgumentException("The argument >" + argName + "< must not be null!");
 		return arg;
 	}
 }
