@@ -14,7 +14,10 @@ import java.io.IOException;
  */
 public class SerialPortImpl implements SerialPort {
 
-	
+	/**
+	 * 
+	 */
+	SerialPortImpl(OS os, int handle) {}
 
 	public void write(byte[] data) throws IOException {}
 

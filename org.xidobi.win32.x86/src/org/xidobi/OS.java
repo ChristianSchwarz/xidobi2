@@ -105,8 +105,12 @@ public class OS {
 		System.loadLibrary("lib/xidobi");
 	}
 
+	/** The Singleton-Instance of this class*/
 	public final static OS OS = new OS();
-	/** This class is not intended to be instantiated */
+	
+	/** This class is not intended to be instantiated 
+	 * @see #OS
+	 * */
 	private OS() {}
 
 	/**
