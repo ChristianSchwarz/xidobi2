@@ -8,6 +8,7 @@ import java.io.IOException;
  * after usage!
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
  * 
  */
 public interface SerialPort extends Closeable {
