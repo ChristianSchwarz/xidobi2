@@ -1,8 +1,17 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 09.01.2013 15:19:30
- * Erstellt von: Tobias Breﬂler
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi;
 
@@ -15,36 +24,33 @@ import org.xidobi.structs.INT;
  * 
  * 
  * @author Tobias Breﬂler
- * 
  */
 public class TestRegistry {
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) throws Exception {
-
-		System.out.println("-- JNI -------");
+	public static void main(String[] args) {
 
 		HKEY phkResult = new HKEY();
 		int status = OS.RegOpenKeyExA(OS.HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM\\", 0, OS.KEY_READ, phkResult);
 
-		System.err.println(status);
-
 		if (status == ERROR_SUCCESS) {
-			System.out.println("Success");
+			int regEnumValue;
+			int i = 0;
+			for (;;) {
+				byte[] lpValueName = new byte[255];
+				INT lpcchValueName = new INT(255);
+				byte[] lpData = new byte[255];
+				INT lpcbData = new INT(255);
+				regEnumValue = OS.RegEnumValueA(phkResult, i, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
+				if (regEnumValue != ERROR_SUCCESS)
+					break;
+				System.out.println(new String(lpValueName, 0, lpcchValueName.value) + " = " + new String(lpData, 0, lpcbData.value));
+				i++;
+			}
 
-			char[] lpValueName = new char[255];
-			INT lpcchValueName = new INT(255);
-			byte[] lpData = new byte[255];
-			INT lpcbData = new INT(255);
-			int regEnumValue = OS.RegEnumValueA(phkResult, 0, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
-			System.err.println(regEnumValue);
-			System.out.println(new String(lpValueName, 0, lpcchValueName.value));
-			System.out.println(new String(lpData, 0, lpcbData.value));
-
-			int status2 = OS.RegCloseKey(phkResult);
-			System.err.println(status2);
+			OS.RegCloseKey(phkResult);
 
 			phkResult.dispose();
 		}
