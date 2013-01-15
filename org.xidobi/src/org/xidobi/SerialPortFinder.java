@@ -15,7 +15,6 @@
  */
 package org.xidobi;
 
-import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -35,6 +34,6 @@ public interface SerialPortFinder {
 	 * @return a {@link Set} with serial port infos or an empty {@link Set} if
 	 *         no ports are available, but never <code>null</code>
 	 */
-	Set<SerialPortInfo> find() throws IOException;
+	Set<SerialPortInfo> find();
 
 }

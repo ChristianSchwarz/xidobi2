@@ -18,7 +18,7 @@ package org.xidobi;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 /**
- * Delivers the information to a single serial port.
+ * Delivers the information for a single serial port.
  * 
  * @author Tobias Breﬂler
  */
@@ -27,18 +27,18 @@ public class SerialPortInfo {
 	/** the name of the serial port, never <code>null</code> */
 	private final String portName;
 	/**
-	 * a description for the port, can be <code>null</code> if no description is
-	 * available
+	 * the description for the port, can be <code>null</code> if no description
+	 * is available
 	 */
 	private final String description;
 
 	/**
-	 * Creates a new info to a serial port.
+	 * Creates a new serial port info object.
 	 * 
 	 * @param portName
 	 *            the name of the serial port, must not be <code>null</code>
 	 * @param description
-	 *            an additional description for the port, can be
+	 *            the additional description for the port, can be
 	 *            <code>null</code>
 	 */
 	public SerialPortInfo(String portName, String description) {
@@ -56,10 +56,10 @@ public class SerialPortInfo {
 	}
 
 	/**
-	 * Returns the description for the port.
+	 * Returns the additional description for the serial port.
 	 * 
-	 * @return the description for the port, can be <code>null</code> if no
-	 *         description is available
+	 * @return the description for the serial port, can be <code>null</code> if
+	 *         no description is available
 	 */
 	public String getDescription() {
 		return description;

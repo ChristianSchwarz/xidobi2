@@ -21,7 +21,6 @@ import static org.xidobi.OS.HKEY_LOCAL_MACHINE;
 import static org.xidobi.OS.KEY_READ;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -58,7 +57,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * 
 	 * @see org.xidobi.SerialPortFinder#find()
 	 */
-	public Set<SerialPortInfo> find() throws IOException {
+	public Set<SerialPortInfo> find() {
 		HKEY keyHandle = new HKEY();
 		try {
 			openRegistry(keyHandle);
@@ -76,10 +75,10 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * Opens the Windows Registry for subkey
 	 * {@value #HARDWARE_DEVICEMAP_SERIALCOMM}.
 	 */
-	private void openRegistry(HKEY phkResult) throws IOException {
+	private void openRegistry(HKEY phkResult) {
 		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
 		if (status != ERROR_SUCCESS)
-			throw new IOException("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
+			throw new IllegalStateException("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
 	}
 
 	/**
