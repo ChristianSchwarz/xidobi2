@@ -101,16 +101,18 @@ public class OS {
 	 */
 	public static final int HKEY_LOCAL_MACHINE = 0x80000002;
 
-	static {
-		System.loadLibrary("lib/xidobi");
-	}
+	// static {
+	// System.loadLibrary("lib/xidobi");
+	// }
 
-	/** The Singleton-Instance of this class*/
+	/** The Singleton-Instance of this class */
 	public final static OS OS = new OS();
-	
-	/** This class is not intended to be instantiated 
+
+	/**
+	 * This class is not intended to be instantiated
+	 * 
 	 * @see #OS
-	 * */
+	 */
 	private OS() {}
 
 	/**
