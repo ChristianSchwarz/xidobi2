@@ -15,8 +15,11 @@
  */
 package org.xidobi;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
@@ -150,7 +153,6 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test
 	public void open_SetCommStateReturnsFalse() throws Exception {
-
 		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
 		when(os.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
@@ -160,5 +162,25 @@ public class TestSerialPortHandleImpl {
 		exception.expectMessage("Unable to set the control settings for port >portName<! (Error-Code: 1)");
 
 		handle.open("portName", settings);
+	}
+
+	/**
+	 * Verifies that a non null {@link SerialPort} is returned, when the native methods are
+	 * successfully.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void open_returnsSerialPort() throws Exception {
+		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
+		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
+		when(os.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
+
+		SerialPort result = handle.open("portName", settings);
+
+		assertThat(result, is(notNullValue()));
+		verify(os).CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		verify(os).GetCommState(eq(A_PORT_HANDLE), any(DCB.class));
+		verify(os).SetCommState(eq(A_PORT_HANDLE), any(DCB.class));
 	}
 }

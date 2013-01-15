@@ -47,6 +47,21 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 	}
 
+	/**
+	 * Opens a serial port with the given control settings and returns the connected serial port.
+	 * 
+	 * @param portName
+	 *            the name of the port to be open, must not be <code>null</code>
+	 * @param settings
+	 *            the control settings for the port, must not be <code>null</code>
+	 * @return a connected serial port, never <code>null</code>
+	 * @throws IOException
+	 *             <ul>
+	 *             <li>if the port cannot be opened</li>
+	 *             <li>if the current control settings cannot be retrieved</li>
+	 *             <li>if the control settings cannot be set</li>
+	 *             </ul>
+	 */
 	public SerialPort open(String portName, SerialPortSettings settings) throws IOException {
 		checkNotNull(portName, "portName");
 		checkNotNull(settings, "settings");
@@ -62,7 +77,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		if (!isGetCommStateSuccessful)
 			throw newIOExceptionWithLastErrorCode("Unable to retrieve the current control settings for port >" + portName + "<!");
 
-		dcb.BaudRate = 9600;
+		// dcb.BaudRate = 9600;
 
 		boolean isSetCommStateSuccessful = os.SetCommState(handle, dcb);
 		if (!isSetCommStateSuccessful)
