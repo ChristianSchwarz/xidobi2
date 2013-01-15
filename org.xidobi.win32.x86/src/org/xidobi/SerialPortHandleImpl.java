@@ -33,13 +33,14 @@ import org.xidobi.structs.DCB;
  */
 public class SerialPortHandleImpl implements SerialPortHandle {
 
+	/** the native Win32-API, never <code>null</code> */
 	private final OS os;
 
 	/**
-	 * Creates a new Handle using the native win32-API provided by the {@link OS}.
+	 * Creates a new handle using the native Win32-API provided by the {@link OS}.
 	 * 
 	 * @param os
-	 *            must not be <code>null</code>
+	 *            the native Win32-API, must not be <code>null</code>
 	 */
 	public SerialPortHandleImpl(OS os) {
 		this.os = checkNotNull(os, "os");
@@ -56,17 +57,24 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 			throw newIOExceptionWithLastErrorCode("Unable to open port >" + portName + "<!");
 
 		DCB dcb = new DCB();
-		
+
 		boolean isGetCommStateSuccessful = os.GetCommState(handle, dcb);
 		if (!isGetCommStateSuccessful)
 			throw newIOExceptionWithLastErrorCode("Unable to retrieve the current control settings for port >" + portName + "<!");
-		
+
 		dcb.BaudRate = 9600;
-		os.SetCommState(handle, dcb);
+
+		boolean isSetCommStateSuccessful = os.SetCommState(handle, dcb);
+		if (!isSetCommStateSuccessful)
+			throw newIOExceptionWithLastErrorCode("Unable to set the control settings for port >" + portName + "<!");
 
 		return new SerialPortImpl(os, handle);
 	}
 
+	/**
+	 * Returns a new {@link IOException} containing the given message and the error code that is
+	 * returned by {@link OS#GetLastError()}.
+	 */
 	private IOException newIOExceptionWithLastErrorCode(String message) {
 		return new IOException(message + " (Error-Code: " + os.GetLastError() + ")");
 	}

@@ -15,9 +15,7 @@
  */
 package org.xidobi;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -43,10 +41,12 @@ import org.xidobi.structs.DCB;
  */
 public class TestSerialPortHandleImpl {
 
-	private static final int SOME_ERROR_CODE = 1;
-
+	/** some value for an unspecific win32 error code */
+	private static final int AN_ERROR_CODE = 1;
+	/** some value for an unspecific handle */
 	private static final int A_PORT_HANDLE = 1;
 
+	/** constant for an invalid handle */
 	private static final int INVALID_HANDLE = -1;
 
 	/** Class under test */
@@ -57,6 +57,7 @@ public class TestSerialPortHandleImpl {
 	@Mock
 	private SerialPortSettings settings;
 
+	/** expected exceptions */
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
@@ -111,7 +112,7 @@ public class TestSerialPortHandleImpl {
 	@Test
 	public void open_CreateFileReturnsInvalidHandle() throws Exception {
 		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE);
-		when(os.GetLastError()).thenReturn(SOME_ERROR_CODE);
+		when(os.GetLastError()).thenReturn(AN_ERROR_CODE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to open port >portName<! (Error-Code: 1)");
@@ -119,14 +120,44 @@ public class TestSerialPortHandleImpl {
 		handle.open("portName", settings);
 	}
 
+	/**
+	 * Verifies that an {@link IOException} is thrown, when the call to
+	 * {@link OS#GetCommState(int, DCB)} is unsuccessful and returns <code>false</code>. In this
+	 * case the {@link IOException} must contain the error code that is returned by
+	 * {@link OS#GetLastError()} .
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void open_GetCommStateReturnsFalse() throws Exception {
 		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
-		when(os.GetLastError()).thenReturn(SOME_ERROR_CODE);
+		when(os.GetLastError()).thenReturn(AN_ERROR_CODE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to retrieve the current control settings for port >portName<! (Error-Code: 1)");
+
+		handle.open("portName", settings);
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when the call to
+	 * {@link OS#GetCommState(int, DCB)} is unsuccessful and returns <code>false</code>. In this
+	 * case the {@link IOException} must contain the error code that is returned by
+	 * {@link OS#GetLastError()} .
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void open_SetCommStateReturnsFalse() throws Exception {
+
+		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
+		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
+		when(os.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
+		when(os.GetLastError()).thenReturn(AN_ERROR_CODE);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Unable to set the control settings for port >portName<! (Error-Code: 1)");
 
 		handle.open("portName", settings);
 	}
