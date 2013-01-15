@@ -18,18 +18,22 @@
 #ifndef OS_STRUCTS_H_
 #define OS_STRUCTS_H_
 
+// DCB:
 void cacheDCBFields(JNIEnv *, jobject);
 DCB *getDCBFields(JNIEnv *, jobject, DCB *);
 void setDCBFields(JNIEnv *, jobject, DCB *);
 
+// OVERLAPPED:
 void cacheOVERLAPPEDFields(JNIEnv *, jobject);
 OVERLAPPED *getOVERLAPPED(JNIEnv *, jobject);
 void setOVERLAPPED(JNIEnv *, jobject, OVERLAPPED *);
 
+// INT:
 void cacheINT(JNIEnv *env, jobject);
 DWORD *getINT(JNIEnv *, jobject, DWORD *);
 void setINT(JNIEnv *, jobject, DWORD *);
 
+// HKEY:
 void cacheHKEYFields(JNIEnv *, jobject);
 HKEY *getHKEY(JNIEnv *, jobject);
 void setHKEY(JNIEnv *, jobject, HKEY *);
