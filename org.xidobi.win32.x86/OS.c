@@ -40,14 +40,13 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 
 	const char* fileName = (*env)->GetStringUTFChars(env, lpFileName, NULL);
 
-	HANDLE handle;
-	handle = CreateFileA(fileName,
-						dwDesiredAccess,
-						dwShareMode,
-						(LPSECURITY_ATTRIBUTES) lpSecurityAttributes,
-						dwCreationDisposition,
-						dwFlagsAndAttributes,
-						(HANDLE) hTemplateFile);
+	HANDLE handle = CreateFileA(fileName,
+								dwDesiredAccess,
+								dwShareMode,
+								(LPSECURITY_ATTRIBUTES) lpSecurityAttributes,
+								dwCreationDisposition,
+								dwFlagsAndAttributes,
+								(HANDLE) hTemplateFile);
 
 	(*env)->ReleaseStringUTFChars(env, lpFileName, fileName);
 

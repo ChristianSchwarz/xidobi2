@@ -26,41 +26,24 @@
 // **** DCB: *************************************************************
 // ***********************************************************************
 
+/*
+ * a struct to cache the DCB fields
+ */
 typedef struct DCB_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID 	BaudRate,
-				ByteSize,
-				DCBlength,
-				EofChar,
-				ErrorChar,
-				EvtChar,
-				Parity,
-				StopBits,
-				XoffChar,
-				XoffLim,
-				XonChar,
-				XonLim,
-				fAbortOnError,
-				fBinary,
-				fDsrSensitivity,
-				fDtrControl,
-				fDummy2,
-				fErrorChar,
-				fInX,
-				fNull,
-				fOutX,
-				fOutxCtsFlow,
-				fOutxDsrFlow,
-				fParity,
-				fRtsControl,
-				fTXContinueOnXoff,
-				wReserved,
-				wReserved1;
+	jfieldID BaudRate, ByteSize, DCBlength, EofChar, ErrorChar, EvtChar, Parity,
+			StopBits, XoffChar, XoffLim, XonChar, XonLim, fAbortOnError,
+			fBinary, fDsrSensitivity, fDtrControl, fDummy2, fErrorChar, fInX,
+			fNull, fOutX, fOutxCtsFlow, fOutxDsrFlow, fParity, fRtsControl,
+			fTXContinueOnXoff, wReserved, wReserved1;
 } DCB_FID_CACHE;
-
+// cache for DCB fields
 DCB_FID_CACHE DCBc;
 
+/*
+ * Caches the DCB fields in the DCB_FID_CACHE.
+ */
 void cacheDCBFields(JNIEnv *env, jobject dcbObject) {
 	if (DCBc.cached)
 		return;
@@ -98,6 +81,9 @@ void cacheDCBFields(JNIEnv *env, jobject dcbObject) {
 	DCBc.cached = TRUE;
 }
 
+/*
+ * Retrieves the fields from the given jobject and returns it as DCB*.
+ */
 DCB *getDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 	if (!DCBc.cached)
 		cacheDCBFields(env, dcbObject);
@@ -119,7 +105,7 @@ DCB *getDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 	dcbStruct->fDsrSensitivity = (*env)->GetIntField(env, dcbObject, DCBc.fDsrSensitivity);
 	dcbStruct->fDtrControl = (*env)->GetIntField(env, dcbObject, DCBc.fDtrControl);
 	dcbStruct->fDummy2 = (*env)->GetIntField(env, dcbObject, DCBc.fDummy2);
-	dcbStruct->fErrorChar = (*env)->GetIntField(env, dcbObject, DCBc.fErrorChar);
+	dcbStruct->fErrorChar = (*env)->GetIntField(env, dcbObject,	DCBc.fErrorChar);
 	dcbStruct->fInX = (*env)->GetIntField(env, dcbObject, DCBc.fInX);
 	dcbStruct->fNull = (*env)->GetIntField(env, dcbObject, DCBc.fNull);
 	dcbStruct->fOutX = (*env)->GetIntField(env, dcbObject, DCBc.fOutX);
@@ -134,23 +120,26 @@ DCB *getDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 	return dcbStruct;
 }
 
+/*
+ * Sets the fields of the given jobject to the value of the given DCB*.
+ */
 void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 	if (!DCBc.cached)
 		cacheDCBFields(env, dcbObject);
 
 	(*env)->SetIntField(env, dcbObject, DCBc.BaudRate, (jint) dcbStruct->BaudRate);
-	(*env)->SetByteField(env, dcbObject, DCBc.ByteSize, (jbyte) dcbStruct->ByteSize);
-	(*env)->SetIntField(env, dcbObject, DCBc.DCBlength, (jint) dcbStruct->DCBlength);
+	(*env)->SetByteField(env, dcbObject, DCBc.ByteSize,	(jbyte) dcbStruct->ByteSize);
+	(*env)->SetIntField(env, dcbObject, DCBc.DCBlength,	(jint) dcbStruct->DCBlength);
 	(*env)->SetCharField(env, dcbObject, DCBc.EofChar, (jchar) dcbStruct->EofChar);
 	(*env)->SetCharField(env, dcbObject, DCBc.ErrorChar, (jchar) dcbStruct->ErrorChar);
 	(*env)->SetCharField(env, dcbObject, DCBc.EvtChar, (jchar) dcbStruct->EvtChar);
 	(*env)->SetByteField(env, dcbObject, DCBc.Parity, (jbyte) dcbStruct->Parity);
 	(*env)->SetByteField(env, dcbObject, DCBc.StopBits, (jbyte) dcbStruct->StopBits);
-	(*env)->SetCharField(env, dcbObject, DCBc.XoffChar, (jchar) dcbStruct->XoffChar);
-	(*env)->SetShortField(env, dcbObject, DCBc.XoffLim, (jshort) dcbStruct->XoffLim);
+	(*env)->SetCharField(env, dcbObject, DCBc.XoffChar,	(jchar) dcbStruct->XoffChar);
+	(*env)->SetShortField(env, dcbObject, DCBc.XoffLim,	(jshort) dcbStruct->XoffLim);
 	(*env)->SetCharField(env, dcbObject, DCBc.XonChar, (jchar) dcbStruct->XonChar);
 	(*env)->SetShortField(env, dcbObject, DCBc.XonLim, (jshort) dcbStruct->XonLim);
-	(*env)->SetIntField(env, dcbObject, DCBc.fAbortOnError, (jint) dcbStruct->fAbortOnError);
+	(*env)->SetIntField(env, dcbObject, DCBc.fAbortOnError,	(jint) dcbStruct->fAbortOnError);
 	(*env)->SetIntField(env, dcbObject, DCBc.fBinary, (jint) dcbStruct->fBinary);
 	(*env)->SetIntField(env, dcbObject, DCBc.fDsrSensitivity, (jint) dcbStruct->fDsrSensitivity);
 	(*env)->SetIntField(env, dcbObject, DCBc.fDtrControl, (jint) dcbStruct->fDtrControl);
@@ -163,7 +152,7 @@ void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 	(*env)->SetIntField(env, dcbObject, DCBc.fOutxDsrFlow, (jint) dcbStruct->fOutxDsrFlow);
 	(*env)->SetIntField(env, dcbObject, DCBc.fParity, (jint) dcbStruct->fParity);
 	(*env)->SetIntField(env, dcbObject, DCBc.fRtsControl, (jint) dcbStruct->fRtsControl);
-	(*env)->SetIntField(env, dcbObject, DCBc.fTXContinueOnXoff, (jint) dcbStruct->fTXContinueOnXoff);
+	(*env)->SetIntField(env, dcbObject, DCBc.fTXContinueOnXoff,	(jint) dcbStruct->fTXContinueOnXoff);
 	(*env)->SetShortField(env, dcbObject, DCBc.wReserved, (jshort) dcbStruct->wReserved);
 	(*env)->SetShortField(env, dcbObject, DCBc.wReserved1, (jshort) dcbStruct->wReserved1);
 }
@@ -172,54 +161,66 @@ void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 // **** OVERLAPPED: ******************************************************
 // ***********************************************************************
 
+/*
+ * a struct to cache the OVERLAPPED fields
+ */
 typedef struct OVERLAPPED_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID 	cPointer,
-				Internal,
-				InternalHigh,
-				Offset,
-				OffsetHigh,
-				Pointer,
-				hEvent;
+	jfieldID cPointer, Internal, InternalHigh, Offset, OffsetHigh, Pointer,
+			hEvent;
 } OVERLAPPED_FID_CACHE;
-
+// cache for OVERLAPPED fields
 OVERLAPPED_FID_CACHE OVERLAPPEDc;
 
+/*
+ * Caches the OVERLAPPED fields in the OVERLAPPED_FID_CACHE.
+ */
 void cacheOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject) {
 	if (OVERLAPPEDc.cached)
 		return;
 
 	OVERLAPPEDc.clazz = (*env)->GetObjectClass(env, overlappedObject);
 
-	OVERLAPPEDc.cPointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "cPointer", "I");
+	OVERLAPPEDc.cPointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz,
+			"cPointer", "I");
 
 	// OVERLAPPEDc.Internal = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Internal", "J");
 	// OVERLAPPEDc.InternalHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "InternalHigh", "J");
 	// OVERLAPPEDc.Offset = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Offset", "I");
 	// OVERLAPPEDc.OffsetHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "OffsetHigh", "I");
 	// OVERLAPPEDc.Pointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Pointer", "I");
-	OVERLAPPEDc.hEvent = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "hEvent", "I");
+	OVERLAPPEDc.hEvent = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "hEvent",
+			"I");
 
 	OVERLAPPEDc.cached = TRUE;
 }
 
+/*
+ * Retrieves the fields from the given jobject and returns it as OVERLAPPED*.
+ */
 OVERLAPPED *getOVERLAPPED(JNIEnv *env, jobject overlappedObject) {
 	if (!OVERLAPPEDc.cached)
 		cacheOVERLAPPEDFields(env, overlappedObject);
 
-	OVERLAPPED *overlapped = (OVERLAPPED *) (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.cPointer);
+	OVERLAPPED *overlapped = (OVERLAPPED *) (*env)->GetIntField(env,
+			overlappedObject, OVERLAPPEDc.cPointer);
 
 	// overlapped->InternalHigh = (ULONG_PTR) (*env)->GetLongField(env, overlappedObject, OVERLAPPEDc.InternalHigh);
 	// overlapped->Offset = (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.Offset);
 	// overlapped->OffsetHigh = (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.OffsetHigh);
 	// overlapped->Pointer = (PVOID) (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.Pointer);
-	overlapped->hEvent = (HANDLE) (*env)->GetIntField(env, overlappedObject, OVERLAPPEDc.hEvent);
+	overlapped->hEvent = (HANDLE) (*env)->GetIntField(env, overlappedObject,
+			OVERLAPPEDc.hEvent);
 
 	return overlapped;
 }
 
-void setOVERLAPPED(JNIEnv *env, jobject overlappedObject, OVERLAPPED *overlappedStruct) {
+/*
+ * Sets the fields of the given jobject to the value of the given OVERLAPPED*.
+ */
+void setOVERLAPPED(JNIEnv *env, jobject overlappedObject,
+		OVERLAPPED *overlappedStruct) {
 	if (!OVERLAPPEDc.cached)
 		cacheOVERLAPPEDFields(env, overlappedObject);
 
@@ -228,21 +229,28 @@ void setOVERLAPPED(JNIEnv *env, jobject overlappedObject, OVERLAPPED *overlapped
 	// (*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Offset, (jint) overlappedStruct->Offset);
 	// (*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.OffsetHigh, (jint) overlappedStruct->OffsetHigh);
 	// (*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Pointer, (jint) overlappedStruct->Pointer);
-	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.hEvent, (jint) overlappedStruct->hEvent);
+	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.hEvent,
+			(jint) overlappedStruct->hEvent);
 }
 
 // ****************************************************************
 // **** INT: ******************************************************
 // ****************************************************************
 
+/*
+ * a struct to cache the INT fields
+ */
 typedef struct INT_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID 	value;
+	jfieldID value;
 } INT_FID_CACHE;
-
+// cache for INT fields
 INT_FID_CACHE INTc;
 
+/*
+ * Caches the INT fields in the INT_FID_CACHE.
+ */
 void cacheINT(JNIEnv *env, jobject intObject) {
 	if (INTc.cached)
 		return;
@@ -253,6 +261,9 @@ void cacheINT(JNIEnv *env, jobject intObject) {
 	INTc.cached = TRUE;
 }
 
+/*
+ * Retrieves the fields from the given jobject and returns it as DWORD*.
+ */
 DWORD *getINT(JNIEnv *env, jobject intObject, DWORD *intPointer) {
 	if (!INTc.cached)
 		cacheINT(env, intObject);
@@ -262,6 +273,9 @@ DWORD *getINT(JNIEnv *env, jobject intObject, DWORD *intPointer) {
 	return intPointer;
 }
 
+/*
+ * Sets the fields of the given jobject to the value of the given DWORD*.
+ */
 void setINT(JNIEnv *env, jobject intObject, DWORD *intPointer) {
 	if (!INTc.cached)
 		cacheINT(env, intObject);
@@ -273,14 +287,20 @@ void setINT(JNIEnv *env, jobject intObject, DWORD *intPointer) {
 // **** HKEY: ************************************************************
 // ***********************************************************************
 
+/*
+ * a struct to cache the HKEY fields
+ */
 typedef struct HKEY_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID 	cPointer;
+	jfieldID cPointer;
 } HKEY_FID_CACHE;
-
+// cache for HKEY fields
 HKEY_FID_CACHE HKEYc;
 
+/*
+ * Caches the HKEY fields in the HKEY_FID_CACHE.
+ */
 void cacheHKEYFields(JNIEnv *env, jobject hkeyObject) {
 	if (HKEYc.cached)
 		return;
@@ -292,6 +312,9 @@ void cacheHKEYFields(JNIEnv *env, jobject hkeyObject) {
 	HKEYc.cached = TRUE;
 }
 
+/*
+ * Retrieves the fields from the given jobject and returns it as HKEY*.
+ */
 HKEY *getHKEY(JNIEnv *env, jobject hkeyObject) {
 	if (!HKEYc.cached)
 		cacheHKEYFields(env, hkeyObject);
@@ -301,6 +324,9 @@ HKEY *getHKEY(JNIEnv *env, jobject hkeyObject) {
 	return hkey;
 }
 
+/*
+ * Sets the fields of the given jobject to the value of the given HKEY*.
+ */
 void setHKEY(JNIEnv *env, jobject hkeyObject, HKEY *hkeyStruct) {
 	if (!HKEYc.cached)
 		cacheHKEYFields(env, hkeyObject);
