@@ -6,7 +6,7 @@
  */
 package org.xidobi;
 
-import static org.xidobi.internal.Preconditions.checkNotNull;
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 import java.io.IOException;
 
@@ -23,7 +23,8 @@ public class SerialPortImpl implements SerialPort {
 	 */
 	public SerialPortImpl(	OS os,
 							int handle) {
-		checkNotNull(os, "os");
+		checkArgumentNotNull(os, "os");
+		
 	}
 
 	public void write(byte[] data) throws IOException {

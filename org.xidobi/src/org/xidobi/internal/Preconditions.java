@@ -19,9 +19,9 @@ public class Preconditions {
 	private Preconditions() {}
 
 	/**
-	 * Return the argument {@code arg} if it is not null, otherwise an
-	 * {@link IllegalArgumentException} will be thrown. In that case {@code argName} will be used in
-	 * the description as the argument.
+	 * Ensures that argument {@code arg} is not null. If it is <code>null</code> an
+	 * {@link IllegalArgumentException} will be thrown the {@code argName} will be used in
+	 * the error description.
 	 * 
 	 * <pre>
 	 * 	checkNotNull("xy","arg1") -> returns "xy";
@@ -34,7 +34,7 @@ public class Preconditions {
 	 *            the name of argument {@code arg}
 	 * @return {@code arg}
 	 */
-	public static <T> T checkNotNull(T arg, String argName) {
+	public static <T> T checkArgumentNotNull(T arg, String argName) {
 		if (arg == null)
 			throw new IllegalArgumentException("The argument " + wrap(argName) + "must not be null!");
 		return arg;

@@ -29,8 +29,8 @@ public class TestPreconditions {
 	 * Verifies that the argument is returned if it is not <code>null</code>
 	 */
 	@Test
-	public void checkNotNull_nonNullValue() {
-		String result = Preconditions.checkNotNull("i'am not null", "argName");
+	public void checkArgumentNotNull_nonNullValue() {
+		String result = Preconditions.checkArgumentNotNull("i'am not null", "argName");
 		assertThat(result, is("i'am not null"));
 	}
 
@@ -39,19 +39,19 @@ public class TestPreconditions {
 	 * <code>null</code>.
 	 */
 	@Test
-	public void checkNotNull_nullValue()  {
+	public void checkArgumentNotNull_nullValue()  {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The argument >argName< must not be null!");
 		
-		Preconditions.checkNotNull(null, "argName");
+		Preconditions.checkArgumentNotNull(null, "argName");
 	}
 	
 	/**
 	 * Verifies that the argument is returned if it is not <code>null</code>
 	 */
 	@Test
-	public void checkNotNull_nonNullValue_noArgName() {
-		String result = Preconditions.checkNotNull("i'am not null", null);
+	public void checkArgumentNotNull_nonNullValue_noArgName() {
+		String result = Preconditions.checkArgumentNotNull("i'am not null", null);
 		assertThat(result, is("i'am not null"));
 	}
 
@@ -60,10 +60,10 @@ public class TestPreconditions {
 	 * <code>null</code>.
 	 */
 	@Test
-	public void checkNotNull_nullValue_noArgName()  {
+	public void checkArgumentNotNull_nullValue_noArgName()  {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The argument must not be null!");
 		
-		Preconditions.checkNotNull(null, null);
+		Preconditions.checkArgumentNotNull(null, null);
 	}
 }

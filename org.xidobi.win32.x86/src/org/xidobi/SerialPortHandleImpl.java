@@ -19,7 +19,7 @@ import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.OS.GENERIC_READ;
 import static org.xidobi.OS.GENERIC_WRITE;
 import static org.xidobi.OS.OPEN_EXISTING;
-import static org.xidobi.internal.Preconditions.checkNotNull;
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 import java.io.IOException;
 
@@ -43,7 +43,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
 	public SerialPortHandleImpl(OS os) {
-		this.os = checkNotNull(os, "os");
+		this.os = checkArgumentNotNull(os, "os");
 
 	}
 
@@ -63,8 +63,8 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 *             </ul>
 	 */
 	public SerialPort open(String portName, SerialPortSettings settings) throws IOException {
-		checkNotNull(portName, "portName");
-		checkNotNull(settings, "settings");
+		checkArgumentNotNull(portName, "portName");
+		checkArgumentNotNull(settings, "settings");
 
 		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
