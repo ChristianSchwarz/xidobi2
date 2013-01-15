@@ -71,7 +71,7 @@ Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jclass clazz,
 /*
  * Class:     org_xidobi_OS
  * Method:    GetCommState
- * Signature: (ILorg/xidobi/DCB;)Z
+ * Signature: (ILorg/xidobi/structs/DCB;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz,
@@ -91,7 +91,7 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz,
 /*
  * Class:     org_xidobi_OS
  * Method:    SetCommState
- * Signature: (ILorg/xidobi/DCB;)Z
+ * Signature: (ILorg/xidobi/structs/DCB;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz,
@@ -140,7 +140,7 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz,
 /*
  * Class:     org_xidobi_OS
  * Method:    WriteFile
- * Signature: (I[BILorg/xidobi/INT;Lorg/xidobi/OVERLAPPED;)Z
+ * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
@@ -219,7 +219,7 @@ Java_org_xidobi_OS_GetLastError(JNIEnv *env, jclass clazz) {
 /*
  * Class:     org_xidobi_OS
  * Method:    GetOverlappedResult
- * Signature: (ILorg/xidobi/OVERLAPPED;Lorg/xidobi/INT;Z)Z
+ * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;Z)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jclass clazz,
@@ -262,7 +262,7 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
 /*
  * Class:     org_xidobi_OS
  * Method:    RegOpenKeyExA
- * Signature: (ILjava/lang/String;IILorg/xidobi/structs/INT;)I
+ * Signature: (ILjava/lang/String;IILorg/xidobi/structs/HKEY;)I
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
@@ -290,7 +290,7 @@ Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
 /*
  * Class:     org_xidobi_OS
  * Method:    RegCloseKey
- * Signature: (I)I
+ * Signature: (Lorg/xidobi/structs/HKEY;)I
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
@@ -305,8 +305,8 @@ Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
 
 /*
  * Class:     org_xidobi_OS
- * Method:    RegEnumValue
- * Signature: (IILjava/lang/String;III[BI)I
+ * Method:    RegEnumValueA
+ * Signature: (Lorg/xidobi/structs/HKEY;I[BLorg/xidobi/structs/INT;ILorg/xidobi/structs/INT;[BLorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jclass clazz,

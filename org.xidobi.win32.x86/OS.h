@@ -7,42 +7,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef org_xidobi_OS_GENERIC_READ
-#define org_xidobi_OS_GENERIC_READ -2147483648L
-#undef org_xidobi_OS_GENERIC_WRITE
-#define org_xidobi_OS_GENERIC_WRITE 1073741824L
-#undef org_xidobi_OS_OPEN_EXISTING
-#define org_xidobi_OS_OPEN_EXISTING 3L
-#undef org_xidobi_OS_FILE_FLAG_OVERLAPPED
-#define org_xidobi_OS_FILE_FLAG_OVERLAPPED 1073741824L
-#undef org_xidobi_OS_INVALID_HANDLE_VALUE
-#define org_xidobi_OS_INVALID_HANDLE_VALUE -1L
-#undef org_xidobi_OS_ERROR_SUCCESS
-#define org_xidobi_OS_ERROR_SUCCESS 0L
-#undef org_xidobi_OS_ERROR_ACCESS_DENIED
-#define org_xidobi_OS_ERROR_ACCESS_DENIED 5L
-#undef org_xidobi_OS_ERROR_FILE_NOT_FOUND
-#define org_xidobi_OS_ERROR_FILE_NOT_FOUND 2L
-#undef org_xidobi_OS_ERROR_IO_PENDING
-#define org_xidobi_OS_ERROR_IO_PENDING 997L
-#undef org_xidobi_OS_ERROR_NO_MORE_ITEMS
-#define org_xidobi_OS_ERROR_NO_MORE_ITEMS 259L
-#undef org_xidobi_OS_WAIT_ABANDONED
-#define org_xidobi_OS_WAIT_ABANDONED 128L
-#undef org_xidobi_OS_WAIT_OBJECT_0
-#define org_xidobi_OS_WAIT_OBJECT_0 0L
-#undef org_xidobi_OS_WAIT_TIMEOUT
-#define org_xidobi_OS_WAIT_TIMEOUT 258L
-#undef org_xidobi_OS_WAIT_FAILED
-#define org_xidobi_OS_WAIT_FAILED -1L
-#undef org_xidobi_OS_KEY_WRITE
-#define org_xidobi_OS_KEY_WRITE 131078L
-#undef org_xidobi_OS_KEY_EXECUTE
-#define org_xidobi_OS_KEY_EXECUTE 131097L
-#undef org_xidobi_OS_KEY_READ
-#define org_xidobi_OS_KEY_READ 131097L
-#undef org_xidobi_OS_HKEY_LOCAL_MACHINE
-#define org_xidobi_OS_HKEY_LOCAL_MACHINE -2147483646L
+
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateFile
@@ -141,8 +106,8 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegCloseKey
 
 /*
  * Class:     org_xidobi_OS
- * Method:    RegEnumValue
- * Signature: (Lorg/xidobi/structs/HKEY;ILjava/lang/String;III[BI)I
+ * Method:    RegEnumValueA
+ * Signature: (Lorg/xidobi/structs/HKEY;I[BLorg/xidobi/structs/INT;ILorg/xidobi/structs/INT;[BLorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegEnumValueA
   (JNIEnv *, jclass, jobject, jint, jbyteArray, jobject, jint, jobject, jbyteArray, jobject);
