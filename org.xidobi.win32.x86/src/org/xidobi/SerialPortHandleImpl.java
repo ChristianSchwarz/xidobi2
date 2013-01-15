@@ -26,10 +26,13 @@ import java.io.IOException;
 import org.xidobi.structs.DCB;
 
 /**
+ * Handle that opens serial ports.
  * 
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
+ * 
+ * @see SerialPort
  */
 public class SerialPortHandleImpl implements SerialPortHandle {
 

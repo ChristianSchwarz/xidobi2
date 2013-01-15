@@ -28,10 +28,9 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public class OS {
 
-	/**
-	 * 
-	 */
+	/** The name of the native shared library. */
 	private static final String NATIVE_LIB = "xidobi";
+	
 	/** Opens port for input. */
 	public final static int GENERIC_READ = 0x80000000;
 	/** Opens port for output. */
@@ -105,11 +104,11 @@ public class OS {
 	 */
 	public static final int HKEY_LOCAL_MACHINE = 0x80000002;
 
-	/** The Singleton-Instance of this class */
+	/** The singleton instance of this class */
 	public final static OS OS = new OS();
 
 	/**
-	 * This class is not intended to be instantiated
+	 * This class is not intended to be instantiated.
 	 * 
 	 * @see #OS
 	 */
@@ -118,7 +117,7 @@ public class OS {
 			System.loadLibrary(NATIVE_LIB);
 		}
 		catch (UnsatisfiedLinkError e) {
-			throw new UnsatisfiedLinkError("Unable to find "+NATIVE_LIB+".dll!\r\n Are you running in an OSGi enviroment?");
+			throw new UnsatisfiedLinkError("Unable to find " + NATIVE_LIB + ".dll!\r\nAre you running in an OSGi enviroment?");
 		}
 	}
 
