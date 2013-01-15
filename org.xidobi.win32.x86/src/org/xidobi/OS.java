@@ -28,6 +28,10 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public class OS {
 
+	/**
+	 * 
+	 */
+	private static final String NATIVE_LIB = "xidobi";
 	/** Opens port for input. */
 	public final static int GENERIC_READ = 0x80000000;
 	/** Opens port for output. */
@@ -101,10 +105,6 @@ public class OS {
 	 */
 	public static final int HKEY_LOCAL_MACHINE = 0x80000002;
 
-	// static {
-	// System.loadLibrary("lib/xidobi");
-	// }
-
 	/** The Singleton-Instance of this class */
 	public final static OS OS = new OS();
 
@@ -113,7 +113,14 @@ public class OS {
 	 * 
 	 * @see #OS
 	 */
-	private OS() {}
+	private OS() {
+		try {
+			System.loadLibrary(NATIVE_LIB);
+		}
+		catch (UnsatisfiedLinkError e) {
+			throw new UnsatisfiedLinkError("Unable to find "+NATIVE_LIB+".dll!\r\n Are you running in an OSGi enviroment?");
+		}
+	}
 
 	/**
 	 * Creates or opens a file or I/O device. The most commonly used I/O devices are as follows:

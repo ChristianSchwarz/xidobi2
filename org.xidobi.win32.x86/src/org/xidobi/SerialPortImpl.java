@@ -6,20 +6,29 @@
  */
 package org.xidobi;
 
+import static org.xidobi.internal.Preconditions.checkNotNull;
+
 import java.io.IOException;
 
 /**
+ * {@link SerialPort} implementation for the win32 x86 Platform.
+ * 
  * @author Christian Schwarz
- *
+ * 
  */
 public class SerialPortImpl implements SerialPort {
 
 	/**
 	 * 
 	 */
-	SerialPortImpl(OS os, int handle) {}
+	public SerialPortImpl(	OS os,
+							int handle) {
+		checkNotNull(os, "os");
+	}
 
-	public void write(byte[] data) throws IOException {}
+	public void write(byte[] data) throws IOException {
+		
+	}
 
 	public byte[] read() throws IOException {
 		return null;

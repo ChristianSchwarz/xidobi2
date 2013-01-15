@@ -40,14 +40,13 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 
 	const char* fileName = (*env)->GetStringUTFChars(env, lpFileName, NULL);
 
-	HANDLE handle;
-	handle = CreateFileA(fileName,
-						dwDesiredAccess,
-						dwShareMode,
-						(LPSECURITY_ATTRIBUTES) lpSecurityAttributes,
-						dwCreationDisposition,
-						dwFlagsAndAttributes,
-						(HANDLE) hTemplateFile);
+	HANDLE handle = CreateFileA(fileName,
+								dwDesiredAccess,
+								dwShareMode,
+								(LPSECURITY_ATTRIBUTES) lpSecurityAttributes,
+								dwCreationDisposition,
+								dwFlagsAndAttributes,
+								(HANDLE) hTemplateFile);
 
 	(*env)->ReleaseStringUTFChars(env, lpFileName, fileName);
 
@@ -273,6 +272,8 @@ Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jobject this,
 		jobject phkResult) {
 
 	HKEY *hkresult = getHKEY(env, phkResult);
+
+	// Casting jstring to char*.
 	const char *subKey = (*env)->GetStringUTFChars(env, lpSubKey, NULL);
 
 	LONG result = RegOpenKeyExA((HKEY) hkey,
@@ -321,6 +322,7 @@ Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jobject this,
 
 	HKEY *phkey = getHKEY(env, hKey);
 
+	// Initialize array for lpValueName.
 	jsize vnSize = (*env)->GetArrayLength(env, lpValueName);
 	const jbyte pValueName[vnSize];
 
@@ -328,6 +330,7 @@ Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jobject this,
 	getINT(env, lpcchValueName, &pcchValueName);
 	DWORD pType = 0;
 
+	// Initialize array for lpData.
 	jsize size = (*env)->GetArrayLength(env, lpData);
 	const jbyte jBuffer[size];
 
@@ -343,6 +346,7 @@ Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jobject this,
 								(LPBYTE) &jBuffer,
 								(LPDWORD) &pcbData);
 
+	// Copying byte arrays to lpData and lpValueName:
 	(*env)->SetByteArrayRegion(env, lpData, 0, size, jBuffer);
 	(*env)->SetByteArrayRegion(env, lpValueName, 0, pcchValueName, pValueName);
 
