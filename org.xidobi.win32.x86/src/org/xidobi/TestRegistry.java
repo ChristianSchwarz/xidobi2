@@ -16,6 +16,8 @@
 package org.xidobi;
 
 import static org.xidobi.OS.ERROR_SUCCESS;
+import static org.xidobi.OS.HKEY_LOCAL_MACHINE;
+import static org.xidobi.OS.KEY_READ;
 
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
@@ -31,9 +33,10 @@ public class TestRegistry {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+		OS os = OS.OS;
+		
 		HKEY phkResult = new HKEY();
-		int status = OS.RegOpenKeyExA(OS.HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM\\", 0, OS.KEY_READ, phkResult);
+		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM\\", 0, KEY_READ, phkResult);
 
 		if (status == ERROR_SUCCESS) {
 			int regEnumValue;
@@ -43,14 +46,14 @@ public class TestRegistry {
 				INT lpcchValueName = new INT(255);
 				byte[] lpData = new byte[255];
 				INT lpcbData = new INT(255);
-				regEnumValue = OS.RegEnumValueA(phkResult, i, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
+				regEnumValue = os.RegEnumValueA(phkResult, i, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
 				if (regEnumValue != ERROR_SUCCESS)
 					break;
 				System.out.println(new String(lpValueName, 0, lpcchValueName.value) + " = " + new String(lpData, 0, lpcbData.value));
 				i++;
 			}
 
-			OS.RegCloseKey(phkResult);
+			os.RegCloseKey(phkResult);
 
 			phkResult.dispose();
 		}

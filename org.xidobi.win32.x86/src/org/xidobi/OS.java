@@ -105,6 +105,7 @@ public class OS {
 		System.loadLibrary("lib/xidobi");
 	}
 
+	public final static OS OS = new OS();
 	/** This class is not intended to be instantiated */
 	private OS() {}
 
@@ -155,7 +156,7 @@ public class OS {
 	 *         value is {@link #INVALID_HANDLE_VALUE}. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
-	public static native int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
+	public native int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
 
 	/**
 	 * Closes an open object handle.
@@ -170,7 +171,7 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
-	public static native boolean CloseHandle(int handle);
+	public native boolean CloseHandle(int handle);
 
 	/**
 	 * Retrieves the current control settings for a specified communications device.
@@ -189,7 +190,7 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
-	public static native boolean GetCommState(int handle, DCB dcb);
+	public native boolean GetCommState(int handle, DCB dcb);
 
 	/**
 	 * Configures a communications device according to the specifications in a device-control block
@@ -210,7 +211,7 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
-	public static native boolean SetCommState(int handle, DCB dcb);
+	public native boolean SetCommState(int handle, DCB dcb);
 
 	/**
 	 * Creates or opens a named or unnamed event object.
@@ -248,7 +249,7 @@ public class OS {
 	 *         <p>
 	 *         If the function fails, the return value is NULL.
 	 */
-	public static native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, String lpName);
+	public native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, String lpName);
 
 	/**
 	 * Writes data to the specified file or input/output (I/O) device.
@@ -288,7 +289,7 @@ public class OS {
 	 *         return value is zero (<code>false</code>). To get extended error information, call
 	 *         the {@link #GetLastError()} function.
 	 */
-	public static native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
+	public native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Reads data from the specified file or input/output (I/O) device. Reads occur at the position
@@ -330,7 +331,7 @@ public class OS {
 	 *         return value is zero (<code>false</code>). To get extended error information, call
 	 *         the {@link #GetLastError()} function.
 	 */
-	public static native boolean ReadFile(int handle, byte[] lpBuffer, int nNumberOfBytesToRead, INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
+	public native boolean ReadFile(int handle, byte[] lpBuffer, int nNumberOfBytesToRead, INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
@@ -349,7 +350,7 @@ public class OS {
 	 *         the most recent last-error code to have been set; some functions set the last-error
 	 *         code to 0 on success and others do not.
 	 */
-	public static native int GetLastError();
+	public native int GetLastError();
 
 	/**
 	 * Retrieves the results of an overlapped operation on the specified file, named pipe, or
@@ -378,7 +379,7 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
-	public static native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
+	public native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
 
 	/**
 	 * Waits until the specified object is in the signaled state or the time-out interval elapses.
@@ -417,7 +418,7 @@ public class OS {
 	 *         call {@link #GetLastError()}.</li>
 	 *         </ul>
 	 */
-	public static native int WaitForSingleObject(int hHandle, int dwMilliseconds);
+	public native int WaitForSingleObject(int hHandle, int dwMilliseconds);
 
 	/**
 	 * Opens the specified registry key. Note that key names are not case sensitive.
@@ -454,7 +455,7 @@ public class OS {
 	 *         If the function fails, the return value is a nonzero error code defined in
 	 *         Winerror.h.
 	 */
-	public static native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, HKEY phkResult);
+	public native int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, HKEY phkResult);
 
 	/**
 	 * Closes a handle to the specified registry key.
@@ -469,7 +470,7 @@ public class OS {
 	 *         If the function fails, the return value is a nonzero error code defined in
 	 *         Winerror.h.
 	 */
-	public static native int RegCloseKey(HKEY hKey);
+	public native int RegCloseKey(HKEY hKey);
 
 	/**
 	 * Enumerates the values for the specified open registry key. The function copies one indexed
@@ -529,7 +530,7 @@ public class OS {
 	 *         buffer is too small to receive the value, the function returns
 	 *         {@link #ERROR_MORE_DATA}.
 	 */
-	public static native int RegEnumValueA(HKEY hKey, int dwIndex, byte[] lpValueName, INT lpcchValueName, int lpReserved, INT lpType, byte[] lpData, INT lpcbData);
+	public native int RegEnumValueA(HKEY hKey, int dwIndex, byte[] lpValueName, INT lpcchValueName, int lpReserved, INT lpType, byte[] lpData, INT lpcbData);
 
 	/**
 	 * Returns a pointer to the allocated memory of the given size.
@@ -538,7 +539,7 @@ public class OS {
 	 *            the size of the memory
 	 * @return pointer to the allocated memory
 	 */
-	public static native int malloc(int size);
+	public native int malloc(int size);
 
 	/**
 	 * Frees the memory of the given pointer.
@@ -546,20 +547,20 @@ public class OS {
 	 * @param pointer
 	 *            pointer to the memory
 	 */
-	public static native void free(int pointer);
+	public native void free(int pointer);
 
 	/**
 	 * Size of an OVERLAPPED struct.
 	 * 
 	 * @return the size of the OVERLAPPED struct
 	 */
-	public static native int sizeOf_OVERLAPPED();
+	public native int sizeOf_OVERLAPPED();
 
 	/**
 	 * Size of an HKEY struct.
 	 * 
 	 * @return the size of the HKEY struct
 	 */
-	public static native int sizeOf_HKEY();
+	public native int sizeOf_HKEY();
 
 }

@@ -15,7 +15,7 @@
  */
 package org.xidobi.structs;
 
-import org.xidobi.OS;
+import static org.xidobi.OS.OS;
 
 /**
  * Java representation of the C-struct OVERLAPPED.

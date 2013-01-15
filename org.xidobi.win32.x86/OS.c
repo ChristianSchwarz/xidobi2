@@ -29,7 +29,7 @@
  * Signature: (Ljava/lang/String;IIIIII)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 		jstring lpFileName,
 		jint dwDesiredAccess,
 		jint dwShareMode,
@@ -60,7 +60,7 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jclass clazz,
  * Signature: (I)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
 		jint handle) {
 	if (CloseHandle((HANDLE) handle))
 		return JNI_TRUE;
@@ -74,7 +74,7 @@ Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jclass clazz,
  * Signature: (ILorg/xidobi/structs/DCB;)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 		jint handle,
 		jobject dcbObject) {
 	DCB dcb;
@@ -94,7 +94,7 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jclass clazz,
  * Signature: (ILorg/xidobi/structs/DCB;)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
 		jint handle,
 		jobject dcbObject) {
 	DCB dcb;
@@ -113,7 +113,7 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jclass clazz,
  * Signature: (IZZLjava/lang/String;)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
 		jint lpEventAttributes,
 		jboolean bManualReset,
 		jboolean bInitialState,
@@ -143,7 +143,7 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jclass clazz,
  * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 		jint handle,
 		jbyteArray lpBuffer,
 		jint nNumberOfBytesToWrite,
@@ -177,7 +177,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jclass clazz,
  * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 		jint handle,
 		jbyteArray lpBuffer,
 		jint nNumberOfBytesToRead,
@@ -212,7 +212,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jclass clazz,
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_GetLastError(JNIEnv *env, jclass clazz) {
+Java_org_xidobi_OS_GetLastError(JNIEnv *env, jobject this) {
 	return (jint) GetLastError();
 }
 
@@ -222,7 +222,7 @@ Java_org_xidobi_OS_GetLastError(JNIEnv *env, jclass clazz) {
  * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;Z)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jclass clazz,
+Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 		  jint handle,
 		  jobject lpOverlapped,
 		  jobject lpNumberOfBytesTransferred,
@@ -251,7 +251,7 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jclass clazz,
  * Signature: (II)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jobject this,
 		jint hhandle,
 		jint dwMilliseconds) {
 	DWORD error = WaitForSingleObject(	(HANDLE) hhandle,
@@ -265,7 +265,7 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jclass clazz,
  * Signature: (ILjava/lang/String;IILorg/xidobi/structs/HKEY;)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jobject this,
 		jint hkey,
 		jstring lpSubKey,
 		jint ulOptions,
@@ -293,7 +293,7 @@ Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jclass clazz,
  * Signature: (Lorg/xidobi/structs/HKEY;)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jobject this,
 		jobject hKey) {
 
 	HKEY *phkey = getHKEY(env, hKey);
@@ -309,7 +309,7 @@ Java_org_xidobi_OS_RegCloseKey(JNIEnv *env, jclass clazz,
  * Signature: (Lorg/xidobi/structs/HKEY;I[BLorg/xidobi/structs/INT;ILorg/xidobi/structs/INT;[BLorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jobject this,
 		jobject hKey,
 		jint dwIndex,
 		jbyteArray lpValueName,
@@ -359,7 +359,7 @@ Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jclass clazz,
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_malloc(JNIEnv *env, jclass clazz,
+Java_org_xidobi_OS_malloc(JNIEnv *env, jobject this,
 		jint size) {
 	return (jint) malloc(size);
 }
@@ -369,7 +369,7 @@ Java_org_xidobi_OS_malloc(JNIEnv *env, jclass clazz,
  * Method:    free
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_org_xidobi_OS_free(JNIEnv *env, jclass clazz,
+JNIEXPORT void JNICALL Java_org_xidobi_OS_free(JNIEnv *env, jobject this,
 		jint pointer) {
 	free((void *) pointer);
 }
@@ -380,7 +380,7 @@ JNIEXPORT void JNICALL Java_org_xidobi_OS_free(JNIEnv *env, jclass clazz,
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_sizeOf_1OVERLAPPED(JNIEnv *env, jclass clazz) {
+Java_org_xidobi_OS_sizeOf_1OVERLAPPED(JNIEnv *env, jobject this) {
 	return (jint) sizeof(OVERLAPPED);
 }
 
@@ -390,6 +390,6 @@ Java_org_xidobi_OS_sizeOf_1OVERLAPPED(JNIEnv *env, jclass clazz) {
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_sizeOf_1HKEY(JNIEnv *env, jclass clazz) {
+Java_org_xidobi_OS_sizeOf_1HKEY(JNIEnv *env, jobject this) {
 	return (jint) sizeof(HKEY);
 }

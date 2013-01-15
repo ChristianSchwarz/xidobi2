@@ -15,19 +15,11 @@
  */
 package org.xidobi;
 
-import static org.xidobi.OS.CloseHandle;
-import static org.xidobi.OS.CreateEventA;
-import static org.xidobi.OS.CreateFile;
 import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.OS.GENERIC_READ;
 import static org.xidobi.OS.GENERIC_WRITE;
-import static org.xidobi.OS.GetCommState;
-import static org.xidobi.OS.GetLastError;
-import static org.xidobi.OS.GetOverlappedResult;
 import static org.xidobi.OS.OPEN_EXISTING;
-import static org.xidobi.OS.ReadFile;
-import static org.xidobi.OS.SetCommState;
-import static org.xidobi.OS.WaitForSingleObject;
+import static org.xidobi.OS.WAIT_OBJECT_0;
 
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.INT;
@@ -51,10 +43,10 @@ public class TestRead {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 
-
+		
 		boolean succeed;
-
-		int handle = CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		OS os = OS.OS;
+		int handle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle == -1) {
 			System.err.println("No handle!");
@@ -63,34 +55,34 @@ public class TestRead {
 		System.out.println("Handle: " + handle);
 
 		DCB dcb = new DCB();
-		GetCommState(handle, dcb);
+		os.GetCommState(handle, dcb);
 		dcb.BaudRate = 9600;
-		SetCommState(handle, dcb);
+		os.SetCommState(handle, dcb);
 
 		for (;;) {
 			byte[] LP_BUFFER = new byte[9];
 
 			println("-----------------");
-			int eventHandle = CreateEventA(0, true, false, null);
-			System.err.println("Error?" + GetLastError());
+			int eventHandle = os.CreateEventA(0, true, false, null);
+			System.err.println("Error?" + os.GetLastError());
 			println("Event-Handle: " + eventHandle);
 
 			OVERLAPPED overlapped = new OVERLAPPED();
 			overlapped.hEvent = eventHandle;
 
 			INT lpNumberOfBytesRead = new INT();
-			succeed = ReadFile(handle, LP_BUFFER, 9, lpNumberOfBytesRead, overlapped);
-			System.err.println("Error?" + GetLastError());
+			succeed = os.ReadFile(handle, LP_BUFFER, 9, lpNumberOfBytesRead, overlapped);
+			System.err.println("Error?" + os.GetLastError());
 			println("ReadFile->" + succeed + " bytes read: " + lpNumberOfBytesRead);
 
-			int waitForSingleObject = WaitForSingleObject(eventHandle, 2000);
-			System.err.println("Error?" + GetLastError());
+			int waitForSingleObject = os.WaitForSingleObject(eventHandle, 2000);
+			System.err.println("Error?" + os.GetLastError());
 			System.out.println("WaitForSingleObject->" + waitForSingleObject);
 
-			if (waitForSingleObject == OS.WAIT_OBJECT_0) {
+			if (waitForSingleObject == WAIT_OBJECT_0) {
 				INT numberOfBytesRead = new INT();
-				succeed = GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
-				System.err.println("Error?" + GetLastError());
+				succeed = os.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
+				System.err.println("Error?" + os.GetLastError());
 				println("GetOverlappedResult->" + succeed + " read:" + numberOfBytesRead);
 				
 				System.out.println("Read: " + new String(LP_BUFFER));
@@ -101,7 +93,7 @@ public class TestRead {
 			
 			overlapped.dispose();
 
-			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
+			println("close eventHandle=" + eventHandle + " ->" + os.CloseHandle(eventHandle));
 			
 			Thread.sleep(100);
 

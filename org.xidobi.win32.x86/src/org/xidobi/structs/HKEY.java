@@ -6,7 +6,7 @@
  */
 package org.xidobi.structs;
 
-import org.xidobi.OS;
+import static org.xidobi.OS.OS;
 
 /**
  * A pointer to an HKEY in C.

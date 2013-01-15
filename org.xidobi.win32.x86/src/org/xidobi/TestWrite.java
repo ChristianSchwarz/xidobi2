@@ -15,18 +15,11 @@
  */
 package org.xidobi;
 
-import static org.xidobi.OS.CloseHandle;
-import static org.xidobi.OS.CreateEventA;
-import static org.xidobi.OS.CreateFile;
 import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.OS.GENERIC_READ;
 import static org.xidobi.OS.GENERIC_WRITE;
-import static org.xidobi.OS.GetCommState;
-import static org.xidobi.OS.GetOverlappedResult;
 import static org.xidobi.OS.OPEN_EXISTING;
-import static org.xidobi.OS.SetCommState;
-import static org.xidobi.OS.WaitForSingleObject;
-import static org.xidobi.OS.WriteFile;
+import static org.xidobi.OS.WAIT_OBJECT_0;
 
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.INT;
@@ -50,13 +43,13 @@ public class TestWrite {
 	 * @throws InterruptedException
 	 */
 	public static void main(String[] args) throws InterruptedException {
-
+		OS os =OS.OS;
 		for (;;) {
 			println("-----------------");
 
 			boolean succeed;
 
-			int handle = CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+			int handle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 			if (handle == -1) {
 				System.err.println("No handle!");
@@ -65,26 +58,26 @@ public class TestWrite {
 			System.out.println("Handle: " + handle);
 
 			DCB dcb = new DCB();
-			GetCommState(handle, dcb);
+			os.GetCommState(handle, dcb);
 			dcb.BaudRate = 9600;
-			SetCommState(handle, dcb);
+			os.SetCommState(handle, dcb);
 
-			int eventHandle = CreateEventA(0, true, false, null);
+			int eventHandle = os.CreateEventA(0, true, false, null);
 			println("Event-Handle: " + eventHandle);
 
 			OVERLAPPED overlapped = new OVERLAPPED();
 			overlapped.hEvent = eventHandle;
 			
 			INT lpNumberOfBytesWritten = new INT();
-			succeed = WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, overlapped);
+			succeed = os.WriteFile(handle, LP_BUFFER, 9, lpNumberOfBytesWritten, overlapped);
 			println("WriteFile->" + succeed + " bytes written: " + lpNumberOfBytesWritten);
 
-			int waitForSingleObject = WaitForSingleObject(eventHandle, 2000);
+			int waitForSingleObject = os.WaitForSingleObject(eventHandle, 2000);
 			System.out.println("WaitForSingleObject->" + waitForSingleObject);
 
-			if (waitForSingleObject == OS.WAIT_OBJECT_0) {
+			if (waitForSingleObject == WAIT_OBJECT_0) {
 				INT lpNumberOfBytesTransferred = new INT();
-				succeed = GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+				succeed = os.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
 				println("GetOverlappedResult->" + succeed + " written:" + lpNumberOfBytesTransferred);
 			}
 			else {
@@ -93,8 +86,8 @@ public class TestWrite {
 
 			overlapped.dispose();
 
-			println("close eventHandle=" + eventHandle + " ->" + CloseHandle(eventHandle));
-			println("close handle=" + handle + " ->" + CloseHandle(handle));
+			println("close eventHandle=" + eventHandle + " ->" + os.CloseHandle(eventHandle));
+			println("close handle=" + handle + " ->" + os.CloseHandle(handle));
 
 		}
 	}
