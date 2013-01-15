@@ -312,7 +312,7 @@ JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jclass clazz,
 		jobject hKey,
 		jint dwIndex,
-		jcharArray lpValueName,
+		jbyteArray lpValueName,
 		jobject lpcchValueName,
 		jint lpReserved,
 		jobject lpType,
@@ -322,7 +322,7 @@ Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jclass clazz,
 	HKEY *phkey = getHKEY(env, hKey);
 
 	jsize vnSize = (*env)->GetArrayLength(env, lpValueName);
-	const jchar pValueName[vnSize];
+	const jbyte pValueName[vnSize];
 
 	DWORD pcchValueName = 0;
 	getINT(env, lpcchValueName, &pcchValueName);
@@ -344,7 +344,7 @@ Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jclass clazz,
 								(LPDWORD) &pcbData);
 
 	(*env)->SetByteArrayRegion(env, lpData, 0, size, jBuffer);
-	(*env)->SetCharArrayRegion(env, lpValueName, 0, pcchValueName, pValueName);
+	(*env)->SetByteArrayRegion(env, lpValueName, 0, pcchValueName, pValueName);
 
 	setINT(env, lpcchValueName, &pcchValueName);
 	setINT(env, lpType, &pType);
