@@ -176,8 +176,8 @@ public class TestSerialPortHandleImpl {
 	}
 
 	/**
-	 * Verifies that a non null {@link SerialPort} is returned, when the native methods are
-	 * successfully.
+	 * Verifies that a non <code>null</code> {@link SerialPort} is returned, when the native methods
+	 * are successful.
 	 * 
 	 * @throws Exception
 	 */
