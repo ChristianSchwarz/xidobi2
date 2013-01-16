@@ -64,4 +64,9 @@ public class SerialPortInfo {
 		return description;
 	}
 
+	@Override
+	public String toString() {
+		return "SerialPortInfo [portName=" + portName + ", description=" + description + "]";
+	}
+
 }
