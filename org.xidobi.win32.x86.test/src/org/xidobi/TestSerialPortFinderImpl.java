@@ -15,19 +15,34 @@
  */
 package org.xidobi;
 
+import static java.nio.ByteBuffer.wrap;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.OS.ERROR_NO_MORE_ITEMS;
+import static org.xidobi.OS.ERROR_SUCCESS;
+import static org.xidobi.OS.HKEY_LOCAL_MACHINE;
+import static org.xidobi.OS.KEY_READ;
+
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.xidobi.structs.HKEY;
+import org.xidobi.structs.INT;
 
 /**
  * Tests the class {@link SerialPortFinderImpl}.
@@ -81,7 +96,7 @@ public class TestSerialPortFinderImpl {
 	public void find_whenRegOpenKeyExANotSuccessful() {
 		when(os.sizeOf_HKEY()).thenReturn(SIZE_OF_HKEY);
 		when(os.malloc(SIZE_OF_HKEY)).thenReturn(HKEY_POINTER);
-		when(os.RegOpenKeyExA(eq(OS.HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(OS.KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
+		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
 
 		exception.expect(IllegalStateException.class);
 		exception.expectMessage("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + AN_ERROR_CODE + ")");
@@ -94,4 +109,60 @@ public class TestSerialPortFinderImpl {
 			verify(os, times(1)).free(HKEY_POINTER);
 		}
 	}
+
+	@Test
+	public void find_withNoSerialPortValuesInRegistry() {
+		//@formatter:off
+		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+			.thenReturn(ERROR_SUCCESS);
+		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		// @formatter:on
+
+		Set<SerialPortInfo> result = finder.find();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result, is(hasSize(0)));
+	}
+
+	@Test
+	public void find_withOneSerialPortValueInRegistry() {
+		//@formatter:off
+		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+			.thenReturn(ERROR_SUCCESS);
+		doAnswer(withValue("/Device/Serial1", "COM1", ERROR_SUCCESS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		// @formatter:on
+
+		Set<SerialPortInfo> result = finder.find();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result, is(hasSize(1)));
+	}
+
+	// ///////////////////////////////////////////////////////////////////////////////////
+
+	/** Mocks the behaviour of the native method RegEnumValueA(). */
+	private Answer<Integer> withValue(final String lpValueName, final String lpData, final int status) {
+		System.out.println("2");
+		return new Answer<Integer>() {
+			@Override
+			public Integer answer(InvocationOnMock invocation) throws Throwable {
+				byte[] valueName = (byte[]) invocation.getArguments()[2];
+				INT valueSize = (INT) invocation.getArguments()[3];
+				byte[] data = (byte[]) invocation.getArguments()[6];
+				INT dataSize = (INT) invocation.getArguments()[7];
+
+				wrap(valueName).asCharBuffer().put(lpValueName);
+				valueSize.value = lpValueName.length();
+				wrap(data).asCharBuffer().put(lpData);
+				dataSize.value = lpData.length();
+
+				return status;
+			}
+		};
+	}
+
 }

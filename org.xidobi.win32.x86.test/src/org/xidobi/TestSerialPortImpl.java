@@ -52,7 +52,7 @@ public class TestSerialPortImpl {
 	@SuppressWarnings("resource")
 	public void new_nullOs() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The argument >os< must not be null!");
+		exception.expectMessage("Argument >os< must not be null!");
 
 		new SerialPortImpl(null, 12345);
 	}
@@ -65,7 +65,7 @@ public class TestSerialPortImpl {
 	@SuppressWarnings("resource")
 	public void new_negativeHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The argument >os< must not be null!");
+		exception.expectMessage("Argument >os< must not be null!");
 
 		new SerialPortImpl(os, INVALID_HANDLE_VALUE);
 	}
