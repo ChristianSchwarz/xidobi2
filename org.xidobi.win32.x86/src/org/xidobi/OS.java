@@ -15,6 +15,10 @@
  */
 package org.xidobi;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
@@ -168,6 +172,7 @@ public class OS {
 	 *         value is {@link #INVALID_HANDLE_VALUE}. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
+	@CheckReturnValue
 	public native int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
 
 	/**
@@ -183,6 +188,7 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
+	@CheckReturnValue
 	public native boolean CloseHandle(int handle);
 
 	/**
@@ -202,6 +208,7 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
+	@CheckReturnValue
 	public native boolean GetCommState(int handle, DCB dcb);
 
 	/**
@@ -223,6 +230,7 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
+	@CheckReturnValue
 	public native boolean SetCommState(int handle, DCB dcb);
 
 	/**
@@ -261,7 +269,8 @@ public class OS {
 	 *         <p>
 	 *         If the function fails, the return value is NULL.
 	 */
-	public native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, String lpName);
+	@CheckReturnValue
+	public native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState,@Nullable String lpName);
 
 	/**
 	 * Writes data to the specified file or input/output (I/O) device.
@@ -301,7 +310,8 @@ public class OS {
 	 *         return value is zero (<code>false</code>). To get extended error information, call
 	 *         the {@link #GetLastError()} function.
 	 */
-	public native boolean WriteFile(int handle, byte[] lpBuffer, int nNumberOfBytesToWrite, INT lpNumberOfBytesWritten, OVERLAPPED lpOverlapped);
+	@CheckReturnValue
+	public native boolean WriteFile(int handle,@Nonnull  byte[] lpBuffer, int nNumberOfBytesToWrite,@Nullable  INT lpNumberOfBytesWritten,@Nullable OVERLAPPED lpOverlapped);
 
 	/**
 	 * Reads data from the specified file or input/output (I/O) device. Reads occur at the position
@@ -343,7 +353,8 @@ public class OS {
 	 *         return value is zero (<code>false</code>). To get extended error information, call
 	 *         the {@link #GetLastError()} function.
 	 */
-	public native boolean ReadFile(int handle, byte[] lpBuffer, int nNumberOfBytesToRead, INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
+	@CheckReturnValue
+	public native boolean ReadFile(int handle,@Nonnull  byte[] lpBuffer, int nNumberOfBytesToRead,@Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
