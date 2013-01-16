@@ -36,8 +36,9 @@ import org.xidobi.OS;
  */
 public class TestHKEY {
 
-	private static final int HKEY_POINTER = 3;
-
+	/** Some pointer to the HKEY struct. */
+	private static final int A_HKEY_POINTER = 3;
+	/** Size of an HKEY struct. */
 	private static final int SIZEOF_HKEY = 2;
 
 	/** Class under test. */
@@ -71,7 +72,7 @@ public class TestHKEY {
 	@Test
 	public void new_allocatesHKEY() {
 		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(os.malloc(SIZEOF_HKEY)).thenReturn(HKEY_POINTER);
+		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
 
 		hkey = new HKEY(os);
 
@@ -86,12 +87,13 @@ public class TestHKEY {
 	@Test
 	public void dispose_freesHKEY() {
 		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(os.malloc(SIZEOF_HKEY)).thenReturn(HKEY_POINTER);
+		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
 
 		hkey = new HKEY(os);
 		hkey.dispose();
 
 		assertThat(hkey.isDisposed(), is(true));
-		verify(os).free(HKEY_POINTER);
+		verify(os).free(A_HKEY_POINTER);
 	}
+
 }
