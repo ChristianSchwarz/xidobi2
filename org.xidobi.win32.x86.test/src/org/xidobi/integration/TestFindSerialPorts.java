@@ -36,7 +36,9 @@ import org.xidobi.SerialPortInfo;
 /**
  * Integration test for class {@link SerialPortFinderImpl}.
  * <p>
- * This test class is only successful when it is executed under Windows.
+ * <b>Please note:</b> Edit file <i>setupIntegrationTests.properties</i> to setup this integration
+ * test for the system it is running on. This test can only be successful when it is executed under
+ * Windows.
  * 
  * @author Tobias Breﬂler
  */
