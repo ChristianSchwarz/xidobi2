@@ -45,7 +45,7 @@ public class Preconditions {
 	 */
 	public static <T> T checkArgumentNotNull(T arg, String argName) {
 		if (arg == null)
-			throw new IllegalArgumentException("The argument " + wrap(argName) + " must not be null!");
+			throw new IllegalArgumentException("The argument " + wrap(argName) + "must not be null!");
 		return arg;
 	}
 
@@ -53,6 +53,6 @@ public class Preconditions {
 	private static String wrap(String argName) {
 		if (argName == null)
 			return "";
-		return '>' + argName + "<";
+		return '>' + argName + "< ";
 	}
 }
