@@ -15,6 +15,8 @@
  */
 package org.xidobi;
 
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.OS.INVALID_HANDLE_VALUE;
 
@@ -23,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /**
  * Tests the class {@link SerialPortImpl}
@@ -33,15 +36,23 @@ import org.mockito.Mock;
 @SuppressWarnings("javadoc")
 public class TestSerialPortImpl {
 
+	/** a valid HANDLE value used in tests */
+	private static final int handle = 12345;
+
 	/** check exceptions */
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
+
 	@Mock
 	private OS os;
+
+	/** the class under test */
+	private SerialPort port;
 
 	@Before
 	public void setUp() {
 		initMocks(this);
+		port = new SerialPortImpl(os, handle);
 	}
 
 	/**
@@ -54,11 +65,12 @@ public class TestSerialPortImpl {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >os< must not be null!");
 
-		new SerialPortImpl(null, 12345);
+		new SerialPortImpl(null, handle);
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown when the handle is {@link OS#INVALID_HANDLE_VALUE} (-1).
+	 * Verifies that an {@link IllegalArgumentException} is thrown when the handle is
+	 * {@link OS#INVALID_HANDLE_VALUE} (-1).
 	 * 
 	 */
 	@Test
@@ -70,4 +82,12 @@ public class TestSerialPortImpl {
 		new SerialPortImpl(os, INVALID_HANDLE_VALUE);
 	}
 
+	/**
+	 * Verifies that a call to {@link SerialPort#close()} frees the native resources.
+	 */
+	@Test
+	public void close() throws Exception {
+		port.close();
+		verify(os, only()).CloseHandle(handle);
+	}
 }

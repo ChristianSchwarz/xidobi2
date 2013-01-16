@@ -98,5 +98,7 @@ public class SerialPortImpl implements SerialPort {
 	 * 
 	 * @see java.io.Closeable#close()
 	 */
-	public void close() throws IOException {}
+	public void close() throws IOException {
+		os.CloseHandle(handle);
+	}
 }
