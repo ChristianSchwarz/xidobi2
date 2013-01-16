@@ -58,7 +58,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * @see org.xidobi.SerialPortFinder#find()
 	 */
 	public Set<SerialPortInfo> find() {
-		HKEY keyHandle = new HKEY();
+		HKEY keyHandle = new HKEY(os);
 		try {
 			openRegistry(keyHandle);
 			try {

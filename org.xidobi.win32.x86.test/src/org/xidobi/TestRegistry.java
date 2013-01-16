@@ -35,7 +35,7 @@ public class TestRegistry {
 	public static void main(String[] args) {
 		OS os = OS.OS;
 		
-		HKEY phkResult = new HKEY();
+		HKEY phkResult = new HKEY(os);
 		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM\\", 0, KEY_READ, phkResult);
 
 		if (status == ERROR_SUCCESS) {
