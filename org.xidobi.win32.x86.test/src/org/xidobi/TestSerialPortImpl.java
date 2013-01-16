@@ -65,7 +65,7 @@ public class TestSerialPortImpl {
 	@SuppressWarnings("resource")
 	public void new_negativeHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Argument >os< must not be null!");
+		exception.expectMessage("Argument >handle< is invalid! Invalid handle value");
 
 		new SerialPortImpl(os, INVALID_HANDLE_VALUE);
 	}

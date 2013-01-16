@@ -68,7 +68,7 @@ public class Preconditions {
 	 *            the name of the argument can be <code>null</code>
 	 * 
 	 */
-	public static void checkAgrument(boolean condition, String argName) {
+	public static void checkArgument(boolean condition, String argName) {
 		checkArgument(condition, argName, null);
 	}
 
@@ -79,8 +79,16 @@ public class Preconditions {
 	 * 
 	 * <pre>
 	 *  int[] array = {1,2,3};
-	 *  checkArgument(array.length<5,"array","Expected less than 5 elements!"); -> pass 
-	 *  checkArgument(array.length>5,"array","Expected more than 5 elements!"); -> throws an IllegalArgumentException("Argument >array< is invalid! Expected more than 5 elements");
+	 *  checkArgument(array.length<5,"array","Expected less than 5 elements!"); 
+	 *    -> pass 
+	 *  checkArgument(array.length>5,null,null); 
+	 *    -> throws an IllegalArgumentException;
+	 *  checkArgument(array.length>5,null,"Expected more than 5 elements!"); 
+	 *    -> throws an IllegalArgumentException -> "Expected more than 5 elements";
+	 *  checkArgument(array.length>5,"array",null); 
+	 *    -> throws an IllegalArgumentException("Argument >array< is invalid!);
+	 *  checkArgument(array.length>5,"array","Expected more than 5 elements!"); 
+	 *    -> throws an IllegalArgumentException("Argument >array< is invalid! Expected more than 5 elements!");
 	 * </pre>
 	 * 
 	 * 
