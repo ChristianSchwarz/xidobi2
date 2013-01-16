@@ -15,7 +15,8 @@
  */
 package org.xidobi;
 
-import static java.nio.ByteBuffer.wrap;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -34,6 +35,8 @@ import static org.xidobi.OS.KEY_READ;
 
 import java.util.Set;
 
+import org.hamcrest.CustomTypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -110,6 +113,10 @@ public class TestSerialPortFinderImpl {
 		}
 	}
 
+	/**
+	 * Verifies that an empty {@link Set} is returned, when no values for serial ports are present
+	 * in the Windows Registry.
+	 */
 	@Test
 	public void find_withNoSerialPortValuesInRegistry() {
 		//@formatter:off
@@ -117,7 +124,7 @@ public class TestSerialPortFinderImpl {
 			.thenReturn(ERROR_SUCCESS);
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
 			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
-		// @formatter:on
+		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();
 
@@ -125,6 +132,10 @@ public class TestSerialPortFinderImpl {
 		assertThat(result, is(hasSize(0)));
 	}
 
+	/**
+	 * Verifies that a {@link Set} with one serial port is returned, when one value for a serial
+	 * port is present in the Windows Registry.
+	 */
 	@Test
 	public void find_withOneSerialPortValueInRegistry() {
 		//@formatter:off
@@ -134,19 +145,46 @@ public class TestSerialPortFinderImpl {
 			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
 			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
-		// @formatter:on
+		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(1)));
+		assertThat(result, contains(portInfoWith("COM1", "/Device/Serial1")));
 	}
 
-	// ///////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Verifies that a {@link Set} with two serial ports is returned, when two values for serial
+	 * ports are present in the Windows Registry.
+	 */
+	@Test
+	public void find_withTwoSerialPortValueInRegistry() {
+		//@formatter:off
+		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+			.thenReturn(ERROR_SUCCESS);
+		doAnswer(withValue("/Device/Serial1", "COM1", ERROR_SUCCESS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		doAnswer(withValue("/Device/Serial2", "COM2", ERROR_SUCCESS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		//@formatter:on
 
-	/** Mocks the behaviour of the native method RegEnumValueA(). */
+		Set<SerialPortInfo> result = finder.find();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result, is(hasSize(2)));
+		//@formatter:off
+		assertThat(result, containsInAnyOrder(portInfoWith("COM1", "/Device/Serial1"), 
+		                                      portInfoWith("COM2", "/Device/Serial2")));
+		//@formatter:on
+	}
+
+	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/** Returns an answer that mocks the behaviour of the native method RegEnumValueA(). */
 	private Answer<Integer> withValue(final String lpValueName, final String lpData, final int status) {
-		System.out.println("2");
 		return new Answer<Integer>() {
 			@Override
 			public Integer answer(InvocationOnMock invocation) throws Throwable {
@@ -155,12 +193,34 @@ public class TestSerialPortFinderImpl {
 				byte[] data = (byte[]) invocation.getArguments()[6];
 				INT dataSize = (INT) invocation.getArguments()[7];
 
-				wrap(valueName).asCharBuffer().put(lpValueName);
-				valueSize.value = lpValueName.length();
-				wrap(data).asCharBuffer().put(lpData);
-				dataSize.value = lpData.length();
+				copyToBytes(lpValueName, valueName, valueSize);
+				copyToBytes(lpData, data, dataSize);
 
 				return status;
+			}
+		};
+	}
+
+	/**
+	 * Copies the bytes from the given {@link String} to the byte[] and sets the size on the
+	 * pointer.
+	 */
+	private void copyToBytes(final String source, byte[] destination, INT sizePointer) {
+		for (int i = 0; i < source.length(); i++)
+			destination[i] = source.getBytes()[i];
+		sizePointer.value = source.length();
+	}
+
+	/** Returns a Matcher that verifies the portName and description of a {@link SerialPortInfo}. */
+	private TypeSafeMatcher<SerialPortInfo> portInfoWith(final String portName, final String description) {
+		return new CustomTypeSafeMatcher<SerialPortInfo>("a serial port info with portName >" + portName + "< and description >" + description + "<") {
+			@Override
+			protected boolean matchesSafely(SerialPortInfo actual) {
+				if (!actual.getPortName().equals(portName))
+					return false;
+				if (!actual.getDescription().equals(description))
+					return false;
+				return true;
 			}
 		};
 	}
