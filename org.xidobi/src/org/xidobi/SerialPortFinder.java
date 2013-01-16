@@ -18,8 +18,8 @@ package org.xidobi;
 import java.util.Set;
 
 /**
- * Interface for classes which can find informations of all serial ports that
- * are installed on the system.
+ * Interface for classes which can find informations of all serial ports that are installed on the
+ * system.
  * 
  * @author Tobias Breﬂler
  * 
@@ -28,11 +28,10 @@ import java.util.Set;
 public interface SerialPortFinder {
 
 	/**
-	 * Returns a {@link Set} with the infos of all serial ports that are
-	 * installed on the system.
+	 * Returns a {@link Set} with the infos of all serial ports that are installed on the system.
 	 * 
-	 * @return a {@link Set} with serial port infos or an empty {@link Set} if
-	 *         no ports are available, but never <code>null</code>
+	 * @return a {@link Set} with serial port infos or an empty {@link Set} if no ports are
+	 *         available, but never <code>null</code>
 	 */
 	Set<SerialPortInfo> find();
 

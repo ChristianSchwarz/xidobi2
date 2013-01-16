@@ -26,11 +26,18 @@ import java.io.IOException;
  */
 public class SerialPortImpl implements SerialPort {
 
+	/** the native Win32-API, never <code>null</code> */
+	private OS os;
+
 	/**
-	 * 
+	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
+	 * @param handle
+	 *            the handle of the serial port
 	 */
-	public SerialPortImpl(OS os, int handle) {
-		checkArgumentNotNull(os, "os");
+	public SerialPortImpl(	OS os,
+							int handle) {
+		this.os = checkArgumentNotNull(os, "os");
 	}
 
 	/*
@@ -56,6 +63,5 @@ public class SerialPortImpl implements SerialPort {
 	 * 
 	 * @see java.io.Closeable#close()
 	 */
-	public void close() throws IOException {
-	}
+	public void close() throws IOException {}
 }

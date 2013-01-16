@@ -28,8 +28,8 @@ import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 
 /**
- * Implementation of the interface {@link SerialPortFinder}, that finds all
- * serial ports that are available in the Windows Registry.
+ * Implementation of the interface {@link SerialPortFinder}, that finds all serial ports that are
+ * available in the Windows Registry.
  * 
  * @author Tobias Breﬂler
  * 
@@ -63,17 +63,18 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 			openRegistry(keyHandle);
 			try {
 				return getPortsFromRegistry(keyHandle);
-			} finally {
+			}
+			finally {
 				os.RegCloseKey(keyHandle);
 			}
-		} finally {
+		}
+		finally {
 			keyHandle.dispose();
 		}
 	}
 
 	/**
-	 * Opens the Windows Registry for subkey
-	 * {@value #HARDWARE_DEVICEMAP_SERIALCOMM}.
+	 * Opens the Windows Registry for subkey {@value #HARDWARE_DEVICEMAP_SERIALCOMM}.
 	 */
 	private void openRegistry(HKEY phkResult) {
 		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
@@ -82,8 +83,8 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	}
 
 	/**
-	 * Returns a {@link Set} with informations of the serial ports that are
-	 * available in the Windows Registry.
+	 * Returns a {@link Set} with informations of the serial ports that are available in the Windows
+	 * Registry.
 	 */
 	private Set<SerialPortInfo> getPortsFromRegistry(HKEY phkResult) {
 		Set<SerialPortInfo> ports = new HashSet<SerialPortInfo>();

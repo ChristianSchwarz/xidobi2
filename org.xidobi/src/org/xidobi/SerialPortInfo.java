@@ -27,8 +27,7 @@ public class SerialPortInfo {
 	/** the name of the serial port, never <code>null</code> */
 	private final String portName;
 	/**
-	 * the description for the port, can be <code>null</code> if no description
-	 * is available
+	 * the description for the port, can be <code>null</code> if no description is available
 	 */
 	private final String description;
 
@@ -38,10 +37,10 @@ public class SerialPortInfo {
 	 * @param portName
 	 *            the name of the serial port, must not be <code>null</code>
 	 * @param description
-	 *            the additional description for the port, can be
-	 *            <code>null</code>
+	 *            the additional description for the port, can be <code>null</code>
 	 */
-	public SerialPortInfo(String portName, String description) {
+	public SerialPortInfo(	String portName,
+							String description) {
 		this.portName = checkArgumentNotNull(portName, "portName");
 		this.description = description;
 	}
@@ -58,8 +57,8 @@ public class SerialPortInfo {
 	/**
 	 * Returns the additional description for the serial port.
 	 * 
-	 * @return the description for the serial port, can be <code>null</code> if
-	 *         no description is available
+	 * @return the description for the serial port, can be <code>null</code> if no description is
+	 *         available
 	 */
 	public String getDescription() {
 		return description;
