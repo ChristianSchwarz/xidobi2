@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
@@ -123,7 +124,7 @@ public class TestSerialPortFinderImpl {
 		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();
@@ -141,10 +142,10 @@ public class TestSerialPortFinderImpl {
 		//@formatter:off
 		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
-		doAnswer(withValue("/Device/Serial1", "COM1", ERROR_SUCCESS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		doAnswer(withValue("/Device/Serial1", "COM1 ", ERROR_SUCCESS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();
@@ -163,12 +164,12 @@ public class TestSerialPortFinderImpl {
 		//@formatter:off
 		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
-		doAnswer(withValue("/Device/Serial1", "COM1", ERROR_SUCCESS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
-		doAnswer(withValue("/Device/Serial2", "COM2", ERROR_SUCCESS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+		doAnswer(withValue("/Device/Serial1", "COM1 ", ERROR_SUCCESS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+		doAnswer(withValue("/Device/Serial2", "COM2 ", ERROR_SUCCESS))
+			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), any(INT.class), eq(0), any(INT.class), any(byte[].class), any(INT.class));
+			.when(os).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();
@@ -219,6 +220,18 @@ public class TestSerialPortFinderImpl {
 				if (!actual.getPortName().equals(portName))
 					return false;
 				if (!actual.getDescription().equals(description))
+					return false;
+				return true;
+			}
+		};
+	}
+	
+	/** Returns a Matcher that verifies the value of an {@link INT}. */
+	private TypeSafeMatcher<INT> isINT(final int value) {
+		return new CustomTypeSafeMatcher<INT>("an INT with value >" + value + "<") {
+			@Override
+			protected boolean matchesSafely(INT actual) {
+				if (actual.value != value)
 					return false;
 				return true;
 			}

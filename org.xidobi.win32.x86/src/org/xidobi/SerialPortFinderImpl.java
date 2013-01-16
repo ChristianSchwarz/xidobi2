@@ -96,14 +96,14 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		INT lpcbData = new INT();
 
 		for (int dwIndex = 0; dwIndex < MAX_VALUE; dwIndex++) {
-			lpcchValueName.value = 0;
-			lpcbData.value = 0;
+			lpcchValueName.value = 255;
+			lpcbData.value = 255;
 
 			int status = os.RegEnumValueA(phkResult, dwIndex, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
 			if (status != ERROR_SUCCESS)
 				break;
 
-			String portName = new String(lpData, 0, lpcbData.value);
+			String portName = new String(lpData, 0, lpcbData.value - 1);
 			String description = new String(lpValueName, 0, lpcchValueName.value);
 			SerialPortInfo serialPort = new SerialPortInfo(portName, description);
 			ports.add(serialPort);
