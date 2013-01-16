@@ -49,7 +49,7 @@ public class TestPreconditions {
 	@Test
 	public void checkArgumentNotNull_nullValue()  {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The argument >argName< must not be null!");
+		exception.expectMessage("Argument >argName< must not be null!");
 		
 		Preconditions.checkArgumentNotNull(null, "argName");
 	}
@@ -70,7 +70,7 @@ public class TestPreconditions {
 	@Test
 	public void checkArgumentNotNull_nullValue_noArgName()  {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The argument must not be null!");
+		exception.expectMessage("Argument must not be null!");
 		
 		Preconditions.checkArgumentNotNull(null, null);
 	}
