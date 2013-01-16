@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test
-Bundle-SymbolicName: org.xidobi.testx
+Bundle-Name: Tests for org.xidobi
+Bundle-SymbolicName: org.xidobi.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: xidobi.org
-Fragment-Host: org.xidobi
+Fragment-Host: org.xidobi;bundle-version="[0.0.1,1.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.mockito;bundle-version="1.9.0",
  org.junit;bundle-version="4.8.2",

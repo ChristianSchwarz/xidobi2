@@ -20,29 +20,48 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import java.io.IOException;
 
 /**
- * {@link SerialPort} implementation for the win32 x86 Platform.
+ * {@link SerialPort} implementation for Windows (32bit) x86 Platform.
  * 
  * @author Christian Schwarz
- * 
  */
 public class SerialPortImpl implements SerialPort {
 
+	/** the native Win32-API, never <code>null</code> */
+	private OS os;
+
 	/**
-	 * 
+	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
+	 * @param handle
+	 *            the handle of the serial port
 	 */
 	public SerialPortImpl(	OS os,
 							int handle) {
-		checkArgumentNotNull(os, "os");
-		
+		this.os = checkArgumentNotNull(os, "os");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.xidobi.SerialPort#write(byte[])
+	 */
 	public void write(byte[] data) throws IOException {
-		
+
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.xidobi.SerialPort#read()
+	 */
 	public byte[] read() throws IOException {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.io.Closeable#close()
+	 */
 	public void close() throws IOException {}
 }

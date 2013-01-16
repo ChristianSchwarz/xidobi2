@@ -6,7 +6,9 @@
  */
 package org.xidobi.structs;
 
-import static org.xidobi.OS.OS;
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+
+import org.xidobi.OS;
 
 /**
  * A pointer to an HKEY in C.
@@ -15,31 +17,33 @@ import static org.xidobi.OS.OS;
  */
 public class HKEY {
 
-	/** The size of the HKEY struct */
-	private static int SIZE_OF;
+	/** the native Win32-API, never <code>null</code> */
+	private OS os;
 
 	/** The pointer to the C instance */
 	private final int cPointer;
 
 	private boolean isDisposed = false;
 
-	static {
-		SIZE_OF = OS.sizeOf_HKEY();
-	}
-
 	/**
 	 * Creates a new instance on the heap. The instance must be disposed, when it isn't used
 	 * anymore.
+	 * 
+	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public HKEY() {
-		cPointer = OS.malloc(SIZE_OF);
+	public HKEY(OS os) {
+		this.os = checkArgumentNotNull(os, "os");
+
+		int sizeOfHKEY = os.sizeOf_HKEY();
+		cPointer = os.malloc(sizeOfHKEY);
 	}
 
 	/**
 	 * Disposed this instance and frees the memory on the heap.
 	 */
 	public void dispose() {
-		OS.free(cPointer);
+		os.free(cPointer);
 		isDisposed = true;
 	}
 

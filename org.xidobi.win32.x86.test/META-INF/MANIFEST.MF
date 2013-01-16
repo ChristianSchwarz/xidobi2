@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: xidobi Test for  win32.x86
+Bundle-Name: Tests for org.xidobi.win32.x86
 Bundle-SymbolicName: org.xidobi.win32.x86.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
