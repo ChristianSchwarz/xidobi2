@@ -12,7 +12,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
 import org.xidobi.SerialPort;
+import org.xidobi.SerialPortHandle;
 
 import static junit.framework.Assert.fail;
 
@@ -36,8 +38,13 @@ public class TestAbstractSerialPort {
 	/** constant for better readability */
 	private static final IOException IO_EXCEPTION = new IOException();
 
+	private static final byte[] BYTES = {};
+
 	/** the class under test */
 	private AbstractSerialPort port;
+
+	@Mock
+	private SerialPortHandle portHandle;
 
 	/** needed to verify exceptions */
 	@Rule
@@ -47,6 +54,17 @@ public class TestAbstractSerialPort {
 	public void setUp() {
 		initMocks(this);
 		port = mock(AbstractSerialPort.class);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown when <code>null</code> is passed to the constructor.
+	 */
+	@Test
+	public void new_nullPortPortHandle() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Argument >portHandle< must not be null!");
+
+		new _AbstractSerialPort(null);
 	}
 
 	/**
@@ -104,8 +122,31 @@ public class TestAbstractSerialPort {
 			fail("Expected an IOException");
 		}
 		catch (IOException ignored) {}
-		
+
 		verify(port, times(2)).closeInternal();
 
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown when the port is closed.
+	 */
+	@Test
+	public void writeToClosedPort() throws Exception {
+		port.close();
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port xy");
+
+		port.write(BYTES);
+	}
+
+	// Utilities for this Testclass//////////////////////////////////////////////////////////////////////////////////
+	public static final class _AbstractSerialPort extends AbstractSerialPort {
+		public _AbstractSerialPort(SerialPortHandle portHandle) {
+			super(portHandle);
+		}
+
+		@Override
+		protected void closeInternal() throws IOException {}
 	}
 }

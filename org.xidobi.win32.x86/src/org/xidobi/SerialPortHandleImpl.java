@@ -23,6 +23,8 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import org.xidobi.structs.DCB;
 
 /**
@@ -37,44 +39,46 @@ import org.xidobi.structs.DCB;
 public class SerialPortHandleImpl implements SerialPortHandle {
 
 	/** the native Win32-API, never <code>null</code> */
+	@Nonnull
 	private final OS os;
 
+	/** the name of this port, eg. "COM1" */
+	@Nonnull
+	private final String portName;
+
 	/**
-	 * Creates a new handle using the native Win32-API provided by the
-	 * {@link OS}.
+	 * Creates a new handle using the native Win32-API provided by the {@link OS}.
 	 * 
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
+	 * @param portName
+	 *            the name of this port
 	 */
-	public SerialPortHandleImpl(OS os) {
+	public SerialPortHandleImpl(@Nonnull OS os,
+								@Nonnull String portName) {
+		this.portName = checkArgumentNotNull(portName, "portName");
 		this.os = checkArgumentNotNull(os, "os");
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.xidobi.SerialPortHandle#open(java.lang.String,
-	 * org.xidobi.SerialPortSettings)
+	 * @see org.xidobi.SerialPortHandle#open(java.lang.String, org.xidobi.SerialPortSettings)
 	 */
-	public SerialPort open(String portName, SerialPortSettings settings)
-			throws IOException {
-		checkArgumentNotNull(portName, "portName");
+	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
-		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ
-				| GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle == -1)
-			throw newIOExceptionWithLastErrorCode("Unable to open port >"
-					+ portName + "<!");
+			throw newIOExceptionWithLastErrorCode("Unable to open port >" + portName + "<!");
 
 		DCB dcb = new DCB();
 
 		boolean isGetCommStateSuccessful = os.GetCommState(handle, dcb);
 		if (!isGetCommStateSuccessful) {
 			os.CloseHandle(handle);
-			throw newIOExceptionWithLastErrorCode("Unable to retrieve the current control settings for port >"
-					+ portName + "<!");
+			throw newIOExceptionWithLastErrorCode("Unable to retrieve the current control settings for port >" + portName + "<!");
 		}
 
 		// dcb.BaudRate = 9600;
@@ -82,20 +86,23 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		boolean isSetCommStateSuccessful = os.SetCommState(handle, dcb);
 		if (!isSetCommStateSuccessful) {
 			os.CloseHandle(handle);
-			throw newIOExceptionWithLastErrorCode("Unable to set the control settings for port >"
-					+ portName + "<!");
+			throw newIOExceptionWithLastErrorCode("Unable to set the control settings for port >" + portName + "<!");
 		}
 
 		return new SerialPortImpl(os, handle);
 	}
 
 	/**
-	 * Returns a new {@link IOException} containing the given message and the
-	 * error code that is returned by {@link OS#GetLastError()}.
+	 * Returns a new {@link IOException} containing the given message and the error code that is
+	 * returned by {@link OS#GetLastError()}.
 	 */
 	private IOException newIOExceptionWithLastErrorCode(String message) {
-		return new IOException(message + " (Error-Code: " + os.GetLastError()
-				+ ")");
+		return new IOException(message + " (Error-Code: " + os.GetLastError() + ")");
+	}
+
+	@Nonnull
+	public String getPortName() {
+		throw new UnsupportedOperationException("Not implemented yet!");
 	}
 
 }

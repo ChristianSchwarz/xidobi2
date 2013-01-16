@@ -70,7 +70,7 @@ public class TestSerialPortHandleImpl {
 	public void setUp() {
 		initMocks(this);
 
-		handle = new SerialPortHandleImpl(os);
+		handle = new SerialPortHandleImpl(os, "COM1");
 	}
 
 	/**
@@ -80,7 +80,17 @@ public class TestSerialPortHandleImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullOS() {
-		new SerialPortHandleImpl(null);
+		new SerialPortHandleImpl(null,"COM1");
+	}
+	
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
+	 * passed.
+	 */
+	@SuppressWarnings("unused")
+	@Test(expected = IllegalArgumentException.class)
+	public void new_nullPortName() {
+		new SerialPortHandleImpl(os,null);
 	}
 
 	/**
@@ -91,7 +101,7 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void open_withNullPortName() throws Exception {
-		handle.open(null, settings);
+		handle.open(settings);
 	}
 
 	/**
@@ -102,7 +112,7 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void open_withNullSettings() throws Exception {
-		handle.open("portName", null);
+		handle.open(null);
 	}
 
 	/**
@@ -121,7 +131,7 @@ public class TestSerialPortHandleImpl {
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to open port >portName<! (Error-Code: 1)");
 
-		handle.open("portName", settings);
+		handle.open(settings);
 	}
 
 	/**
@@ -142,7 +152,7 @@ public class TestSerialPortHandleImpl {
 		exception.expectMessage("Unable to retrieve the current control settings for port >portName<! (Error-Code: 1)");
 
 		try {
-			handle.open("portName", settings);
+			handle.open(settings);
 		}
 		finally {
 			verify(os).CloseHandle(A_PORT_HANDLE);
@@ -168,7 +178,7 @@ public class TestSerialPortHandleImpl {
 		exception.expectMessage("Unable to set the control settings for port >portName<! (Error-Code: 1)");
 
 		try {
-			handle.open("portName", settings);
+			handle.open(settings);
 		}
 		finally {
 			verify(os).CloseHandle(A_PORT_HANDLE);
@@ -187,7 +197,7 @@ public class TestSerialPortHandleImpl {
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
 		when(os.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
 
-		SerialPort result = handle.open("portName", settings);
+		SerialPort result = handle.open(settings);
 
 		assertThat(result, is(notNullValue()));
 		verify(os).CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);

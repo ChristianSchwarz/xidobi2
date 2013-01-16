@@ -8,7 +8,12 @@ package org.xidobi.internal;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import org.xidobi.SerialPort;
+import org.xidobi.SerialPortHandle;
+
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 /**
  * A basic implementation of the {@link SerialPort} to provide synchonisation and proper behaviour
@@ -19,6 +24,22 @@ import org.xidobi.SerialPort;
  */
 public abstract class AbstractSerialPort implements SerialPort {
 
+	@Nonnull
+	private final SerialPortHandle portHandle;
+
+	/**
+	 * Creates a new instance with the {@link SerialPortHandle}.
+	 * 
+	 * @param portHandle
+	 *            must not be <code>null</code>
+	 * @exception IllegalArgumentException
+	 *                if {@code portHandle==null}
+	 */
+	protected AbstractSerialPort(@Nonnull SerialPortHandle portHandle) {
+		this.portHandle = portHandle;
+		checkArgumentNotNull(portHandle, "portHandle");
+	}
+
 	/**
 	 * <ul>
 	 * <li> <code>true</code>, if {@link #close()} was called
@@ -27,7 +48,9 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 */
 	private volatile boolean isClosed;
 
-	public void write(byte[] data) throws IOException {}
+	public final void write(byte[] data) throws IOException {
+		ensurePortIsOpen();
+	}
 
 	public byte[] read() throws IOException {
 		return null;
@@ -48,4 +71,15 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 * if this method returns normal (without exception).
 	 */
 	protected abstract void closeInternal() throws IOException;
+
+	/**
+	 * Throw an {@link IOException} if this port is closed.
+	 * 
+	 * @throws IOException
+	 *             if this port is closed
+	 */
+	private void ensurePortIsOpen() throws IOException {
+		if (isClosed)
+			throw new IOException("Port " + portHandle.getPortName() + " is closed!");
+	}
 }

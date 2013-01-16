@@ -17,6 +17,8 @@ package org.xidobi;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 /**
  * Interface for serial port handles.
  * 
@@ -27,14 +29,19 @@ public interface SerialPortHandle {
 
 	/**
 	 * Opens a serial port with the given control settings and returns the connected serial port.
-	 * 
-	 * @param portName
-	 *            the name of the port to be open, must not be <code>null</code>
 	 * @param settings
 	 *            the control settings for the port, must not be <code>null</code>
+	 * 
 	 * @return a connected serial port, never <code>null</code>
 	 * @throws IOException
 	 *             if the port cannot be opened
 	 */
-	SerialPort open(String portName, SerialPortSettings settings) throws IOException;
+	SerialPort open(SerialPortSettings settings) throws IOException;
+
+	/**
+	 * Returns the name of this port
+	 * @return the port name, not <code>null</code>
+	 */
+	@Nonnull
+	String getPortName();
 }

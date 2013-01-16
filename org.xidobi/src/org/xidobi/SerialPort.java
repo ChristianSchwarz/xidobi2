@@ -18,6 +18,8 @@ package org.xidobi;
 import java.io.Closeable;
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 /**
  * Repesents a connected Serial-Port. Clients must call {@link #close()} to free the SerialPort
  * after usage!
@@ -36,7 +38,7 @@ public interface SerialPort extends Closeable {
 	 * @throws IOException
 	 *             when the Port is closed
 	 */
-	void write(byte[] data) throws IOException;
+	void write(@Nonnull byte[] data) throws IOException;
 
 	/**
 	 * Reads from this Serialport and returns the read byte's or throws an {@link IOException} when
@@ -47,6 +49,7 @@ public interface SerialPort extends Closeable {
 	 * @throws IOException
 	 *             if this port was closed or an unexpected IO-Error occurs.
 	 */
+	@Nonnull
 	byte[] read() throws IOException;
 
 }
