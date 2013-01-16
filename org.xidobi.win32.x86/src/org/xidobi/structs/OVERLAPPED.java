@@ -15,7 +15,9 @@
  */
 package org.xidobi.structs;
 
-import static org.xidobi.OS.OS;
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+
+import org.xidobi.OS;
 
 /**
  * Java representation of the C-struct OVERLAPPED.
@@ -25,8 +27,8 @@ import static org.xidobi.OS.OS;
  */
 public class OVERLAPPED {
 
-	/** The size of the OVERLAPPED struct */
-	private static int SIZE_OF;
+	/** the native Win32-API, never <code>null</code> */
+	private OS os;
 
 	/** The pointer to the C struct */
 	private final int cPointer;
@@ -53,23 +55,25 @@ public class OVERLAPPED {
 	/** {@code HANDLE} - Event handle */
 	public int hEvent;
 
-	static {
-		SIZE_OF = OS.sizeOf_OVERLAPPED();
-	}
-
 	/**
 	 * Creates a new instance on the heap. The instance must be disposed, when it isn't used
 	 * anymore.
+	 * 
+	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public OVERLAPPED() {
-		cPointer = OS.malloc(SIZE_OF);
+	public OVERLAPPED(OS os) {
+		this.os = checkArgumentNotNull(os, "os");
+
+		int sizeofOVERLAPPED = os.sizeOf_OVERLAPPED();
+		cPointer = os.malloc(sizeofOVERLAPPED);
 	}
 
 	/**
 	 * Frees the resources of this instance ( memory on the heap).
 	 */
 	public void dispose() {
-		OS.free(cPointer);
+		os.free(cPointer);
 		isDisposed = true;
 	}
 

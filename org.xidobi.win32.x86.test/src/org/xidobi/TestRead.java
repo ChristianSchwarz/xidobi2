@@ -67,7 +67,7 @@ public class TestRead {
 			System.err.println("Error?" + os.GetLastError());
 			println("Event-Handle: " + eventHandle);
 
-			OVERLAPPED overlapped = new OVERLAPPED();
+			OVERLAPPED overlapped = new OVERLAPPED(os);
 			overlapped.hEvent = eventHandle;
 
 			INT lpNumberOfBytesRead = new INT();

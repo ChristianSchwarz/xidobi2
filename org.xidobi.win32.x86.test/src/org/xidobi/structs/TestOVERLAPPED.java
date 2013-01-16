@@ -15,8 +15,8 @@
  */
 package org.xidobi.structs;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,19 +30,19 @@ import org.mockito.Mock;
 import org.xidobi.OS;
 
 /**
- * Tests the class {@link HKEY}.
+ * Tests the class {@link OVERLAPPED}.
  * 
  * @author Tobias Breﬂler
  */
-public class TestHKEY {
+public class TestOVERLAPPED {
 
-	/** Some pointer to the HKEY struct. */
-	private static final int A_HKEY_POINTER = 3;
-	/** Size of an HKEY struct. */
-	private static final int SIZEOF_HKEY = 2;
+	/** Some pointer to the OVERLAPPED struct. */
+	private static final int A_OVERLAPPED_POINTER = 3;
+	/** Size of an OVERLAPPED struct. */
+	private static final int SIZEOF_OVERLAPPED = 2;
 
 	/** Class under test. */
-	private HKEY hkey;
+	private OVERLAPPED overlapped;
 
 	@Mock
 	private OS os;
@@ -63,37 +63,38 @@ public class TestHKEY {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNullOS() {
-		new HKEY(null);
+		new OVERLAPPED(null);
 	}
 
 	/**
-	 * Verifies that the construction of a HKEY allocates memory of a HKEY struct via the WIN-API.
+	 * Verifies that the construction of a OVERLAPPED allocates memory of a OVERLAPPED struct via
+	 * the WIN-API.
 	 */
 	@Test
-	public void new_allocatesHKEYstruct() {
-		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
+	public void new_allocatesOVERLAPPEDstruct() {
+		when(os.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
+		when(os.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
 
-		hkey = new HKEY(os);
+		overlapped = new OVERLAPPED(os);
 
-		verify(os, times(1)).sizeOf_HKEY();
-		verify(os, times(1)).malloc(SIZEOF_HKEY);
+		verify(os, times(1)).sizeOf_OVERLAPPED();
+		verify(os, times(1)).malloc(SIZEOF_OVERLAPPED);
 	}
 
 	/**
-	 * Verifies that the method {@link HKEY#dispose()} frees the memory of the HKEY struct via the
-	 * WIN-API.
+	 * Verifies that the method {@link OVERLAPPED#dispose()} frees the memory of the OVERLAPPED
+	 * struct via the WIN-API.
 	 */
 	@Test
-	public void dispose_freesHKEYstruct() {
-		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
+	public void dispose_freesOVERLAPPEDstruct() {
+		when(os.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
+		when(os.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
 
-		hkey = new HKEY(os);
-		hkey.dispose();
+		overlapped = new OVERLAPPED(os);
+		overlapped.dispose();
 
-		assertThat(hkey.isDisposed(), is(true));
-		verify(os).free(A_HKEY_POINTER);
+		assertThat(overlapped.isDisposed(), is(true));
+		verify(os).free(A_OVERLAPPED_POINTER);
 	}
 
 }

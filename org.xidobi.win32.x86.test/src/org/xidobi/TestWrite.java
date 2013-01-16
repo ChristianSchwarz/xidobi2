@@ -65,7 +65,7 @@ public class TestWrite {
 			int eventHandle = os.CreateEventA(0, true, false, null);
 			println("Event-Handle: " + eventHandle);
 
-			OVERLAPPED overlapped = new OVERLAPPED();
+			OVERLAPPED overlapped = new OVERLAPPED(os);
 			overlapped.hEvent = eventHandle;
 			
 			INT lpNumberOfBytesWritten = new INT();
