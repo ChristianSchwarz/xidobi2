@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.xidobi;
+package org.xidobi.integration;
 
 import static org.xidobi.OS.ERROR_SUCCESS;
 import static org.xidobi.OS.HKEY_LOCAL_MACHINE;
 import static org.xidobi.OS.KEY_READ;
 
+import org.xidobi.OS;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 
@@ -27,6 +28,7 @@ import org.xidobi.structs.INT;
  * 
  * @author Tobias Breﬂler
  */
+@Deprecated
 public class TestRegistry {
 
 	/**
@@ -34,7 +36,7 @@ public class TestRegistry {
 	 */
 	public static void main(String[] args) {
 		OS os = OS.OS;
-		
+
 		HKEY phkResult = new HKEY(os);
 		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM\\", 0, KEY_READ, phkResult);
 
