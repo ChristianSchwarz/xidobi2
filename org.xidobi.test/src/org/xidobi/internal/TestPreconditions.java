@@ -16,6 +16,7 @@
 package org.xidobi.internal;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Rule;
@@ -29,10 +30,10 @@ import org.junit.rules.ExpectedException;
  */
 public class TestPreconditions {
 
-	/** check exceptions*/
+	/** check exceptions */
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
-	
+
 	/**
 	 * Verifies that the argument is returned if it is not <code>null</code>
 	 */
@@ -47,13 +48,13 @@ public class TestPreconditions {
 	 * <code>null</code>.
 	 */
 	@Test
-	public void checkArgumentNotNull_nullValue()  {
+	public void checkArgumentNotNull_nullValue() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >argName< must not be null!");
-		
+
 		Preconditions.checkArgumentNotNull(null, "argName");
 	}
-	
+
 	/**
 	 * Verifies that the argument is returned if it is not <code>null</code>
 	 */
@@ -68,10 +69,66 @@ public class TestPreconditions {
 	 * <code>null</code>.
 	 */
 	@Test
-	public void checkArgumentNotNull_nullValue_noArgName()  {
+	public void checkArgumentNotNull_nullValue_noArgName() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument must not be null!");
-		
+
 		Preconditions.checkArgumentNotNull(null, null);
 	}
+
+	/**
+	 * Verifies that no exception is thrown when the condition is <code>true</code>.
+	 */
+	@Test
+	public void checkArgument_conditionMatch() {
+		Preconditions.checkArgument(true, null, null);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
+	 */
+	@Test
+	public void checkArgument_conditionMismatch_nullArg_nullExpectation() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(nullValue(String.class));
+
+		Preconditions.checkArgument(false, null, null);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
+	 * Containing the argument name as message.
+	 */
+	@Test
+	public void checkArgument_conditionMismatch_withArg_nullExpectation() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Argument >argName< is invalid");
+
+		Preconditions.checkArgument(false, "argName", null);
+	}
+	
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
+	 * Containing the argument name as message.
+	 */
+	@Test
+	public void checkArgument_conditionMismatch_nullArg_withExpectation() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("The expected exception message.");
+		
+		Preconditions.checkArgument(false, null, "The expected exception message.");
+	}
+	
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
+	 * Containing the argument name as message.
+	 */
+	@Test
+	public void checkArgument_conditionMismatch_withArg_withExpectation() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Argument >argName< is invalid! The expected exception message.");
+		
+		Preconditions.checkArgument(false, "argName", "The expected exception message.");
+	}
+
 }

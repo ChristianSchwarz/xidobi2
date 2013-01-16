@@ -52,7 +52,8 @@ public class Preconditions {
 
 	/**
 	 * Ensures that the {@code condition} is {@code true}. If it is {@code false} an
-	 * {@link IllegalArgumentException} will be thrown with a message containing the {@code argName}.
+	 * {@link IllegalArgumentException} will be thrown with a message containing the {@code argName}
+	 * .
 	 * 
 	 * <pre>
 	 *  int[] array = {1,2,3};
@@ -68,9 +69,9 @@ public class Preconditions {
 	 * 
 	 */
 	public static void checkAgrument(boolean condition, String argName) {
-		if (!condition)
-			throw new IllegalArgumentException("Argument " + wrap(argName) + "is invalid!");
+		checkArgument(condition, argName, null);
 	}
+
 	/**
 	 * Ensures that the {@code condition} is {@code true}. If it is {@code false} an
 	 * {@link IllegalArgumentException} will be thrown with a message containing the {@code argName}
@@ -88,16 +89,25 @@ public class Preconditions {
 	 * @param argName
 	 *            the name of the argument can be <code>null</code>
 	 * @param description
-	 *            the description to be used when the {@code condition} is not <code>true</code>, can be <code>null</code>
+	 *            the description to be used when the {@code condition} is not <code>true</code>,
+	 *            can be <code>null</code>
 	 */
-	public static void checkAgrument(boolean condition, String argName, String description) {
-		if (description==null){
-			checkAgrument(condition, argName);
+	public static void checkArgument(boolean condition, String argName, String description) {
+		if (condition)
 			return;
-		}
-			
-		if (!condition)
-			throw new IllegalArgumentException("Argument " + wrap(argName) + "is invalid!" + description == null ? "" : ' ' + description);
+
+		final String msg;
+		if (argName == null && description == null)
+			msg = null;
+		else if (argName == null)
+			msg = description;
+		else if (description == null)
+			msg = "Argument >" + argName + "< is invalid!";
+		else
+			msg = "Argument >" + argName + "< is invalid! " + description;
+
+		throw new IllegalArgumentException(msg);
+
 	}
 
 	/**
