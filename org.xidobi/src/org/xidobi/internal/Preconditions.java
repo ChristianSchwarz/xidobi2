@@ -28,31 +28,85 @@ public class Preconditions {
 	private Preconditions() {}
 
 	/**
-	 * Ensures that argument {@code arg} is not null. If it is <code>null</code> an
-	 * {@link IllegalArgumentException} will be thrown the {@code argName} will be used in
-	 * the error description.
+	 * Ensures that argument {@code arg} is not . If it is {@code null} an
+	 * {@link IllegalArgumentException} will be thrown the {@code argName} will be used in the error
+	 * description.
 	 * 
 	 * <pre>
-	 * 	checkNotNull("xy","arg1") -> returns "xy";
-	 * 	checkNotNull(null,"arg1") -> throws new IllegalArgumentException("The argument >arg1< must not be null!");
+	 *  String arg1="xy", arg2=null; 
+	 * 	checkNotNull(arg1,"arg1") -> returns "xy";
+	 * 	checkNotNull(arg2,"arg1") -> throws an IllegalArgumentException("Argument >arg1< must not be null!");
 	 * </pre>
 	 * 
 	 * @param arg
 	 *            the value to check
 	 * @param argName
-	 *            the name of argument {@code arg}
+	 *            the name of argument {@code arg}, can be <code>null</code>
 	 * @return {@code arg}
 	 */
 	public static <T> T checkArgumentNotNull(T arg, String argName) {
 		if (arg == null)
-			throw new IllegalArgumentException("The argument " + wrap(argName) + " must not be null!");
+			throw new IllegalArgumentException("Argument " + wrap(argName) + "must not be null!");
 		return arg;
 	}
 
-	/** Wraps the given {@code argName} with '&lt;' and '&gt;'. */
-	private static String wrap(String argName) {
-		if (argName == null)
+	/**
+	 * Ensures that the {@code condition} is {@code true}. If it is {@code false} an
+	 * {@link IllegalArgumentException} will be thrown with a message containing the {@code argName}.
+	 * 
+	 * <pre>
+	 *  int[] array = {1,2,3};
+	 *  checkArgument(array.length<5,"array"); -> pass 
+	 *  checkArgument(array.length>5,"array"); -> throws an IllegalArgumentException("Argument >array< is invalid!");
+	 * </pre>
+	 * 
+	 * 
+	 * @param condition
+	 *            the condition to be checked
+	 * @param argName
+	 *            the name of the argument can be <code>null</code>
+	 * 
+	 */
+	public static void checkAgrument(boolean condition, String argName) {
+		if (!condition)
+			throw new IllegalArgumentException("Argument " + wrap(argName) + "is invalid!");
+	}
+	/**
+	 * Ensures that the {@code condition} is {@code true}. If it is {@code false} an
+	 * {@link IllegalArgumentException} will be thrown with a message containing the {@code argName}
+	 * and the {@code expecation}.
+	 * 
+	 * <pre>
+	 *  int[] array = {1,2,3};
+	 *  checkArgument(array.length<5,"array","Expected less than 5 elements!"); -> pass 
+	 *  checkArgument(array.length>5,"array","Expected more than 5 elements!"); -> throws an IllegalArgumentException("Argument >array< is invalid! Expected more than 5 elements");
+	 * </pre>
+	 * 
+	 * 
+	 * @param condition
+	 *            the condition to be checked
+	 * @param argName
+	 *            the name of the argument can be <code>null</code>
+	 * @param description
+	 *            the description to be used when the {@code condition} is not <code>true</code>, can be <code>null</code>
+	 */
+	public static void checkAgrument(boolean condition, String argName, String description) {
+		if (description==null){
+			checkAgrument(condition, argName);
+			return;
+		}
+			
+		if (!condition)
+			throw new IllegalArgumentException("Argument " + wrap(argName) + "is invalid!" + description == null ? "" : ' ' + description);
+	}
+
+	/**
+	 * Wraps the given String with '&lt;' and '&gt;' if it is not <code>null</code>, otherwise an
+	 * empty String is returned.
+	 */
+	private static String wrap(String text) {
+		if (text == null)
 			return "";
-		return '>' + argName + "<";
+		return '>' + text + "< ";
 	}
 }
