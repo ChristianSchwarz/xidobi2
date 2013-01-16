@@ -15,13 +15,20 @@
  */
 package org.xidobi.integration;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.xidobi.OS.OS;
 
+import java.io.IOException;
+import java.util.Properties;
 import java.util.Set;
 
+import org.hamcrest.CustomTypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.Test;
 import org.xidobi.SerialPortFinderImpl;
 import org.xidobi.SerialPortInfo;
@@ -38,6 +45,22 @@ public class TestFindSerialPorts {
 	/** Maximum count of repetitions. */
 	private static final int MAX_REPETITIONS = 100_000;
 
+	private String availableSerialPort;
+
+	@Before
+	@SuppressWarnings("javadoc")
+	public void setUp() {
+		Properties prop = new Properties();
+		try {
+			prop.load(this.getClass().getResourceAsStream("setupIntegrationTests.properties"));
+			availableSerialPort = prop.getProperty("availableSerialPort");
+			assertThat(availableSerialPort, is(notNullValue()));
+		}
+		catch (IOException e) {
+			fail("Couldn't load file >setupIntegrationTests.properties<!");
+		}
+	}
+
 	/**
 	 * Verifies that {@link SerialPortFinderImpl#find()} never returns a null value and never throws
 	 * an exception.
@@ -48,7 +71,22 @@ public class TestFindSerialPorts {
 			SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
 			Set<SerialPortInfo> result = finder.find();
 			assertThat(result, is(notNullValue()));
+			assertThat(result, hasItem(portInfoWith(availableSerialPort)));
 		}
+	}
+
+	// //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/** Returns a Matcher that verifies the portName of a {@link SerialPortInfo}. */
+	private TypeSafeMatcher<SerialPortInfo> portInfoWith(final String portName) {
+		return new CustomTypeSafeMatcher<SerialPortInfo>("a serial port info with portName >" + portName + "<") {
+			@Override
+			protected boolean matchesSafely(SerialPortInfo actual) {
+				if (!actual.getPortName().equals(portName))
+					return false;
+				return true;
+			}
+		};
 	}
 
 }
