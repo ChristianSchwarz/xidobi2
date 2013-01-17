@@ -15,9 +15,11 @@
  */
 package org.xidobi;
 
+import static org.xidobi.OS.ERROR_FILE_NOT_FOUND;
 import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.OS.GENERIC_READ;
 import static org.xidobi.OS.GENERIC_WRITE;
+import static org.xidobi.OS.INVALID_HANDLE_VALUE;
 import static org.xidobi.OS.OPEN_EXISTING;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
@@ -70,15 +72,24 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
-		if (handle == OS.INVALID_HANDLE_VALUE)
-			throw newIOExceptionWithLastErrorCode("Unable to open port >" + portName + "<!");
+		if (handle == INVALID_HANDLE_VALUE) {
+			int err = os.GetLastError();
+			switch (err) {
+				case 0:
+					throw new IOException("Port in use (" + portName + ")!");
+				case ERROR_FILE_NOT_FOUND:
+					throw new IOException("Port not found (" + portName + ")!");
+				default:
+					throw lastError("Unable to open (" + portName + ")!",err);
+			}
+		}
 
 		DCB dcb = new DCB();
 
 		boolean succeed = os.GetCommState(handle, dcb);
 		if (!succeed) {
 			os.CloseHandle(handle);
-			throw newIOExceptionWithLastErrorCode("Unable to retrieve the current control settings for port >" + portName + "<!");
+			throw lastError("Unable to retrieve the current control settings for port >" + portName + "<!",os.GetLastError());
 		}
 
 		// dcb.BaudRate = 9600;
@@ -86,18 +97,18 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		boolean isSetCommStateSuccessful = os.SetCommState(handle, dcb);
 		if (!isSetCommStateSuccessful) {
 			os.CloseHandle(handle);
-			throw newIOExceptionWithLastErrorCode("Unable to set the control settings for port >" + portName + "<!");
+			throw lastError("Unable to set the control settings for port >" + portName + "<!",os.GetLastError());
 		}
 
-		return new SerialPortImpl(this,os, handle);
+		return new SerialPortImpl(this, os, handle);
 	}
 
 	/**
 	 * Returns a new {@link IOException} containing the given message and the error code that is
 	 * returned by {@link OS#GetLastError()}.
 	 */
-	private IOException newIOExceptionWithLastErrorCode(String message) {
-		return new IOException(message + " (Error-Code: " + os.GetLastError() + ")");
+	private IOException lastError(String message,int errorCode) {
+		return new IOException(message + " (Error-Code: " + errorCode + ")");
 	}
 
 	@Nonnull
