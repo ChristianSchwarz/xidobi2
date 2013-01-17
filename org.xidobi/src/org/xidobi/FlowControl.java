@@ -26,8 +26,10 @@ package org.xidobi;
  * <li>none</li>
  * <li>RTS/CTS In</li>
  * <li>RTS/CTS Out</li>
+ * <li>RTS/CTS In & Out</li>
  * <li>XON/XOFF In</li>
  * <li>XON/XOFF Out</li>
+ * <li>XON/XOFF In & Out</li>
  * </ul>
  * 
  * @author Tobias Breﬂler
@@ -43,10 +45,16 @@ public enum FlowControl {
 	/** RTS/CTS Out */
 	FlowControl_RTSCTS_Out,
 
+	/** RTS/CTS In & Out */
+	FlowControl_RTSCTS_In_Out,
+
 	/** XON/XOFF In */
 	FlowControl_XONXOFF_In,
 
 	/** XON/XOFF Out */
-	FlowControl_XONXOFF_Out;
+	FlowControl_XONXOFF_Out,
+
+	/** XON/XOFF In & Out */
+	FlowControl_XONXOFF_In_Out;
 
 }

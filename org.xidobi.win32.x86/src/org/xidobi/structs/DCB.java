@@ -23,34 +23,34 @@ package org.xidobi.structs;
  */
 public class DCB {
 
-	/** Baudrate: 110 */
-	public final static int CBR_110 = 110;
-	/** Baudrate: 300 */
-	public final static int CBR_300 = 300;
-	/** Baudrate: 600 */
-	public final static int CBR_600 = 600;
-	/** Baudrate: 1200 */
-	public final static int CBR_1200 = 1200;
-	/** Baudrate: 2400 */
-	public final static int CBR_2400 = 2400;
-	/** Baudrate: 4800 */
-	public final static int CBR_4800 = 4800;
-	/** Baudrate: 9600 */
-	public final static int CBR_9600 = 9600;
-	/** Baudrate: 14400 */
-	public final static int CBR_14400 = 14400;
-	/** Baudrate: 19200 */
-	public final static int CBR_19200 = 19200;
-	/** Baudrate: 38400 */
-	public final static int CBR_38400 = 38400;
-	/** Baudrate: 57600 */
-	public final static int CBR_57600 = 57600;
-	/** Baudrate: 115200 */
-	public final static int CBR_115200 = 115200;
-	/** Baudrate: 128000 */
-	public final static int CBR_128000 = 128000;
-	/** Baudrate: 256000 */
-	public final static int CBR_256000 = 256000;
+	// /** Baudrate: 110 */
+	// public final static int CBR_110 = 110;
+	// /** Baudrate: 300 */
+	// public final static int CBR_300 = 300;
+	// /** Baudrate: 600 */
+	// public final static int CBR_600 = 600;
+	// /** Baudrate: 1200 */
+	// public final static int CBR_1200 = 1200;
+	// /** Baudrate: 2400 */
+	// public final static int CBR_2400 = 2400;
+	// /** Baudrate: 4800 */
+	// public final static int CBR_4800 = 4800;
+	// /** Baudrate: 9600 */
+	// public final static int CBR_9600 = 9600;
+	// /** Baudrate: 14400 */
+	// public final static int CBR_14400 = 14400;
+	// /** Baudrate: 19200 */
+	// public final static int CBR_19200 = 19200;
+	// /** Baudrate: 38400 */
+	// public final static int CBR_38400 = 38400;
+	// /** Baudrate: 57600 */
+	// public final static int CBR_57600 = 57600;
+	// /** Baudrate: 115200 */
+	// public final static int CBR_115200 = 115200;
+	// /** Baudrate: 128000 */
+	// public final static int CBR_128000 = 128000;
+	// /** Baudrate: 256000 */
+	// public final static int CBR_256000 = 256000;
 
 	/** Disables the DTR line when the device is opened and leaves it disabled. */
 	public final static int DTR_CONTROL_DISABLE = 0x00;
@@ -101,10 +101,8 @@ public class DCB {
 	 * DWORD The length of the structure, in bytes. The caller must set this member to sizeof(DCB).
 	 * */
 	public int DCBlength;
-	/**
-	 * DWORD The baud rate at which the communications device operates. This member can be an actual
-	 * baud rate value, or one of the following indexes:
-	 * */
+
+	/** DWORD The baud rate at which the communications device operates. */
 	public int BaudRate;
 
 	/**
@@ -235,7 +233,14 @@ public class DCB {
 	 */
 	public byte ByteSize;
 	/**
-	 * The parity scheme to be used. This member can be one of the following values.
+	 * The parity scheme to be used. Values are:
+	 * <ul>
+	 * <li>{@link #EVENPARITY}</li>
+	 * <li>{@link #NOPARITY}</li>
+	 * <li>{@link #MARKPARITY}</li>
+	 * <li>{@link #ODDPARITY}</li>
+	 * <li>{@link #SPACEPARITY}</li>
+	 * </ul>
 	 * 
 	 * BYTE
 	 */

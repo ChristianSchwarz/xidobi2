@@ -20,7 +20,6 @@ public class TestWrite {
 	private static final SerialPortSettings PORT_SETTINGS = bauds(9600).create();
 
 	@Test
-	@Ignore
 	public void openWriteClose() throws IOException {
 		SerialPortHandle portHandle = new SerialPortHandleImpl(OS, "COM1");
 
