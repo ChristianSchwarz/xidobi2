@@ -22,15 +22,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.OVERLAPPED;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.xidobi.OS.INVALID_HANDLE_VALUE;
+import static org.xidobi.OS.WAIT_OBJECT_0;
 
 /**
  * Tests the class {@link SerialPortImpl}
@@ -41,10 +45,15 @@ import static org.xidobi.OS.INVALID_HANDLE_VALUE;
 @SuppressWarnings("javadoc")
 public class TestSerialPortImpl {
 
-	/** a valid HANDLE value used in tests */
-	private static final int handle = 12345;
+	/**
+	 * 
+	 */
+	private static final int eventHandle = 1;
 
-	private static final byte[] DATA = {};
+	/** a valid HANDLE value used in tests */
+	private static final int handle = 2;
+
+	private static final byte[] DATA = new byte[5];
 
 	/** check exceptions */
 	@Rule
@@ -106,27 +115,27 @@ public class TestSerialPortImpl {
 	}
 
 	/**
-	 * Simulates are write operation without errors and verifies that all relevant methods of the {@link OS} are called.  
-	 * @throws IOException 
+	 * Simulates are write operation without errors and verifies that all relevant methods of the
+	 * {@link OS} are called.
+	 * 
+	 * @throws IOException
 	 */
 	@Test
-	public void write_succeed() throws IOException{
-		final int  evtHandle= 321;
-		final int sizeOf_OVERLAPPED=2345;
+	public void write_succeed() throws IOException {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(true);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(handle), any(OVERLAPPED.class),any(INT.class),eq(true))).thenReturn(true);
 		
-		when(os.CreateEventA(0, true, false, null)).thenReturn(evtHandle);
-		when(os.sizeOf_OVERLAPPED()).thenReturn(sizeOf_OVERLAPPED);
 		port.write(DATA);
-		
+
 		verify(os).CreateEventA(0, true, false, null);
+		verify(os).WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class));
+		verify(os).WaitForSingleObject(eventHandle, 2000);
+		verify(os).GetOverlappedResult(eq(handle), any(OVERLAPPED.class),any(INT.class),eq(true));
 		
-		//creation of the OVERLAPPED
-		verify(os).sizeOf_OVERLAPPED();
-		verify(os).malloc(sizeOf_OVERLAPPED);
-		
-		//
 	}
-	
+
 	/**
 	 * Verifies that a call to {@link SerialPort#close()} frees the native resources.
 	 */

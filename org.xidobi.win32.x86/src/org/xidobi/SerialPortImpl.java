@@ -40,8 +40,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 	private final OS os;
 	/** The HANDLE of the opened port */
 	private final int handle;
-	/** the write buffer {@code 2048 byte} */
-	private final byte[] writeBuffer;
 
 	/**
 	 * @param portHandle
@@ -57,7 +55,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
 		this.os = checkArgumentNotNull(os, "os");
-		writeBuffer = new byte[2048];
 	}
 
 	@Override
@@ -70,17 +67,16 @@ public class SerialPortImpl extends AbstractSerialPort {
 		overlapped.hEvent = eventHandle;
 
 		INT lpNumberOfBytesWritten = new INT();
-		boolean succeed = os.WriteFile(handle, writeBuffer, 9, lpNumberOfBytesWritten, overlapped);
+		boolean succeed = os.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
 
 		int eventResult = os.WaitForSingleObject(eventHandle, 2000);
 
 		if (eventResult == WAIT_OBJECT_0) {
 			INT lpNumberOfBytesTransferred = new INT();
 			succeed = os.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
-
-		} else {
-			System.err.println("Wait: " + eventResult);
 		}
+
+		
 	}
 
 	@Override
