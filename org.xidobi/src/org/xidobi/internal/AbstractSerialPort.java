@@ -24,8 +24,19 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
  */
 public abstract class AbstractSerialPort implements SerialPort {
 
+	/**
+	 * The Handle of this Port contains e.g. the Name.
+	 */
 	@Nonnull
 	private final SerialPortHandle portHandle;
+
+	/**
+	 * <ul>
+	 * <li> <code>true</code> if this port is closed, {@link #close()} was called
+	 * <li> <code>false</code> if this port is open
+	 * </ul>
+	 */
+	private volatile boolean isClosed;
 
 	/**
 	 * Creates a new instance with the {@link SerialPortHandle}.
@@ -40,19 +51,25 @@ public abstract class AbstractSerialPort implements SerialPort {
 		checkArgumentNotNull(portHandle, "portHandle");
 	}
 
-	/**
-	 * <ul>
-	 * <li> <code>true</code>, if {@link #close()} was called
-	 * <li> <code>false</code>, if this port is open
-	 * </ul>
-	 */
-	private volatile boolean isClosed;
-
-	public final void write(byte[] data) throws IOException {
+	public final void write(@Nonnull byte[] data) throws IOException {
+		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
+		
+		writeInternal(data);
 	}
 
-	public byte[] read() throws IOException {
+	/**
+	 * Writes the given {@code byte[]}.
+	 * <p>
+	 * A call to {@link #write(byte[])} will be deleagte to this method only if the port is open and
+	 * {@code data!=null}.
+	 * 
+	 * @param data never <code>null</code>
+	 */
+	protected void writeInternal(@Nonnull byte[] data) throws IOException {}
+
+	public final byte[] read() throws IOException {
+		ensurePortIsOpen();
 		return null;
 	}
 

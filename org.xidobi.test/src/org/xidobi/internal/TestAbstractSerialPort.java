@@ -22,6 +22,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.hamcrest.Matchers.is;
@@ -57,7 +58,8 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown when <code>null</code> is passed to the constructor.
+	 * Verifies that an {@link IllegalArgumentException} is thrown when <code>null</code> is passed
+	 * to the constructor.
 	 */
 	@Test
 	public void new_nullPortPortHandle() throws Exception {
@@ -131,16 +133,45 @@ public class TestAbstractSerialPort {
 	 * Verifies that an {@link IOException} is thrown when the port is closed.
 	 */
 	@Test
-	public void writeToClosedPort() throws Exception {
+	public void write_portIsClosed() throws Exception {
+		when(portHandle.getPortName()).thenReturn("COM1");
+		port = new _AbstractSerialPort(portHandle);
 		port.close();
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port xy");
+		exception.expectMessage("Port COM1 is closed!");
 
 		port.write(BYTES);
 	}
 
-	// Utilities for this Testclass//////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown when <code>null</code> is passed.
+	 */
+	@Test
+	public void write_nullData() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Argument >data< must not be null!");
+
+		port.write(null);
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown when the port is closed.
+	 */
+	@Test
+	public void read_portIsClosed() throws Exception {
+		when(portHandle.getPortName()).thenReturn("COM1");
+		port = new _AbstractSerialPort(portHandle);
+		port.close();
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed!");
+
+		port.read();
+	}
+
+	// Utilities for this
+	// Testclass//////////////////////////////////////////////////////////////////////////////////
 	public static final class _AbstractSerialPort extends AbstractSerialPort {
 		public _AbstractSerialPort(SerialPortHandle portHandle) {
 			super(portHandle);
