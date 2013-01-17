@@ -70,13 +70,13 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
-		if (handle == -1)
+		if (handle == OS.INVALID_HANDLE_VALUE)
 			throw newIOExceptionWithLastErrorCode("Unable to open port >" + portName + "<!");
 
 		DCB dcb = new DCB();
 
-		boolean isGetCommStateSuccessful = os.GetCommState(handle, dcb);
-		if (!isGetCommStateSuccessful) {
+		boolean succeed = os.GetCommState(handle, dcb);
+		if (!succeed) {
 			os.CloseHandle(handle);
 			throw newIOExceptionWithLastErrorCode("Unable to retrieve the current control settings for port >" + portName + "<!");
 		}

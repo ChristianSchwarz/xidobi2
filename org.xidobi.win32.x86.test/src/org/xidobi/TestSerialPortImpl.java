@@ -22,6 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
@@ -36,6 +37,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.OS.INVALID_HANDLE_VALUE;
 import static org.xidobi.OS.WAIT_OBJECT_0;
 
+import static org.hamcrest.Matchers.startsWith;
+
 /**
  * Tests the class {@link SerialPortImpl}
  * 
@@ -44,6 +47,11 @@ import static org.xidobi.OS.WAIT_OBJECT_0;
  */
 @SuppressWarnings("javadoc")
 public class TestSerialPortImpl {
+
+	/**
+	 * 
+	 */
+	private static final int DUMMY_ERROR_CODE = 12345;
 
 	/**
 	 * 
@@ -125,17 +133,35 @@ public class TestSerialPortImpl {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(os.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(true);
 		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(handle), any(OVERLAPPED.class),any(INT.class),eq(true))).thenReturn(true);
-		
+		when(os.GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true))).thenReturn(true);
+
 		port.write(DATA);
 
 		verify(os).CreateEventA(0, true, false, null);
 		verify(os).WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class));
 		verify(os).WaitForSingleObject(eventHandle, 2000);
-		verify(os).GetOverlappedResult(eq(handle), any(OVERLAPPED.class),any(INT.class),eq(true));
-		
+		verify(os).GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true));
 	}
 
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown when {@code CreateEventA} returned an
+	 * unexpected handle value.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_createEventFail() throws IOException {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(0);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage(startsWith("CreateEventA returned unexpected with 0! Error Code: "+DUMMY_ERROR_CODE));
+
+		port.write(DATA);
+	}
+
+	
+	
 	/**
 	 * Verifies that a call to {@link SerialPort#close()} frees the native resources.
 	 */

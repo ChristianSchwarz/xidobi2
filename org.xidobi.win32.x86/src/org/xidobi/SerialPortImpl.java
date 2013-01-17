@@ -61,22 +61,26 @@ public class SerialPortImpl extends AbstractSerialPort {
 	protected void writeInternal(byte[] data) throws IOException {
 		int eventHandle = os.CreateEventA(0, true, false, null);
 		if (eventHandle == 0)
-			throw new NativeCodeException("CreateEventA returned unexpected with 0! Error Code:" + os.GetLastError());
+			throw new NativeCodeException("CreateEventA returned unexpected with 0! Error Code: " + os.GetLastError());
 
 		OVERLAPPED overlapped = new OVERLAPPED(os);
-		overlapped.hEvent = eventHandle;
+		try {
+			overlapped.hEvent = eventHandle;
 
-		INT lpNumberOfBytesWritten = new INT();
-		boolean succeed = os.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
+			INT lpNumberOfBytesWritten = new INT();
+			boolean succeed = os.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
 
-		int eventResult = os.WaitForSingleObject(eventHandle, 2000);
+			int eventResult = os.WaitForSingleObject(eventHandle, 2000);
 
-		if (eventResult == WAIT_OBJECT_0) {
-			INT lpNumberOfBytesTransferred = new INT();
-			succeed = os.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+			if (eventResult == WAIT_OBJECT_0) {
+				INT lpNumberOfBytesTransferred = new INT();
+				succeed = os.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+			}
+		}
+		finally {
+			overlapped.dispose();
 		}
 
-		
 	}
 
 	@Override
