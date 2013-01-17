@@ -76,16 +76,17 @@ public class TestDCBConfigurer {
 	/**
 	 * Verifies that an {@link IllegalArgumentException} is thrown, when
 	 * <code>settings == null</code> is passed.
-	 * 
-	 * @throws Exception
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void configureDCB_withNullSettings() {
 		configurer.configureDCB(dcb, null);
 	}
 
+	/**
+	 * Verifies that the baud rate from the serial port settings are set on the DCB struct.
+	 */
 	@Test
-	public void configureDCB_withBaudRate() throws Exception {
+	public void configureDCB_withBaudRate() {
 		mockSerialPortSettings(9600, Parity_None);
 
 		configurer.configureDCB(dcb, settings);
@@ -93,8 +94,11 @@ public class TestDCBConfigurer {
 		assertThat(dcb.BaudRate, is(9600));
 	}
 
+	/**
+	 * Verifies that the parity (none) from the serial port settings are set on the DCB struct.
+	 */
 	@Test
-	public void configureDCB_withParityNone() throws Exception {
+	public void configureDCB_withParityNone() {
 		mockSerialPortSettings(9600, Parity_None);
 
 		configurer.configureDCB(dcb, settings);
@@ -102,8 +106,11 @@ public class TestDCBConfigurer {
 		assertThat(dcb.Parity, is((byte) NOPARITY));
 	}
 
+	/**
+	 * Verifies that the parity (odd) from the serial port settings are set on the DCB struct.
+	 */
 	@Test
-	public void configureDCB_withParityOdd() throws Exception {
+	public void configureDCB_withParityOdd() {
 		mockSerialPortSettings(9600, Parity_Odd);
 
 		configurer.configureDCB(dcb, settings);
@@ -111,8 +118,11 @@ public class TestDCBConfigurer {
 		assertThat(dcb.Parity, is((byte) ODDPARITY));
 	}
 
+	/**
+	 * Verifies that the parity (even) from the serial port settings are set on the DCB struct.
+	 */
 	@Test
-	public void configureDCB_withParityEven() throws Exception {
+	public void configureDCB_withParityEven() {
 		mockSerialPortSettings(9600, Parity_Even);
 
 		configurer.configureDCB(dcb, settings);
@@ -120,8 +130,11 @@ public class TestDCBConfigurer {
 		assertThat(dcb.Parity, is((byte) EVENPARITY));
 	}
 
+	/**
+	 * Verifies that the parity (mark) from the serial port settings are set on the DCB struct.
+	 */
 	@Test
-	public void configureDCB_withParityMark() throws Exception {
+	public void configureDCB_withParityMark() {
 		mockSerialPortSettings(9600, Parity_Mark);
 
 		configurer.configureDCB(dcb, settings);
@@ -129,8 +142,11 @@ public class TestDCBConfigurer {
 		assertThat(dcb.Parity, is((byte) MARKPARITY));
 	}
 
+	/**
+	 * Verifies that the parity (space) from the serial port settings are set on the DCB struct.
+	 */
 	@Test
-	public void configureDCB_withParitySpace() throws Exception {
+	public void configureDCB_withParitySpace() {
 		mockSerialPortSettings(9600, Parity_Space);
 
 		configurer.configureDCB(dcb, settings);
@@ -140,6 +156,7 @@ public class TestDCBConfigurer {
 
 	// //////////////////////////////////////////////////////////////////////////////////////
 
+	/** Mocks the values of a {@link SerialPortSettings}. */
 	private void mockSerialPortSettings(int bauds, Parity parity) {
 		when(settings.getBauds()).thenReturn(bauds);
 		when(settings.getParity()).thenReturn(parity);
