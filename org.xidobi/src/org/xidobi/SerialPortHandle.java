@@ -18,6 +18,7 @@ package org.xidobi;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.WillCloseWhenClosed;
 
 /**
  * Interface for serial port handles.
@@ -29,6 +30,10 @@ public interface SerialPortHandle {
 
 	/**
 	 * Opens a serial port with the given control settings and returns the connected serial port.
+	 * <p>
+	 * <b>IMPORTANT:</b> The returned {@link SerialPort} must be closed, when it is not used
+	 * anymore! Otherwise the port stays open!
+	 * 
 	 * @param settings
 	 *            the control settings for the port, must not be <code>null</code>
 	 * 
@@ -36,10 +41,12 @@ public interface SerialPortHandle {
 	 * @throws IOException
 	 *             if the port cannot be opened
 	 */
+	@WillCloseWhenClosed
 	SerialPort open(SerialPortSettings settings) throws IOException;
 
 	/**
 	 * Returns the name of this port
+	 * 
 	 * @return the port name, not <code>null</code>
 	 */
 	@Nonnull

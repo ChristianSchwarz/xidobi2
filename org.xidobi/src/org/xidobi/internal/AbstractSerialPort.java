@@ -123,6 +123,10 @@ public abstract class AbstractSerialPort implements SerialPort {
 		closeInternal();
 		isClosed = true;
 	}
+	
+	public final boolean isClosed(){
+		return isClosed;
+	}
 
 	/**
 	 * Throw an {@link IOException} if this port is closed.

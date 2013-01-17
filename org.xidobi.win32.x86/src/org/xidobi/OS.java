@@ -129,14 +129,13 @@ public class OS {
 	}
 
 	/**
-	 * Creates or opens a file or I/O device. The most commonly used I/O devices are as follows:
-	 * file, file stream, directory, physical disk, volume, console buffer, tape drive,
-	 * communications resource, mailslot, and pipe. The function returns a handle that can be used
-	 * to access the file or device for various types of I/O depending on the file or device and the
-	 * flags and attributes specified.
-	 * <p>
-	 * To perform this operation as a transacted operation, which results in a handle that can be
-	 * used for transacted I/O, use the CreateFileTransacted function.
+	 * The CreateFile function can create a handle to a communications resource, such as the serial
+	 * port COM1. For communications resources, the dwCreationDisposition parameter must be
+	 * OPEN_EXISTING, the dwShareMode parameter must be zero (exclusive access), and the
+	 * hTemplateFile parameter must be NULL. Read, write, or read/write access can be specified, and
+	 * the handle can be opened for overlapped I/O. To specify a COM port number greater than 9, use
+	 * the following syntax: "\\.\COM10". This syntax works for all port numbers and hardware that
+	 * allows COM port numbers to be specified.
 	 * <p>
 	 * <i>Please see <a
 	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx">

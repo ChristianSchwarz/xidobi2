@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static java.lang.Thread.currentThread;
 import static org.xidobi.OS.INVALID_HANDLE_VALUE;
 import static org.xidobi.OS.WAIT_OBJECT_0;
 import static org.xidobi.internal.Preconditions.checkArgument;
@@ -40,6 +41,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 	private final OS os;
 	/** The HANDLE of the opened port */
 	private final int handle;
+	private final StackTraceElement[] ex;
 
 	/**
 	 * @param portHandle
@@ -55,6 +57,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
 		this.os = checkArgumentNotNull(os, "os");
+		
+		ex = currentThread().getStackTrace();
 	}
 
 	@Override
@@ -86,11 +90,18 @@ public class SerialPortImpl extends AbstractSerialPort {
 	@Override
 	@Nonnull
 	protected byte[] readInternal() throws IOException {
-		return null;
+		throw new UnsupportedOperationException("Not implemented yet!");
 	}
 
 	@Override
 	protected void closeInternal() throws IOException {
 		os.CloseHandle(handle);
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		//TODO Write Test!!!
+		super.finalize();
+		close();
 	}
 }

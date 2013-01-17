@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.xidobi.SerialPort;
-import org.xidobi.SerialPortHandle;
 import org.xidobi.SerialPortHandleImpl;
 import org.xidobi.SerialPortSettings;
 
@@ -29,7 +28,7 @@ public class TestWrite {
 
 	/** class under test */
 	@InjectMocks
-	private SerialPortHandle portHandle;
+	private SerialPortHandleImpl portHandle;
 
 	private SerialPort connection;
 

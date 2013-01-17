@@ -63,6 +63,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		this.os = checkArgumentNotNull(os, "os");
 	}
 
+	
 	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
@@ -91,9 +92,10 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
 
+		os.GetLastError();
 		int err = os.GetLastError();
 
-		System.out.println("invalid handle->" + err);
+		System.err.println("invalid handle("+handle+")->" + err);
 		switch (err) {
 			case ERROR_ACCESS_DENIED:
 				throw new IOException("Port in use (" + portName + ")!");
