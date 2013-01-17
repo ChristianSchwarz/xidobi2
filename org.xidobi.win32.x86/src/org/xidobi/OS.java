@@ -24,6 +24,8 @@ import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
+import static java.lang.System.loadLibrary;
+
 /**
  * This class contains one-to-one mappings of native methods used by the OS to control serial ports.
  * 
@@ -34,7 +36,7 @@ public class OS {
 
 	/** The name of the native shared library. */
 	private static final String NATIVE_LIB = "xidobi";
-	
+
 	/** Opens port for input. */
 	public final static int GENERIC_READ = 0x80000000;
 	/** Opens port for output. */
@@ -118,10 +120,11 @@ public class OS {
 	 */
 	private OS() {
 		try {
-			System.loadLibrary(NATIVE_LIB);
+			loadLibrary(NATIVE_LIB);
+			return;
 		}
-		catch (UnsatisfiedLinkError e) {
-			throw new UnsatisfiedLinkError("Unable to find " + NATIVE_LIB + ".dll!\r\nAre you running in an OSGi enviroment?");
+		catch (UnsatisfiedLinkError ignore) {
+			throw new UnsatisfiedLinkError("Unable to find " + NATIVE_LIB + ".dll!\r\nYou must run in an OSGi enviroment!");
 		}
 	}
 
@@ -270,7 +273,7 @@ public class OS {
 	 *         If the function fails, the return value is NULL.
 	 */
 	@CheckReturnValue
-	public native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState,@Nullable String lpName);
+	public native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, @Nullable String lpName);
 
 	/**
 	 * Writes data to the specified file or input/output (I/O) device.
@@ -311,7 +314,7 @@ public class OS {
 	 *         the {@link #GetLastError()} function.
 	 */
 	@CheckReturnValue
-	public native boolean WriteFile(int handle,@Nonnull  byte[] lpBuffer, int nNumberOfBytesToWrite,@Nullable  INT lpNumberOfBytesWritten,@Nullable OVERLAPPED lpOverlapped);
+	public native boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped);
 
 	/**
 	 * Reads data from the specified file or input/output (I/O) device. Reads occur at the position
@@ -354,7 +357,7 @@ public class OS {
 	 *         the {@link #GetLastError()} function.
 	 */
 	@CheckReturnValue
-	public native boolean ReadFile(int handle,@Nonnull  byte[] lpBuffer, int nNumberOfBytesToRead,@Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
+	public native boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
