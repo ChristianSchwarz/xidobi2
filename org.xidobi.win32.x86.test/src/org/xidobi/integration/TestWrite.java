@@ -32,7 +32,7 @@ public class TestWrite {
 			if (connection != null)
 				connection.close();
 
-		}
+		} 
 	}
 
 	
