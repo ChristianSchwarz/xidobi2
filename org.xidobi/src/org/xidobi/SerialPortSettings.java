@@ -22,12 +22,25 @@ import static org.xidobi.StopBits.StopBits_1;
 import static org.xidobi.internal.Preconditions.checkArgument;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
-import org.xidobi.internal.Preconditions;
-
 /**
- * The control settings for a serial port.
+ * Specifies the control settings for a serial port.
+ * <p>
+ * <b>Usage:</b>
+ * <p>
+ * <code>
+ * SerialPortSettings settings;</br>
+ * settings = SerialPortSettings.bauds(9600).dataBits(DataBits.DataBits_6).create();
+ * </code>
+ * <p>
+ * This creates control settings with the following values:
+ * <ul>
+ * <li>bauds = 96000 (as configured)</li>
+ * <li>dataBits = 6 (as configured)</li>
+ * <li>stopBits = 1 (default)</li>
+ * <li>parity = none (default)</li>
+ * <li>flowControl = none (default)</li>
+ * </ul>
  * 
- * @author Christian Schwarz
  * @author Tobias Breﬂler
  * 
  * @see DataBits
@@ -35,7 +48,7 @@ import org.xidobi.internal.Preconditions;
  * @see Parity
  * @see FlowControl
  */
-public class SerialPortSettings {
+public final class SerialPortSettings {
 
 	/**
 	 * A builder for serial port settings.
@@ -44,10 +57,15 @@ public class SerialPortSettings {
 	 */
 	public static final class SerialPortSettingsBuilder {
 
+		/** the baud rate */
 		private final int bauds;
+		/** the data bits, default is {@link DataBits#DataBits_8} */
 		private DataBits dataBits = DataBits_8;
+		/** the stop bits, default is {@link StopBits#StopBits_1} */
 		private StopBits stopBits = StopBits_1;
+		/** the parity, default is {@link Parity#Parity_None} */
 		private Parity parity = Parity_None;
+		/** the flow control, default is {@link FlowControl#FlowControl_None} */
 		private FlowControl flowControl = FlowControl_None;
 
 		/**
@@ -110,8 +128,9 @@ public class SerialPortSettings {
 		}
 
 		/**
+		 * Creates and returns the serial port settings.
 		 * 
-		 * @return
+		 * @return the serial port settings, never <code>null</code>
 		 */
 		public SerialPortSettings create() {
 			return new SerialPortSettings(bauds, dataBits, stopBits, parity, flowControl);
@@ -119,13 +138,20 @@ public class SerialPortSettings {
 
 	}
 
+	/** the baud rate */
 	private final int bauds;
-
+	/** the data bits */
 	private final DataBits dataBits;
+	/** the stop bits */
 	private final StopBits stopBits;
+	/** the parity */
 	private final Parity parity;
+	/** the flow control */
 	private final FlowControl flowControl;
 
+	/**
+	 * Creates a serial port setting with the given values.
+	 */
 	private SerialPortSettings(	int bauds,
 								DataBits dataBits,
 								StopBits stopBits,
@@ -139,9 +165,14 @@ public class SerialPortSettings {
 	}
 
 	/**
-	 * Creates a new builder for the serial port settings.
-	 * 
-	 * TODO describe the initial values
+	 * Creates a builder for the serial port settings with the given baud rate. The initial value of
+	 * the port setting is:
+	 * <ul>
+	 * <li>dataBits = 8</li>
+	 * <li>stopBits = 1</li>
+	 * <li>parity = none</li>
+	 * <li>flowControl = none</li>
+	 * </ul>
 	 * 
 	 * @param bauds
 	 *            the baud rate, must be greater than 0
@@ -161,28 +192,36 @@ public class SerialPortSettings {
 	}
 
 	/**
-	 * @return the data bits
+	 * Returns the data bits.
+	 * 
+	 * @return the data bits, never <code>null</code>
 	 */
 	public DataBits getDataBits() {
 		return dataBits;
 	}
 
 	/**
-	 * @return the stop bits
+	 * Returns the stop bits.
+	 * 
+	 * @return the stop bits, never <code>null</code>
 	 */
 	public StopBits getStopBits() {
 		return stopBits;
 	}
 
 	/**
-	 * @return the parity
+	 * Returns the parity.
+	 * 
+	 * @return the parity, never <code>null</code>
 	 */
 	public Parity getParity() {
 		return parity;
 	}
 
 	/**
-	 * @return the flow control
+	 * Returns the flow control.
+	 * 
+	 * @return the flow control, never <code>null</code>
 	 */
 	public FlowControl getFlowControl() {
 		return flowControl;
