@@ -165,8 +165,8 @@ public final class SerialPortSettings {
 	}
 
 	/**
-	 * Creates a builder for the serial port settings with the given baud rate. The initial value of
-	 * the port setting is:
+	 * Creates a builder for the serial port settings with the given baud rate. The initial values
+	 * of the port settings are:
 	 * <ul>
 	 * <li>dataBits = 8</li>
 	 * <li>stopBits = 1</li>
