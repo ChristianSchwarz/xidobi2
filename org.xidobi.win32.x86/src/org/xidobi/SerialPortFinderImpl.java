@@ -24,6 +24,7 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 
@@ -79,7 +80,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private void openRegistry(HKEY phkResult) {
 		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
 		if (status != ERROR_SUCCESS)
-			throw new IllegalStateException("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
+			throw new NativeCodeException("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
 	}
 
 	/**

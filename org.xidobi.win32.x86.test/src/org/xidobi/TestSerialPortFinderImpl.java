@@ -45,6 +45,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 
@@ -92,7 +93,7 @@ public class TestSerialPortFinderImpl {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalStateException} is thrown, when
+	 * Verifies that an {@link NativeCodeException} is thrown, when
 	 * {@link OS#RegOpenKeyExA(int, String, int, int, HKEY)} is not successful. The allocated HKEY
 	 * must be disposed at the end.
 	 */
@@ -102,7 +103,7 @@ public class TestSerialPortFinderImpl {
 		when(os.malloc(SIZE_OF_HKEY)).thenReturn(HKEY_POINTER);
 		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
 
-		exception.expect(IllegalStateException.class);
+		exception.expect(NativeCodeException.class);
 		exception.expectMessage("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + AN_ERROR_CODE + ")");
 
 		try {
@@ -225,7 +226,7 @@ public class TestSerialPortFinderImpl {
 			}
 		};
 	}
-	
+
 	/** Returns a Matcher that verifies the value of an {@link INT}. */
 	private TypeSafeMatcher<INT> isINT(final int value) {
 		return new CustomTypeSafeMatcher<INT>("an INT with value >" + value + "<") {
