@@ -8,6 +8,8 @@ package org.xidobi.internal;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,6 +24,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.hamcrest.Matchers.is;
@@ -57,9 +60,11 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown when <code>null</code> is passed to the constructor.
+	 * Verifies that an {@link IllegalArgumentException} is thrown when <code>null</code> is passed
+	 * to the constructor.
 	 */
 	@Test
+	@SuppressWarnings("resource")
 	public void new_nullPortPortHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");
@@ -131,16 +136,68 @@ public class TestAbstractSerialPort {
 	 * Verifies that an {@link IOException} is thrown when the port is closed.
 	 */
 	@Test
-	public void writeToClosedPort() throws Exception {
+	public void write_portIsClosed() throws Exception {
+		when(portHandle.getPortName()).thenReturn("COM1");
+		port = new _AbstractSerialPort(portHandle);
 		port.close();
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port xy");
+		exception.expectMessage("Port COM1 is closed!");
 
 		port.write(BYTES);
 	}
 
-	// Utilities for this Testclass//////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown when <code>null</code> is passed.
+	 */
+	@Test
+	public void write_nullData() throws Exception {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Argument >data< must not be null!");
+
+		port.write(null);
+	}
+
+	/**
+	 * Verifies that {@link SerialPort#write(byte[])} deleagtes to
+	 * {@link AbstractSerialPort#writeInternal(byte[])} if <code>data!=null</code> and the port is
+	 * not closed.
+	 */
+	@Test
+	public void write_delegate() throws Exception {
+		port.write(BYTES);
+		verify(port).writeInternal(BYTES);
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown when the port is closed.
+	 */
+	@Test
+	public void read_portIsClosed() throws Exception {
+		when(portHandle.getPortName()).thenReturn("COM1");
+		port = new _AbstractSerialPort(portHandle);
+		port.close();
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed!");
+
+		port.read();
+	}
+
+	/**
+	 * Verifies that {@link SerialPort#read()} is delegated to
+	 * {@link AbstractSerialPort#readInternal()} if the port is not closed.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_delegate() throws IOException {
+		port.read();
+
+		verify(port).readInternal();
+	}
+
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 	public static final class _AbstractSerialPort extends AbstractSerialPort {
 		public _AbstractSerialPort(SerialPortHandle portHandle) {
 			super(portHandle);
@@ -148,5 +205,14 @@ public class TestAbstractSerialPort {
 
 		@Override
 		protected void closeInternal() throws IOException {}
+
+		@Override
+		@Nonnull
+		protected byte[] readInternal() throws IOException {
+			return null;
+		}
+
+		@Override
+		protected void writeInternal(@Nonnull byte[] data) throws IOException {}
 	}
 }

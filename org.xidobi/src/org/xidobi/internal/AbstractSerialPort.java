@@ -33,8 +33,19 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
  */
 public abstract class AbstractSerialPort implements SerialPort {
 
+	/**
+	 * The Handle of this Port contains e.g. the Name.
+	 */
 	@Nonnull
 	private final SerialPortHandle portHandle;
+
+	/**
+	 * <ul>
+	 * <li> <code>true</code> if this port is closed, {@link #close()} was called
+	 * <li> <code>false</code> if this port is open
+	 * </ul>
+	 */
+	private volatile boolean isClosed;
 
 	/**
 	 * Creates a new instance with the {@link SerialPortHandle}.
@@ -50,19 +61,59 @@ public abstract class AbstractSerialPort implements SerialPort {
 	}
 
 	/**
+	 * The implementation must write the given {@code byte[]} to the port.
+	 * <p>
+	 * This method will be called by {@link #write(byte[])}, if following conditions apply:
 	 * <ul>
-	 * <li> <code>true</code>, if {@link #close()} was called
-	 * <li> <code>false</code>, if this port is open
+	 * <li>the port is open
+	 * <li>{@code data!=null}.
 	 * </ul>
+	 * 
+	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
+	 * port is open and data is not <code>null</code>!
+	 * 
+	 * @param data
+	 *            never <code>null</code>
 	 */
-	private volatile boolean isClosed;
+	protected abstract void writeInternal(@Nonnull byte[] data) throws IOException;
 
-	public final void write(byte[] data) throws IOException {
+	/**
+	 * The implementation must block until at least one byte can be returned or and
+	 * {@link IOException} is thrown.
+	 * <p>
+	 * This method will be called by {@link #read()} only if the port is open.
+	 * <p>
+	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
+	 * port is open!
+	 * 
+	 * @return the byte's read from the port, never <code>null</code>
+	 * @throws IOException
+	 */
+	@Nonnull
+	protected abstract byte[] readInternal() throws IOException;
+
+	/**
+	 * The implementation must release all native resources.
+	 * <p>
+	 * This method will be called by {@link #close()} as long as this method returns with not normal / throws an {@link IOException}.
+	 * 
+	 * <p>
+	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
+	 * port is open!
+	 */
+	protected abstract void closeInternal() throws IOException;
+
+	public final void write(@Nonnull byte[] data) throws IOException {
+		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
+
+		writeInternal(data);
 	}
 
-	public byte[] read() throws IOException {
-		return null;
+	@Nonnull
+	public final byte[] read() throws IOException {
+		ensurePortIsOpen();
+		return readInternal();
 	}
 
 	public final void close() throws IOException {
@@ -72,14 +123,6 @@ public abstract class AbstractSerialPort implements SerialPort {
 		closeInternal();
 		isClosed = true;
 	}
-
-	/**
-	 * The implementation must release all native resources.
-	 * <p>
-	 * It is guaranteed that this method will only be called on the first call of {@link #close()},
-	 * if this method returns normal (without exception).
-	 */
-	protected abstract void closeInternal() throws IOException;
 
 	/**
 	 * Throw an {@link IOException} if this port is closed.
