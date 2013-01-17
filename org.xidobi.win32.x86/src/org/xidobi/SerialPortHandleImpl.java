@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 import org.xidobi.structs.DCB;
 
 /**
- * Handle that opens serial ports.
+ * {@link SerialPortHandle} to open a serial ports.
  * 
  * 
  * @author Christian Schwarz
@@ -63,17 +63,17 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		this.os = checkArgumentNotNull(os, "os");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.xidobi.SerialPortHandle#open(java.lang.String, org.xidobi.SerialPortSettings)
-	 */
 	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
-		int handle = tryOpen(portName);
-
-		applySettings(handle, settings);
+		final int handle = tryOpen(portName);
+		try {
+			applySettings(handle, settings);
+		}
+		catch (IOException e) {
+			os.CloseHandle(handle);
+			throw e;
+		}
 
 		return new SerialPortImpl(this, os, handle);
 	}
@@ -85,13 +85,14 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 * @exception IOException
 	 *                if the port is already open or does not exist
 	 */
-	private int tryOpen(String portName) throws IOException {
+	private int tryOpen(final String portName) throws IOException {
 		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
 
 		int err = os.GetLastError();
+
 		System.out.println("invalid handle->" + err);
 		switch (err) {
 			case ERROR_ACCESS_DENIED:
@@ -109,9 +110,9 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 * @throws IOException
 	 *             if it was not possible to apply the settings e.g. if they are invalid
 	 */
-	private void applySettings(int handle, SerialPortSettings settings) throws IOException {
-		DCB dcb = new DCB();
-		
+	private void applySettings(final int handle,final SerialPortSettings settings) throws IOException {
+		final DCB dcb = new DCB();
+
 		if (!os.GetCommState(handle, dcb))
 			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", os.GetLastError());
 
