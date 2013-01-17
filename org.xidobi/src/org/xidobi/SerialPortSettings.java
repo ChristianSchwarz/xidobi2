@@ -19,7 +19,10 @@ import static org.xidobi.DataBits.DataBits_8;
 import static org.xidobi.FlowControl.FlowControl_None;
 import static org.xidobi.Parity.Parity_None;
 import static org.xidobi.StopBits.StopBits_1;
+import static org.xidobi.internal.Preconditions.checkArgument;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+
+import org.xidobi.internal.Preconditions;
 
 /**
  * The control settings for a serial port.
@@ -51,9 +54,10 @@ public class SerialPortSettings {
 		 * Creates a builder for serial port settings.
 		 * 
 		 * @param bauds
-		 *            the baud rate
+		 *            the baud rate, must be greater than 0
 		 */
 		private SerialPortSettingsBuilder(int bauds) {
+			checkArgument(bauds > 0, "bauds", "Baud rate must be greater than 0!");
 			this.bauds = bauds;
 		}
 
@@ -140,7 +144,7 @@ public class SerialPortSettings {
 	 * TODO describe the initial values
 	 * 
 	 * @param bauds
-	 *            the baud rate
+	 *            the baud rate, must be greater than 0
 	 * @return a new builder for the serial port settings, never <code>null</code>
 	 */
 	public static SerialPortSettingsBuilder bauds(int bauds) {

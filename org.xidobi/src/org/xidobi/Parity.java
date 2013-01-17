@@ -42,7 +42,7 @@ public enum Parity {
 	/** ensures that at least one state transition occurs in each character */
 	Parity_Odd,
 
-	/** */
+	/** TODO describe value */
 	Parity_Even,
 
 	/** the parity bit is always set to the mark signal condition (logical 1) */
