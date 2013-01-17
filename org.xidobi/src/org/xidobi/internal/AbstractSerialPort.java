@@ -113,7 +113,7 @@ public abstract class AbstractSerialPort implements SerialPort {
 	@Nonnull
 	public final byte[] read() throws IOException {
 		ensurePortIsOpen();
-		throw new UnsupportedOperationException("Not implemented yet");
+		return readInternal();
 	}
 
 	public final void close() throws IOException {

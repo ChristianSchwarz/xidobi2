@@ -184,6 +184,19 @@ public class TestAbstractSerialPort {
 		port.read();
 	}
 
+	/**
+	 * Verifies that {@link SerialPort#read()} is delegated to
+	 * {@link AbstractSerialPort#readInternal()} if the port is not closed.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_delegate() throws IOException {
+		port.read();
+
+		verify(port).readInternal();
+	}
+
 	// Utilities for this
 	// Testclass//////////////////////////////////////////////////////////////////////////////////
 	public static final class _AbstractSerialPort extends AbstractSerialPort {
