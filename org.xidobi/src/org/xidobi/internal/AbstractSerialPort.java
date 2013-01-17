@@ -60,26 +60,60 @@ public abstract class AbstractSerialPort implements SerialPort {
 		checkArgumentNotNull(portHandle, "portHandle");
 	}
 
+	/**
+	 * The implementation must write the given {@code byte[]} to the port.
+	 * <p>
+	 * This method will be called by {@link #write(byte[])}, if following conditions apply:
+	 * <ul>
+	 * <li>the port is open
+	 * <li>{@code data!=null}.
+	 * </ul>
+	 * 
+	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
+	 * port is open and data is not <code>null</code>!
+	 * 
+	 * @param data
+	 *            never <code>null</code>
+	 */
+	protected abstract void writeInternal(@Nonnull byte[] data) throws IOException;
+
+	/**
+	 * The implementation must block until at least one byte can be returned or and
+	 * {@link IOException} is thrown.
+	 * <p>
+	 * This method will be called by {@link #read()} only if the port is open.
+	 * <p>
+	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
+	 * port is open!
+	 * 
+	 * @return the byte's read from the port, never <code>null</code>
+	 * @throws IOException
+	 */
+	@Nonnull
+	protected abstract byte[] readInternal() throws IOException;
+
+	/**
+	 * The implementation must release all native resources.
+	 * <p>
+	 * This method will be called by {@link #close()} as long as this method returns with not normal / throws an {@link IOException}.
+	 * 
+	 * <p>
+	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
+	 * port is open!
+	 */
+	protected abstract void closeInternal() throws IOException;
+
 	public final void write(@Nonnull byte[] data) throws IOException {
 		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
-		
+
 		writeInternal(data);
 	}
 
-	/**
-	 * Writes the given {@code byte[]}.
-	 * <p>
-	 * A call to {@link #write(byte[])} will be deleagte to this method only if the port is open and
-	 * {@code data!=null}.
-	 * 
-	 * @param data never <code>null</code>
-	 */
-	protected void writeInternal(@Nonnull byte[] data) throws IOException {}
-
+	@Nonnull
 	public final byte[] read() throws IOException {
 		ensurePortIsOpen();
-		return null;
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	public final void close() throws IOException {
@@ -89,14 +123,6 @@ public abstract class AbstractSerialPort implements SerialPort {
 		closeInternal();
 		isClosed = true;
 	}
-
-	/**
-	 * The implementation must release all native resources.
-	 * <p>
-	 * It is guaranteed that this method will only be called on the first call of {@link #close()},
-	 * if this method returns normal (without exception).
-	 */
-	protected abstract void closeInternal() throws IOException;
 
 	/**
 	 * Throw an {@link IOException} if this port is closed.

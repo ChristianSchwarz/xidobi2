@@ -8,6 +8,8 @@ package org.xidobi.internal;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,6 +64,7 @@ public class TestAbstractSerialPort {
 	 * to the constructor.
 	 */
 	@Test
+	@SuppressWarnings("resource")
 	public void new_nullPortPortHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");
@@ -156,6 +159,17 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
+	 * Verifies that {@link SerialPort#write(byte[])} deleagtes to
+	 * {@link AbstractSerialPort#writeInternal(byte[])} if <code>data!=null</code> and the port is
+	 * not closed.
+	 */
+	@Test
+	public void write_delegate() throws Exception {
+		port.write(BYTES);
+		verify(port).writeInternal(BYTES);
+	}
+
+	/**
 	 * Verifies that an {@link IOException} is thrown when the port is closed.
 	 */
 	@Test
@@ -179,5 +193,14 @@ public class TestAbstractSerialPort {
 
 		@Override
 		protected void closeInternal() throws IOException {}
+
+		@Override
+		@Nonnull
+		protected byte[] readInternal() throws IOException {
+			return null;
+		}
+
+		@Override
+		protected void writeInternal(@Nonnull byte[] data) throws IOException {}
 	}
 }
