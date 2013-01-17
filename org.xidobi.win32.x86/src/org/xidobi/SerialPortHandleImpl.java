@@ -89,7 +89,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 			throw newIOExceptionWithLastErrorCode("Unable to set the control settings for port >" + portName + "<!");
 		}
 
-		return new SerialPortImpl(os, handle);
+		return new SerialPortImpl(this,os, handle);
 	}
 
 	/**

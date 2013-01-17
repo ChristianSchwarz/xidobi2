@@ -197,8 +197,7 @@ public class TestAbstractSerialPort {
 		verify(port).readInternal();
 	}
 
-	// Utilities for this
-	// Testclass//////////////////////////////////////////////////////////////////////////////////
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 	public static final class _AbstractSerialPort extends AbstractSerialPort {
 		public _AbstractSerialPort(SerialPortHandle portHandle) {
 			super(portHandle);
