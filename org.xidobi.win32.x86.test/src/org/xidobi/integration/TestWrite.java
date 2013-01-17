@@ -2,6 +2,7 @@ package org.xidobi.integration;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandle;
@@ -19,6 +20,7 @@ public class TestWrite {
 	private static final SerialPortSettings PORT_SETTINGS = bauds(9600).create();
 
 	@Test
+	@Ignore
 	public void openWriteClose() throws IOException {
 		SerialPortHandle portHandle = new SerialPortHandleImpl(OS, "COM1");
 
@@ -32,7 +34,6 @@ public class TestWrite {
 				connection.close();
 
 		}
-
 	}
 
 	

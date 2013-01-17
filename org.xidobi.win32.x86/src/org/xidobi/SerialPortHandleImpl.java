@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static org.xidobi.OS.ERROR_ACCESS_DENIED;
 import static org.xidobi.OS.ERROR_FILE_NOT_FOUND;
 import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.OS.GENERIC_READ;
@@ -69,7 +70,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 */
 	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
-
+		System.out.println(os.GetLastError());
 		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle == INVALID_HANDLE_VALUE) {
@@ -77,6 +78,8 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 			switch (err) {
 				case 0:
 					throw new IOException("Port in use (" + portName + ")!");
+				case ERROR_ACCESS_DENIED:
+					throw new IOException("Port busy ("+portName+")!");
 				case ERROR_FILE_NOT_FOUND:
 					throw new IOException("Port not found (" + portName + ")!");
 				default:
