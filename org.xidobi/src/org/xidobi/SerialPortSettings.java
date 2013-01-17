@@ -48,7 +48,7 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
  * @see Parity
  * @see FlowControl
  */
-public final class SerialPortSettings {
+public class SerialPortSettings {
 
 	/**
 	 * A builder for serial port settings.

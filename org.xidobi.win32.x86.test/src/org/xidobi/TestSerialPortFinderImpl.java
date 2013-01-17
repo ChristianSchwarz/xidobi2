@@ -104,7 +104,7 @@ public class TestSerialPortFinderImpl {
 		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + AN_ERROR_CODE + ")");
+		exception.expectMessage("Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + AN_ERROR_CODE + ")");
 
 		try {
 			finder.find();
