@@ -24,6 +24,7 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 
@@ -44,6 +45,8 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private OS os;
 
 	/**
+	 * Creates a new instance, that finds all serial ports that are available in the Windows
+	 * Registry.
 	 * 
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
@@ -79,7 +82,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private void openRegistry(HKEY phkResult) {
 		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
 		if (status != ERROR_SUCCESS)
-			throw new IllegalStateException("Couldn't open windows registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
+			throw new NativeCodeException("Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
 	}
 
 	/**
@@ -89,22 +92,22 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private Set<SerialPortInfo> getPortsFromRegistry(HKEY phkResult) {
 		Set<SerialPortInfo> ports = new HashSet<SerialPortInfo>();
 
-		byte[] lpValueName = new byte[255];
-		INT lpcchValueName = new INT();
+		byte[] registryKey = new byte[255]; // port description
+		INT sizeOfKey = new INT(); // size of the port description
 
-		byte[] lpData = new byte[255];
-		INT lpcbData = new INT();
+		byte[] registryValue = new byte[255]; // port name
+		INT sizeOfValue = new INT(); // size of the port name
 
-		for (int dwIndex = 0; dwIndex < MAX_VALUE; dwIndex++) {
-			lpcchValueName.value = 255;
-			lpcbData.value = 255;
+		for (int index = 0; index < MAX_VALUE; index++) {
+			sizeOfKey.value = 255;
+			sizeOfValue.value = 255;
 
-			int status = os.RegEnumValueA(phkResult, dwIndex, lpValueName, lpcchValueName, 0, new INT(), lpData, lpcbData);
+			int status = os.RegEnumValueA(phkResult, index, registryKey, sizeOfKey, 0, new INT(), registryValue, sizeOfValue);
 			if (status != ERROR_SUCCESS)
 				break;
 
-			String portName = new String(lpData, 0, lpcbData.value - 1);
-			String description = new String(lpValueName, 0, lpcchValueName.value);
+			String portName = new String(registryValue, 0, sizeOfValue.value - 1);
+			String description = new String(registryKey, 0, sizeOfKey.value);
 			SerialPortInfo serialPort = new SerialPortInfo(portName, description);
 			ports.add(serialPort);
 		}
