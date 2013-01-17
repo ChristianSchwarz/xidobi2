@@ -37,7 +37,7 @@ public class TestOpenPort {
 	public ExpectedException exception = ExpectedException.none();
 
 	/** class under test */
-	private SerialPortHandle portHandle;
+	private SerialPortHandleImpl portHandle;
 
 	private SerialPort connection;
 

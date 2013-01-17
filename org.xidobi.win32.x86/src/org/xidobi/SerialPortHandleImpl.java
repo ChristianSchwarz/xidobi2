@@ -70,46 +70,60 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 */
 	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
-		System.out.println("in->"+os.GetLastError());
-		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
-		if (handle == INVALID_HANDLE_VALUE) {
-			int err = os.GetLastError();
-			System.out.println("invalid handle->"+err);
-			switch (err) {
-				case ERROR_ACCESS_DENIED:
-					throw new IOException("Port in use ("+portName+")!");
-				case ERROR_FILE_NOT_FOUND:
-					throw new IOException("Port not found (" + portName + ")!");
-				default:
-					throw lastError("Unable to open (" + portName + ")!",err);
-			}
-		}
+		int handle = tryOpen(portName);
 
-		DCB dcb = new DCB();
-
-		boolean succeed = os.GetCommState(handle, dcb);
-		if (!succeed) {
-			os.CloseHandle(handle);
-			throw lastError("Unable to retrieve the current control settings for port >" + portName + "<!",os.GetLastError());
-		}
-
-		// dcb.BaudRate = 9600;
-
-		boolean isSetCommStateSuccessful = os.SetCommState(handle, dcb);
-		if (!isSetCommStateSuccessful) {
-			os.CloseHandle(handle);
-			throw lastError("Unable to set the control settings for port >" + portName + "<!",os.GetLastError());
-		}
+		applySettings(handle, settings);
 
 		return new SerialPortImpl(this, os, handle);
+	}
+
+	/**
+	 * Tries to open the port.
+	 * 
+	 * @return the HANDLE of the port on success
+	 * @exception IOException
+	 *                if the port is already open or does not exist
+	 */
+	private int tryOpen(String portName) throws IOException {
+		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+
+		if (handle != INVALID_HANDLE_VALUE)
+			return handle;
+
+		int err = os.GetLastError();
+		System.out.println("invalid handle->" + err);
+		switch (err) {
+			case ERROR_ACCESS_DENIED:
+				throw new IOException("Port in use (" + portName + ")!");
+			case ERROR_FILE_NOT_FOUND:
+				throw new IOException("Port not found (" + portName + ")!");
+		}
+		throw lastError("Unable to open port (" + portName + ")!", err);
+
+	}
+
+	/**
+	 * Tries to apply the {@link SerialPortSettings} to the port.
+	 * 
+	 * @throws IOException
+	 *             if it was not possible to apply the settings e.g. if they are invalid
+	 */
+	private void applySettings(int handle, SerialPortSettings settings) throws IOException {
+		DCB dcb = new DCB();
+		
+		if (!os.GetCommState(handle, dcb))
+			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", os.GetLastError());
+
+		if (!os.SetCommState(handle, dcb))
+			throw lastError("Unable to set the control settings (" + portName + ")!", os.GetLastError());
 	}
 
 	/**
 	 * Returns a new {@link IOException} containing the given message and the error code that is
 	 * returned by {@link OS#GetLastError()}.
 	 */
-	private IOException lastError(String message,int errorCode) {
+	private IOException lastError(String message, int errorCode) {
 		return new IOException(message + " (Error-Code: " + errorCode + ")");
 	}
 

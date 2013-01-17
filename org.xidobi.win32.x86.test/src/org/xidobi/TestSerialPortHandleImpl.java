@@ -15,19 +15,6 @@
  */
 package org.xidobi;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.OS.GENERIC_READ;
-import static org.xidobi.OS.GENERIC_WRITE;
-import static org.xidobi.OS.OPEN_EXISTING;
-
 import java.io.IOException;
 
 import org.junit.Before;
@@ -35,7 +22,26 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.xidobi.structs.DCB;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.OS.GENERIC_READ;
+import static org.xidobi.OS.GENERIC_WRITE;
+import static org.xidobi.OS.OPEN_EXISTING;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link SerialPortHandleImpl}
@@ -46,7 +52,7 @@ import org.xidobi.structs.DCB;
 public class TestSerialPortHandleImpl {
 
 	/** some value for an unspecific win32 error code */
-	private static final int AN_ERROR_CODE = 1;
+	private static final int DUMMY_ERROR_CODE = 1;
 	/** some value for an unspecific handle */
 	private static final int A_PORT_HANDLE = 1;
 
@@ -95,17 +101,6 @@ public class TestSerialPortHandleImpl {
 
 	/**
 	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is passed
-	 * as argument <code>portName</code>.
-	 * 
-	 * @throws Exception
-	 */
-	@Test(expected = IllegalArgumentException.class)
-	public void open_withNullPortName() throws Exception {
-		handle.open(settings);
-	}
-
-	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is passed
 	 * as argument <code>settings</code>.
 	 * 
 	 * @throws Exception
@@ -125,11 +120,11 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test
 	public void open_CreateFileReturnsInvalidHandle() throws Exception {
-		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE);
-		when(os.GetLastError()).thenReturn(AN_ERROR_CODE);
+		when(os.CreateFile(anyString(), anyInt(),anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to open port >portName<! (Error-Code: 1)");
+		exception.expectMessage("Unable to open port (COM1)! (Error-Code: "+DUMMY_ERROR_CODE+")");
 
 		handle.open(settings);
 	}
@@ -144,12 +139,12 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test
 	public void open_GetCommStateReturnsFalse() throws Exception {
-		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
+		when(os.CreateFile(anyString(), anyInt(),anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
-		when(os.GetLastError()).thenReturn(AN_ERROR_CODE);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to retrieve the current control settings for port >portName<! (Error-Code: 1)");
+		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)! (Error-Code: "+DUMMY_ERROR_CODE+")");
 
 		try {
 			handle.open(settings);
@@ -169,13 +164,13 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test
 	public void open_SetCommStateReturnsFalse() throws Exception {
-		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
 		when(os.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
-		when(os.GetLastError()).thenReturn(AN_ERROR_CODE);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to set the control settings for port >portName<! (Error-Code: 1)");
+		exception.expectMessage("Unable to set the control settings (COM1)! (Error-Code: "+DUMMY_ERROR_CODE+")");
 
 		try {
 			handle.open(settings);
@@ -193,16 +188,16 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test
 	public void open_returnsSerialPort() throws Exception {
-		when(os.CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
 		when(os.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
 
 		SerialPort result = handle.open(settings);
 
-		assertThat(result, is(notNullValue()));
-		verify(os).CreateFile("\\\\.\\portName", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		verify(os).CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 		verify(os).GetCommState(eq(A_PORT_HANDLE), any(DCB.class));
 		verify(os).SetCommState(eq(A_PORT_HANDLE), any(DCB.class));
 		verify(os, never()).CloseHandle(A_PORT_HANDLE);
+		assertThat(result, is(notNullValue()));
 	}
 }
