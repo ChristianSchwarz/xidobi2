@@ -175,7 +175,13 @@ public class OS {
 	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
-	public native int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
+	public int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile) {
+		INT lastError = new INT(0);
+		int result = CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile, lastError);
+		return result;
+	}
+
+	private native int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile, INT lastError);
 
 	/**
 	 * Closes an open object handle.
@@ -191,7 +197,13 @@ public class OS {
 	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
-	public native boolean CloseHandle(int handle);
+	public boolean CloseHandle(int handle) {
+		INT lastError = new INT(0);
+		boolean result = CloseHandle(handle, lastError);
+		return result;
+	}
+
+	private native boolean CloseHandle(int handle, INT lastError);
 
 	/**
 	 * Retrieves the current control settings for a specified communications device.
@@ -211,7 +223,13 @@ public class OS {
 	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
-	public native boolean GetCommState(int handle, DCB dcb);
+	public boolean GetCommState(int handle, DCB dcb) {
+		INT lastError = new INT(0);
+		boolean result = GetCommState(handle, dcb, lastError);
+		return result;
+	}
+
+	private native boolean GetCommState(int handle, DCB dcb, INT lastError);
 
 	/**
 	 * Configures a communications device according to the specifications in a device-control block
@@ -233,7 +251,13 @@ public class OS {
 	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
-	public native boolean SetCommState(int handle, DCB dcb);
+	public boolean SetCommState(int handle, DCB dcb) {
+		INT lastError = new INT(0);
+		boolean result = SetCommState(handle, dcb, lastError);
+		return result;
+	}
+
+	private native boolean SetCommState(int handle, DCB dcb, INT lastError);
 
 	/**
 	 * Creates or opens a named or unnamed event object.
@@ -272,7 +296,13 @@ public class OS {
 	 *         If the function fails, the return value is NULL.
 	 */
 	@CheckReturnValue
-	public native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, @Nullable String lpName);
+	public int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, @Nullable String lpName) {
+		INT lastError = new INT(0);
+		int result = CreateEventA(lpEventAttributes, bManualReset, bInitialState, lpName, lastError);
+		return result;
+	}
+
+	private native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, @Nullable String lpName, INT lastError);
 
 	/**
 	 * Writes data to the specified file or input/output (I/O) device.
@@ -313,7 +343,13 @@ public class OS {
 	 *         the {@link #GetLastError()} function.
 	 */
 	@CheckReturnValue
-	public native boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped);
+	public boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped) {
+		INT lastError = new INT(0);
+		boolean result = WriteFile(handle, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped, lastError);
+		return result;
+	}
+
+	private native boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped, INT lastError);
 
 	/**
 	 * Reads data from the specified file or input/output (I/O) device. Reads occur at the position
@@ -356,7 +392,13 @@ public class OS {
 	 *         the {@link #GetLastError()} function.
 	 */
 	@CheckReturnValue
-	public native boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
+	public boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped) {
+		INT lastError = new INT(0);
+		boolean result = ReadFile(handle, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped, lastError);
+		return result;
+	}
+
+	private native boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
 	/**
 	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
@@ -404,7 +446,13 @@ public class OS {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
-	public native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
+	public boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait) {
+		INT lastError = new INT(0);
+		boolean result = GetOverlappedResult(handle, lpOverlapped, lpNumberOfBytesTransferred, bWait, lastError);
+		return result;
+	}
+
+	private native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait, INT lastError);
 
 	/**
 	 * Waits until the specified object is in the signaled state or the time-out interval elapses.
@@ -443,7 +491,13 @@ public class OS {
 	 *         call {@link #GetLastError()}.</li>
 	 *         </ul>
 	 */
-	public native int WaitForSingleObject(int hHandle, int dwMilliseconds);
+	public int WaitForSingleObject(int hHandle, int dwMilliseconds) {
+		INT lastError = new INT(0);
+		int result = WaitForSingleObject(hHandle, dwMilliseconds, lastError);
+		return result;
+	}
+
+	private native int WaitForSingleObject(int hHandle, int dwMilliseconds, INT lastError);
 
 	/**
 	 * Opens the specified registry key. Note that key names are not case sensitive.
