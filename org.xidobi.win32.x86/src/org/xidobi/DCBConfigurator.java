@@ -33,6 +33,7 @@ import static org.xidobi.structs.DCB.TWOSTOPBITS;
 import org.xidobi.structs.DCB;
 
 /**
+ * Configures the native DCB "struct" with the values from the {@link SerialPortSettings}.
  * 
  * @author Tobias Breﬂler
  * 
