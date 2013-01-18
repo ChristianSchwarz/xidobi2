@@ -48,12 +48,12 @@ public class DCBConfigurator {
 	private static final int FALSE = 0;
 
 	/**
-	 * Configures the serial port to the given settings.
+	 * Configures the native DCB "struct" with the values from the given serial port settings.
 	 * 
 	 * @param dcb
-	 *            the DCB "struct", must not be <code>null</code>
+	 *            the DCB "struct" that should be configured, must not be <code>null</code>
 	 * @param settings
-	 *            the settings for the serial port, must not be <code>null</code>
+	 *            the serial port settings, must not be <code>null</code>
 	 */
 	public void configureDCB(DCB dcb, SerialPortSettings settings) {
 		checkArgumentNotNull(dcb, "dcb");
