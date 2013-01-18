@@ -36,7 +36,8 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 		jint lpSecurityAttributes,
 		jint dwCreationDisposition,
 		jint dwFlagsAndAttributes,
-		jint hTemplateFile) {
+		jint hTemplateFile,
+		jobject lastError) {
 
 	const char* fileName = (*env)->GetStringUTFChars(env, lpFileName, NULL);
 
@@ -47,6 +48,9 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 								dwCreationDisposition,
 								dwFlagsAndAttributes,
 								(HANDLE) hTemplateFile);
+
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
 
 	(*env)->ReleaseStringUTFChars(env, lpFileName, fileName);
 
@@ -60,9 +64,14 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
-		jint handle) {
+		jint handle,
+		jobject lastError) {
 	if (CloseHandle((HANDLE) handle))
 		return JNI_TRUE;
+
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
+
 	return JNI_FALSE;
 }
 
@@ -75,12 +84,19 @@ Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 		jint handle,
-		jobject dcbObject) {
+		jobject dcbObject,
+		jobject lastError) {
 	DCB dcb;
 	FillMemory(&dcb, sizeof(dcb), 0);
 
-	if (!GetCommState((HANDLE) handle, &dcb))
+	if (!GetCommState((HANDLE) handle, &dcb)) {
+
+		DWORD err = GetLastError();
+		setINT(env, lastError, &err);
+
 		return JNI_FALSE;
+	}
+
 	setDCBFields(env, dcbObject, &dcb);
 
 	return JNI_TRUE;
@@ -95,12 +111,18 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
 		jint handle,
-		jobject dcbObject) {
+		jobject dcbObject,
+		jobject lastError) {
 	DCB dcb;
 	getDCBFields(env, dcbObject, &dcb);
 
-	if (!SetCommState((HANDLE) handle, &dcb))
+	if (!SetCommState((HANDLE) handle, &dcb)) {
+
+		DWORD err = GetLastError();
+		setINT(env, lastError, &err);
+
 		return JNI_FALSE;
+	}
 
 	return JNI_TRUE;
 }
@@ -116,7 +138,8 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
 		jint lpEventAttributes,
 		jboolean bManualReset,
 		jboolean bInitialState,
-		jstring lpName) {
+		jstring lpName,
+		jobject lastError) {
 
 	const char* name;
 	if (lpName == NULL)
@@ -127,7 +150,10 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
 	HANDLE handle = CreateEventA(	NULL,
 									bManualReset,
 									bInitialState,
-									name) ;
+									name);
+
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
 
 	if (name != NULL)
 		(*env)->ReleaseStringUTFChars(env, lpName, name);
@@ -147,7 +173,8 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 		jbyteArray lpBuffer,
 		jint nNumberOfBytesToWrite,
 		jobject lpNumberOfBytesWritten,
-		jobject lpOverlapped) {
+		jobject lpOverlapped,
+		jobject lastError) {
 
 	DWORD bytesWritten = 0;
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
@@ -159,6 +186,9 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 							 (DWORD) nNumberOfBytesToWrite,
 							 &bytesWritten,
 							 overlapped);
+
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
 
 	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
@@ -181,7 +211,8 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 		jbyteArray lpBuffer,
 		jint nNumberOfBytesToRead,
 		jobject lpNumberOfBytesRead,
-		jobject lpOverlapped) {
+		jobject lpOverlapped,
+		jobject lastError) {
 
 	DWORD bytesRead = 0;
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
@@ -194,6 +225,9 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 							 (DWORD) nNumberOfBytesToRead,
 							 &bytesRead,
 							 overlapped);
+
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
 
 	setINT(env, lpNumberOfBytesRead, &bytesRead);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
@@ -225,7 +259,8 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 		  jint handle,
 		  jobject lpOverlapped,
 		  jobject lpNumberOfBytesTransferred,
-		  jboolean bWait){
+		  jboolean bWait,
+		  jobject lastError){
 
 	DWORD written = 0;
 
@@ -235,6 +270,9 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 									  overlapped,
 									  &written,
 									  (BOOL) bWait);
+
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
 
 	setINT(env, lpNumberOfBytesTransferred, &written);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
@@ -252,9 +290,14 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jobject this,
 		jint hhandle,
-		jint dwMilliseconds) {
+		jint dwMilliseconds,
+		jobject lastError) {
 	DWORD error = WaitForSingleObject(	(HANDLE) hhandle,
 										dwMilliseconds);
+
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
+
 	return (jint) error;
 }
 

@@ -11,58 +11,58 @@ extern "C" {
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateFile
- * Signature: (Ljava/lang/String;IIIIII)I
+ * Signature: (Ljava/lang/String;IIIIIILorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateFile
-  (JNIEnv *, jobject, jstring, jint, jint, jint, jint, jint, jint);
+  (JNIEnv *, jobject, jstring, jint, jint, jint, jint, jint, jint, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    CloseHandle
- * Signature: (I)Z
+ * Signature: (ILorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_CloseHandle
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jint, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    GetCommState
- * Signature: (ILorg/xidobi/structs/DCB;)Z
+ * Signature: (ILorg/xidobi/structs/DCB;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetCommState
-  (JNIEnv *, jobject, jint, jobject);
+  (JNIEnv *, jobject, jint, jobject, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    SetCommState
- * Signature: (ILorg/xidobi/structs/DCB;)Z
+ * Signature: (ILorg/xidobi/structs/DCB;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_SetCommState
-  (JNIEnv *, jobject, jint, jobject);
+  (JNIEnv *, jobject, jint, jobject, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateEventA
- * Signature: (IZZLjava/lang/String;)I
+ * Signature: (IZZLjava/lang/String;Lorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateEventA
-  (JNIEnv *, jobject, jint, jboolean, jboolean, jstring);
+  (JNIEnv *, jobject, jint, jboolean, jboolean, jstring, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    WriteFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
+ * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WriteFile
-  (JNIEnv *, jobject, jint, jbyteArray, jint, jobject, jobject);
+  (JNIEnv *, jobject, jint, jbyteArray, jint, jobject, jobject, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    ReadFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
+ * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ReadFile
-  (JNIEnv *, jobject, jint, jbyteArray, jint, jobject, jobject);
+  (JNIEnv *, jobject, jint, jbyteArray, jint, jobject, jobject, jobject);
 
 /*
  * Class:     org_xidobi_OS
@@ -75,18 +75,18 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_GetLastError
 /*
  * Class:     org_xidobi_OS
  * Method:    GetOverlappedResult
- * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;Z)Z
+ * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;ZLorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetOverlappedResult
-  (JNIEnv *, jobject, jint, jobject, jobject, jboolean);
+  (JNIEnv *, jobject, jint, jobject, jobject, jboolean, jobject);
 
 /*
  * Class:     org_xidobi_OS
  * Method:    WaitForSingleObject
- * Signature: (II)I
+ * Signature: (IILorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_WaitForSingleObject
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jint, jint, jobject);
 
 /*
  * Class:     org_xidobi_OS
@@ -143,7 +143,6 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1OVERLAPPED
  */
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1HKEY
   (JNIEnv *, jobject);
-
 
 #ifdef __cplusplus
 }
