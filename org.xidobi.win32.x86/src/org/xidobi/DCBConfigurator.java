@@ -15,6 +15,8 @@
  */
 package org.xidobi;
 
+import static org.xidobi.StopBits.StopBits_1_5;
+import static org.xidobi.StopBits.StopBits_2;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.structs.DCB.DTR_CONTROL_DISABLE;
 import static org.xidobi.structs.DCB.DTR_CONTROL_ENABLE;
@@ -54,10 +56,18 @@ public class DCBConfigurator {
 	 *            the DCB "struct" that should be configured, must not be <code>null</code>
 	 * @param settings
 	 *            the serial port settings, must not be <code>null</code>
+	 * @throws IllegalArgumentException
+	 *             <ul>
+	 *             <li>if <code>dcb == null</code></li>
+	 *             <li>if <code>settings == null</code></li>
+	 *             <li>if the serial port settings contains illegal value combinations</li>
+	 *             </ul>
 	 */
-	public void configureDCB(DCB dcb, SerialPortSettings settings) {
+	public void configureDCB(DCB dcb, SerialPortSettings settings) throws IllegalArgumentException {
 		checkArgumentNotNull(dcb, "dcb");
 		checkArgumentNotNull(settings, "settings");
+
+		checkPortSettings(settings);
 
 		configureBaudRate(dcb, settings);
 		configureDataBits(dcb, settings);
@@ -70,6 +80,31 @@ public class DCBConfigurator {
 		configureFlowControl(dcb, settings);
 
 		configureFixValues(dcb);
+	}
+
+	/**
+	 * Checks the serial port settings for invalid combinations.
+	 * <p>
+	 * <i>The use of 5 data bits with 2 stop bits is an invalid combination, as is 6, 7, or 8 data
+	 * bits with 1.5 stop bits.</i>
+	 */
+	private void checkPortSettings(SerialPortSettings settings) throws IllegalArgumentException {
+		DataBits dataBits = settings.getDataBits();
+		StopBits stopBits = settings.getStopBits();
+		switch (dataBits) {
+			case DataBits_5:
+				if (stopBits == StopBits_2)
+					throw new IllegalArgumentException("Invalid serial port settings! The use of 2 stop bits with 5 data bits is an invalid combination.");
+				return;
+			case DataBits_6:
+			case DataBits_7:
+			case DataBits_8:
+				if (stopBits == StopBits_1_5)
+					throw new IllegalArgumentException("Invalid serial port settings! The use of 1.5 stop bits with 6, 7 or 8 data bits is an invalid combination.");
+				return;
+			default:
+				return;
+		}
 	}
 
 	/** Configures the baud rate on the DCB "struct". */
