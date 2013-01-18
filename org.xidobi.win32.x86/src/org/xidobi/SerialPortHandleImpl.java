@@ -31,13 +31,12 @@ import javax.annotation.Nonnull;
 import org.xidobi.structs.DCB;
 
 /**
- * {@link SerialPortHandle} to open a serial ports.
- * 
+ * {@link SerialPortHandle} to open a serial port.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  * 
- * @see SerialPort
+ * @see SerialPortHandle
  */
 public class SerialPortHandleImpl implements SerialPortHandle {
 
@@ -45,10 +44,14 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	@Nonnull
 	private final OS os;
 
-	/** the name of this port, eg. "COM1" */
+	/** the name of this port, eg. "COM1", never <code>null</code> */
 	@Nonnull
 	private final String portName;
 
+	/**
+	 * configures the native DCB "struct" with the values from the serial port settings, never
+	 * <code>null</code>
+	 */
 	@Nonnull
 	private final DCBConfigurator configurator;
 
@@ -75,7 +78,6 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 * @param configurator
 	 *            configures the native DCB "struct" with the values from the serial port settings,
 	 *            must not be <code>null</code>
-	 * 
 	 */
 	public SerialPortHandleImpl(@Nonnull OS os,
 								@Nonnull String portName,
@@ -85,6 +87,11 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		this.configurator = checkArgumentNotNull(configurator, "configurator");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.xidobi.SerialPortHandle#open(SerialPortSettings)
+	 */
 	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
@@ -138,7 +145,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 		if (!os.GetCommState(handle, dcb))
 			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", os.GetLastError());
-		
+
 		configurator.configureDCB(dcb, settings);
 
 		if (!os.SetCommState(handle, dcb))
@@ -153,6 +160,11 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		return new IOException(message + " (Error-Code: " + errorCode + ")");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.xidobi.SerialPortHandle#getPortName()
+	 */
 	@Nonnull
 	public String getPortName() {
 		throw new UnsupportedOperationException("Not implemented yet!");
