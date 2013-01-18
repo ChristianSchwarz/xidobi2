@@ -130,7 +130,7 @@ public class TestSerialPortHandleImpl {
 	@Test
 	public void open_CreateFileReturnsInvalidHandle() throws Exception {
 		when(os.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE);
-		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.GetLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to open port (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
@@ -150,7 +150,7 @@ public class TestSerialPortHandleImpl {
 	public void open_GetCommStateReturnsFalse() throws Exception {
 		when(os.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
-		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.GetLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
@@ -176,7 +176,7 @@ public class TestSerialPortHandleImpl {
 		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
 		when(os.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
-		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.GetLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to set the control settings (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");

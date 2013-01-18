@@ -65,7 +65,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 	protected void writeInternal(byte[] data) throws IOException {
 		int eventHandle = os.CreateEventA(0, true, false, null);
 		if (eventHandle == 0)
-			throw new NativeCodeException("CreateEventA returned unexpected with 0! Error Code: " + os.GetLastError());
+			throw new NativeCodeException("CreateEventA returned unexpected with 0! Error Code: " + os.GetLastNativeError());
 
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 		try {

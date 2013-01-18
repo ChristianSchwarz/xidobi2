@@ -66,7 +66,7 @@ public class TestRead {
 
 			println("-----------------");
 			int eventHandle = os.CreateEventA(0, true, false, null);
-			System.err.println("Error?" + os.GetLastError());
+			System.err.println("Error?" + os.GetLastNativeError());
 			println("Event-Handle: " + eventHandle);
 
 			OVERLAPPED overlapped = new OVERLAPPED(os);
@@ -74,17 +74,17 @@ public class TestRead {
 
 			INT lpNumberOfBytesRead = new INT();
 			succeed = os.ReadFile(handle, LP_BUFFER, 9, lpNumberOfBytesRead, overlapped);
-			System.err.println("Error?" + os.GetLastError());
+			System.err.println("Error?" + os.GetLastNativeError());
 			println("ReadFile->" + succeed + " bytes read: " + lpNumberOfBytesRead);
 
 			int waitForSingleObject = os.WaitForSingleObject(eventHandle, 2000);
-			System.err.println("Error?" + os.GetLastError());
+			System.err.println("Error?" + os.GetLastNativeError());
 			System.out.println("WaitForSingleObject->" + waitForSingleObject);
 
 			if (waitForSingleObject == WAIT_OBJECT_0) {
 				INT numberOfBytesRead = new INT();
 				succeed = os.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
-				System.err.println("Error?" + os.GetLastError());
+				System.err.println("Error?" + os.GetLastNativeError());
 				println("GetOverlappedResult->" + succeed + " read:" + numberOfBytesRead);
 				
 				System.out.println("Read: " + new String(LP_BUFFER));

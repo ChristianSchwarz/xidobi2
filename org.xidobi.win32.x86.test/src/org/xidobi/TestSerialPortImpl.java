@@ -152,7 +152,7 @@ public class TestSerialPortImpl {
 	@Test
 	public void write_createEventFail() throws IOException {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(0);
-		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.GetLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage(startsWith("CreateEventA returned unexpected with 0! Error Code: "+DUMMY_ERROR_CODE));

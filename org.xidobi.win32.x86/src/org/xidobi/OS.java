@@ -15,6 +15,12 @@
  */
 package org.xidobi;
 
+import static java.lang.System.loadLibrary;
+import static java.lang.Thread.currentThread;
+
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,8 +29,6 @@ import org.xidobi.structs.DCB;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
-
-import static java.lang.System.loadLibrary;
 
 /**
  * This class contains one-to-one mappings of native methods used by the OS to control serial ports.
@@ -113,6 +117,9 @@ public class OS {
 	/** The singleton instance of this class */
 	public final static OS OS = new OS();
 
+	/** */
+	private final Map<Thread, Integer> lastNativeErrorCodes = new WeakHashMap<Thread, Integer>();
+
 	/**
 	 * This class is not intended to be instantiated.
 	 * 
@@ -126,6 +133,11 @@ public class OS {
 		catch (UnsatisfiedLinkError ignore) {
 			throw new UnsatisfiedLinkError("Unable to find " + NATIVE_LIB + ".dll!\r\nYou must run in an OSGi enviroment!");
 		}
+	}
+
+	/** Stores the last error code. */
+	private void storeLastNativeError(INT lastError) {
+		lastNativeErrorCodes.put(currentThread(), lastError.value);
 	}
 
 	/**
@@ -178,6 +190,7 @@ public class OS {
 	public int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile) {
 		INT lastError = new INT(0);
 		int result = CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -200,6 +213,7 @@ public class OS {
 	public boolean CloseHandle(int handle) {
 		INT lastError = new INT(0);
 		boolean result = CloseHandle(handle, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -226,6 +240,7 @@ public class OS {
 	public boolean GetCommState(int handle, DCB dcb) {
 		INT lastError = new INT(0);
 		boolean result = GetCommState(handle, dcb, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -254,6 +269,7 @@ public class OS {
 	public boolean SetCommState(int handle, DCB dcb) {
 		INT lastError = new INT(0);
 		boolean result = SetCommState(handle, dcb, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -299,6 +315,7 @@ public class OS {
 	public int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, @Nullable String lpName) {
 		INT lastError = new INT(0);
 		int result = CreateEventA(lpEventAttributes, bManualReset, bInitialState, lpName, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -346,6 +363,7 @@ public class OS {
 	public boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = WriteFile(handle, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -395,6 +413,7 @@ public class OS {
 	public boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = ReadFile(handle, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -417,7 +436,11 @@ public class OS {
 	 *         the most recent last-error code to have been set; some functions set the last-error
 	 *         code to 0 on success and others do not.
 	 */
-	public native int GetLastError();
+	public int GetLastNativeError() {
+		return lastNativeErrorCodes.get(currentThread());
+	}
+
+	private native int GetLastError();
 
 	/**
 	 * Retrieves the results of an overlapped operation on the specified file, named pipe, or
@@ -449,6 +472,7 @@ public class OS {
 	public boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait) {
 		INT lastError = new INT(0);
 		boolean result = GetOverlappedResult(handle, lpOverlapped, lpNumberOfBytesTransferred, bWait, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
@@ -494,6 +518,7 @@ public class OS {
 	public int WaitForSingleObject(int hHandle, int dwMilliseconds) {
 		INT lastError = new INT(0);
 		int result = WaitForSingleObject(hHandle, dwMilliseconds, lastError);
+		storeLastNativeError(lastError);
 		return result;
 	}
 
