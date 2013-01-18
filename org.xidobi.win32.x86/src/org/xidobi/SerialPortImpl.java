@@ -15,12 +15,6 @@
  */
 package org.xidobi;
 
-import static java.lang.Thread.currentThread;
-import static org.xidobi.OS.INVALID_HANDLE_VALUE;
-import static org.xidobi.OS.WAIT_OBJECT_0;
-import static org.xidobi.internal.Preconditions.checkArgument;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
-
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
@@ -29,6 +23,11 @@ import org.xidobi.internal.AbstractSerialPort;
 import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
+
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.internal.Preconditions.checkArgument;
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 /**
  * {@link SerialPort} implementation for Windows (32bit) x86 Platform.
@@ -41,7 +40,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 	private final WinApi os;
 	/** The HANDLE of the opened port */
 	private final int handle;
-	private final StackTraceElement[] ex;
 
 	/**
 	 * @param portHandle
@@ -57,8 +55,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
 		this.os = checkArgumentNotNull(os, "os");
-		
-		ex = currentThread().getStackTrace();
 	}
 
 	@Override
@@ -76,9 +72,16 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 			int eventResult = os.WaitForSingleObject(eventHandle, 2000);
 
-			if (eventResult == WAIT_OBJECT_0) {
-				INT lpNumberOfBytesTransferred = new INT();
-				succeed = os.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+			switch (eventResult) {
+				case WAIT_OBJECT_0:
+					INT lpNumberOfBytesTransferred = new INT();
+					succeed = os.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+					break;
+				case WinApi.WAIT_FAILED:
+				case WinApi.WAIT_ABANDONED:
+				case WinApi.WAIT_TIMEOUT:
+					//TODO
+					break;
 			}
 		}
 		finally {
@@ -97,10 +100,10 @@ public class SerialPortImpl extends AbstractSerialPort {
 	protected void closeInternal() throws IOException {
 		os.CloseHandle(handle);
 	}
-	
+
 	@Override
 	protected void finalize() throws Throwable {
-		//TODO Write Test!!!
+		// TODO Write Test!!!
 		super.finalize();
 		close();
 	}
