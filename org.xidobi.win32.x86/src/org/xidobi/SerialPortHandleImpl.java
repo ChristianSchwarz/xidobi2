@@ -42,7 +42,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 	/** the native Win32-API, never <code>null</code> */
 	@Nonnull
-	private final OS os;
+	private final WinApi os;
 
 	/** the name of this port, eg. "COM1", never <code>null</code> */
 	@Nonnull
@@ -56,20 +56,20 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	private final DCBConfigurator configurator;
 
 	/**
-	 * Creates a new handle using the native Win32-API provided by the {@link OS}.
+	 * Creates a new handle using the native Win32-API provided by the {@link WinApi}.
 	 * 
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param portName
 	 *            the name of this port, must not be <code>null</code>
 	 */
-	public SerialPortHandleImpl(@Nonnull OS os,
+	public SerialPortHandleImpl(@Nonnull WinApi os,
 								@Nonnull String portName) {
 		this(os, portName, new DCBConfigurator());
 	}
 
 	/**
-	 * Creates a new handle using the native Win32-API provided by the {@link OS}.
+	 * Creates a new handle using the native Win32-API provided by the {@link WinApi}.
 	 * 
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
@@ -79,7 +79,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 *            configures the native DCB "struct" with the values from the serial port settings,
 	 *            must not be <code>null</code>
 	 */
-	public SerialPortHandleImpl(@Nonnull OS os,
+	public SerialPortHandleImpl(@Nonnull WinApi os,
 								@Nonnull String portName,
 								@Nonnull DCBConfigurator configurator) {
 		this.portName = checkArgumentNotNull(portName, "portName");
@@ -153,7 +153,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 	/**
 	 * Returns a new {@link IOException} containing the given message and the error code that is
-	 * returned by {@link OS#GetLastError()}.
+	 * returned by {@link WinApi#GetLastError()}.
 	 */
 	private IOException lastError(String message, int errorCode) {
 		return new IOException(message + " (Error-Code: " + errorCode + ")");

@@ -44,7 +44,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private static final String HARDWARE_DEVICEMAP_SERIALCOMM = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
 
 	/** the native Win32-API, never <code>null</code> */
-	private OS os;
+	private WinApi os;
 
 	/**
 	 * Creates a new instance, that finds all serial ports that are available in the Windows
@@ -53,7 +53,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public SerialPortFinderImpl(@Nonnull OS os) {
+	public SerialPortFinderImpl(@Nonnull WinApi os) {
 		this.os = checkArgumentNotNull(os, "os");
 	}
 

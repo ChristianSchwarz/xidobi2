@@ -22,6 +22,7 @@ import static org.xidobi.OS.OPEN_EXISTING;
 import static org.xidobi.OS.WAIT_OBJECT_0;
 
 import org.xidobi.OS;
+import org.xidobi.WinApi;
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
@@ -45,7 +46,7 @@ public class TestWrite2 {
 	 * @throws InterruptedException
 	 */
 	public static void main(String[] args) throws InterruptedException {
-		OS os = OS.OS;
+		WinApi os = OS.OS;
 		for (;;) {
 			println("-----------------");
 

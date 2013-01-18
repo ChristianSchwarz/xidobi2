@@ -60,7 +60,7 @@ public class TestSerialPortHandleImpl {
 	private SerialPortHandleImpl handle;
 
 	@Mock
-	private OS os;
+	private WinApi os;
 	@Mock
 	private SerialPortSettings settings;
 	@Mock
@@ -121,9 +121,9 @@ public class TestSerialPortHandleImpl {
 
 	/**
 	 * Verifies that an {@link IOException} is thrown, when the call to
-	 * {@link OS#CreateFile(String, int, int, int, int, int, int)} returns an invalid handle (-1).
+	 * {@link WinApi#CreateFile(String, int, int, int, int, int, int)} returns an invalid handle (-1).
 	 * In this case the {@link IOException} must contain the error code that is returned by
-	 * {@link OS#GetLastError()}.
+	 * {@link WinApi#GetLastError()}.
 	 * 
 	 * @throws Exception
 	 */
@@ -140,9 +140,9 @@ public class TestSerialPortHandleImpl {
 
 	/**
 	 * Verifies that an {@link IOException} is thrown, when the call to
-	 * {@link OS#GetCommState(int, DCB)} is unsuccessful and returns <code>false</code>. In this
+	 * {@link WinApi#GetCommState(int, DCB)} is unsuccessful and returns <code>false</code>. In this
 	 * case the {@link IOException} must contain the error code that is returned by
-	 * {@link OS#GetLastError()} .
+	 * {@link WinApi#GetLastError()} .
 	 * 
 	 * @throws Exception
 	 */
@@ -165,9 +165,9 @@ public class TestSerialPortHandleImpl {
 
 	/**
 	 * Verifies that an {@link IOException} is thrown, when the call to
-	 * {@link OS#GetCommState(int, DCB)} is unsuccessful and returns <code>false</code>. In this
+	 * {@link WinApi#GetCommState(int, DCB)} is unsuccessful and returns <code>false</code>. In this
 	 * case the {@link IOException} must contain the error code that is returned by
-	 * {@link OS#GetLastError()} .
+	 * {@link WinApi#GetLastError()} .
 	 * 
 	 * @throws Exception
 	 */

@@ -69,7 +69,7 @@ public class TestSerialPortFinderImpl {
 	private SerialPortFinderImpl finder;
 
 	@Mock
-	private OS os;
+	private WinApi os;
 
 	/** expected exceptions */
 	@Rule
@@ -94,7 +94,7 @@ public class TestSerialPortFinderImpl {
 
 	/**
 	 * Verifies that an {@link NativeCodeException} is thrown, when
-	 * {@link OS#RegOpenKeyExA(int, String, int, int, HKEY)} is not successful. The allocated HKEY
+	 * {@link WinApi#RegOpenKeyExA(int, String, int, int, HKEY)} is not successful. The allocated HKEY
 	 * must be disposed at the end.
 	 */
 	@Test

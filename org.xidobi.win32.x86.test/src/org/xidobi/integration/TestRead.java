@@ -22,6 +22,7 @@ import static org.xidobi.OS.OPEN_EXISTING;
 import static org.xidobi.OS.WAIT_OBJECT_0;
 
 import org.xidobi.OS;
+import org.xidobi.WinApi;
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
@@ -47,7 +48,7 @@ public class TestRead {
 
 		
 		boolean succeed;
-		OS os = OS.OS;
+		WinApi os = OS.OS;
 		int handle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle == -1) {

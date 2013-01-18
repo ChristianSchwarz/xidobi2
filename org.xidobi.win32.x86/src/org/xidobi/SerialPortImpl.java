@@ -38,7 +38,7 @@ import org.xidobi.structs.OVERLAPPED;
 public class SerialPortImpl extends AbstractSerialPort {
 
 	/** the native Win32-API, never <code>null</code> */
-	private final OS os;
+	private final WinApi os;
 	/** The HANDLE of the opened port */
 	private final int handle;
 	private final StackTraceElement[] ex;
@@ -51,7 +51,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 	 *            the handle of the serial port
 	 */
 	public SerialPortImpl(	SerialPortHandle portHandle,
-							OS os,
+							WinApi os,
 							int handle) {
 		super(portHandle);
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");

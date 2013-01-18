@@ -8,7 +8,7 @@ package org.xidobi.structs;
 
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
-import org.xidobi.OS;
+import org.xidobi.WinApi;
 
 /**
  * A pointer to an HKEY in C.
@@ -18,7 +18,7 @@ import org.xidobi.OS;
 public class HKEY {
 
 	/** the native Win32-API, never <code>null</code> */
-	private OS os;
+	private WinApi os;
 
 	/** The pointer to the C instance */
 	private final int cPointer;
@@ -32,7 +32,7 @@ public class HKEY {
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public HKEY(OS os) {
+	public HKEY(WinApi os) {
 		this.os = checkArgumentNotNull(os, "os");
 
 		int sizeOfHKEY = os.sizeOf_HKEY();

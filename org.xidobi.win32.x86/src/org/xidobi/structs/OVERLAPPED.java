@@ -17,7 +17,7 @@ package org.xidobi.structs;
 
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
-import org.xidobi.OS;
+import org.xidobi.WinApi;
 
 /**
  * Java representation of the C-struct OVERLAPPED.
@@ -28,7 +28,7 @@ import org.xidobi.OS;
 public class OVERLAPPED {
 
 	/** the native Win32-API, never <code>null</code> */
-	private OS os;
+	private WinApi os;
 
 	/** The pointer to the C struct */
 	private final int cPointer;
@@ -62,7 +62,7 @@ public class OVERLAPPED {
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public OVERLAPPED(OS os) {
+	public OVERLAPPED(WinApi os) {
 		this.os = checkArgumentNotNull(os, "os");
 
 		int sizeofOVERLAPPED = os.sizeOf_OVERLAPPED();

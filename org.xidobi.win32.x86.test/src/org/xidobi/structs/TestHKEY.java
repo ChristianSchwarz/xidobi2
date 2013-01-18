@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.OS;
+import org.xidobi.WinApi;
 
 /**
  * Tests the class {@link HKEY}.
@@ -45,7 +46,7 @@ public class TestHKEY {
 	private HKEY hkey;
 
 	@Mock
-	private OS os;
+	private WinApi os;
 
 	/** expected exceptions */
 	@Rule

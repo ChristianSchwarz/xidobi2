@@ -68,7 +68,7 @@ public class TestSerialPortImpl {
 	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
-	private OS os;
+	private WinApi os;
 
 	@Mock
 	private SerialPortHandle portHandle;
@@ -83,7 +83,7 @@ public class TestSerialPortImpl {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is throw when the passed {@link OS} is
+	 * Verifies that an {@link IllegalArgumentException} is throw when the passed {@link WinApi} is
 	 * <code>null</code>.
 	 */
 	@Test
@@ -110,7 +110,7 @@ public class TestSerialPortImpl {
 
 	/**
 	 * Verifies that an {@link IllegalArgumentException} is thrown when the handle is
-	 * {@link OS#INVALID_HANDLE_VALUE} (-1).
+	 * {@link WinApi#INVALID_HANDLE_VALUE} (-1).
 	 * 
 	 */
 	@Test
@@ -124,7 +124,7 @@ public class TestSerialPortImpl {
 
 	/**
 	 * Simulates are write operation without errors and verifies that all relevant methods of the
-	 * {@link OS} are called.
+	 * {@link WinApi} are called.
 	 * 
 	 * @throws IOException
 	 */
