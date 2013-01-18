@@ -29,6 +29,7 @@ import java.util.Set;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xidobi.SerialPortFinderImpl;
 import org.xidobi.SerialPortInfo;
@@ -42,6 +43,7 @@ import org.xidobi.SerialPortInfo;
  * 
  * @author Tobias Breﬂler
  */
+@Ignore
 public class TestFindSerialPorts {
 
 	/** Maximum count of repetitions. */

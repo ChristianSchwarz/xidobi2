@@ -49,21 +49,42 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	@Nonnull
 	private final String portName;
 
+	@Nonnull
+	private final DCBConfigurator configurator;
+
 	/**
 	 * Creates a new handle using the native Win32-API provided by the {@link OS}.
 	 * 
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param portName
-	 *            the name of this port
+	 *            the name of this port, must not be <code>null</code>
 	 */
 	public SerialPortHandleImpl(@Nonnull OS os,
 								@Nonnull String portName) {
-		this.portName = checkArgumentNotNull(portName, "portName");
-		this.os = checkArgumentNotNull(os, "os");
+		this(os, portName, new DCBConfigurator());
 	}
 
-	
+	/**
+	 * Creates a new handle using the native Win32-API provided by the {@link OS}.
+	 * 
+	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
+	 * @param portName
+	 *            the name of this port, must not be <code>null</code>
+	 * @param configurator
+	 *            configures the native DCB "struct" with the values from the serial port settings,
+	 *            must not be <code>null</code>
+	 * 
+	 */
+	public SerialPortHandleImpl(@Nonnull OS os,
+								@Nonnull String portName,
+								@Nonnull DCBConfigurator configurator) {
+		this.portName = checkArgumentNotNull(portName, "portName");
+		this.os = checkArgumentNotNull(os, "os");
+		this.configurator = checkArgumentNotNull(configurator, "configurator");
+	}
+
 	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
@@ -95,7 +116,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		os.GetLastError();
 		int err = os.GetLastError();
 
-		System.err.println("invalid handle("+handle+")->" + err);
+		System.err.println("invalid handle(" + handle + ")->" + err);
 		switch (err) {
 			case ERROR_ACCESS_DENIED:
 				throw new IOException("Port in use (" + portName + ")!");
@@ -112,11 +133,13 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 * @throws IOException
 	 *             if it was not possible to apply the settings e.g. if they are invalid
 	 */
-	private void applySettings(final int handle,final SerialPortSettings settings) throws IOException {
+	private void applySettings(final int handle, final SerialPortSettings settings) throws IOException {
 		final DCB dcb = new DCB();
 
 		if (!os.GetCommState(handle, dcb))
 			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", os.GetLastError());
+		
+		configurator.configureDCB(dcb, settings);
 
 		if (!os.SetCommState(handle, dcb))
 			throw lastError("Unable to set the control settings (" + portName + ")!", os.GetLastError());

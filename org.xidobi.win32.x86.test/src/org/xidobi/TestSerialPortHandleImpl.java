@@ -15,6 +15,22 @@
  */
 package org.xidobi;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.OS.GENERIC_READ;
+import static org.xidobi.OS.GENERIC_WRITE;
+import static org.xidobi.OS.OPEN_EXISTING;
+
 import java.io.IOException;
 
 import org.junit.Before;
@@ -22,26 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.xidobi.structs.DCB;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.OS.GENERIC_READ;
-import static org.xidobi.OS.GENERIC_WRITE;
-import static org.xidobi.OS.OPEN_EXISTING;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
-import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link SerialPortHandleImpl}
@@ -66,6 +63,8 @@ public class TestSerialPortHandleImpl {
 	private OS os;
 	@Mock
 	private SerialPortSettings settings;
+	@Mock
+	private DCBConfigurator configurator;
 
 	/** expected exceptions */
 	@Rule
@@ -76,7 +75,7 @@ public class TestSerialPortHandleImpl {
 	public void setUp() {
 		initMocks(this);
 
-		handle = new SerialPortHandleImpl(os, "COM1");
+		handle = new SerialPortHandleImpl(os, "COM1", configurator);
 	}
 
 	/**
@@ -86,9 +85,9 @@ public class TestSerialPortHandleImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullOS() {
-		new SerialPortHandleImpl(null,"COM1");
+		new SerialPortHandleImpl(null, "COM1", configurator);
 	}
-	
+
 	/**
 	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
 	 * passed.
@@ -96,7 +95,17 @@ public class TestSerialPortHandleImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullPortName() {
-		new SerialPortHandleImpl(os,null);
+		new SerialPortHandleImpl(os, null, configurator);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
+	 * passed.
+	 */
+	@SuppressWarnings("unused")
+	@Test(expected = IllegalArgumentException.class)
+	public void new_nullConfigurator() {
+		new SerialPortHandleImpl(os, "COM1", null);
 	}
 
 	/**
@@ -120,11 +129,11 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test
 	public void open_CreateFileReturnsInvalidHandle() throws Exception {
-		when(os.CreateFile(anyString(), anyInt(),anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE);
+		when(os.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE);
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to open port (COM1)! (Error-Code: "+DUMMY_ERROR_CODE+")");
+		exception.expectMessage("Unable to open port (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
 
 		handle.open(settings);
 	}
@@ -139,12 +148,12 @@ public class TestSerialPortHandleImpl {
 	 */
 	@Test
 	public void open_GetCommStateReturnsFalse() throws Exception {
-		when(os.CreateFile(anyString(), anyInt(),anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(A_PORT_HANDLE);
+		when(os.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(A_PORT_HANDLE);
 		when(os.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)! (Error-Code: "+DUMMY_ERROR_CODE+")");
+		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
 
 		try {
 			handle.open(settings);
@@ -170,7 +179,7 @@ public class TestSerialPortHandleImpl {
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to set the control settings (COM1)! (Error-Code: "+DUMMY_ERROR_CODE+")");
+		exception.expectMessage("Unable to set the control settings (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
 
 		try {
 			handle.open(settings);
@@ -196,6 +205,7 @@ public class TestSerialPortHandleImpl {
 
 		verify(os).CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 		verify(os).GetCommState(eq(A_PORT_HANDLE), any(DCB.class));
+		verify(configurator).configureDCB(any(DCB.class), eq(settings));
 		verify(os).SetCommState(eq(A_PORT_HANDLE), any(DCB.class));
 		verify(os, never()).CloseHandle(A_PORT_HANDLE);
 		assertThat(result, is(notNullValue()));
