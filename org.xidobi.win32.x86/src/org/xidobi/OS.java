@@ -419,6 +419,10 @@ public class OS {
 
 	private native boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
+	public int GetLastNativeError() {
+		return lastNativeErrorCodes.get(currentThread());
+	}
+
 	/**
 	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
 	 * per-thread basis. Multiple threads do not overwrite each other's last-error code.
@@ -436,10 +440,6 @@ public class OS {
 	 *         the most recent last-error code to have been set; some functions set the last-error
 	 *         code to 0 on success and others do not.
 	 */
-	public int GetLastNativeError() {
-		return lastNativeErrorCodes.get(currentThread());
-	}
-
 	private native int GetLastError();
 
 	/**
