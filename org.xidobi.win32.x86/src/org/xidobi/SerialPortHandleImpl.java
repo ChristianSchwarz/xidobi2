@@ -120,8 +120,8 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
 
-		os.GetLastNativeError();
-		int err = os.GetLastNativeError();
+		os.getLastNativeError();
+		int err = os.getLastNativeError();
 
 		System.err.println("invalid handle(" + handle + ")->" + err);
 		switch (err) {
@@ -143,12 +143,12 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		final DCB dcb = new DCB();
 
 		if (!os.GetCommState(handle, dcb))
-			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", os.GetLastNativeError());
+			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", os.getLastNativeError());
 
 		configurator.configureDCB(dcb, settings);
 
 		if (!os.SetCommState(handle, dcb))
-			throw lastError("Unable to set the control settings (" + portName + ")!", os.GetLastNativeError());
+			throw lastError("Unable to set the control settings (" + portName + ")!", os.getLastNativeError());
 	}
 
 	/**

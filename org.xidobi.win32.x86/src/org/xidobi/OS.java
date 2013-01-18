@@ -117,7 +117,13 @@ public class OS {
 	/** The singleton instance of this class */
 	public final static OS OS = new OS();
 
-	/** */
+	/**
+	 * Stores the last native error codes. Contains:
+	 * <ul>
+	 * <li><b>key:</b> the thread
+	 * <li><b>value:</b> the last native error code
+	 * </ul>
+	 */
 	private final Map<Thread, Integer> lastNativeErrorCodes = new WeakHashMap<Thread, Integer>();
 
 	/**
@@ -419,7 +425,12 @@ public class OS {
 
 	private native boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
-	public int GetLastNativeError() {
+	/**
+	 * Returns the last native error code, that occured during a native method call in this thread.
+	 * 
+	 * @return the error code
+	 */
+	public int getLastNativeError() {
 		return lastNativeErrorCodes.get(currentThread());
 	}
 
