@@ -23,6 +23,11 @@
 #include "OS_structs.h"
 #include "OS.h"
 
+void setLastNativeError(JNIEnv *env, jobject lastError) {
+	DWORD err = GetLastError();
+	setINT(env, lastError, &err);
+}
+
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateFile
@@ -49,8 +54,7 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 								dwFlagsAndAttributes,
 								(HANDLE) hTemplateFile);
 
-	DWORD err = GetLastError();
-	setINT(env, lastError, &err);
+	setLastNativeError(env, lastError);
 
 	(*env)->ReleaseStringUTFChars(env, lpFileName, fileName);
 
@@ -69,8 +73,7 @@ Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
 	if (CloseHandle((HANDLE) handle))
 		return JNI_TRUE;
 
-	DWORD err = GetLastError();
-	setINT(env, lastError, &err);
+	setLastNativeError(env, lastError);
 
 	return JNI_FALSE;
 }
@@ -90,10 +93,7 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 	FillMemory(&dcb, sizeof(dcb), 0);
 
 	if (!GetCommState((HANDLE) handle, &dcb)) {
-
-		DWORD err = GetLastError();
-		setINT(env, lastError, &err);
-
+		setLastNativeError(env, lastError);
 		return JNI_FALSE;
 	}
 
@@ -117,10 +117,7 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
 	getDCBFields(env, dcbObject, &dcb);
 
 	if (!SetCommState((HANDLE) handle, &dcb)) {
-
-		DWORD err = GetLastError();
-		setINT(env, lastError, &err);
-
+		setLastNativeError(env, lastError);
 		return JNI_FALSE;
 	}
 
@@ -152,8 +149,7 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
 									bInitialState,
 									name);
 
-	DWORD err = GetLastError();
-	setINT(env, lastError, &err);
+	setLastNativeError(env, lastError);
 
 	if (name != NULL)
 		(*env)->ReleaseStringUTFChars(env, lpName, name);
@@ -187,8 +183,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 							 &bytesWritten,
 							 overlapped);
 
-	DWORD err = GetLastError();
-	setINT(env, lastError, &err);
+	setLastNativeError(env, lastError);
 
 	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
@@ -226,8 +221,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 							 &bytesRead,
 							 overlapped);
 
-	DWORD err = GetLastError();
-	setINT(env, lastError, &err);
+	setLastNativeError(env, lastError);
 
 	setINT(env, lpNumberOfBytesRead, &bytesRead);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
@@ -271,8 +265,7 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 									  &written,
 									  (BOOL) bWait);
 
-	DWORD err = GetLastError();
-	setINT(env, lastError, &err);
+	setLastNativeError(env, lastError);
 
 	setINT(env, lpNumberOfBytesTransferred, &written);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
@@ -295,8 +288,7 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jobject this,
 	DWORD error = WaitForSingleObject(	(HANDLE) hhandle,
 										dwMilliseconds);
 
-	DWORD err = GetLastError();
-	setINT(env, lastError, &err);
+	setLastNativeError(env, lastError);
 
 	return (jint) error;
 }
