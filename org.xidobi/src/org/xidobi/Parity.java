@@ -25,11 +25,10 @@ package org.xidobi;
  * The parity can be:
  * 
  * <ul>
- * <li>none</li>
- * <li>odd</li>
- * <li>even</li>
- * <li>mark</li>
- * <li>space</li>
+ * <li>None</li>
+ * <li>Odd</li>
+ * <li>Even</li>
+ * <li>Mark</li>
  * </ul>
  * 
  * @author Tobias Breﬂler
