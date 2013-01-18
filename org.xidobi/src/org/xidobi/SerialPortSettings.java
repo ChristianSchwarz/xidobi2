@@ -87,6 +87,9 @@ public class SerialPortSettings {
 
 		/**
 		 * Sets the data bits to the given value.
+		 * <p>
+		 * <i><b>Hint:</b> Under Windows the use of 5 data bits with 2 stop bits is an invalid
+		 * combination, as is 6, 7, or 8 data bits with 1.5 stop bits.</i>
 		 * 
 		 * @param dataBits
 		 *            the data bits, must not be <code>null</code>
@@ -99,6 +102,9 @@ public class SerialPortSettings {
 
 		/**
 		 * Sets the stop bits to the given value.
+		 * <p>
+		 * <i><b>Hint:</b> Under Windows the use of 5 data bits with 2 stop bits is an invalid
+		 * combination, as is 6, 7, or 8 data bits with 1.5 stop bits.</i>
 		 * 
 		 * @param stopBits
 		 *            the stop bits, must not be <code>null</code>
