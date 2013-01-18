@@ -16,12 +16,15 @@
 package org.xidobi;
 
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.structs.DCB.DTR_CONTROL_DISABLE;
+import static org.xidobi.structs.DCB.DTR_CONTROL_ENABLE;
 import static org.xidobi.structs.DCB.EVENPARITY;
 import static org.xidobi.structs.DCB.MARKPARITY;
 import static org.xidobi.structs.DCB.NOPARITY;
 import static org.xidobi.structs.DCB.ODDPARITY;
 import static org.xidobi.structs.DCB.ONE5STOPBITS;
 import static org.xidobi.structs.DCB.ONESTOPBIT;
+import static org.xidobi.structs.DCB.RTS_CONTROL_DISABLE;
 import static org.xidobi.structs.DCB.RTS_CONTROL_ENABLE;
 import static org.xidobi.structs.DCB.RTS_CONTROL_HANDSHAKE;
 import static org.xidobi.structs.DCB.SPACEPARITY;
@@ -36,9 +39,11 @@ import org.xidobi.structs.DCB;
  * @see DCB
  * @see SerialPortSettings
  */
-public class DCBConfigurer {
+public class DCBConfigurator {
 
+	/** int value for <code>true</code> */
 	private static final int TRUE = 1;
+	/** int value for <code>false</code> */
 	private static final int FALSE = 0;
 
 	/**
@@ -57,20 +62,11 @@ public class DCBConfigurer {
 		configureDataBits(dcb, settings);
 		configureStopBits(dcb, settings);
 		configureParity(dcb, settings);
-		configureFlowControl(dcb, settings);
 
-		// if(setRTS == JNI_TRUE){
-		// dcb->fRtsControl = RTS_CONTROL_ENABLE;
-		// }
-		// else {
-		// dcb->fRtsControl = RTS_CONTROL_DISABLE;
-		// }
-		// if(setDTR == JNI_TRUE){
-		// dcb->fDtrControl = DTR_CONTROL_ENABLE;
-		// }
-		// else {
-		// dcb->fDtrControl = DTR_CONTROL_DISABLE;
-		// }
+		configureRTS(dcb, settings);
+		configureDTR(dcb, settings);
+
+		configureFlowControl(dcb, settings);
 
 		configureFixValues(dcb);
 	}
@@ -137,6 +133,22 @@ public class DCBConfigurer {
 		}
 	}
 
+	/** Configures the RTS on the DCB "struct". */
+	private void configureRTS(DCB dcb, SerialPortSettings settings) {
+		if (settings.isRTS())
+			dcb.fRtsControl = RTS_CONTROL_ENABLE;
+		else
+			dcb.fRtsControl = RTS_CONTROL_DISABLE;
+	}
+
+	/** Configures the DTR on the DCB "struct". */
+	private void configureDTR(DCB dcb, SerialPortSettings settings) {
+		if (settings.isDTR())
+			dcb.fDtrControl = DTR_CONTROL_ENABLE;
+		else
+			dcb.fDtrControl = DTR_CONTROL_DISABLE;
+	}
+
 	/** Configures the flow control on the DCB "struct". */
 	private void configureFlowControl(DCB dcb, SerialPortSettings settings) {
 
@@ -172,13 +184,11 @@ public class DCBConfigurer {
 		}
 	}
 
+	/** Resets the other values to default. */
 	private void configureFixValues(DCB dcb) {
-		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
 		dcb.fTXContinueOnXoff = TRUE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
 		dcb.fErrorChar = FALSE;
 		dcb.fNull = FALSE;
 		dcb.fAbortOnError = FALSE;

@@ -39,6 +39,8 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
  * <li>stopBits = 1 (default)</li>
  * <li>parity = none (default)</li>
  * <li>flowControl = none (default)</li>
+ * <li>RTS = true (default)</li>
+ * <li>DTR = true (default)</li>
  * </ul>
  * 
  * @author Tobias Breﬂler
@@ -67,6 +69,10 @@ public class SerialPortSettings {
 		private Parity parity = Parity_None;
 		/** the flow control, default is {@link FlowControl#FlowControl_None} */
 		private FlowControl flowControl = FlowControl_None;
+		/** the RTS (Request To Send) */
+		private boolean rts = true;
+		/** the DRT (Data Terminal Ready) */
+		private boolean dtr = true;
 
 		/**
 		 * Creates a builder for serial port settings.
@@ -128,12 +134,44 @@ public class SerialPortSettings {
 		}
 
 		/**
+		 * Sets the RTS (Request To Send) to the given value.
+		 * 
+		 * @param rts
+		 *            the RTS:
+		 *            <ul>
+		 *            <li> <code>true</code> turns RTS on
+		 *            <li> <code>false</code> turns RTS off
+		 *            </ul>
+		 * @return the current builder for the serial port settings, never <code>null</code>
+		 */
+		public SerialPortSettingsBuilder rts(boolean rts) {
+			this.rts = rts;
+			return this;
+		}
+
+		/**
+		 * Sets the DTR (Data Terminal Ready) to the given value.
+		 * 
+		 * @param dtr
+		 *            the DTR:
+		 *            <ul>
+		 *            <li> <code>true</code> turns DTR on
+		 *            <li> <code>false</code> turns DTR off
+		 *            </ul>
+		 * @return the current builder for the serial port settings, never <code>null</code>
+		 */
+		public SerialPortSettingsBuilder dtr(boolean dtr) {
+			this.dtr = dtr;
+			return this;
+		}
+
+		/**
 		 * Creates and returns the serial port settings.
 		 * 
 		 * @return the serial port settings, never <code>null</code>
 		 */
 		public SerialPortSettings create() {
-			return new SerialPortSettings(bauds, dataBits, stopBits, parity, flowControl);
+			return new SerialPortSettings(bauds, dataBits, stopBits, parity, flowControl, rts, dtr);
 		}
 
 	}
@@ -148,6 +186,10 @@ public class SerialPortSettings {
 	private final Parity parity;
 	/** the flow control */
 	private final FlowControl flowControl;
+	/** the RTS (Request To Send) */
+	private final boolean rts;
+	/** the DRT (Data Terminal Ready) */
+	private final boolean dtr;
 
 	/**
 	 * Creates a serial port setting with the given values.
@@ -156,12 +198,16 @@ public class SerialPortSettings {
 								DataBits dataBits,
 								StopBits stopBits,
 								Parity parity,
-								FlowControl flowControl) {
+								FlowControl flowControl,
+								boolean rts,
+								boolean dtr) {
 		this.bauds = bauds;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;
 		this.parity = parity;
 		this.flowControl = flowControl;
+		this.rts = rts;
+		this.dtr = dtr;
 	}
 
 	/**
@@ -172,6 +218,8 @@ public class SerialPortSettings {
 	 * <li>parity = none</li>
 	 * <li>stopBits = 1</li>
 	 * <li>flowControl = none</li>
+	 * <li>RTS = true (default)</li>
+	 * <li>DTR = true (default)</li>
 	 * </ul>
 	 * 
 	 * @param bauds
@@ -225,5 +273,23 @@ public class SerialPortSettings {
 	 */
 	public FlowControl getFlowControl() {
 		return flowControl;
+	}
+
+	/**
+	 * Returns the RTS (Request To Send).
+	 * 
+	 * @return the RTS
+	 */
+	public boolean isRTS() {
+		return rts;
+	}
+
+	/**
+	 * Returns the DTR (Data Terminal Ready).
+	 * 
+	 * @return the DTR
+	 */
+	public boolean isDTR() {
+		return dtr;
 	}
 }

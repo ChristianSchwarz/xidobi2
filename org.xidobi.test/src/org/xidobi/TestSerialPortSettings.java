@@ -77,6 +77,8 @@ public class TestSerialPortSettings {
 	 * <li>stopBits = 1 (default)</li>
 	 * <li>parity = none (default)</li>
 	 * <li>flowControl = none (default)</li>
+	 * <li>RTS = true (default)</li>
+	 * <li>DTR = true (default)</li>
 	 * </ul>
 	 */
 	@Test
@@ -89,6 +91,8 @@ public class TestSerialPortSettings {
 		assertThat(result.getStopBits(), is(StopBits_1));
 		assertThat(result.getParity(), is(Parity_None));
 		assertThat(result.getFlowControl(), is(FlowControl_None));
+		assertThat(result.isRTS(), is(true));
+		assertThat(result.isDTR(), is(true));
 	}
 
 	/**
@@ -176,6 +180,50 @@ public class TestSerialPortSettings {
 	}
 
 	/**
+	 * Verifies that a valid {@link SerialPortSettings} is returned, when RTS == true is passed.
+	 */
+	@Test
+	public void create_withRTS_true() {
+		SerialPortSettings result = builder.rts(true).create();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result.isRTS(), is(true));
+	}
+
+	/**
+	 * Verifies that a valid {@link SerialPortSettings} is returned, when RTS == false is passed.
+	 */
+	@Test
+	public void create_withRTS_false() {
+		SerialPortSettings result = builder.rts(false).create();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result.isRTS(), is(false));
+	}
+
+	/**
+	 * Verifies that a valid {@link SerialPortSettings} is returned, when DTR == true is passed.
+	 */
+	@Test
+	public void create_withDTR_true() {
+		SerialPortSettings result = builder.dtr(true).create();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result.isDTR(), is(true));
+	}
+
+	/**
+	 * Verifies that a valid {@link SerialPortSettings} is returned, when DTR == false is passed.
+	 */
+	@Test
+	public void create_withDTR_false() {
+		SerialPortSettings result = builder.dtr(false).create();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result.isDTR(), is(false));
+	}
+
+	/**
 	 * Verifies that a valid {@link SerialPortSettings} is returned, when all values were set.
 	 */
 	@Test
@@ -186,6 +234,8 @@ public class TestSerialPortSettings {
 													  .stopBits(StopBits_1_5)
 													  .parity(Parity_Space)
 													  .flowControl(FlowControl_RTSCTS_In)
+													  .rts(false)
+													  .dtr(false)
 													  .create();
 		//@formatter:on
 
@@ -195,6 +245,8 @@ public class TestSerialPortSettings {
 		assertThat(result.getStopBits(), is(StopBits_1_5));
 		assertThat(result.getParity(), is(Parity_Space));
 		assertThat(result.getFlowControl(), is(FlowControl_RTSCTS_In));
+		assertThat(result.isRTS(), is(false));
+		assertThat(result.isDTR(), is(false));
 	}
 
 }
