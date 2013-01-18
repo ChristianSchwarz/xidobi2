@@ -42,7 +42,7 @@ public interface SerialPortHandle {
 	 *             if the port cannot be opened
 	 */
 	@WillCloseWhenClosed
-	SerialPort open(SerialPortSettings settings) throws IOException;
+	SerialPort open(@Nonnull SerialPortSettings settings) throws IOException;
 
 	/**
 	 * Returns the name of this port

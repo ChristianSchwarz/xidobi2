@@ -24,6 +24,8 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
@@ -51,7 +53,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public SerialPortFinderImpl(OS os) {
+	public SerialPortFinderImpl(@Nonnull OS os) {
 		this.os = checkArgumentNotNull(os, "os");
 	}
 

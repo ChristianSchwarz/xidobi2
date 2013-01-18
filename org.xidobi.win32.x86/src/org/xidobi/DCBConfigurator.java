@@ -32,6 +32,8 @@ import static org.xidobi.structs.DCB.RTS_CONTROL_HANDSHAKE;
 import static org.xidobi.structs.DCB.SPACEPARITY;
 import static org.xidobi.structs.DCB.TWOSTOPBITS;
 
+import javax.annotation.Nonnull;
+
 import org.xidobi.structs.DCB;
 
 /**
@@ -60,10 +62,12 @@ public class DCBConfigurator {
 	 *             <ul>
 	 *             <li>if <code>dcb == null</code></li>
 	 *             <li>if <code>settings == null</code></li>
-	 *             <li>if the serial port settings contains illegal value combinations</li>
+	 *             <li>if the serial port settings contains illegal value combinations: <i>The use
+	 *             of 5 data bits with 2 stop bits is an invalid combination, as is 6, 7, or 8 data
+	 *             bits with 1.5 stop bits.</i></li>
 	 *             </ul>
 	 */
-	public void configureDCB(DCB dcb, SerialPortSettings settings) throws IllegalArgumentException {
+	public void configureDCB(@Nonnull DCB dcb, @Nonnull SerialPortSettings settings) throws IllegalArgumentException {
 		checkArgumentNotNull(dcb, "dcb");
 		checkArgumentNotNull(settings, "settings");
 

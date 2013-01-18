@@ -131,7 +131,6 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 				throw new IOException("Port not found (" + portName + ")!");
 		}
 		throw lastError("Unable to open port (" + portName + ")!", err);
-
 	}
 
 	/**

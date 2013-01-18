@@ -17,6 +17,9 @@ package org.xidobi;
 
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Delivers the information for a single serial port.
  * 
@@ -39,8 +42,8 @@ public class SerialPortInfo {
 	 * @param description
 	 *            the additional description for the port, can be <code>null</code>
 	 */
-	public SerialPortInfo(	String portName,
-							String description) {
+	public SerialPortInfo(	@Nonnull String portName,
+							@Nullable String description) {
 		this.portName = checkArgumentNotNull(portName, "portName");
 		this.description = description;
 	}
@@ -50,6 +53,7 @@ public class SerialPortInfo {
 	 * 
 	 * @return the name of the serial port, never <code>null</code>
 	 */
+	@Nonnull
 	public String getPortName() {
 		return portName;
 	}
@@ -60,6 +64,7 @@ public class SerialPortInfo {
 	 * @return the description for the serial port, can be <code>null</code> if no description is
 	 *         available
 	 */
+	@Nullable
 	public String getDescription() {
 		return description;
 	}

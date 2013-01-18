@@ -17,6 +17,8 @@ package org.xidobi;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 /**
  * Interface for classes which can find informations of all serial ports that are installed on the
  * system.
@@ -33,6 +35,7 @@ public interface SerialPortFinder {
 	 * @return a {@link Set} with serial port infos or an empty {@link Set} if no ports are
 	 *         available, but never <code>null</code>
 	 */
+	@Nonnull
 	Set<SerialPortInfo> find();
 
 }
