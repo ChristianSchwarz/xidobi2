@@ -23,6 +23,9 @@
 #include "OS_structs.h"
 #include "OS.h"
 
+/*
+ * Sets the value of GetLastError() to the given jobject.
+ */
 void setLastNativeError(JNIEnv *env, jobject lastError) {
 	DWORD err = GetLastError();
 	setINT(env, lastError, &err);
@@ -70,12 +73,14 @@ JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
 		jint handle,
 		jobject lastError) {
-	if (CloseHandle((HANDLE) handle))
-		return JNI_TRUE;
+
+	BOOL result = CloseHandle((HANDLE) handle);
 
 	setLastNativeError(env, lastError);
 
-	return JNI_FALSE;
+	if (!result)
+		return JNI_FALSE;
+	return JNI_TRUE;
 }
 
 
@@ -92,10 +97,12 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 	DCB dcb;
 	FillMemory(&dcb, sizeof(dcb), 0);
 
-	if (!GetCommState((HANDLE) handle, &dcb)) {
-		setLastNativeError(env, lastError);
+	BOOL result = GetCommState((HANDLE) handle, &dcb);
+
+	setLastNativeError(env, lastError);
+
+	if (!result)
 		return JNI_FALSE;
-	}
 
 	setDCBFields(env, dcbObject, &dcb);
 
@@ -116,11 +123,12 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
 	DCB dcb;
 	getDCBFields(env, dcbObject, &dcb);
 
-	if (!SetCommState((HANDLE) handle, &dcb)) {
-		setLastNativeError(env, lastError);
-		return JNI_FALSE;
-	}
+	BOOL result = SetCommState((HANDLE) handle, &dcb);
 
+	setLastNativeError(env, lastError);
+
+	if (!result)
+		return JNI_FALSE;
 	return JNI_TRUE;
 }
 
