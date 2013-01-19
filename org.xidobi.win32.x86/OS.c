@@ -34,7 +34,7 @@ void setLastNativeError(JNIEnv *env, jobject lastError) {
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateFile
- * Signature: (Ljava/lang/String;IIIIII)I
+ * Signature: (Ljava/lang/String;IIIIIILorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
@@ -67,7 +67,7 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 /*
  * Class:     org_xidobi_OS
  * Method:    CloseHandle
- * Signature: (I)Z
+ * Signature: (ILorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
@@ -83,11 +83,10 @@ Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
 	return JNI_TRUE;
 }
 
-
 /*
  * Class:     org_xidobi_OS
  * Method:    GetCommState
- * Signature: (ILorg/xidobi/structs/DCB;)Z
+ * Signature: (ILorg/xidobi/structs/DCB;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
@@ -109,11 +108,10 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 	return JNI_TRUE;
 }
 
-
 /*
  * Class:     org_xidobi_OS
  * Method:    SetCommState
- * Signature: (ILorg/xidobi/structs/DCB;)Z
+ * Signature: (ILorg/xidobi/structs/DCB;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
@@ -136,7 +134,7 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
 /*
  * Class:     org_xidobi_OS
  * Method:    CreateEventA
- * Signature: (IZZLjava/lang/String;)I
+ * Signature: (IZZLjava/lang/String;Lorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
@@ -165,11 +163,10 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
 	return (jint) handle;
 }
 
-
 /*
  * Class:     org_xidobi_OS
  * Method:    WriteFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
+ * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
@@ -206,7 +203,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 /*
  * Class:     org_xidobi_OS
  * Method:    ReadFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;)Z
+ * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
@@ -254,7 +251,7 @@ Java_org_xidobi_OS_GetLastError(JNIEnv *env, jobject this) {
 /*
  * Class:     org_xidobi_OS
  * Method:    GetOverlappedResult
- * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;Z)Z
+ * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;ZLorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
@@ -286,7 +283,7 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 /*
  * Class:     org_xidobi_OS
  * Method:    WaitForSingleObject
- * Signature: (II)I
+ * Signature: (IILorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jobject this,
