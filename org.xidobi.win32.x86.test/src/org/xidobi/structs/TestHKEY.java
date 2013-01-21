@@ -15,8 +15,8 @@
  */
 package org.xidobi.structs;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.xidobi.OS;
 import org.xidobi.WinApi;
 
 /**
@@ -46,7 +45,7 @@ public class TestHKEY {
 	private HKEY hkey;
 
 	@Mock
-	private WinApi os;
+	private WinApi win;
 
 	/** expected exceptions */
 	@Rule
@@ -72,13 +71,13 @@ public class TestHKEY {
 	 */
 	@Test
 	public void new_allocatesHKEYstruct() {
-		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
+		when(win.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
+		when(win.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
 
-		hkey = new HKEY(os);
+		hkey = new HKEY(win);
 
-		verify(os, times(1)).sizeOf_HKEY();
-		verify(os, times(1)).malloc(SIZEOF_HKEY);
+		verify(win, times(1)).sizeOf_HKEY();
+		verify(win, times(1)).malloc(SIZEOF_HKEY);
 	}
 
 	/**
@@ -87,14 +86,14 @@ public class TestHKEY {
 	 */
 	@Test
 	public void dispose_freesHKEYstruct() {
-		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
+		when(win.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
+		when(win.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
 
-		hkey = new HKEY(os);
+		hkey = new HKEY(win);
 		hkey.dispose();
 
 		assertThat(hkey.isDisposed(), is(true));
-		verify(os).free(A_HKEY_POINTER);
+		verify(win).free(A_HKEY_POINTER);
 	}
 
 }

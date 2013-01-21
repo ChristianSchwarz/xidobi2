@@ -68,7 +68,7 @@ public class TestSerialPortImpl {
 	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
-	private WinApi os;
+	private WinApi win;
 
 	@Mock
 	private SerialPortHandle portHandle;
@@ -79,7 +79,7 @@ public class TestSerialPortImpl {
 	@Before
 	public void setUp() {
 		initMocks(this);
-		port = new SerialPortImpl(portHandle, os, handle);
+		port = new SerialPortImpl(portHandle, win, handle);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class TestSerialPortImpl {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");
 
-		new SerialPortImpl(null, os, handle);
+		new SerialPortImpl(null, win, handle);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class TestSerialPortImpl {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >handle< is invalid! Invalid handle value");
 
-		new SerialPortImpl(portHandle, os, INVALID_HANDLE_VALUE);
+		new SerialPortImpl(portHandle, win, INVALID_HANDLE_VALUE);
 	}
 
 	/**
@@ -130,17 +130,17 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void write_succeed() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(true);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true))).thenReturn(true);
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(true);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true))).thenReturn(true);
 
 		port.write(DATA);
 
-		verify(os).CreateEventA(0, true, false, null);
-		verify(os).WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class));
-		verify(os).WaitForSingleObject(eventHandle, 2000);
-		verify(os).GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true));
+		verify(win).CreateEventA(0, true, false, null);
+		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class));
+		verify(win).WaitForSingleObject(eventHandle, 2000);
+		verify(win).GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true));
 	}
 
 	/**
@@ -151,8 +151,8 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void write_createEventFail() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(0);
-		when(os.getLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
+		when(win.CreateEventA(0, true, false, null)).thenReturn(0);
+		when(win.getLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage(startsWith("CreateEventA returned unexpected with 0! Error Code: "+DUMMY_ERROR_CODE));
@@ -168,7 +168,7 @@ public class TestSerialPortImpl {
 	@Test
 	public void close() throws Exception {
 		port.close();
-		verify(os).CloseHandle(handle);
-		verifyNoMoreInteractions(os);
+		verify(win).CloseHandle(handle);
+		verifyNoMoreInteractions(win);
 	}
 }

@@ -69,7 +69,7 @@ public class TestSerialPortFinderImpl {
 	private SerialPortFinderImpl finder;
 
 	@Mock
-	private WinApi os;
+	private WinApi win;
 
 	/** expected exceptions */
 	@Rule
@@ -79,7 +79,7 @@ public class TestSerialPortFinderImpl {
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
-		finder = new SerialPortFinderImpl(os);
+		finder = new SerialPortFinderImpl(win);
 	}
 
 	/**
@@ -99,9 +99,9 @@ public class TestSerialPortFinderImpl {
 	 */
 	@Test
 	public void find_whenRegOpenKeyExANotSuccessful() {
-		when(os.sizeOf_HKEY()).thenReturn(SIZE_OF_HKEY);
-		when(os.malloc(SIZE_OF_HKEY)).thenReturn(HKEY_POINTER);
-		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
+		when(win.sizeOf_HKEY()).thenReturn(SIZE_OF_HKEY);
+		when(win.malloc(SIZE_OF_HKEY)).thenReturn(HKEY_POINTER);
+		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + AN_ERROR_CODE + ")");
@@ -110,8 +110,8 @@ public class TestSerialPortFinderImpl {
 			finder.find();
 		}
 		finally {
-			verify(os, times(1)).malloc(SIZE_OF_HKEY);
-			verify(os, times(1)).free(HKEY_POINTER);
+			verify(win, times(1)).malloc(SIZE_OF_HKEY);
+			verify(win, times(1)).free(HKEY_POINTER);
 		}
 	}
 
@@ -122,10 +122,10 @@ public class TestSerialPortFinderImpl {
 	@Test
 	public void find_withNoSerialPortValuesInRegistry() {
 		//@formatter:off
-		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();
@@ -141,12 +141,12 @@ public class TestSerialPortFinderImpl {
 	@Test
 	public void find_withOneSerialPortValueInRegistry() {
 		//@formatter:off
-		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
 		doAnswer(withValue("/Device/Serial1", "COM1 ", ERROR_SUCCESS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+			.when(win).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();
@@ -163,14 +163,14 @@ public class TestSerialPortFinderImpl {
 	@Test
 	public void find_withTwoSerialPortValueInRegistry() {
 		//@formatter:off
-		when(os.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
 		doAnswer(withValue("/Device/Serial1", "COM1 ", ERROR_SUCCESS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		doAnswer(withValue("/Device/Serial2", "COM2 ", ERROR_SUCCESS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+			.when(win).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
-			.when(os).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+			.when(win).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
 		Set<SerialPortInfo> result = finder.find();

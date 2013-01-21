@@ -44,29 +44,29 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private static final String HARDWARE_DEVICEMAP_SERIALCOMM = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
 
 	/** the native Win32-API, never <code>null</code> */
-	private WinApi os;
+	private WinApi win;
 
 	/**
 	 * Creates a new instance, that finds all serial ports that are available in the Windows
 	 * Registry.
 	 * 
-	 * @param os
+	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public SerialPortFinderImpl(@Nonnull WinApi os) {
-		this.os = checkArgumentNotNull(os, "os");
+	public SerialPortFinderImpl(@Nonnull WinApi win) {
+		this.win = checkArgumentNotNull(win, "win");
 	}
 
 	/** {@inheritDoc} */
 	public Set<SerialPortInfo> find() {
-		HKEY keyHandle = new HKEY(os);
+		HKEY keyHandle = new HKEY(win);
 		try {
 			openRegistry(keyHandle);
 			try {
 				return getPortsFromRegistry(keyHandle);
 			}
 			finally {
-				os.RegCloseKey(keyHandle);
+				win.RegCloseKey(keyHandle);
 			}
 		}
 		finally {
@@ -78,7 +78,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * Opens the Windows Registry for subkey {@value #HARDWARE_DEVICEMAP_SERIALCOMM}.
 	 */
 	private void openRegistry(HKEY phkResult) {
-		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
+		int status = win.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
 		if (status != ERROR_SUCCESS)
 			throw new NativeCodeException("Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
 	}
@@ -100,7 +100,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 			sizeOfKey.value = 255;
 			sizeOfValue.value = 255;
 
-			int status = os.RegEnumValueA(phkResult, index, registryKey, sizeOfKey, 0, new INT(), registryValue, sizeOfValue);
+			int status = win.RegEnumValueA(phkResult, index, registryKey, sizeOfKey, 0, new INT(), registryValue, sizeOfValue);
 			if (status != ERROR_SUCCESS)
 				break;
 

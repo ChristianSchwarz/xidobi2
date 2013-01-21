@@ -37,45 +37,45 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 public class SerialPortImpl extends AbstractSerialPort {
 
 	/** the native Win32-API, never <code>null</code> */
-	private final WinApi os;
+	private final WinApi win;
 	/** The HANDLE of the opened port */
 	private final int handle;
 
 	/**
 	 * @param portHandle
-	 * @param os
+	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param handle
 	 *            the handle of the serial port
 	 */
 	public SerialPortImpl(	SerialPortHandle portHandle,
-							WinApi os,
+							WinApi win,
 							int handle) {
 		super(portHandle);
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
-		this.os = checkArgumentNotNull(os, "os");
+		this.win = checkArgumentNotNull(win, "win");
 	}
 
 	@Override
 	protected void writeInternal(byte[] data) throws IOException {
-		int eventHandle = os.CreateEventA(0, true, false, null);
+		int eventHandle = win.CreateEventA(0, true, false, null);
 		if (eventHandle == 0)
-			throw new NativeCodeException("CreateEventA returned unexpected with 0! Error Code: " + os.getLastNativeError());
+			throw new NativeCodeException("CreateEventA returned unexpected with 0! Error Code: " + win.getLastNativeError());
 
-		OVERLAPPED overlapped = new OVERLAPPED(os);
+		OVERLAPPED overlapped = new OVERLAPPED(win);
 		try {
 			overlapped.hEvent = eventHandle;
 
 			INT lpNumberOfBytesWritten = new INT();
-			boolean succeed = os.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
+			boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
 
-			int eventResult = os.WaitForSingleObject(eventHandle, 2000);
+			int eventResult = win.WaitForSingleObject(eventHandle, 2000);
 
 			switch (eventResult) {
 				case WAIT_OBJECT_0:
 					INT lpNumberOfBytesTransferred = new INT();
-					succeed = os.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+					succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
 					break;
 				case WinApi.WAIT_FAILED:
 				case WinApi.WAIT_ABANDONED:
@@ -98,7 +98,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 	@Override
 	protected void closeInternal() throws IOException {
-		os.CloseHandle(handle);
+		win.CloseHandle(handle);
 	}
 
 	@Override

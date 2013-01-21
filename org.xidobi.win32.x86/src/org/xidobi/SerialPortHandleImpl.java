@@ -42,7 +42,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 	/** the native Win32-API, never <code>null</code> */
 	@Nonnull
-	private final WinApi os;
+	private final WinApi win;
 
 	/** the name of this port, eg. "COM1", never <code>null</code> */
 	@Nonnull
@@ -71,7 +71,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	/**
 	 * Creates a new handle using the native Win32-API provided by the {@link WinApi}.
 	 * 
-	 * @param os
+	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param portName
 	 *            the name of this port, must not be <code>null</code>
@@ -79,11 +79,11 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 *            configures the native DCB "struct" with the values from the serial port settings,
 	 *            must not be <code>null</code>
 	 */
-	public SerialPortHandleImpl(@Nonnull WinApi os,
+	public SerialPortHandleImpl(@Nonnull WinApi win,
 								@Nonnull String portName,
 								@Nonnull DCBConfigurator configurator) {
 		this.portName = checkArgumentNotNull(portName, "portName");
-		this.os = checkArgumentNotNull(os, "os");
+		this.win = checkArgumentNotNull(win, "win");
 		this.configurator = checkArgumentNotNull(configurator, "configurator");
 	}
 
@@ -100,11 +100,11 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 			applySettings(handle, settings);
 		}
 		catch (IOException e) {
-			os.CloseHandle(handle);
+			win.CloseHandle(handle);
 			throw e;
 		}
 
-		return new SerialPortImpl(this, os, handle);
+		return new SerialPortImpl(this, win, handle);
 	}
 
 	/**
@@ -115,13 +115,13 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 *                if the port is already open or does not exist
 	 */
 	private int tryOpen(final String portName) throws IOException {
-		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
 
-		os.getLastNativeError();
-		int err = os.getLastNativeError();
+		win.getLastNativeError();
+		int err = win.getLastNativeError();
 
 		System.err.println("invalid handle(" + handle + ")->" + err);
 		switch (err) {
@@ -142,13 +142,13 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	private void applySettings(final int handle, final SerialPortSettings settings) throws IOException {
 		final DCB dcb = new DCB();
 
-		if (!os.GetCommState(handle, dcb))
-			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", os.getLastNativeError());
+		if (!win.GetCommState(handle, dcb))
+			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", win.getLastNativeError());
 
 		configurator.configureDCB(dcb, settings);
 
-		if (!os.SetCommState(handle, dcb))
-			throw lastError("Unable to set the control settings (" + portName + ")!", os.getLastNativeError());
+		if (!win.SetCommState(handle, dcb))
+			throw lastError("Unable to set the control settings (" + portName + ")!", win.getLastNativeError());
 	}
 
 	/**

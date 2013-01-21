@@ -28,7 +28,7 @@ import org.xidobi.WinApi;
 public class OVERLAPPED {
 
 	/** the native Win32-API, never <code>null</code> */
-	private WinApi os;
+	private WinApi win;
 
 	/** The pointer to the C struct */
 	private final int cPointer;
@@ -59,21 +59,21 @@ public class OVERLAPPED {
 	 * Creates a new instance on the heap. The instance must be disposed, when it isn't used
 	 * anymore.
 	 * 
-	 * @param os
+	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public OVERLAPPED(WinApi os) {
-		this.os = checkArgumentNotNull(os, "os");
+	public OVERLAPPED(WinApi win) {
+		this.win = checkArgumentNotNull(win, "win");
 
-		int sizeofOVERLAPPED = os.sizeOf_OVERLAPPED();
-		cPointer = os.malloc(sizeofOVERLAPPED);
+		int sizeofOVERLAPPED = win.sizeOf_OVERLAPPED();
+		cPointer = win.malloc(sizeofOVERLAPPED);
 	}
 
 	/**
 	 * Frees the resources of this instance ( memory on the heap).
 	 */
 	public void dispose() {
-		os.free(cPointer);
+		win.free(cPointer);
 		isDisposed = true;
 	}
 

@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.xidobi.OS;
 import org.xidobi.WinApi;
 
 /**
@@ -46,7 +45,7 @@ public class TestOVERLAPPED {
 	private OVERLAPPED overlapped;
 
 	@Mock
-	private WinApi os;
+	private WinApi win;
 
 	/** expected exceptions */
 	@Rule
@@ -73,13 +72,13 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void new_allocatesOVERLAPPEDstruct() {
-		when(os.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
-		when(os.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
+		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
+		when(win.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
 
-		overlapped = new OVERLAPPED(os);
+		overlapped = new OVERLAPPED(win);
 
-		verify(os, times(1)).sizeOf_OVERLAPPED();
-		verify(os, times(1)).malloc(SIZEOF_OVERLAPPED);
+		verify(win, times(1)).sizeOf_OVERLAPPED();
+		verify(win, times(1)).malloc(SIZEOF_OVERLAPPED);
 	}
 
 	/**
@@ -88,14 +87,14 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void dispose_freesOVERLAPPEDstruct() {
-		when(os.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
-		when(os.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
+		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
+		when(win.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
 
-		overlapped = new OVERLAPPED(os);
+		overlapped = new OVERLAPPED(win);
 		overlapped.dispose();
 
 		assertThat(overlapped.isDisposed(), is(true));
-		verify(os).free(A_OVERLAPPED_POINTER);
+		verify(win).free(A_OVERLAPPED_POINTER);
 	}
 
 }
