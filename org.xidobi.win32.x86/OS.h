@@ -74,6 +74,14 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_GetLastError
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    FormatMessageA
+ * Signature: (ILjava/lang/Void;II[BILjava/lang/Void;Lorg/xidobi/structs/INT;)I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_FormatMessageA
+  (JNIEnv *, jobject, jint, jobject, jint, jint, jbyteArray, jint, jobject, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    GetOverlappedResult
  * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;ZLorg/xidobi/structs/INT;)Z
  */
