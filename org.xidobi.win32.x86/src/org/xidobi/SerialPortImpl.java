@@ -90,6 +90,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 					succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
 					if (!succeed)
 						throw new NativeCodeException("GetOverlappedResult failed unexpeced! (Error-Code: "+win.getPreservedError()+")");
+					if (lpNumberOfBytesTransferred.value!=data.length)
+						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Got: "+lpNumberOfBytesTransferred.value+" expected: "+data.length);
 					break;
 				case WAIT_FAILED:
 				case WAIT_ABANDONED:

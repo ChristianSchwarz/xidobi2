@@ -23,18 +23,21 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
@@ -209,15 +212,33 @@ public class TestSerialPortImpl {
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		
-		//This is the important part of the test, in the case the NativeCodeException must be thrown
+
+		// This is the important part of the test, in the case the NativeCodeException must be
+		// thrown
 		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
-		
+
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject failed unexpected! (Error-Code: "+DUMMY_ERROR_CODE);
-		
+		exception.expectMessage("WaitForSingleObject failed unexpected! (Error-Code: " + DUMMY_ERROR_CODE);
+
 		port.write(DATA);
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown when the number of transmitted bytes
+	 * is not equal to the size of the {@code byte[]} to send.
+	 */
+	@Test
+	public void write_unexpectedTransmittedBytes() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+
+		// This is the important part of the test, in the case the NativeCodeException must be
+		// thrown
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).then(returnFalseAndSetWrittenBytes(DATA.length - 1));
+
 	}
 
 	/**
@@ -240,4 +261,20 @@ public class TestSerialPortImpl {
 	private INT anyINT() {
 		return any(INT.class);
 	}
+
+	/**
+	 * This answer returns <code>false</code> and set the written bytes.
+	 */
+	private Answer<Boolean> returnFalseAndSetWrittenBytes(final int bytesWritten) {
+		return new Answer<Boolean>() {
+
+			@Override
+			public Boolean answer(InvocationOnMock invocation) throws Throwable {
+				INT writtenBytes = (INT) invocation.getArguments()[3];
+				writtenBytes.value = bytesWritten;
+				return false;
+			}
+		};
+	}
+
 }
