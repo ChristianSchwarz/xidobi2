@@ -45,12 +45,11 @@ import org.xidobi.internal.NativeCodeException;
 public class TestThrowables {
 
 	private static int FORMAT = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+	private static String MESSAGE = "An error message!";
+	private static int ERROR_CODE = 1;
 
 	@Mock
 	private WinApi win;
-
-	private String message = "An error message!";
-	private int errorCode = 1;
 
 	@Before
 	@SuppressWarnings("javadoc")
@@ -64,7 +63,7 @@ public class TestThrowables {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void newNativeCodeException_withNullWinApi() {
-		Throwables.newNativeCodeException(null, message, errorCode);
+		Throwables.newNativeCodeException(null, MESSAGE, ERROR_CODE);
 	}
 
 	/**
@@ -73,7 +72,7 @@ public class TestThrowables {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void newNativeCodeException_withNullMessage() {
-		Throwables.newNativeCodeException(win, null, errorCode);
+		Throwables.newNativeCodeException(win, null, ERROR_CODE);
 	}
 
 	/**
@@ -84,11 +83,11 @@ public class TestThrowables {
 	@Test
 	public void newNativeCodeException_noNativeErrorMessage() {
 		//@formatter:off
-		when(win.FormatMessageA(eq(FORMAT), eq((Void) null), eq(errorCode), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
+		when(win.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
 			.thenReturn(0);
 		//@formatter:on
 
-		NativeCodeException result = Throwables.newNativeCodeException(win, message, errorCode);
+		NativeCodeException result = Throwables.newNativeCodeException(win, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is(nativeCodeException("An error message!\r\nError-Code 1: No error message available")));
 	}
@@ -99,14 +98,12 @@ public class TestThrowables {
 	 */
 	@Test
 	public void newNativeCodeException_withNativeErrorMessage() {
-		String nativeErrorMessage = "This is a native error";
-
 		//@formatter:off
-		doAnswer(withMessage(nativeErrorMessage)).
-			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(errorCode), anyInt(), any(byte[].class), eq(255), eq((Void) null));
+		doAnswer(withNativeErrorMessage("This is a native error")).
+			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
 		//@formatter:on
 
-		NativeCodeException result = Throwables.newNativeCodeException(win, message, errorCode);
+		NativeCodeException result = Throwables.newNativeCodeException(win, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is(nativeCodeException("An error message!\r\nError-Code 1: This is a native error")));
 	}
@@ -124,7 +121,7 @@ public class TestThrowables {
 	}
 
 	/** {@link Answer} for FormatMessageA() that returns a native error message. */
-	private Answer<Integer> withMessage(final String nativeErrorMessage) {
+	private Answer<Integer> withNativeErrorMessage(final String nativeErrorMessage) {
 		return new Answer<Integer>() {
 			@Override
 			public Integer answer(InvocationOnMock invocation) throws Throwable {

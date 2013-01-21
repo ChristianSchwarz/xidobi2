@@ -179,7 +179,7 @@ public class TestSerialPortImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("CreateEventA returned unexpected with 0! (Error-Code: " + DUMMY_ERROR_CODE + ")");
+		exception.expectMessage("CreateEventA returned unexpected with 0!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		port.write(DATA);
 	}
@@ -195,7 +195,7 @@ public class TestSerialPortImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WriteFile failed unexpected! (Error-Code: " + DUMMY_ERROR_CODE);
+		exception.expectMessage("WriteFile failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
 		port.write(DATA);
 	}
 
@@ -215,7 +215,7 @@ public class TestSerialPortImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 		
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject failed unexpected! (Error-Code: "+DUMMY_ERROR_CODE);
+		exception.expectMessage("WaitForSingleObject failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
 		
 		port.write(DATA);
 	}
