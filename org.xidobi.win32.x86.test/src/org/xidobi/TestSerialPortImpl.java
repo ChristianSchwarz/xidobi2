@@ -84,10 +84,14 @@ public class TestSerialPortImpl {
 	/** the class under test */
 	private SerialPortImpl port;
 
+	/** pointer to an {@link OVERLAPPED}-struct */
+	private int overlapped;
+
 	@Before
 	public void setUp() {
 		initMocks(this);
 		port = new SerialPortImpl(portHandle, win, handle);
+		when(win.malloc(anyInt())).thenReturn(overlapped);
 	}
 
 	/**
@@ -149,6 +153,8 @@ public class TestSerialPortImpl {
 		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
 		verify(win, never()).WaitForSingleObject(anyInt(), anyInt());
 		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
+
+		verifyWriteResourcesDisposed();
 	}
 
 	/**
@@ -171,6 +177,8 @@ public class TestSerialPortImpl {
 		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
 		verify(win).WaitForSingleObject(eventHandle, 2000);
 		verify(win).GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true));
+
+		verifyWriteResourcesDisposed();
 	}
 
 	/**
@@ -186,7 +194,7 @@ public class TestSerialPortImpl {
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("CreateEventA returned unexpected with 0!\r\nError-Code " + DUMMY_ERROR_CODE);
-
+		
 		port.write(DATA);
 	}
 
@@ -202,7 +210,13 @@ public class TestSerialPortImpl {
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WriteFile failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
-		port.write(DATA);
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyWriteResourcesDisposed();
+		}
+
 	}
 
 	/**
@@ -225,7 +239,13 @@ public class TestSerialPortImpl {
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
 
-		port.write(DATA);
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyWriteResourcesDisposed();
+		}
+
 	}
 
 	/**
@@ -246,7 +266,13 @@ public class TestSerialPortImpl {
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + (DATA.length - 1) + " expected: " + DATA.length);
 
-		port.write(DATA);
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyWriteResourcesDisposed();
+		}
+
 	}
 
 	/**
@@ -266,7 +292,13 @@ public class TestSerialPortImpl {
 		exception.expect(IOException.class);
 		exception.expectMessage("Write timeout after 2000 ms");
 
-		port.write(DATA);
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyWriteResourcesDisposed();
+		}
+
 	}
 
 	/**
@@ -278,15 +310,21 @@ public class TestSerialPortImpl {
 	public void write_UnexpectedWaitResult_WAIT_FAILED() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING,DUMMY_ERROR_CODE);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!\r\nError-Code "+DUMMY_ERROR_CODE);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!\r\nError-Code " + DUMMY_ERROR_CODE);
 
-		port.write(DATA);
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyWriteResourcesDisposed();
+		}
+
 	}
-	
+
 	/**
 	 * Verifies that an {@link NativeCodeException} is thrown when
 	 * {@link WinApi#WaitForSingleObject(int, int)} returned {@code WAIT_ABANDONED}. Only
@@ -298,11 +336,41 @@ public class TestSerialPortImpl {
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
-		
+
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-		
-		port.write(DATA);
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyWriteResourcesDisposed();
+		}
+
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown when
+	 * {@link WinApi#WaitForSingleObject(int, int)} returns an undocumented value. Only
+	 * {@code WAIT_OBJECT_0} and {@code WAIT_TIMEOUT} is expected.
+	 */
+	@Test
+	public void write_UnexpectedWaitResult() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: 0x3039");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyWriteResourcesDisposed();
+		}
+
 	}
 
 	/**
@@ -343,4 +411,11 @@ public class TestSerialPortImpl {
 		};
 	}
 
+	/**
+	 * 
+	 */
+	private void verifyWriteResourcesDisposed() {
+		verify(win).CloseHandle(eventHandle);
+		verify(win).free(overlapped);
+	}
 }

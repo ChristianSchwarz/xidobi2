@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static java.lang.Integer.toHexString;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
@@ -45,8 +46,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 	private final WinApi win;
 	/** The HANDLE of the opened port */
 	private final int handle;
-	/**milliseconds */
-	private int writeTimeout= 2000;
+	/** milliseconds */
+	private int writeTimeout = 2000;
 
 	/**
 	 * @param portHandle
@@ -70,9 +71,9 @@ public class SerialPortImpl extends AbstractSerialPort {
 		if (eventHandle == 0)
 			throw newNativeCodeException(win, "CreateEventA returned unexpected with 0!", win.getPreservedError());
 
-		OVERLAPPED overlapped=null;
+		OVERLAPPED overlapped = null;
 		try {
-			overlapped= new OVERLAPPED(win);
+			overlapped = new OVERLAPPED(win);
 			overlapped.hEvent = eventHandle;
 
 			INT lpNumberOfBytesWritten = new INT();
@@ -82,7 +83,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 				return;
 
 			int lastError = win.getPreservedError();
-			//check if an error occured or the operation is pendig
+			// check if an error occured or the operation is pendig
 			if (lastError != ERROR_IO_PENDING)
 				throw newNativeCodeException(win, "WriteFile failed unexpected!", lastError);
 
@@ -96,22 +97,25 @@ public class SerialPortImpl extends AbstractSerialPort {
 					lastError = win.getPreservedError();
 					if (!succeed)
 						throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
-					if (lpNumberOfBytesTransferred.value!=data.length)
-						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: "+lpNumberOfBytesTransferred.value+" expected: "+data.length);
+					if (lpNumberOfBytesTransferred.value != data.length)
+						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + lpNumberOfBytesTransferred.value + " expected: " + data.length);
 					break;
 				case WAIT_TIMEOUT:
-					throw new IOException("Write timeout after "+writeTimeout+" ms!");
+					throw new IOException("Write timeout after " + writeTimeout + " ms!");
 
 				case WAIT_FAILED:
-					throw newNativeCodeException(win,"WaitForSingleObject returned an unexpected value: WAIT_FAILED!",win.getPreservedError());
+					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", win.getPreservedError());
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+				default:
+					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: 0x" + toHexString(eventResult), win.getPreservedError());
 			}
 		}
 		finally {
-			try{
-			overlapped.dispose();
-			}finally{
+			try {
+				overlapped.dispose();
+			}
+			finally {
 				win.CloseHandle(eventHandle);
 			}
 		}
