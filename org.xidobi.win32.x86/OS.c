@@ -250,6 +250,40 @@ Java_org_xidobi_OS_GetLastError(JNIEnv *env, jobject this) {
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    FormatMessageA
+ * Signature: (ILjava/lang/Void;II[BILjava/lang/Void;Lorg/xidobi/structs/INT;)I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_FormatMessageA(JNIEnv *env, jobject this,
+		jint dwFlags,
+		jobject lpSource,
+		jint dwMessageId,
+		jint dwLanguageId,
+		jbyteArray lpBuffer,
+		jint nSize,
+		jobject arguments,
+		jobject lastError) {
+
+	jsize size = (*env)->GetArrayLength(env, lpBuffer);
+	const jbyte jBuffer[size];
+
+	DWORD result = FormatMessageA((DWORD) dwFlags,
+								  NULL, // ignored
+								  (DWORD) dwMessageId,
+								  (DWORD) dwLanguageId,
+								  (LPTSTR) &jBuffer,
+								  (DWORD) nSize,
+								  NULL); // ignored
+
+	setLastNativeError(env, lastError);
+
+	(*env)->SetByteArrayRegion(env, lpBuffer, 0, size, jBuffer);
+
+	return result;
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    GetOverlappedResult
  * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;ZLorg/xidobi/structs/INT;)Z
  */
