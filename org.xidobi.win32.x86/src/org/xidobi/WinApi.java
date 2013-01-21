@@ -471,15 +471,8 @@ public interface WinApi {
 	 * @return {@code DWORD} - If the function succeeds, the return value indicates the event that
 	 *         caused the function to return. It can be one of the following values:
 	 *         <ul>
-	 *         <li>{@link #WAIT_ABANDONED} - The specified object is a mutex object that was not
-	 *         released by the thread that owned the mutex object before the owning thread
-	 *         terminated. Ownership of the mutex object is granted to the calling thread and the
-	 *         mutex state is set to nonsignaled. If the mutex was protecting persistent state
-	 *         information, you should check it for consistency.</li> <li>{@link #WAIT_FAILED} - The
-	 *         state of the specified object is signaled.</li> <li>{@link #WAIT_OBJECT_0} - The
-	 *         time-out interval elapsed, and the object's state is nonsignaled. </li> <li>
-	 *         {@link #WAIT_TIMEOUT} - The function has failed. To get extended error information,
-	 *         call {@link #GetLastError()}.</li>
+	 *         <li>{@link #WAIT_ABANDONED} <li>{@link #WAIT_FAILED}<li> {@link #WAIT_OBJECT_0} <li>
+	 *         {@link #WAIT_TIMEOUT}
 	 *         </ul>
 	 */
 	@CheckReturnValue
