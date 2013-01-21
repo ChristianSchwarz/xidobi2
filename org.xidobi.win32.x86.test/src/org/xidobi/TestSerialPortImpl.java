@@ -16,7 +16,6 @@
 package org.xidobi;
 
 import java.io.IOException;
-import java.util.logging.Handler;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -134,16 +133,16 @@ public class TestSerialPortImpl {
 	@Test
 	public void write_succeedImmediatly() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(true);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(true);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true))).thenReturn(true);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).thenReturn(true);
 
 		port.write(DATA);
 
 		verify(win).CreateEventA(0, true, false, null);
-		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class));
+		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
 		verify(win, never()).WaitForSingleObject(anyInt(), anyInt());
-		verify(win, never()).GetOverlappedResult(anyInt(), any(OVERLAPPED.class), any(INT.class), Mockito.anyBoolean());
+		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), Mockito.anyBoolean());
 	}
 
 	/**
@@ -155,17 +154,17 @@ public class TestSerialPortImpl {
 	@Test
 	public void write_succeedPending() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true))).thenReturn(true);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).thenReturn(true);
 
 		port.write(DATA);
 
 		verify(win).CreateEventA(0, true, false, null);
-		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class));
+		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
 		verify(win).WaitForSingleObject(eventHandle, 2000);
-		verify(win).GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true));
+		verify(win).GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true));
 	}
 
 	/**
@@ -190,13 +189,34 @@ public class TestSerialPortImpl {
 	 * {@link WinApi#WriteFile(int, byte[], int, INT, OVERLAPPED)} fails and is not pending.
 	 */
 	@Test
-	public void write_writeFileFail() throws Exception {
+	public void write_writeFileFailsUnexpected() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WriteFile failed unexpected! (Error-Code: " + DUMMY_ERROR_CODE);
+		port.write(DATA);
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is throw when in an pending operation a call to
+	 * {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails.
+	 */
+	@Test
+	public void write_getOverlappedResultFail() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		
+		//This is the important part of the test, in the case the NativeCodeException must be thrown
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject failed unexpected! (Error-Code: "+DUMMY_ERROR_CODE);
+		
 		port.write(DATA);
 	}
 
@@ -208,5 +228,16 @@ public class TestSerialPortImpl {
 		port.close();
 		verify(win).CloseHandle(handle);
 		verifyNoMoreInteractions(win);
+	}
+
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/** matches any {@link OVERLAPPED} */
+	private OVERLAPPED anyOVERLAPPED() {
+		return any(OVERLAPPED.class);
+	}
+
+	/** matches any {@link INT} */
+	private INT anyINT() {
+		return any(INT.class);
 	}
 }
