@@ -152,7 +152,7 @@ public class OS implements WinApi {
 	private native boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
-	public int getLastNativeError() {
+	public int getPreservedError() {
 		return lastNativeErrorCodes.get(currentThread());
 	}
 
