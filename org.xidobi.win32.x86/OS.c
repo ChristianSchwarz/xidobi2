@@ -250,6 +250,19 @@ Java_org_xidobi_OS_GetLastError(JNIEnv *env, jobject this) {
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    MAKELANGID
+ * Signature: (SS)I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_MAKELANGID(JNIEnv *env, jobject this,
+		jshort usPrimaryLanguage,
+		jshort usSubLanguage) {
+	DWORD result = MAKELANGID(usPrimaryLanguage, usSubLanguage);
+	return (jint) result;
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    FormatMessageA
  * Signature: (ILjava/lang/Void;II[BILjava/lang/Void;Lorg/xidobi/structs/INT;)I
  */

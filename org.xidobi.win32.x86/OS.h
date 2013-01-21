@@ -74,6 +74,14 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_GetLastError
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    MAKELANGID
+ * Signature: (SS)I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_MAKELANGID
+  (JNIEnv *, jobject, jshort, jshort);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    FormatMessageA
  * Signature: (ILjava/lang/Void;II[BILjava/lang/Void;Lorg/xidobi/structs/INT;)I
  */
