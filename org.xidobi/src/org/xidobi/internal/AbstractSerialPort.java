@@ -95,7 +95,8 @@ public abstract class AbstractSerialPort implements SerialPort {
 	/**
 	 * The implementation must release all native resources.
 	 * <p>
-	 * This method will be called by {@link #close()} as long as this method returns with not normal / throws an {@link IOException}.
+	 * This method will be called by {@link #close()} as long as this method returns with not normal
+	 * / throws an {@link IOException}.
 	 * 
 	 * <p>
 	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
@@ -123,8 +124,16 @@ public abstract class AbstractSerialPort implements SerialPort {
 		closeInternal();
 		isClosed = true;
 	}
-	
-	public final boolean isClosed(){
+
+	/**
+	 * Returns <code>true</code> if the serial port is closed.
+	 * 
+	 * @return <ul>
+	 *         <li> <code>true</code>, if the serial port is closed
+	 *         <li> <code>false</code>, if the serial port is open
+	 *         </ul>
+	 */
+	public final boolean isClosed() {
 		return isClosed;
 	}
 
