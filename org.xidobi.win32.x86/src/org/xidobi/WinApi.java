@@ -151,6 +151,11 @@ public interface WinApi {
 	 */
 	int FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200;
 
+	/** Neutral locale language */
+	short LANG_NEUTRAL = 0x00;
+	/** Neutral sublanguage */
+	short SUBLANG_NEUTRAL = 0x00;
+
 	/**
 	 * The CreateFile function can create a handle to a communications resource, such as the serial
 	 * port COM1. For communications resources, the dwCreationDisposition parameter must be
@@ -606,6 +611,31 @@ public interface WinApi {
 	 * @return {@code DWORD} - The return value is the calling thread's last-error code.
 	 */
 	int GetLastError();
+
+	/**
+	 * Creates a <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd318691(v=vs.85).aspx"
+	 * >language identifier</a> from a primary language identifier and a sublanguage identifier.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd373908(v=vs.85).aspx">
+	 * MAKELANGID (MSDN)</a> for more details.</i>
+	 * 
+	 * @param usPrimaryLanguage
+	 *            {@code USHORT} - Primary language identifier. This identifier can be a predefined
+	 *            value or a value for a user-defined primary language. For a user-defined language,
+	 *            the identifier is a value in the range 0x0200 to 0x03FF. All other values are
+	 *            reserved for operating system use. For more information, see Language Identifier
+	 *            Constants and Strings.
+	 * @param usSubLanguage
+	 *            {@code USHORT} - Sublanguage identifier. This parameter can be a predefined
+	 *            sublanguage identifier or a user-defined sublanguage. For a user-defined
+	 *            sublanguage, the identifier is a value in the range 0x20 to 0x3F. All other values
+	 *            are reserved for operating system use. For more information, see Language
+	 *            Identifier Constants and Strings.
+	 * @return {@code DWORD} - Returns the language identifier.
+	 */
+	int MAKELANGID(short usPrimaryLanguage, short usSubLanguage);
 
 	/**
 	 * Formats a message string. The function requires a message definition as input. The message

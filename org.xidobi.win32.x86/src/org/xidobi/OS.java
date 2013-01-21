@@ -160,6 +160,9 @@ public class OS implements WinApi {
 	public native int GetLastError();
 
 	/** {@inheritDoc} */
+	public native int MAKELANGID(short usPrimaryLanguage, short usSubLanguage);
+
+	/** {@inheritDoc} */
 	public int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments) {
 		INT lastError = new INT(0);
 		int result = FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, arguments, lastError);
