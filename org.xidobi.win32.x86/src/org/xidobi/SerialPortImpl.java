@@ -45,6 +45,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 	private final WinApi win;
 	/** The HANDLE of the opened port */
 	private final int handle;
+	/**milliseconds */
+	private int writeTimeout= 2000;
 
 	/**
 	 * @param portHandle
@@ -85,7 +87,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 				throw newNativeCodeException(win, "WriteFile failed unexpected!", lastError);
 
 			// the operation is pending, lets wait for completion
-			int eventResult = win.WaitForSingleObject(eventHandle, 2000);
+			int eventResult = win.WaitForSingleObject(eventHandle, writeTimeout);
 
 			switch (eventResult) {
 				case WAIT_OBJECT_0:
@@ -97,11 +99,13 @@ public class SerialPortImpl extends AbstractSerialPort {
 					if (lpNumberOfBytesTransferred.value!=data.length)
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: "+lpNumberOfBytesTransferred.value+" expected: "+data.length);
 					break;
-				case WAIT_FAILED:
-				case WAIT_ABANDONED:
 				case WAIT_TIMEOUT:
-					// TODO
-					break;
+					throw new IOException("Write timeout after "+writeTimeout+" ms!");
+
+				case WAIT_FAILED:
+					throw newNativeCodeException(win,"WaitForSingleObject returned an unexpected value: WAIT_FAILED!",win.getPreservedError());
+				case WAIT_ABANDONED:
+					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 			}
 		}
 		finally {

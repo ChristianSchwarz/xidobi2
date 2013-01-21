@@ -22,7 +22,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.internal.NativeCodeException;
@@ -43,7 +42,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 
 /**
  * Tests the class {@link SerialPortImpl}
@@ -146,7 +148,7 @@ public class TestSerialPortImpl {
 		verify(win).CreateEventA(0, true, false, null);
 		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
 		verify(win, never()).WaitForSingleObject(anyInt(), anyInt());
-		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(),anyBoolean());
+		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
 	}
 
 	/**
@@ -161,7 +163,7 @@ public class TestSerialPortImpl {
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).then(setWrittenBytesAndReturn(DATA.length,true));
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).then(setWrittenBytesAndReturn(DATA.length, true));
 
 		port.write(DATA);
 
@@ -211,19 +213,18 @@ public class TestSerialPortImpl {
 	public void write_getOverlappedResultFail() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING,//WriteFile
-		                                         DUMMY_ERROR_CODE//GetOverlappedResult
-		                                         );
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING,// WriteFile
+		DUMMY_ERROR_CODE// GetOverlappedResult
+		);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 
 		// This is the important part of the test, in the case the NativeCodeException must be
 		// thrown
 		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
-		
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
-		
+
 		port.write(DATA);
 	}
 
@@ -240,12 +241,67 @@ public class TestSerialPortImpl {
 
 		// This is the important part of the test, in the case the NativeCodeException must be
 		// thrown
-		doAnswer(setWrittenBytesAndReturn(DATA.length - 1,true)).when(win).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
+		doAnswer(setWrittenBytesAndReturn(DATA.length - 1, true)).when(win).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: "+(DATA.length-1)+" expected: "+DATA.length);
+		exception.expectMessage("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + (DATA.length - 1) + " expected: " + DATA.length);
 
+		port.write(DATA);
+	}
 
+	/**
+	 * Verifies that an {@link IOException} is thrown when a pending result of the native write
+	 * operation times out.
+	 * 
+	 * @see {@link WinApi#WaitForSingleObject(int, int)}
+	 * @see WinApi#WAIT_TIMEOUT
+	 */
+	@Test
+	public void write_timeout() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Write timeout after 2000 ms");
+
+		port.write(DATA);
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown when
+	 * {@link WinApi#WaitForSingleObject(int, int)} returned {@code WAIT_FAILED}. Only
+	 * {@code WAIT_OBJECT_0} and {@code WAIT_TIMEOUT} is expected.
+	 */
+	@Test
+	public void write_UnexpectedWaitResult_WAIT_FAILED() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING,DUMMY_ERROR_CODE);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!\r\nError-Code "+DUMMY_ERROR_CODE);
+
+		port.write(DATA);
+	}
+	
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown when
+	 * {@link WinApi#WaitForSingleObject(int, int)} returned {@code WAIT_ABANDONED}. Only
+	 * {@code WAIT_OBJECT_0} and {@code WAIT_TIMEOUT} is expected.
+	 */
+	@Test
+	public void write_UnexpectedWaitResult_WAIT_ABANDONED() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
+		
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+		
 		port.write(DATA);
 	}
 
@@ -273,7 +329,7 @@ public class TestSerialPortImpl {
 	/**
 	 * This answer returns <code>returnValue</code> and set the written bytes.
 	 */
-	private Answer<Boolean> setWrittenBytesAndReturn(final int bytesWritten,final boolean returnValue) {
+	private Answer<Boolean> setWrittenBytesAndReturn(final int bytesWritten, final boolean returnValue) {
 		return new Answer<Boolean>() {
 
 			@Override
@@ -286,7 +342,5 @@ public class TestSerialPortImpl {
 			}
 		};
 	}
-	
-	
 
 }
