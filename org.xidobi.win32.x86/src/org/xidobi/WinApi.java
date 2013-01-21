@@ -106,6 +106,52 @@ public interface WinApi {
 	int HKEY_LOCAL_MACHINE = 0x80000002;
 
 	/**
+	 * The function allocates a buffer large enough to hold the formatted message, and places a
+	 * pointer to the allocated buffer at the address specified by lpBuffer. The lpBuffer parameter
+	 * is a pointer to an LPTSTR; you must cast the pointer to an LPTSTR (for example,
+	 * (LPTSTR)&lpBuffer). The nSize parameter specifies the minimum number of TCHARs to allocate
+	 * for an output message buffer. The caller should use the LocalFree function to free the buffer
+	 * when it is no longer needed. If the length of the formatted message exceeds 128K bytes, then
+	 * FormatMessage will fail and a subsequent call to GetLastError will return ERROR_MORE_DATA.
+	 */
+	int FORMAT_MESSAGE_ALLOCATE_BUFFER = 0x00000100;
+	/**
+	 * The Arguments parameter is not a va_list structure, but is a pointer to an array of values
+	 * that represent the arguments. This flag cannot be used with 64-bit integer values. If you are
+	 * using a 64-bit integer, you must use the va_list structure.
+	 */
+	int FORMAT_MESSAGE_ARGUMENT_ARRAY = 0x00002000;
+	/**
+	 * The lpSource parameter is a module handle containing the message-table resource(s) to search.
+	 * If this lpSource handle is NULL, the current process's application image file will be
+	 * searched. This flag cannot be used with FORMAT_MESSAGE_FROM_STRING. If the module has no
+	 * message table resource, the function fails with ERROR_RESOURCE_TYPE_NOT_FOUND.
+	 */
+	int FORMAT_MESSAGE_FROM_HMODULE = 0x00000800;
+	/**
+	 * The lpSource parameter is a pointer to a null-terminated string that contains a message
+	 * definition. The message definition may contain insert sequences, just as the message text in
+	 * a message table resource may. This flag cannot be used with FORMAT_MESSAGE_FROM_HMODULE or
+	 * FORMAT_MESSAGE_FROM_SYSTEM.
+	 */
+	int FORMAT_MESSAGE_FROM_STRING = 0x00000400;
+	/**
+	 * The function should search the system message-table resource(s) for the requested message. If
+	 * this flag is specified with FORMAT_MESSAGE_FROM_HMODULE, the function searches the system
+	 * message table if the message is not found in the module specified by lpSource. This flag
+	 * cannot be used with FORMAT_MESSAGE_FROM_STRING. If this flag is specified, an application can
+	 * pass the result of the GetLastError function to retrieve the message text for a
+	 * system-defined error.
+	 */
+	int FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
+	/**
+	 * Insert sequences in the message definition are to be ignored and passed through to the output
+	 * buffer unchanged. This flag is useful for fetching a message for later formatting. If this
+	 * flag is set, the Arguments parameter is ignored.
+	 */
+	int FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200;
+
+	/**
 	 * The CreateFile function can create a handle to a communications resource, such as the serial
 	 * port COM1. For communications resources, the dwCreationDisposition parameter must be
 	 * OPEN_EXISTING, the dwShareMode parameter must be zero (exclusive access), and the
@@ -542,6 +588,69 @@ public interface WinApi {
 	 * @return {@code DWORD} - The return value is the calling thread's last-error code.
 	 */
 	int GetLastError();
+
+	/**
+	 * Formats a message string. The function requires a message definition as input. The message
+	 * definition can come from a buffer passed into the function. It can come from a message table
+	 * resource in an already-loaded module. Or the caller can ask the function to search the
+	 * system's message table resource(s) for the message definition. The function finds the message
+	 * definition in a message table resource based on a message identifier and a language
+	 * identifier. The function copies the formatted message text to an output buffer, processing
+	 * any embedded insert sequences if requested.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx">
+	 * FormatMessage (MSDN)</a> for more details.</i>
+	 * 
+	 * @param dwFlags
+	 *            {@code _In_ DWORD} - The formatting options, and how to interpret the lpSource
+	 *            parameter. The low-order byte of dwFlags specifies how the function handles line
+	 *            breaks in the output buffer. The low-order byte can also specify the maximum width
+	 *            of a formatted output line. This parameter can be one or more of the following
+	 *            values:
+	 *            <ul>
+	 *            <li>{@link #FORMAT_MESSAGE_ALLOCATE_BUFFER}</li> <li>
+	 *            {@link #FORMAT_MESSAGE_ARGUMENT_ARRAY}</li> <li>
+	 *            {@link #FORMAT_MESSAGE_FROM_HMODULE}</li> <li>{@link #FORMAT_MESSAGE_FROM_STRING}
+	 *            </li> <li>{@link #FORMAT_MESSAGE_FROM_SYSTEM}</li> <li>
+	 *            {@link #FORMAT_MESSAGE_IGNORE_INSERTS}</li>
+	 *            </ul>
+	 * @param lpSource
+	 *            {@code _In_opt_ LPCVOID} - The location of the message definition. The type of
+	 *            this parameter depends upon the settings in the dwFlags parameter.
+	 *            <ul>
+	 *            <li>{@link #FORMAT_MESSAGE_FROM_HMODULE}</li> <li>
+	 *            {@link #FORMAT_MESSAGE_FROM_STRING}</li>
+	 *            </ul>
+	 * @param dwMessageId
+	 *            {@code _In_ DWORD} - The message identifier for the requested message. This
+	 *            parameter is ignored if dwFlags includes {@link #FORMAT_MESSAGE_FROM_STRING}.
+	 * @param dwLanguageId
+	 *            {@code _In_ DWORD} - The language identifier for the requested message. This
+	 *            parameter is ignored if dwFlags includes {@link #FORMAT_MESSAGE_FROM_STRING}.
+	 * @param lpBuffer
+	 *            {@code _Out_ LPTSTR} - A pointer to a buffer that receives the null-terminated
+	 *            string that specifies the formatted message. If dwFlags includes
+	 *            {@link #FORMAT_MESSAGE_ALLOCATE_BUFFER}, the function allocates a buffer using the
+	 *            LocalAlloc function, and places the pointer to the buffer at the address specified
+	 *            in lpBuffer. This buffer cannot be larger than 64K bytes.
+	 * @param nSize
+	 *            {@code _In_ DWORD} - If the {@link #FORMAT_MESSAGE_ALLOCATE_BUFFER} flag is not
+	 *            set, this parameter specifies the size of the output buffer, in TCHARs. If
+	 *            {@link #FORMAT_MESSAGE_ALLOCATE_BUFFER} is set, this parameter specifies the
+	 *            minimum number of TCHARs to allocate for an output buffer. The output buffer
+	 *            cannot be larger than 64K bytes.
+	 * @param arguments
+	 *            {@code _In_opt_ va_list*} - An array of values that are used as insert values in
+	 *            the formatted message. A %1 in the format string indicates the first value in the
+	 *            Arguments array; a %2 indicates the second argument; and so on.
+	 * @return {@code DWORD} - If the function succeeds, the return value is the number of TCHARs
+	 *         stored in the output buffer, excluding the terminating null character. If the
+	 *         function fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()}.
+	 */
+	@CheckReturnValue
+	int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments);
 
 	/**
 	 * Returns a pointer to the allocated memory of the given size.

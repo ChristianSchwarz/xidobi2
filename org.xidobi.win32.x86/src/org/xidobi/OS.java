@@ -53,6 +53,7 @@ public class OS implements WinApi {
 
 	/** The singleton instance of this class */
 	public final static WinApi OS = new OS();
+
 	/**
 	 * This class is not intended to be instantiated.
 	 * 
@@ -157,6 +158,16 @@ public class OS implements WinApi {
 
 	/** {@inheritDoc} */
 	public native int GetLastError();
+
+	/** {@inheritDoc} */
+	public int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments) {
+		INT lastError = new INT(0);
+		int result = FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, arguments, lastError);
+		storeLastNativeError(lastError);
+		return result;
+	}
+
+	private native int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments, INT lastError);
 
 	/** {@inheritDoc} */
 	public boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait) {
