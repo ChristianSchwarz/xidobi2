@@ -23,12 +23,14 @@ import static org.xidobi.OS.GENERIC_WRITE;
 import static org.xidobi.OS.INVALID_HANDLE_VALUE;
 import static org.xidobi.OS.OPEN_EXISTING;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.utils.Throwables.newIOException;
 
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
 import org.xidobi.structs.DCB;
+import org.xidobi.utils.Throwables;
 
 /**
  * {@link SerialPortHandle} to open a serial port.
@@ -130,7 +132,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 			case ERROR_FILE_NOT_FOUND:
 				throw new IOException("Port not found (" + portName + ")!");
 		}
-		throw lastError("Unable to open port (" + portName + ")!", err);
+		throw lastError("Unable to open port (" + portName + ")!");
 	}
 
 	/**
@@ -143,20 +145,20 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		final DCB dcb = new DCB();
 
 		if (!win.GetCommState(handle, dcb))
-			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!", win.getPreservedError());
+			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!");
 
 		configurator.configureDCB(dcb, settings);
 
 		if (!win.SetCommState(handle, dcb))
-			throw lastError("Unable to set the control settings (" + portName + ")!", win.getPreservedError());
+			throw lastError("Unable to set the control settings (" + portName + ")!");
 	}
 
 	/**
 	 * Returns a new {@link IOException} containing the given message and the error code that is
 	 * returned by {@link WinApi#GetLastError()}.
 	 */
-	private IOException lastError(String message, int errorCode) {
-		return new IOException(message + " (Error-Code: " + errorCode + ")");
+	private IOException lastError(String message) {
+		return newIOException(win, message, win.getPreservedError());
 	}
 
 	/*

@@ -22,6 +22,8 @@ import static org.xidobi.WinApi.LANG_NEUTRAL;
 import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 
 import org.xidobi.WinApi;
@@ -33,7 +35,7 @@ import org.xidobi.internal.NativeCodeException;
  * @author Tobias Breﬂler
  */
 public final class Throwables {
-	
+
 	/**
 	 * This class can not be instantiated
 	 */
@@ -53,7 +55,6 @@ public final class Throwables {
 	 */
 	@Nonnull
 	public static final NativeCodeException newNativeCodeException(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
-		checkArgumentNotNull(win, "win");
 		checkArgumentNotNull(message, "message");
 
 		String nativeErrorMessage = getNativeErrorMessage(win, errorCode);
@@ -61,10 +62,32 @@ public final class Throwables {
 	}
 
 	/**
+	 * Creates and returns a new {@link IOException} with the given message, the given error-code
+	 * and a message to the error-code, if available.
+	 * 
+	 * @param win
+	 *            the native Win32-API, must not be <code>null</code>
+	 * @param message
+	 *            the message, must not be <code>null</code>
+	 * @param errorCode
+	 *            the native error code
+	 * @return a new {@link IOException}, never <code>null</code>
+	 */
+	@Nonnull
+	public static final IOException newIOException(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
+		checkArgumentNotNull(message, "message");
+
+		String nativeErrorMessage = getNativeErrorMessage(win, errorCode);
+		return new IOException(message + "\r\nError-Code " + errorCode + ": " + nativeErrorMessage);
+	}
+
+	/**
 	 * Returns an error message for the given error code. If no message can be found, then
 	 * "No error message available" is returned.
 	 */
 	private static String getNativeErrorMessage(WinApi win, int errorCode) {
+		checkArgumentNotNull(win, "win");
+
 		byte[] lpMsgBuf = new byte[255];
 		//@formatter:off
 		int result = win.FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 

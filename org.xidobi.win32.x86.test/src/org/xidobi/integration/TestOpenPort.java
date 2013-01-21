@@ -4,21 +4,15 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.InjectMocks;
 import org.xidobi.SerialPort;
-import org.xidobi.SerialPortHandle;
 import org.xidobi.SerialPortHandleImpl;
 import org.xidobi.SerialPortSettings;
 
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.*;
-
 import static org.xidobi.OS.OS;
-import static org.xidobi.SerialPortSettings.bauds;
+import static org.xidobi.SerialPortSettings.from8n1;
 
 /**
  * Test the open port behaviour on COM1
@@ -30,7 +24,7 @@ public class TestOpenPort {
 	/**
 	 * 
 	 */
-	private static final SerialPortSettings PORT_SETTINGS = bauds(9600).create();
+	private static final SerialPortSettings PORT_SETTINGS = from8n1(9600).create();
 
 	/** needed to verifiy exception */
 	@Rule

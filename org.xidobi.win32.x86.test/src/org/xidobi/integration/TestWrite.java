@@ -13,14 +13,14 @@ import org.xidobi.SerialPortHandleImpl;
 import org.xidobi.SerialPortSettings;
 
 import static org.xidobi.OS.OS;
-import static org.xidobi.SerialPortSettings.bauds;
+import static org.xidobi.SerialPortSettings.from8n1;
 
 public class TestWrite {
 
 	/**
 	 * 
 	 */
-	private static final SerialPortSettings PORT_SETTINGS = bauds(9600).create();
+	private static final SerialPortSettings PORT_SETTINGS = from8n1(9600).create();
 
 	/** needed to verifiy exception */
 	@Rule

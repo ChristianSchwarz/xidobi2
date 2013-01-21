@@ -133,7 +133,7 @@ public class TestSerialPortHandleImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to open port (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
+		exception.expectMessage("Unable to open port (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		handle.open(settings);
 	}
@@ -153,7 +153,7 @@ public class TestSerialPortHandleImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
+		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		try {
 			handle.open(settings);
@@ -179,7 +179,7 @@ public class TestSerialPortHandleImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Unable to set the control settings (COM1)! (Error-Code: " + DUMMY_ERROR_CODE + ")");
+		exception.expectMessage("Unable to set the control settings (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		try {
 			handle.open(settings);

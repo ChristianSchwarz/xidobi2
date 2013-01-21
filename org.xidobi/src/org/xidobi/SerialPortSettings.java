@@ -243,7 +243,7 @@ public class SerialPortSettings {
 	 * @return a new builder for the serial port settings, never <code>null</code>
 	 */
 	@Nonnull
-	public static SerialPortSettingsBuilder bauds(@Nonnegative int bauds) {
+	public static SerialPortSettingsBuilder from8n1(@Nonnegative int bauds) {
 		return new SerialPortSettingsBuilder(bauds);
 	}
 
