@@ -26,7 +26,10 @@ import org.xidobi.structs.OVERLAPPED;
 
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 import static org.xidobi.internal.Preconditions.checkArgument;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
@@ -85,10 +88,12 @@ public class SerialPortImpl extends AbstractSerialPort {
 				case WAIT_OBJECT_0:
 					INT lpNumberOfBytesTransferred = new INT();
 					succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+					if (!succeed)
+						throw new NativeCodeException("GetOverlappedResult failed unexpeced! (Error-Code: "+win.getPreservedError()+")");
 					break;
-				case WinApi.WAIT_FAILED:
-				case WinApi.WAIT_ABANDONED:
-				case WinApi.WAIT_TIMEOUT:
+				case WAIT_FAILED:
+				case WAIT_ABANDONED:
+				case WAIT_TIMEOUT:
 					// TODO
 					break;
 			}
