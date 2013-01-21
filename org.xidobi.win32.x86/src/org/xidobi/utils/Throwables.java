@@ -33,7 +33,10 @@ import org.xidobi.internal.NativeCodeException;
  * @author Tobias Breﬂler
  */
 public final class Throwables {
-
+	
+	/**
+	 * This class can not be instantiated
+	 */
 	private Throwables() {}
 
 	/**

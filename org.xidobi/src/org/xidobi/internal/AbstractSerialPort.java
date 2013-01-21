@@ -29,7 +29,6 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
  * when the port is closed.
  * 
  * @author Christian Schwarz
- * 
  */
 public abstract class AbstractSerialPort implements SerialPort {
 

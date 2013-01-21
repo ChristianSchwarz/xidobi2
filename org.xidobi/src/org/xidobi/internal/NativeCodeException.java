@@ -20,7 +20,6 @@ package org.xidobi.internal;
  * after a native method call.
  * 
  * @author Christian Schwarz
- * 
  */
 public class NativeCodeException extends RuntimeException {
 
