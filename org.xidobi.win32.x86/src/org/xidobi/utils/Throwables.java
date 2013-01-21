@@ -34,6 +34,8 @@ import org.xidobi.internal.NativeCodeException;
  */
 public final class Throwables {
 
+	private Throwables() {}
+
 	/**
 	 * Creates and returns a new {@link NativeCodeException} with the given message, the given
 	 * error-code and a message to the error-code, if available.
@@ -52,7 +54,7 @@ public final class Throwables {
 		checkArgumentNotNull(message, "message");
 
 		String nativeErrorMessage = getNativeErrorMessage(win, errorCode);
-		return new NativeCodeException(message + "\r\n(Error-Code " + errorCode + ": " + nativeErrorMessage + ")");
+		return new NativeCodeException(message + "\r\nError-Code " + errorCode + ": " + nativeErrorMessage);
 	}
 
 	/**
