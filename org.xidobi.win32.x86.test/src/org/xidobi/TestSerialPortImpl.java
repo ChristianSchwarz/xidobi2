@@ -90,7 +90,7 @@ public class TestSerialPortImpl {
 	@SuppressWarnings("resource")
 	public void new_nullOs() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Argument >os< must not be null!");
+		exception.expectMessage("Argument >win< must not be null!");
 
 		new SerialPortImpl(portHandle, null, handle);
 	}
