@@ -24,6 +24,7 @@ import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
 import static org.xidobi.internal.Preconditions.checkArgument;
@@ -61,7 +62,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 	protected void writeInternal(byte[] data) throws IOException {
 		int eventHandle = win.CreateEventA(0, true, false, null);
 		if (eventHandle == 0)
-			throw new NativeCodeException("CreateEventA returned unexpected with 0! (Error-Code: " + win.getLastNativeError() + ")");
+			throw new NativeCodeException("CreateEventA returned unexpected with 0! (Error-Code: " + win.getPreservedError() + ")");
 
 		OVERLAPPED overlapped = new OVERLAPPED(win);
 		try {
@@ -69,7 +70,15 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 			INT lpNumberOfBytesWritten = new INT();
 			boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
+			if (succeed)
+				// The write operation finished immediatly
+				return;
 
+			//check if an error occured or the operation is pendig
+			if (win.getPreservedError() != ERROR_IO_PENDING)
+				throw new NativeCodeException("WriteFile failed unexpected! (Error-Code: "+win.getPreservedError()+")");
+			
+			//the operation is pending, lets wait for completion
 			int eventResult = win.WaitForSingleObject(eventHandle, 2000);
 
 			switch (eventResult) {
@@ -80,7 +89,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 				case WinApi.WAIT_FAILED:
 				case WinApi.WAIT_ABANDONED:
 				case WinApi.WAIT_TIMEOUT:
-					//TODO
+					// TODO
 					break;
 			}
 		}

@@ -16,28 +16,31 @@
 package org.xidobi;
 
 import java.io.IOException;
+import java.util.logging.Handler;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import static org.xidobi.OS.INVALID_HANDLE_VALUE;
-import static org.xidobi.OS.WAIT_OBJECT_0;
-
-import static org.hamcrest.Matchers.startsWith;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
 
 /**
  * Tests the class {@link SerialPortImpl}
@@ -123,15 +126,37 @@ public class TestSerialPortImpl {
 	}
 
 	/**
-	 * Simulates are write operation without errors and verifies that all relevant methods of the
-	 * {@link WinApi} are called.
+	 * Simulates are write operation that completes immediatly without the need to wait for
+	 * completion of the pendig operation..
 	 * 
 	 * @throws IOException
 	 */
 	@Test
-	public void write_succeed() throws IOException {
+	public void write_succeedImmediatly() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(true);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true))).thenReturn(true);
+
+		port.write(DATA);
+
+		verify(win).CreateEventA(0, true, false, null);
+		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class));
+		verify(win, never()).WaitForSingleObject(anyInt(), anyInt());
+		verify(win, never()).GetOverlappedResult(anyInt(), any(OVERLAPPED.class), any(INT.class), Mockito.anyBoolean());
+	}
+
+	/**
+	 * Simulates a pending write operation without errors and verifies that all relevant methods of
+	 * the {@link WinApi} are called.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_succeedPending() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		when(win.GetOverlappedResult(eq(handle), any(OVERLAPPED.class), any(INT.class), eq(true))).thenReturn(true);
 
@@ -152,11 +177,26 @@ public class TestSerialPortImpl {
 	@Test
 	public void write_createEventFail() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(0);
-		when(win.getLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage(startsWith("CreateEventA returned unexpected with 0! (Error-Code: " + DUMMY_ERROR_CODE + ")"));
+		exception.expectMessage("CreateEventA returned unexpected with 0! (Error-Code: " + DUMMY_ERROR_CODE + ")");
 
+		port.write(DATA);
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown if the native
+	 * {@link WinApi#WriteFile(int, byte[], int, INT, OVERLAPPED)} fails and is not pending.
+	 */
+	@Test
+	public void write_writeFileFail() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), any(INT.class), any(OVERLAPPED.class))).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WriteFile failed unexpected! (Error-Code: " + DUMMY_ERROR_CODE);
 		port.write(DATA);
 	}
 
