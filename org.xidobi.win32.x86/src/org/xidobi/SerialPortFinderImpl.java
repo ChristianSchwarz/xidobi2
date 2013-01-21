@@ -57,11 +57,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		this.os = checkArgumentNotNull(os, "os");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.xidobi.SerialPortFinder#find()
-	 */
+	/** {@inheritDoc} */
 	public Set<SerialPortInfo> find() {
 		HKEY keyHandle = new HKEY(os);
 		try {

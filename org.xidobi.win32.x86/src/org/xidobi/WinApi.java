@@ -1,8 +1,17 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 18.01.2013 16:33:40
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi;
 
@@ -17,8 +26,9 @@ import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
- * @author Christian Schwarz
+ * Interface for the native Windows API.
  * 
+ * @author Christian Schwarz
  */
 public interface WinApi {
 
@@ -26,11 +36,13 @@ public interface WinApi {
 	int GENERIC_READ = 0x80000000;
 	/** Opens port for output. */
 	int GENERIC_WRITE = 0x40000000;
+
 	/**
 	 * Opens a file or device, only if it exists. If the specified file or device does not exist,
 	 * the function fails and the last-error code is set to ERROR_FILE_NOT_FOUND (2).
 	 */
 	int OPEN_EXISTING = 3;
+
 	/**
 	 * The file or device is being opened or created for asynchronous I/O. When subsequent I/O
 	 * operations are completed on this handle, the event specified in the OVERLAPPED structure will
@@ -40,8 +52,10 @@ public interface WinApi {
 	 * structure.
 	 */
 	int FILE_FLAG_OVERLAPPED = 0x40000000;
+
 	/** Invalid handle value. */
 	int INVALID_HANDLE_VALUE = -1;
+
 	/** No errors. */
 	int ERROR_SUCCESS = 0;
 	/** Access denied or port busy. */
@@ -56,6 +70,7 @@ public interface WinApi {
 	int ERROR_MORE_DATA = 234;
 	/** Overlapped I/O event is not in a signaled state. */
 	int ERROR_IO_INCOMPLETE = 996;
+
 	/**
 	 * The specified object is a mutex object that was not released by the thread that owned the
 	 * mutex object before the owning thread terminated. Ownership of the mutex object is granted to
@@ -69,6 +84,7 @@ public interface WinApi {
 	int WAIT_TIMEOUT = 0x00000102;
 	/** The function has failed. To get extended error information, call GetLastError. */
 	int WAIT_FAILED = 0xFFFFFFFF;
+
 	/** Combines the STANDARD_RIGHTS_WRITE, KEY_SET_VALUE, and KEY_CREATE_SUB_KEY access rights. */
 	int KEY_WRITE = 0x20006;
 	/** Equivalent to {@link #KEY_READ}. */
@@ -78,6 +94,7 @@ public interface WinApi {
 	 * values.
 	 */
 	int KEY_READ = 0x20019;
+
 	/**
 	 * Registry entries subordinate to this key define the physical state of the computer, including
 	 * data about the bus type, system memory, and installed hardware and software. It contains
@@ -320,8 +337,12 @@ public interface WinApi {
 
 	/**
 	 * Returns the last native error code, that occured during a native method call in this thread.
+	 * <p>
+	 * A list of all Windows error codes can be found <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx"
+	 * >here</a>.
 	 * 
-	 * @return the error code
+	 * @return the last error code
 	 */
 	int getLastNativeError();
 
@@ -352,6 +373,7 @@ public interface WinApi {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
+	@CheckReturnValue
 	boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
 
 	/**
@@ -391,6 +413,7 @@ public interface WinApi {
 	 *         call {@link #GetLastError()}.</li>
 	 *         </ul>
 	 */
+	@CheckReturnValue
 	int WaitForSingleObject(int hHandle, int dwMilliseconds);
 
 	/**
@@ -428,6 +451,7 @@ public interface WinApi {
 	 *         If the function fails, the return value is a nonzero error code defined in
 	 *         Winerror.h.
 	 */
+	@CheckReturnValue
 	int RegOpenKeyExA(int hKey, String lpSubKey, int ulOptions, int samDesired, HKEY phkResult);
 
 	/**
@@ -443,6 +467,7 @@ public interface WinApi {
 	 *         If the function fails, the return value is a nonzero error code defined in
 	 *         Winerror.h.
 	 */
+	@CheckReturnValue
 	int RegCloseKey(HKEY hKey);
 
 	/**
@@ -503,10 +528,21 @@ public interface WinApi {
 	 *         buffer is too small to receive the value, the function returns
 	 *         {@link #ERROR_MORE_DATA}.
 	 */
+	@CheckReturnValue
 	int RegEnumValueA(HKEY hKey, int dwIndex, byte[] lpValueName, INT lpcchValueName, int lpReserved, INT lpType, byte[] lpData, INT lpcbData);
 
+	/**
+	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
+	 * per-thread basis. Multiple threads do not overwrite each other's last-error code.
+	 * <p>
+	 * A list of all Windows error codes can be found <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx"
+	 * >here</a>.
+	 * 
+	 * @return {@code DWORD} - The return value is the calling thread's last-error code.
+	 */
 	int GetLastError();
-	
+
 	/**
 	 * Returns a pointer to the allocated memory of the given size.
 	 * 
@@ -538,5 +574,4 @@ public interface WinApi {
 	 */
 	int sizeOf_HKEY();
 
-	
 }
