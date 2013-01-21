@@ -34,6 +34,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -145,7 +146,7 @@ public class TestSerialPortImpl {
 		verify(win).CreateEventA(0, true, false, null);
 		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
 		verify(win, never()).WaitForSingleObject(anyInt(), anyInt());
-		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), Mockito.anyBoolean());
+		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(),anyBoolean());
 	}
 
 	/**
@@ -160,7 +161,7 @@ public class TestSerialPortImpl {
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).thenReturn(true);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).then(setWrittenBytesAndReturn(DATA.length,true));
 
 		port.write(DATA);
 
@@ -182,7 +183,7 @@ public class TestSerialPortImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("CreateEventA returned unexpected with 0! (Error-Code: " + DUMMY_ERROR_CODE + ")");
+		exception.expectMessage("CreateEventA returned unexpected with 0!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		port.write(DATA);
 	}
@@ -198,7 +199,7 @@ public class TestSerialPortImpl {
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WriteFile failed unexpected! (Error-Code: " + DUMMY_ERROR_CODE);
+		exception.expectMessage("WriteFile failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
 		port.write(DATA);
 	}
 
@@ -210,17 +211,19 @@ public class TestSerialPortImpl {
 	public void write_getOverlappedResultFail() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING,//WriteFile
+		                                         DUMMY_ERROR_CODE//GetOverlappedResult
+		                                         );
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 
 		// This is the important part of the test, in the case the NativeCodeException must be
 		// thrown
 		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject failed unexpected! (Error-Code: " + DUMMY_ERROR_CODE);
-
+		exception.expectMessage("GetOverlappedResult failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
+		
 		port.write(DATA);
 	}
 
@@ -237,8 +240,13 @@ public class TestSerialPortImpl {
 
 		// This is the important part of the test, in the case the NativeCodeException must be
 		// thrown
-		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).then(returnFalseAndSetWrittenBytes(DATA.length - 1));
+		doAnswer(setWrittenBytesAndReturn(DATA.length - 1,true)).when(win).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
 
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: "+(DATA.length-1)+" expected: "+DATA.length);
+
+
+		port.write(DATA);
 	}
 
 	/**
@@ -263,18 +271,22 @@ public class TestSerialPortImpl {
 	}
 
 	/**
-	 * This answer returns <code>false</code> and set the written bytes.
+	 * This answer returns <code>returnValue</code> and set the written bytes.
 	 */
-	private Answer<Boolean> returnFalseAndSetWrittenBytes(final int bytesWritten) {
+	private Answer<Boolean> setWrittenBytesAndReturn(final int bytesWritten,final boolean returnValue) {
 		return new Answer<Boolean>() {
 
 			@Override
 			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				INT writtenBytes = (INT) invocation.getArguments()[3];
+				if (!"GetOverlappedResult".equals(invocation.getMethod().getName()))
+					throw new IllegalStateException("This Answer can only be applied to method: GetOverlappedResult(..)");
+				INT writtenBytes = (INT) invocation.getArguments()[2];
 				writtenBytes.value = bytesWritten;
-				return false;
+				return returnValue;
 			}
 		};
 	}
+	
+	
 
 }

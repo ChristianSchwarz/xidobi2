@@ -16,17 +16,17 @@
 package org.xidobi;
 
 import static java.lang.Integer.MAX_VALUE;
-import static org.xidobi.OS.ERROR_SUCCESS;
-import static org.xidobi.OS.HKEY_LOCAL_MACHINE;
-import static org.xidobi.OS.KEY_READ;
+import static org.xidobi.WinApi.ERROR_SUCCESS;
+import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
+import static org.xidobi.WinApi.KEY_READ;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 
@@ -80,7 +80,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private void openRegistry(HKEY phkResult) {
 		int status = win.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
 		if (status != ERROR_SUCCESS)
-			throw new NativeCodeException("Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<! (Error-Code: " + status + ")");
+			throw newNativeCodeException(win, "Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<!", status);
 	}
 
 	/**
