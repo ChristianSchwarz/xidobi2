@@ -336,15 +336,33 @@ public interface WinApi {
 	boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
 
 	/**
-	 * Returns the last native error code, that occured during a native method call in this thread.
+	 * Returns the last error code, that occured during a native method call by the current thread.
+	 * This method is a workaround for an issue with {@link #GetLastError()} were JNI or the VM
+	 * clears the error code, see (<a href="https://code.google.com/p/xidobi/issues/detail?id=3"
+	 * >Bug #3</a>).
 	 * <p>
 	 * A list of all Windows error codes can be found <a
 	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx"
 	 * >here</a>.
+	 * <p>
+	 * <b>IMPORTANT:</b> This method returns the result of {@link #GetLastError()} that were
+	 * "preserved" in the native code, by calls to one of the following methods:
+	 * <ul>
+	 * <li> {@link #CloseHandle(int)}
+	 * <li> {@link #CreateEventA(int, boolean, boolean, String)}
+	 * <li> {@link #CreateFile(String, int, int, int, int, int, int)}
+	 * <li> {@link #GetCommState(int, DCB)}
+	 * <li> {@link #GetOverlappedResult(int, OVERLAPPED, INT, boolean)}
+	 * <li> {@link #ReadFile(int, byte[], int, INT, OVERLAPPED)}
+	 * <li> {@link #SetCommState(int, DCB)}
+	 * <li> {@link #WaitForSingleObject(int, int)}
+	 * <li> {@link #WriteFile(int, byte[], int, INT, OVERLAPPED)}
+	 * </ul>
 	 * 
+	 * @see #GetLastError()
 	 * @return the last error code
 	 */
-	int getLastNativeError();
+	int getPreservedError();
 
 	/**
 	 * Retrieves the results of an overlapped operation on the specified file, named pipe, or
