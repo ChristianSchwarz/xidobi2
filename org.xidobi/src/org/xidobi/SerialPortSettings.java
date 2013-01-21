@@ -24,6 +24,7 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Specifies the control settings for a serial port.
@@ -32,7 +33,7 @@ import javax.annotation.Nonnull;
  * <p>
  * <code>
  * SerialPortSettings settings;</br>
- * settings = SerialPortSettings.bauds(9600).dataBits(DataBits.DataBits_6).create();
+ * settings = SerialPortSettings.from9600_8n1().dataBits(DataBits.DataBits_6).create();
  * </code>
  * <p>
  * This creates control settings with the following values:
@@ -52,7 +53,9 @@ import javax.annotation.Nonnull;
  * @see StopBits
  * @see Parity
  * @see FlowControl
+ * 
  */
+@Immutable
 public class SerialPortSettings {
 
 	/**
@@ -63,7 +66,7 @@ public class SerialPortSettings {
 	public static final class SerialPortSettingsBuilder {
 
 		/** the baud rate */
-		private final int bauds;
+		private int bauds = 9600;
 		/** the data bits, default is {@link DataBits#DataBits_8} */
 		private DataBits dataBits = DataBits_8;
 		/** the stop bits, default is {@link StopBits#StopBits_1} */
@@ -80,14 +83,24 @@ public class SerialPortSettings {
 		/**
 		 * Creates a builder for serial port settings.
 		 * 
-		 * @param bauds
-		 *            the baud rate, must be greater than 0
+		 * 
 		 */
-		private SerialPortSettingsBuilder(@Nonnegative int bauds) {
-			checkArgument(bauds > 0, "bauds", "Baud rate must be greater than 0!");
-			this.bauds = bauds;
+		private SerialPortSettingsBuilder() {
 		}
 
+		/**
+		 * Sets the baud rate
+		 * @param bauds
+		 *            the baud rate, must be greater than 0
+		 * @return {@code this}
+		 */
+		@Nonnull
+		public SerialPortSettingsBuilder bauds(@Nonnegative int bauds){
+			checkArgument(bauds > 0, "bauds", "Baud rate must be greater than 0!");
+			this.bauds = bauds;
+			return this;
+
+		}
 		/**
 		 * Sets the data bits to the given value.
 		 * <p>
@@ -96,7 +109,7 @@ public class SerialPortSettings {
 		 * 
 		 * @param dataBits
 		 *            the data bits, must not be <code>null</code>
-		 * @return the current builder for the serial port settings, never <code>null</code>
+		 * @return {@code this}
 		 */
 		@Nonnull
 		public SerialPortSettingsBuilder dataBits(@Nonnull DataBits dataBits) {
@@ -112,7 +125,7 @@ public class SerialPortSettings {
 		 * 
 		 * @param stopBits
 		 *            the stop bits, must not be <code>null</code>
-		 * @return the current builder for the serial port settings, never <code>null</code>
+		 * @return {@code this}
 		 */
 		@Nonnull
 		public SerialPortSettingsBuilder stopBits(@Nonnull StopBits stopBits) {
@@ -125,7 +138,7 @@ public class SerialPortSettings {
 		 * 
 		 * @param parity
 		 *            the parity, must not be <code>null</code>
-		 * @return the current builder for the serial port settings, never <code>null</code>
+		 * @return {@code this}
 		 */
 		@Nonnull
 		public SerialPortSettingsBuilder parity(@Nonnull Parity parity) {
@@ -138,7 +151,7 @@ public class SerialPortSettings {
 		 * 
 		 * @param flowControl
 		 *            the flow control, must not be <code>null</code>
-		 * @return the current builder for the serial port settings, never <code>null</code>
+		 * @return {@code this}
 		 */
 		@Nonnull
 		public SerialPortSettingsBuilder flowControl(@Nonnull FlowControl flowControl) {
@@ -155,7 +168,7 @@ public class SerialPortSettings {
 		 *            <li> <code>true</code> turns RTS on
 		 *            <li> <code>false</code> turns RTS off
 		 *            </ul>
-		 * @return the current builder for the serial port settings, never <code>null</code>
+		 * @return {@code this}
 		 */
 		@Nonnull
 		public SerialPortSettingsBuilder rts(boolean rts) {
@@ -172,7 +185,7 @@ public class SerialPortSettings {
 		 *            <li> <code>true</code> turns DTR on
 		 *            <li> <code>false</code> turns DTR off
 		 *            </ul>
-		 * @return the current builder for the serial port settings, never <code>null</code>
+		 * @return {@code this}
 		 */
 		@Nonnull
 		public SerialPortSettingsBuilder dtr(boolean dtr) {
@@ -181,7 +194,7 @@ public class SerialPortSettings {
 		}
 
 		/**
-		 * Creates and returns the serial port settings.
+		 * Creates and returns the serial port settings, specified by the current builder.
 		 * 
 		 * @return the serial port settings, never <code>null</code>
 		 */
@@ -230,6 +243,7 @@ public class SerialPortSettings {
 	 * Creates a builder for the serial port settings with the given baud rate. The initial values
 	 * of the port settings are (8/N/1):
 	 * <ul>
+	 * <li>bauds = 9600</li>
 	 * <li>dataBits = 8</li>
 	 * <li>parity = none</li>
 	 * <li>stopBits = 1</li>
@@ -238,13 +252,12 @@ public class SerialPortSettings {
 	 * <li>DTR = true (default)</li>
 	 * </ul>
 	 * 
-	 * @param bauds
-	 *            the baud rate, must be greater than 0
+
 	 * @return a new builder for the serial port settings, never <code>null</code>
 	 */
 	@Nonnull
-	public static SerialPortSettingsBuilder from8n1(@Nonnegative int bauds) {
-		return new SerialPortSettingsBuilder(bauds);
+	public static SerialPortSettingsBuilder from9600_8n1() {
+		return new SerialPortSettingsBuilder();
 	}
 
 	/**
