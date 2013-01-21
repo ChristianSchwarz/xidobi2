@@ -87,7 +87,7 @@ public class TestSerialPortImpl {
 	 * <code>null</code>.
 	 */
 	@Test
-	@SuppressWarnings("resource")
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_nullOs() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >win< must not be null!");
@@ -100,7 +100,7 @@ public class TestSerialPortImpl {
 	 * {@link SerialPortHandle} is <code>null</code>.
 	 */
 	@Test
-	@SuppressWarnings("resource")
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_nullPortHandle() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");
@@ -114,7 +114,7 @@ public class TestSerialPortImpl {
 	 * 
 	 */
 	@Test
-	@SuppressWarnings("resource")
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_negativeHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >handle< is invalid! Invalid handle value");
@@ -155,13 +155,11 @@ public class TestSerialPortImpl {
 		when(win.getLastNativeError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage(startsWith("CreateEventA returned unexpected with 0! Error Code: "+DUMMY_ERROR_CODE));
+		exception.expectMessage(startsWith("CreateEventA returned unexpected with 0! (Error-Code: " + DUMMY_ERROR_CODE + ")"));
 
 		port.write(DATA);
 	}
 
-	
-	
 	/**
 	 * Verifies that a call to {@link SerialPort#close()} frees the native resources.
 	 */

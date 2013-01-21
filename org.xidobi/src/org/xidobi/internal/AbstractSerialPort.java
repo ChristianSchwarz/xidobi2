@@ -104,6 +104,7 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 */
 	protected abstract void closeInternal() throws IOException;
 
+	/** {@inheritDoc} */
 	public final void write(@Nonnull byte[] data) throws IOException {
 		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
@@ -111,12 +112,14 @@ public abstract class AbstractSerialPort implements SerialPort {
 		writeInternal(data);
 	}
 
+	/** {@inheritDoc} */
 	@Nonnull
 	public final byte[] read() throws IOException {
 		ensurePortIsOpen();
 		return readInternal();
 	}
 
+	/** {@inheritDoc} */
 	public final void close() throws IOException {
 		if (isClosed)
 			return;
@@ -125,14 +128,7 @@ public abstract class AbstractSerialPort implements SerialPort {
 		isClosed = true;
 	}
 
-	/**
-	 * Returns <code>true</code> if the serial port is closed.
-	 * 
-	 * @return <ul>
-	 *         <li> <code>true</code>, if the serial port is closed
-	 *         <li> <code>false</code>, if the serial port is open
-	 *         </ul>
-	 */
+	/** {@inheritDoc} */
 	public final boolean isClosed() {
 		return isClosed;
 	}

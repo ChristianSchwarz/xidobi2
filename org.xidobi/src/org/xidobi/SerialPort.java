@@ -26,7 +26,6 @@ import javax.annotation.Nonnull;
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
- * 
  */
 public interface SerialPort extends Closeable {
 
@@ -52,4 +51,14 @@ public interface SerialPort extends Closeable {
 	@Nonnull
 	byte[] read() throws IOException;
 
+	/**
+	 * Returns <code>true</code> if the serial port is closed.
+	 * 
+	 * @return <ul>
+	 *         <li> <code>true</code> if the serial port is closed
+	 *         <li> <code>false</code> if the serial port is open
+	 *         </ul>
+	 */
+	boolean isClosed();
+	
 }
