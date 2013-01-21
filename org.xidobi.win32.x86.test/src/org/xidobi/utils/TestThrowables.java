@@ -113,7 +113,7 @@ public class TestThrowables {
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////
 
-	/** */
+	/** Matcher for {@link NativeCodeException} starting with the message. */
 	private TypeSafeMatcher<NativeCodeException> nativeCodeException(final String message) {
 		return new CustomTypeSafeMatcher<NativeCodeException>("NativeCodeException with message >" + message + "<") {
 			@Override
@@ -123,7 +123,7 @@ public class TestThrowables {
 		};
 	}
 
-	/** */
+	/** {@link Answer} for FormatMessageA() that returns a native error message. */
 	private Answer<Integer> withMessage(final String nativeErrorMessage) {
 		return new Answer<Integer>() {
 			@Override
