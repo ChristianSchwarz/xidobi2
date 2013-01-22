@@ -387,13 +387,34 @@ public class TestSerialPortImpl {
 	public void read_succeedImmediatly() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		doAnswer(setReadBytesAndReturn(DATA, true)).
+		doAnswer(readBytesAndReturn(DATA, true)).
 			when(win).ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED());;
 		// @formatter:on
 
 		byte[] result = port.read();
 
 		assertThat(result, is(DATA));
+		verifyResourcesDisposed();
+	}
+
+	/**
+	 * Simulates a pending read operation without errors and verifies that the result is the read
+	 * byte array.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_succeedPending() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).then(setReadBytesAndReturn(DATA.length, true));
+
+		byte[] result = port.read();
+
+		// TODO Verify the content of the result
+		assertThat(result.length, is(DATA.length));
 		verifyResourcesDisposed();
 	}
 
@@ -559,8 +580,22 @@ public class TestSerialPortImpl {
 		};
 	}
 
+	/** This answer returns <code>returnValue</code> and set the written bytes. */
+	private Answer<Boolean> setReadBytesAndReturn(final int bytesRead, final boolean returnValue) {
+		return new Answer<Boolean>() {
+			@Override
+			public Boolean answer(InvocationOnMock invocation) throws Throwable {
+				if (!"GetOverlappedResult".equals(invocation.getMethod().getName()))
+					throw new IllegalStateException("This Answer can only be applied to method: GetOverlappedResult(..)");
+				INT writtenBytes = (INT) invocation.getArguments()[2];
+				writtenBytes.value = bytesRead;
+				return returnValue;
+			}
+		};
+	}
+
 	/** This answer returns <code>returnValue</code> and set the read bytes. */
-	private Answer<Boolean> setReadBytesAndReturn(final byte[] data, final boolean returnValue) {
+	private Answer<Boolean> readBytesAndReturn(final byte[] data, final boolean returnValue) {
 		return new Answer<Boolean>() {
 			@Override
 			public Boolean answer(InvocationOnMock invocation) throws Throwable {

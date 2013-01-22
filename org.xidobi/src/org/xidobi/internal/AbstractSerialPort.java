@@ -15,14 +15,14 @@
  */
 package org.xidobi.internal;
 
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandle;
-
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 /**
  * A basic implementation of the {@link SerialPort} to provide synchonisation and proper behaviour

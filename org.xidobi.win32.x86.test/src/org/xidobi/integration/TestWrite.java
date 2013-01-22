@@ -15,6 +15,9 @@
  */
 package org.xidobi.integration;
 
+import static org.xidobi.OS.OS;
+import static org.xidobi.SerialPortSettings.from9600_8N1;
+
 import java.io.IOException;
 
 import org.junit.After;
@@ -27,9 +30,6 @@ import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandleImpl;
 import org.xidobi.SerialPortSettings;
 
-import static org.xidobi.OS.OS;
-import static org.xidobi.SerialPortSettings.from9600_8n1;
-
 /**
  * 
  * 
@@ -40,7 +40,7 @@ public class TestWrite {
 	/**
 	 * 
 	 */
-	private static final SerialPortSettings PORT_SETTINGS = from9600_8n1().create();
+	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().create();
 
 	/** needed to verifiy exception */
 	@Rule

@@ -33,16 +33,16 @@ import javax.annotation.concurrent.Immutable;
  * <p>
  * <code>
  * SerialPortSettings settings;</br>
- * settings = SerialPortSettings.from9600_8n1().dataBits(DataBits.DataBits_6).create();
+ * settings = SerialPortSettings.from9600_8N1().dataBits(DataBits_6).create();
  * </code>
  * <p>
  * This creates control settings with the following values:
  * <ul>
- * <li>bauds = 96000 (as configured)</li>
- * <li>dataBits = 6 (as configured)</li>
- * <li>stopBits = 1 (default)</li>
+ * <li>bauds = 9600 (as configured)</li>
+ * <li>data bits = 6 (as configured)</li>
+ * <li>stop bits = 1 (default)</li>
  * <li>parity = none (default)</li>
- * <li>flowControl = none (default)</li>
+ * <li>flow control = none (default)</li>
  * <li>RTS = true (default)</li>
  * <li>DTR = true (default)</li>
  * </ul>
@@ -80,8 +80,7 @@ public class SerialPortSettings {
 		private boolean dtr = true;
 
 		/** Creates a builder for serial port settings. */
-		private SerialPortSettingsBuilder() {
-		}
+		private SerialPortSettingsBuilder() {}
 
 		/**
 		 * Sets the baud rate.
@@ -91,12 +90,13 @@ public class SerialPortSettings {
 		 * @return {@code this}
 		 */
 		@Nonnull
-		public SerialPortSettingsBuilder bauds(@Nonnegative int bauds){
+		public SerialPortSettingsBuilder bauds(@Nonnegative int bauds) {
 			checkArgument(bauds > 0, "bauds", "Baud rate must be greater than 0!");
 			this.bauds = bauds;
 			return this;
 
 		}
+
 		/**
 		 * Sets the data bits to the given value.
 		 * <p>
@@ -237,13 +237,13 @@ public class SerialPortSettings {
 
 	/**
 	 * Creates a builder for the serial port settings with the given baud rate. The initial values
-	 * of the port settings are (9600/8/N/1):
+	 * of the port settings are 8/N/1 with 9600 bauds:
 	 * <ul>
 	 * <li>bauds = 9600</li>
-	 * <li>dataBits = 8</li>
+	 * <li>data bits = 8</li>
 	 * <li>parity = none</li>
-	 * <li>stopBits = 1</li>
-	 * <li>flowControl = none</li>
+	 * <li>stop bits = 1</li>
+	 * <li>flow control = none</li>
 	 * <li>RTS = true (default)</li>
 	 * <li>DTR = true (default)</li>
 	 * </ul>
@@ -251,7 +251,7 @@ public class SerialPortSettings {
 	 * @return a new builder for the serial port settings, never <code>null</code>
 	 */
 	@Nonnull
-	public static SerialPortSettingsBuilder from9600_8n1() {
+	public static SerialPortSettingsBuilder from9600_8N1() {
 		return new SerialPortSettingsBuilder();
 	}
 

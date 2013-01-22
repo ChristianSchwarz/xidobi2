@@ -15,11 +15,11 @@
  */
 package org.xidobi.integration;
 
-import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.OS.GENERIC_READ;
-import static org.xidobi.OS.GENERIC_WRITE;
-import static org.xidobi.OS.OPEN_EXISTING;
-import static org.xidobi.OS.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.OPEN_EXISTING;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
 
 import org.xidobi.OS;
 import org.xidobi.WinApi;

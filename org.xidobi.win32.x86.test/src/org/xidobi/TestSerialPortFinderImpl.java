@@ -29,10 +29,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.OS.ERROR_NO_MORE_ITEMS;
-import static org.xidobi.OS.ERROR_SUCCESS;
-import static org.xidobi.OS.HKEY_LOCAL_MACHINE;
-import static org.xidobi.OS.KEY_READ;
+import static org.xidobi.WinApi.ERROR_NO_MORE_ITEMS;
+import static org.xidobi.WinApi.ERROR_SUCCESS;
+import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
+import static org.xidobi.WinApi.KEY_READ;
 
 import java.util.Set;
 

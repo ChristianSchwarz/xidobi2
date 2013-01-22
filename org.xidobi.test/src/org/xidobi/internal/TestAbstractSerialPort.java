@@ -6,6 +6,15 @@
  */
 package org.xidobi.internal;
 
+import static junit.framework.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
@@ -17,17 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandle;
-
-import static junit.framework.Assert.fail;
-
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.hamcrest.Matchers.is;
 
 /**
  * Tests the class {@link AbstractSerialPort}
