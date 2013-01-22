@@ -53,7 +53,6 @@ import javax.annotation.concurrent.Immutable;
  * @see StopBits
  * @see Parity
  * @see FlowControl
- * 
  */
 @Immutable
 public class SerialPortSettings {
@@ -80,16 +79,13 @@ public class SerialPortSettings {
 		/** the DRT (Data Terminal Ready) */
 		private boolean dtr = true;
 
-		/**
-		 * Creates a builder for serial port settings.
-		 * 
-		 * 
-		 */
+		/** Creates a builder for serial port settings. */
 		private SerialPortSettingsBuilder() {
 		}
 
 		/**
-		 * Sets the baud rate
+		 * Sets the baud rate.
+		 * 
 		 * @param bauds
 		 *            the baud rate, must be greater than 0
 		 * @return {@code this}
@@ -241,7 +237,7 @@ public class SerialPortSettings {
 
 	/**
 	 * Creates a builder for the serial port settings with the given baud rate. The initial values
-	 * of the port settings are (8/N/1):
+	 * of the port settings are (9600/8/N/1):
 	 * <ul>
 	 * <li>bauds = 9600</li>
 	 * <li>dataBits = 8</li>
@@ -252,7 +248,6 @@ public class SerialPortSettings {
 	 * <li>DTR = true (default)</li>
 	 * </ul>
 	 * 
-
 	 * @return a new builder for the serial port settings, never <code>null</code>
 	 */
 	@Nonnull
