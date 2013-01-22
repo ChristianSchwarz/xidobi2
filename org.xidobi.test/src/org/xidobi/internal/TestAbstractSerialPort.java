@@ -6,16 +6,11 @@
  */
 package org.xidobi.internal;
 
-import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
 
@@ -24,8 +19,28 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandle;
+
+import static java.lang.Math.max;
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.sleep;
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static junit.framework.Assert.fail;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link AbstractSerialPort}
@@ -47,6 +62,9 @@ public class TestAbstractSerialPort {
 	@Mock
 	private SerialPortHandle portHandle;
 
+	@Mock
+	private AbstractPart abstr;
+
 	/** needed to verify exceptions */
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -54,7 +72,7 @@ public class TestAbstractSerialPort {
 	@Before
 	public void setUp() {
 		initMocks(this);
-		port = mock(AbstractSerialPort.class);
+		port = new _AbstractSerialPort(portHandle);
 	}
 
 	/**
@@ -80,7 +98,7 @@ public class TestAbstractSerialPort {
 	@Test
 	public void close() throws IOException {
 		port.close();
-		verify(port).closeInternal();
+		verify(abstr).closeInternal();
 	}
 
 	/**
@@ -91,7 +109,7 @@ public class TestAbstractSerialPort {
 	public void close_2x() throws Exception {
 		port.close();
 		port.close();
-		verify(port).closeInternal();
+		verify(abstr).closeInternal();
 	}
 
 	/**
@@ -103,7 +121,7 @@ public class TestAbstractSerialPort {
 	public void close_IOException() throws Exception {
 		exception.expect(is(IO_EXCEPTION));
 
-		doThrow(IO_EXCEPTION).when(port).closeInternal();
+		doThrow(IO_EXCEPTION).when(abstr).closeInternal();
 		port.close();
 	}
 
@@ -114,7 +132,7 @@ public class TestAbstractSerialPort {
 	 */
 	@Test
 	public void close_2xIOException() throws Exception {
-		doThrow(IO_EXCEPTION).when(port).closeInternal();
+		doThrow(IO_EXCEPTION).when(abstr).closeInternal();
 		try {
 			port.close();
 			fail("Expected an IOException");
@@ -126,7 +144,7 @@ public class TestAbstractSerialPort {
 		}
 		catch (IOException ignored) {}
 
-		verify(port, times(2)).closeInternal();
+		verify(abstr, times(2)).closeInternal();
 
 	}
 
@@ -136,7 +154,7 @@ public class TestAbstractSerialPort {
 	@Test
 	public void write_portIsClosed() throws Exception {
 		when(portHandle.getPortName()).thenReturn("COM1");
-		port = new _AbstractSerialPort(portHandle);
+
 		port.close();
 
 		exception.expect(IOException.class);
@@ -164,7 +182,27 @@ public class TestAbstractSerialPort {
 	@Test
 	public void write_delegate() throws Exception {
 		port.write(BYTES);
-		verify(port).writeInternal(BYTES);
+		verify(abstr).writeInternal(BYTES);
+	}
+
+	/**
+	 * Verifies that {@link AbstractSerialPort#writeInternal(byte[])} will not be call concurrent.
+	 */
+	@Test
+	public void write_concurrentCalls() throws Exception {
+		final int THREADS = 10;
+
+		AtomicInteger maxNumberOfParallelThreads = new AtomicInteger();
+		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(abstr).writeInternal(BYTES);
+		ExecutorService ex = newFixedThreadPool(THREADS);
+		for (int i = 0; i < THREADS; i++)
+			ex.execute(writeBytes());
+
+		ex.shutdown();
+		assertThat(ex.awaitTermination(2, SECONDS), is(true));
+
+		assertThat("Only one Thread at a time is allowed to call writeInternal(byte[])", maxNumberOfParallelThreads.get(), is(1));
+
 	}
 
 	/**
@@ -192,25 +230,112 @@ public class TestAbstractSerialPort {
 	public void read_delegate() throws IOException {
 		port.read();
 
-		verify(port).readInternal();
+		verify(abstr).readInternal();
+	}
+	
+	/**
+	 * Verifies that {@link AbstractSerialPort#readInternal(byte[])} will not be call concurrent.
+	 */
+	@Test
+	public void read_concurrentCalls() throws Exception {
+		final int THREADS = 10;
+
+		AtomicInteger maxNumberOfParallelThreads = new AtomicInteger();
+		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(abstr).readInternal();
+		ExecutorService ex = newFixedThreadPool(THREADS);
+		for (int i = 0; i < THREADS; i++)
+			ex.execute(readBytes());
+
+		ex.shutdown();
+		assertThat(ex.awaitTermination(2, SECONDS), is(true));
+
+		assertThat("Only one Thread at a time is allowed to call readInternal()", maxNumberOfParallelThreads.get(), is(1));
+
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
-	public static final class _AbstractSerialPort extends AbstractSerialPort {
+	public final class _AbstractSerialPort extends AbstractSerialPort {
 		public _AbstractSerialPort(SerialPortHandle portHandle) {
 			super(portHandle);
 		}
 
 		@Override
-		protected void closeInternal() throws IOException {}
+		protected void closeInternal() throws IOException {
+			abstr.closeInternal();
+		}
 
 		@Override
 		@Nonnull
 		protected byte[] readInternal() throws IOException {
-			return null;
+			return abstr.readInternal();
 		}
 
 		@Override
-		protected void writeInternal(@Nonnull byte[] data) throws IOException {}
+		protected void writeInternal(@Nonnull byte[] data) throws IOException {
+			abstr.writeInternal(data);
+		}
+	}
+
+	public interface AbstractPart {
+
+		void closeInternal() throws IOException;
+
+		byte[] readInternal() throws IOException;
+
+		void writeInternal(@Nonnull byte[] data) throws IOException;
+	}
+
+	/**
+	 * Captures the max. number of Threads calling the method in parallel, during the given
+	 * {@code captureDurationMs} Timespan.
+	 * 
+	 * @param maxConcurrentInvocations used to set the the max. number of parallel invocations, the initial value must be 0
+	 * @param captureDurationMs milliseconds to capture 
+	 * @return <code>null</code>
+	 */
+	private Answer<Void> captureConcurrentThreads(final AtomicInteger maxConcurrentInvocations, final long captureDurationMs) {
+		return new Answer<Void>() {
+			private final Set<Thread> currentThreads = new HashSet<>();
+
+			@Override
+			public Void answer(InvocationOnMock invocation) throws Throwable {
+				currentThreads.add(currentThread());
+				int concurrentThreads = currentThreads.size();
+				int lastMax = maxConcurrentInvocations.get();
+				maxConcurrentInvocations.set(max(lastMax, concurrentThreads));
+				sleep(captureDurationMs);
+				currentThreads.remove(currentThread());
+				return null;
+			}
+		};
+	}
+
+	private Runnable writeBytes() {
+		return new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					port.write(BYTES);
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+	}
+	private Runnable readBytes() {
+		return new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					port.read();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		};
 	}
 }

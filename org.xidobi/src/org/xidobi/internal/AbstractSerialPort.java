@@ -18,6 +18,8 @@ package org.xidobi.internal;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nonnull;
 
@@ -45,7 +47,16 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 * </ul>
 	 */
 	private volatile boolean isClosed;
-
+	
+	/**
+	 * Ensures that {@link #writeInternal(byte[])} can only called by one Thread at a time.
+	 */
+	private final Lock writeLock= new ReentrantLock();;
+	/**
+	 * Ensures that {@link #readInternal()} can only called by one Thread at a time.
+	 */
+	private final Lock readLock= new ReentrantLock();;
+	
 	/**
 	 * Creates a new instance with the {@link SerialPortHandle}.
 	 * 
@@ -55,8 +66,9 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 *                if {@code portHandle==null}
 	 */
 	protected AbstractSerialPort(@Nonnull SerialPortHandle portHandle) {
-		this.portHandle = portHandle;
 		checkArgumentNotNull(portHandle, "portHandle");
+		this.portHandle = portHandle;
+		
 	}
 
 	/**
@@ -107,15 +119,24 @@ public abstract class AbstractSerialPort implements SerialPort {
 	public final void write(@Nonnull byte[] data) throws IOException {
 		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
-
-		writeInternal(data);
+		writeLock.lock();
+		try{
+			writeInternal(data);
+		}finally{
+			writeLock.unlock();
+		}
 	}
 
 	/** {@inheritDoc} */
 	@Nonnull
 	public final byte[] read() throws IOException {
 		ensurePortIsOpen();
-		return readInternal();
+		readLock.lock();
+		try{
+			return readInternal();
+		}finally{
+			readLock.unlock();
+		}
 	}
 
 	/** {@inheritDoc} */
