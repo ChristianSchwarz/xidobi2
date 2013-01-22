@@ -558,12 +558,34 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void close() throws Exception {
+		when(win.CloseHandle(handle)).thenReturn(true);
+
 		port.close();
+
 		verify(win).CloseHandle(handle);
 		verifyNoMoreInteractions(win);
 	}
 
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>CloseHandle()</code> fails.
+	 */
+	@Test
+	public void close_fails() throws Exception {
+		when(win.CloseHandle(handle)).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("CloseHandle failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
+
+		port.close();
+
+		verify(win).CloseHandle(handle);
+		verify(win).getPreservedError();
+		verifyNoMoreInteractions(win);
+	}
+
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/** matches any {@link OVERLAPPED} */
 	private OVERLAPPED anyOVERLAPPED() {
 		return any(OVERLAPPED.class);
@@ -628,7 +650,7 @@ public class TestSerialPortImpl {
 			destination[i] = source[i];
 	}
 
-	/** */
+	/** Verifies that all allocated resources are freed. */
 	private void verifyResourcesDisposed() {
 		verify(win).CloseHandle(eventHandle);
 		verify(win).free(overlapped);
