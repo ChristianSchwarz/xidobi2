@@ -21,6 +21,13 @@ import org.xidobi.WinApi;
 
 /**
  * Java representation of the C-struct OVERLAPPED.
+ * <p>
+ * The OVERLAPPED struct contains information used in asynchronous (or overlapped) input and output
+ * (I/O).
+ * <p>
+ * <i>Please see <a
+ * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms684342(v=vs.85).aspx">OVERLAPPED
+ * structure (MSDN)</a> for detailed information!</i>
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
@@ -36,20 +43,49 @@ public class OVERLAPPED {
 	/** <code>true</code> if the instance is disposed */
 	private boolean isDisposed = false;
 
-	// ULONG_PTR
+	// /**
+	// * {@code ULONG_PTR} - The error code for the I/O request. When the request is issued, the
+	// * system sets this member to STATUS_PENDING to indicate that the operation has not yet
+	// started.
+	// * When the request is completed, the system sets this member to the error code for the
+	// * completed request. The Internal member was originally reserved for system use and its
+	// * behavior may change.
+	// */
 	// public long Internal;
-	// ULONG_PTR
+	//
+	// /**
+	// * {@code ULONG_PTR} - The number of bytes transferred for the I/O request. The system sets
+	// this
+	// * member if the request is completed without errors. The InternalHigh member was originally
+	// * reserved for system use and its behavior may change.
+	// */
 	// public long InternalHigh;
 
 	// __GNUC_EXTENSION union {
 	// __GNUC_EXTENSION struct {
-	// DWORD
+
+	// /**
+	// * {@code DWORD} - The low-order portion of the file position at which to start the I/O
+	// request,
+	// * as specified by the user. This member is nonzero only when performing I/O requests on a
+	// * seeking device that supports the concept of an offset (also referred to as a file pointer
+	// * mechanism), such as a file. Otherwise, this member must be zero.
+	// */
 	// public int Offset;
-	// DWORD
+	//
+	// /**
+	// * {@code DWORD} - The high-order portion of the file position at which to start the I/O
+	// * request, as specified by the user. This member is nonzero only when performing I/O requests
+	// * on a seeking device that supports the concept of an offset (also referred to as a file
+	// * pointer mechanism), such as a file. Otherwise, this member must be zero.
+	// */
 	// public int OffsetHigh;
+
 	// };
-	// PVOID
+
+	// /** {@code PVOID} - Reserved for system use; do not use after initialization to zero. */
 	// public int Pointer;
+
 	// };
 
 	/** {@code HANDLE} - Event handle */

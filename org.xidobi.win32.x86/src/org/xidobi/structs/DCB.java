@@ -17,6 +17,10 @@ package org.xidobi.structs;
 
 /**
  * Defines the control setting for a serial communications device.
+ * <p>
+ * <i>Please see <a
+ * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363214(v=vs.85).aspx">DCB
+ * structure (MSDN)</a> for detailed information!</i>
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
