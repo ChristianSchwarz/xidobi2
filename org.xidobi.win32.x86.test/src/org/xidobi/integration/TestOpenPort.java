@@ -34,11 +34,13 @@ public class TestOpenPort {
 	private SerialPort connection;
 
 	@Before
+	@SuppressWarnings("javadoc")
 	public void setUp() {
 		portHandle = new SerialPortHandleImpl(OS, "COM1");
 	}
 
 	@After
+	@SuppressWarnings("javadoc")
 	public void tearDown() throws IOException {
 		if (connection != null)
 			connection.close();

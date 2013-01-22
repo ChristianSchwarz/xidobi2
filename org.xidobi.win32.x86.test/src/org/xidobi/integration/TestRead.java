@@ -31,7 +31,6 @@ import org.xidobi.structs.OVERLAPPED;
  * 
  * 
  * @author Tobias Breﬂler
- * 
  */
 @Deprecated
 public class TestRead {

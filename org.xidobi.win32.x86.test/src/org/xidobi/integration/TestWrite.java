@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013 Gemtec GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.xidobi.integration;
 
 import java.io.IOException;
@@ -15,6 +30,11 @@ import org.xidobi.SerialPortSettings;
 import static org.xidobi.OS.OS;
 import static org.xidobi.SerialPortSettings.from9600_8n1;
 
+/**
+ * 
+ * 
+ * @author Christian Schwarz
+ */
 public class TestWrite {
 
 	/**
@@ -33,11 +53,13 @@ public class TestWrite {
 	private SerialPort connection;
 
 	@Before
+	@SuppressWarnings("javadoc")
 	public void setUp() {
 		portHandle = new SerialPortHandleImpl(OS, "COM1");
 	}
 
 	@After
+	@SuppressWarnings("javadoc")
 	public void tearDown() throws IOException {
 		if (connection != null)
 			connection.close();
@@ -62,10 +84,10 @@ public class TestWrite {
 	@Test
 	public void openNoneExistingPort() throws Exception {
 		portHandle = new SerialPortHandleImpl(OS, "XXX");
-		
+
 		exception.expect(IOException.class);
 		exception.expectMessage("Port not found");
-		
+
 		connection = portHandle.open(PORT_SETTINGS);
 	}
 

@@ -18,7 +18,6 @@ package org.xidobi.utils;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
 import static org.xidobi.WinApi.LANG_NEUTRAL;
-import static org.xidobi.WinApi.SUBLANG_DEFAULT;
 import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 

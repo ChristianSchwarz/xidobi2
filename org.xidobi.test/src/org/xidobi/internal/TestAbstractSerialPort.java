@@ -64,7 +64,7 @@ public class TestAbstractSerialPort {
 	 * to the constructor.
 	 */
 	@Test
-	@SuppressWarnings("resource")
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_nullPortPortHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");

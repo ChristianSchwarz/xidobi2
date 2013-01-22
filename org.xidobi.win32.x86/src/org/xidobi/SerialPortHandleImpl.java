@@ -15,13 +15,13 @@
  */
 package org.xidobi;
 
-import static org.xidobi.OS.ERROR_ACCESS_DENIED;
-import static org.xidobi.OS.ERROR_FILE_NOT_FOUND;
-import static org.xidobi.OS.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.OS.GENERIC_READ;
-import static org.xidobi.OS.GENERIC_WRITE;
-import static org.xidobi.OS.INVALID_HANDLE_VALUE;
-import static org.xidobi.OS.OPEN_EXISTING;
+import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
+import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
+import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newIOException;
 
@@ -30,7 +30,6 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.xidobi.structs.DCB;
-import org.xidobi.utils.Throwables;
 
 /**
  * {@link SerialPortHandle} to open a serial port.

@@ -163,11 +163,11 @@ public interface WinApi {
 	short SUBLANG_ENGLISH_US = 0x01;
 	/** United Kingdom (GB) */
 	short SUBLANG_ENGLISH_UK = 0x02;
-
+	/** System default locale language */
 	short LANG_SYSTEM_DEFAULT = 0x02;
+	/** System default sublanguage */
 	short SUBLANG_SYS_DEFAULT = 0x02;
-	
-	
+
 	/**
 	 * The CreateFile function can create a handle to a communications resource, such as the serial
 	 * port COM1. For communications resources, the dwCreationDisposition parameter must be

@@ -64,7 +64,7 @@ public class TestFindSerialPorts {
 	 * Verifies that {@link SerialPortFinderImpl#find()} never returns a null value and never throws
 	 * an exception.
 	 */
-	@Test(timeout = 10000)
+	@Test
 	public void findSerialPortsLoop() {
 		SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
 		Set<SerialPortInfo> result = finder.find();
