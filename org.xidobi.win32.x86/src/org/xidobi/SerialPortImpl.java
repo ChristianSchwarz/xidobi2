@@ -80,7 +80,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			overlapped = new OVERLAPPED(win);
 			overlapped.hEvent = eventHandle;
 
-			INT lpNumberOfBytesWritten = new INT();
+			INT lpNumberOfBytesWritten = new INT(0);
 			boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
 			if (succeed)
 				// The write operation finished immediatly
@@ -96,7 +96,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 			switch (eventResult) {
 				case WAIT_OBJECT_0:
-					INT lpNumberOfBytesTransferred = new INT();
+					INT lpNumberOfBytesTransferred = new INT(0);
 					succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
 					lastError = win.getPreservedError();
 					if (!succeed)
@@ -155,15 +155,15 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 			switch (eventResult) {
 				case WAIT_OBJECT_0:
-					succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesRead, true);
+					INT numberOfBytesRead = new INT(0);
+					succeed = win.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
 					lastError = win.getPreservedError();
 					if (!succeed)
 						throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
-					break;
+					return copyOfRange(lpBuffer, 0, numberOfBytesRead.value);
 				case WAIT_TIMEOUT:
 					// TODO 
-					
-					break;
+					return null;
 				case WAIT_FAILED:
 					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", win.getPreservedError());
 				case WAIT_ABANDONED:
@@ -171,8 +171,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 				default:
 					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: 0x" + toHexString(eventResult), win.getPreservedError());
 			}
-
-			return copyOfRange(lpBuffer, 0, lpNumberOfBytesRead.value);
 		}
 		finally {
 			try {
