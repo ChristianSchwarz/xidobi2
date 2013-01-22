@@ -65,10 +65,10 @@ public class SerialPortImpl extends AbstractSerialPort {
 							int handle) {
 		super(portHandle);
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
-		this.handle = handle;
 		this.win = checkArgumentNotNull(win, "win");
+		this.handle = handle;
 	}
-
+	
 	@Override
 	protected void writeInternal(byte[] data) throws IOException {
 		final int eventHandle = win.CreateEventA(0, true, false, null);
@@ -116,6 +116,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			}
 		}
 		finally {
+			// We must dispose all allocated resources:
 			try {
 				overlapped.dispose();
 			}
@@ -162,8 +163,10 @@ public class SerialPortImpl extends AbstractSerialPort {
 						throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
 					return copyOfRange(lpBuffer, 0, numberOfBytesRead.value);
 				case WAIT_TIMEOUT:
-					// TODO 
-					return null;
+					
+					// TODO What do we want do, when a timeout occurs?
+					
+					throw new UnsupportedOperationException("Not yet implemented!");
 				case WAIT_FAILED:
 					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", win.getPreservedError());
 				case WAIT_ABANDONED:
@@ -173,6 +176,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			}
 		}
 		finally {
+			// We must dispose all allocated resources:
 			try {
 				overlapped.dispose();
 			}
@@ -184,7 +188,9 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 	@Override
 	protected void closeInternal() throws IOException {
-		win.CloseHandle(handle);
+		boolean success = win.CloseHandle(handle);
+		if (!success) 
+			throw newNativeCodeException(win, "CloseHandle failed unexpected!", win.getPreservedError());
 	}
 
 	@Override
