@@ -170,7 +170,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 					return copyOfRange(lpBuffer, 0, numberOfBytesRead.value);
 				case WAIT_TIMEOUT:
 
-					// TODO What do we want do, when a timeout occurs?
+					// TODO What do we want to do, when a timeout occurs?
 
 					throw new UnsupportedOperationException("Not yet implemented!");
 				case WAIT_FAILED:

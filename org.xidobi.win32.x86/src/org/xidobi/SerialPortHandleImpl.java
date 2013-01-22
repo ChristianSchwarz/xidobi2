@@ -121,10 +121,8 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
 
-		win.getPreservedError();
 		int err = win.getPreservedError();
 
-		System.err.println("invalid handle(" + handle + ")->" + err);
 		switch (err) {
 			case ERROR_ACCESS_DENIED:
 				throw new IOException("Port in use (" + portName + ")!");

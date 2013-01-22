@@ -35,7 +35,7 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Tobias Breﬂler
  */
 @Ignore
-public class TestRead {
+public class TestRead2 {
 
 	@Test
 	public void test() throws InterruptedException {

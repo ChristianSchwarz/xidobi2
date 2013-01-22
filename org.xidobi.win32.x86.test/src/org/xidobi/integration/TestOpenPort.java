@@ -22,7 +22,7 @@ import org.xidobi.SerialPortSettings;
 public class TestOpenPort {
 
 	/** */
-	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().bauds(9600).create();
+	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().create();
 
 	/** needed to verifiy exception */
 	@Rule

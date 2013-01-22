@@ -42,7 +42,7 @@ import org.xidobi.SerialPortInfo;
  * 
  * @author Tobias Breﬂler
  */
-public class TestFindSerialPorts {
+public class TestSerialPortFinderImpl {
 
 	private String availableSerialPort;
 

@@ -15,6 +15,8 @@
  */
 package org.xidobi.integration;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.xidobi.OS.OS;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 
@@ -28,18 +30,18 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandleImpl;
+import org.xidobi.SerialPortImpl;
 import org.xidobi.SerialPortSettings;
 
 /**
- * 
+ * Integration test for classes {@link SerialPortImpl} and {@link SerialPortHandleImpl}.
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
  */
-public class TestWrite {
+public class TestReadWrite {
 
-	/**
-	 * 
-	 */
+	/** Settings for the serial port */
 	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().create();
 
 	/** needed to verifiy exception */
@@ -69,6 +71,15 @@ public class TestWrite {
 	public void openWriteClose() throws IOException {
 		connection = portHandle.open(PORT_SETTINGS);
 		connection.write("Hallo".getBytes());
+	}
+
+	@Test
+	public void openReadClose() throws IOException {
+		connection = portHandle.open(PORT_SETTINGS);
+
+		byte[] result = connection.read();
+
+		assertThat(result, is(notNullValue()));
 	}
 
 	@Test
