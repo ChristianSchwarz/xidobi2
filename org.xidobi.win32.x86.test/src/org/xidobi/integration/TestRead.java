@@ -21,6 +21,8 @@ import static org.xidobi.WinApi.GENERIC_WRITE;
 import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
 
+import org.junit.Ignore;
+import org.junit.Test;
 import org.xidobi.OS;
 import org.xidobi.WinApi;
 import org.xidobi.structs.DCB;
@@ -32,20 +34,12 @@ import org.xidobi.structs.OVERLAPPED;
  * 
  * @author Tobias Breßler
  */
-@Deprecated
+@Ignore
 public class TestRead {
 
-	/**
-	 * 
-	 */
+	@Test
+	public void test() throws InterruptedException {
 
-	/**
-	 * @param args
-	 * @throws InterruptedException
-	 */
-	public static void main(String[] args) throws InterruptedException {
-
-		
 		boolean succeed;
 		WinApi os = OS.OS;
 		int handle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
@@ -86,22 +80,22 @@ public class TestRead {
 				succeed = os.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
 				System.err.println("Error?" + os.getPreservedError());
 				println("GetOverlappedResult->" + succeed + " read:" + numberOfBytesRead);
-				
+
 				System.out.println("Read: " + new String(LP_BUFFER));
-				
+
 			} else {
 				System.out.println("Wait error: " + waitForSingleObject);
 			}
-			
+
 			overlapped.dispose();
 
 			println("close eventHandle=" + eventHandle + " ->" + os.CloseHandle(eventHandle));
-			
+
 			Thread.sleep(100);
 
 		}
 
-//		println("close handle=" + handle + " ->" + CloseHandle(handle));
+		// println("close handle=" + handle + " ->" + CloseHandle(handle));
 	}
 
 	/**

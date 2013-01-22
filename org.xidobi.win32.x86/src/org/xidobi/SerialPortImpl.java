@@ -40,6 +40,9 @@ import org.xidobi.structs.OVERLAPPED;
  * {@link SerialPort} implementation for Windows (32bit) x86 Platform.
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
+ * 
+ * @see SerialPort
  */
 public class SerialPortImpl extends AbstractSerialPort {
 
@@ -54,21 +57,24 @@ public class SerialPortImpl extends AbstractSerialPort {
 	private int readTimeout = 2000;
 
 	/**
+	 * Creates a new serial port.
+	 * 
 	 * @param portHandle
+	 *            a serial port handle, must not be <code>null</code>
 	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param handle
-	 *            the handle of the serial port
+	 *            the native handle of the serial port
 	 */
-	public SerialPortImpl(	SerialPortHandle portHandle,
-							WinApi win,
+	public SerialPortImpl(	@Nonnull SerialPortHandle portHandle,
+							@Nonnull WinApi win,
 							int handle) {
 		super(portHandle);
-		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.win = checkArgumentNotNull(win, "win");
+		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
 	}
-	
+
 	@Override
 	protected void writeInternal(byte[] data) throws IOException {
 		final int eventHandle = win.CreateEventA(0, true, false, null);
@@ -116,7 +122,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			}
 		}
 		finally {
-			// We must dispose all allocated resources:
+			// We have to dispose all previously allocated resources:
 			try {
 				overlapped.dispose();
 			}
@@ -163,9 +169,9 @@ public class SerialPortImpl extends AbstractSerialPort {
 						throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
 					return copyOfRange(lpBuffer, 0, numberOfBytesRead.value);
 				case WAIT_TIMEOUT:
-					
+
 					// TODO What do we want do, when a timeout occurs?
-					
+
 					throw new UnsupportedOperationException("Not yet implemented!");
 				case WAIT_FAILED:
 					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", win.getPreservedError());
@@ -176,7 +182,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			}
 		}
 		finally {
-			// We must dispose all allocated resources:
+			// We have to dispose all previously allocated resources:
 			try {
 				overlapped.dispose();
 			}
@@ -189,7 +195,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 	@Override
 	protected void closeInternal() throws IOException {
 		boolean success = win.CloseHandle(handle);
-		if (!success) 
+		if (!success)
 			throw newNativeCodeException(win, "CloseHandle failed unexpected!", win.getPreservedError());
 	}
 
