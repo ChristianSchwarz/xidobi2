@@ -450,6 +450,80 @@ public class TestSerialPortImpl {
 	}
 
 	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when
+	 * {@link WinApi#WaitForSingleObject(int, int)} returned {@code WAIT_FAILED}. Only
+	 * {@code WAIT_OBJECT_0} and {@code WAIT_TIMEOUT} is expected.
+	 */
+	@Test
+	public void read_UnexpectedWaitResult_WAIT_FAILED() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
+		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!\r\nError-Code " + DUMMY_ERROR_CODE);
+
+		try {
+			port.read();
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when
+	 * {@link WinApi#WaitForSingleObject(int, int)} returned {@code WAIT_ABANDONED}. Only
+	 * {@code WAIT_OBJECT_0} and {@code WAIT_TIMEOUT} is expected.
+	 */
+	@Test
+	public void read_UnexpectedWaitResult_WAIT_ABANDONED() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+
+		try {
+			port.read();
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown when
+	 * {@link WinApi#WaitForSingleObject(int, int)} returns an undocumented value. Only
+	 * {@code WAIT_OBJECT_0} and {@code WAIT_TIMEOUT} is expected.
+	 */
+	@Test
+	public void read_UnexpectedWaitResult() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: 0x3039");
+
+		try {
+			port.read();
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
 	 * Verifies that a call to {@link SerialPort#close()} frees the native resources.
 	 */
 	@Test
