@@ -15,6 +15,25 @@
  */
 package org.xidobi;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
+
 import java.io.IOException;
 
 import org.junit.Before;
@@ -28,42 +47,17 @@ import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.OVERLAPPED;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.xidobi.WinApi.ERROR_IO_PENDING;
-import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
-import static org.xidobi.WinApi.WAIT_ABANDONED;
-import static org.xidobi.WinApi.WAIT_FAILED;
-import static org.xidobi.WinApi.WAIT_OBJECT_0;
-import static org.xidobi.WinApi.WAIT_TIMEOUT;
-
 /**
  * Tests the class {@link SerialPortImpl}
  * 
  * @author Christian Schwarz
- * 
+ * @author Tobias Breﬂler
  */
 @SuppressWarnings("javadoc")
 public class TestSerialPortImpl {
 
-	/**
-	 * 
-	 */
 	private static final int DUMMY_ERROR_CODE = 12345;
 
-	/**
-	 * 
-	 */
 	private static final int eventHandle = 1;
 
 	/** a valid HANDLE value used in tests */
@@ -154,7 +148,7 @@ public class TestSerialPortImpl {
 		verify(win, never()).WaitForSingleObject(anyInt(), anyInt());
 		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
 
-		verifyWriteResourcesDisposed();
+		verifyResourcesDisposed();
 	}
 
 	/**
@@ -178,7 +172,7 @@ public class TestSerialPortImpl {
 		verify(win).WaitForSingleObject(eventHandle, 2000);
 		verify(win).GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true));
 
-		verifyWriteResourcesDisposed();
+		verifyResourcesDisposed();
 	}
 
 	/**
@@ -194,7 +188,7 @@ public class TestSerialPortImpl {
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("CreateEventA returned unexpected with 0!\r\nError-Code " + DUMMY_ERROR_CODE);
-		
+
 		port.write(DATA);
 	}
 
@@ -210,31 +204,30 @@ public class TestSerialPortImpl {
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WriteFile failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
+
 		try {
 			port.write(DATA);
 		}
 		finally {
-			verifyWriteResourcesDisposed();
+			verifyResourcesDisposed();
 		}
-
 	}
 
 	/**
-	 * Verifies that an {@link NativeCodeException} is throw when in an pending operation a call to
-	 * {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails.
+	 * Verifies that an {@link NativeCodeException} is thrown, when in an pending operation a call
+	 * to {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails.
 	 */
 	@Test
 	public void write_getOverlappedResultFail() throws Exception {
+		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING,// WriteFile
-		DUMMY_ERROR_CODE// GetOverlappedResult
-		);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
+		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-
-		// This is the important part of the test, in the case the NativeCodeException must be
-		// thrown
+		// This is the important part of the test, in the case the NativeCodeException must be thrown:
 		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
@@ -243,9 +236,8 @@ public class TestSerialPortImpl {
 			port.write(DATA);
 		}
 		finally {
-			verifyWriteResourcesDisposed();
+			verifyResourcesDisposed();
 		}
-
 	}
 
 	/**
@@ -270,9 +262,8 @@ public class TestSerialPortImpl {
 			port.write(DATA);
 		}
 		finally {
-			verifyWriteResourcesDisposed();
+			verifyResourcesDisposed();
 		}
-
 	}
 
 	/**
@@ -296,9 +287,8 @@ public class TestSerialPortImpl {
 			port.write(DATA);
 		}
 		finally {
-			verifyWriteResourcesDisposed();
+			verifyResourcesDisposed();
 		}
-
 	}
 
 	/**
@@ -320,9 +310,8 @@ public class TestSerialPortImpl {
 			port.write(DATA);
 		}
 		finally {
-			verifyWriteResourcesDisposed();
+			verifyResourcesDisposed();
 		}
-
 	}
 
 	/**
@@ -344,9 +333,8 @@ public class TestSerialPortImpl {
 			port.write(DATA);
 		}
 		finally {
-			verifyWriteResourcesDisposed();
+			verifyResourcesDisposed();
 		}
-
 	}
 
 	/**
@@ -368,9 +356,97 @@ public class TestSerialPortImpl {
 			port.write(DATA);
 		}
 		finally {
-			verifyWriteResourcesDisposed();
+			verifyResourcesDisposed();
 		}
+	}
 
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when <code>CreateEventA()</code>
+	 * returns 0.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void read_createEventFails() throws Exception {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(0);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("CreateEventA returned unexpected with 0!\r\nError-Code " + DUMMY_ERROR_CODE);
+
+		port.read();
+	}
+
+	/**
+	 * Verifies that a byte array with the read data is returned, when <code>ReadFile()</code>
+	 * returns immediatly.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void read_succeedImmediatly() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		doAnswer(setReadBytesAndReturn(DATA, true)).
+			when(win).ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED());;
+		// @formatter:on
+
+		byte[] result = port.read();
+
+		assertThat(result, is(DATA));
+		verifyResourcesDisposed();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile()</code> returns
+	 * false and the last error code is not <code>ERROR_IO_PENDING</code>.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void read_readFileFailsUnexpected() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("ReadFile failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
+
+		try {
+			port.read();
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when in an pending operation a call
+	 * to {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails.
+	 */
+	@Test
+	public void read_getOverlappedResultFail() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
+		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		// This is the important part of the test, in the case the NativeCodeException must be thrown:
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("GetOverlappedResult failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
+
+		try {
+			port.read();
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
 	}
 
 	/**
@@ -394,9 +470,7 @@ public class TestSerialPortImpl {
 		return any(INT.class);
 	}
 
-	/**
-	 * This answer returns <code>returnValue</code> and set the written bytes.
-	 */
+	/** This answer returns <code>returnValue</code> and set the written bytes. */
 	private Answer<Boolean> setWrittenBytesAndReturn(final int bytesWritten, final boolean returnValue) {
 		return new Answer<Boolean>() {
 
@@ -411,10 +485,33 @@ public class TestSerialPortImpl {
 		};
 	}
 
+	/** This answer returns <code>returnValue</code> and set the read bytes. */
+	private Answer<Boolean> setReadBytesAndReturn(final byte[] data, final boolean returnValue) {
+		return new Answer<Boolean>() {
+			@Override
+			public Boolean answer(InvocationOnMock invocation) throws Throwable {
+				if (!"ReadFile".equals(invocation.getMethod().getName()))
+					throw new IllegalStateException("This Answer can only be applied to method: ReadFile(..)");
+				byte[] readBytes = (byte[]) invocation.getArguments()[1];
+				copyToBytes(data, readBytes);
+				INT countReadBytes = (INT) invocation.getArguments()[3];
+				countReadBytes.value = data.length;
+				return returnValue;
+			}
+		};
+	}
+
 	/**
-	 * 
+	 * Copies the bytes from the given {@link String} to the byte[] and sets the size on the
+	 * pointer.
 	 */
-	private void verifyWriteResourcesDisposed() {
+	private void copyToBytes(byte[] source, byte[] destination) {
+		for (int i = 0; i < source.length; i++)
+			destination[i] = source[i];
+	}
+
+	/** */
+	private void verifyResourcesDisposed() {
 		verify(win).CloseHandle(eventHandle);
 		verify(win).free(overlapped);
 	}
