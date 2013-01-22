@@ -15,6 +15,8 @@
  */
 package org.xidobi.integration;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.xidobi.OS.OS;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 
@@ -28,18 +30,18 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandleImpl;
+import org.xidobi.SerialPortImpl;
 import org.xidobi.SerialPortSettings;
 
 /**
- * 
+ * Integration test for classes {@link SerialPortImpl} and {@link SerialPortHandleImpl}.
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
  */
-public class TestWrite {
+public class TestReadWrite {
 
-	/**
-	 * 
-	 */
+	/** Settings for the serial port */
 	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().create();
 
 	/** needed to verifiy exception */
@@ -60,17 +62,43 @@ public class TestWrite {
 
 	@After
 	@SuppressWarnings("javadoc")
-	public void tearDown() throws IOException {
+	public void tearDown() throws Exception {
 		if (connection != null)
 			connection.close();
+		Thread.sleep(200);
 	}
 
+	/**
+	 * Verifies open, write and close of a serial port.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void openWriteClose() throws IOException {
+	public void openWriteClose() throws Exception {
 		connection = portHandle.open(PORT_SETTINGS);
 		connection.write("Hallo".getBytes());
 	}
 
+	/**
+	 * Verifies open, read and close of a serial port.
+	 * 
+	 * @throws Exception
+	 */
+	@Test(timeout = 3000)
+	public void openReadClose() throws Exception {
+		connection = portHandle.open(PORT_SETTINGS);
+
+		byte[] result = connection.read();
+
+		assertThat(result, is(notNullValue()));
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when the same serial port is opened two
+	 * times.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void open2x() throws Exception {
 		connection = portHandle.open(PORT_SETTINGS);
@@ -81,6 +109,11 @@ public class TestWrite {
 		portHandle.open(PORT_SETTINGS);
 	}
 
+	/**
+	 * Verifies that an {@link IOException} is thrown, when an non-existing serial port is opened.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void openNoneExistingPort() throws Exception {
 		portHandle = new SerialPortHandleImpl(OS, "XXX");
