@@ -46,4 +46,14 @@ public class TestINT {
 		assertThat(result.value, is(10));
 	}
 
+	/**
+	 * Verifies that {@link INT#toString()} returns a String that represents the value that was
+	 * passed to the constructor.
+	 */
+	@Test
+	public void test_toString() {
+		INT obj = new INT(42);
+		assertThat(obj.toString(), is("42"));
+	}
+
 }
