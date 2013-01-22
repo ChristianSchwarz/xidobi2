@@ -15,10 +15,10 @@
  */
 package org.xidobi.utils;
 
-import static org.xidobi.WinApi.FORMAT_MESSAGE_ALLOCATE_BUFFER;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
 import static org.xidobi.WinApi.LANG_NEUTRAL;
+import static org.xidobi.WinApi.SUBLANG_DEFAULT;
 import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
@@ -90,11 +90,11 @@ public final class Throwables {
 
 		byte[] lpMsgBuf = new byte[255];
 		//@formatter:off
-		int result = win.FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
-		                           	null, errorCode, win.MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), lpMsgBuf, 255, null);
+		int result = win.FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+		                                null, errorCode, win.MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), lpMsgBuf, 255, null);
 		//@formatter:on
 		if (result == 0)
-			return "No error message available";
+			return "No error description available.";
 		return new String(lpMsgBuf, 0, result);
 	}
 }

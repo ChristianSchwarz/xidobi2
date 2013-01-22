@@ -23,7 +23,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.WinApi.FORMAT_MESSAGE_ALLOCATE_BUFFER;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
 
@@ -44,7 +43,7 @@ import org.xidobi.internal.NativeCodeException;
  */
 public class TestThrowables {
 
-	private static int FORMAT = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+	private static int FORMAT = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
 	private static String MESSAGE = "An error message!";
 	private static int ERROR_CODE = 1;
 
@@ -89,7 +88,7 @@ public class TestThrowables {
 
 		NativeCodeException result = Throwables.newNativeCodeException(win, MESSAGE, ERROR_CODE);
 
-		assertThat(result, is(nativeCodeException("An error message!\r\nError-Code 1: No error message available")));
+		assertThat(result, is(nativeCodeException("An error message!\r\nError-Code 1: No error description available")));
 	}
 
 	/**

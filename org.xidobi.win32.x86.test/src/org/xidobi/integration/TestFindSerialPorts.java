@@ -29,7 +29,6 @@ import java.util.Set;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xidobi.SerialPortFinderImpl;
 import org.xidobi.SerialPortInfo;
@@ -43,11 +42,7 @@ import org.xidobi.SerialPortInfo;
  * 
  * @author Tobias Breﬂler
  */
-@Ignore
 public class TestFindSerialPorts {
-
-	/** Maximum count of repetitions. */
-	private static final int MAX_REPETITIONS = 100_000;
 
 	private String availableSerialPort;
 
@@ -71,12 +66,10 @@ public class TestFindSerialPorts {
 	 */
 	@Test(timeout = 10000)
 	public void findSerialPortsLoop() {
-		for (int repeat = 0; repeat < MAX_REPETITIONS; repeat++) {
-			SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
-			Set<SerialPortInfo> result = finder.find();
-			assertThat(result, is(notNullValue()));
-			assertThat(result, hasItem(portInfoWith(availableSerialPort)));
-		}
+		SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
+		Set<SerialPortInfo> result = finder.find();
+		assertThat(result, is(notNullValue()));
+		assertThat(result, hasItem(portInfoWith(availableSerialPort)));
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////

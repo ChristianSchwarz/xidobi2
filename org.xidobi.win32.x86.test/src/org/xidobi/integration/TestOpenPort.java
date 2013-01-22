@@ -16,15 +16,13 @@ import static org.xidobi.SerialPortSettings.from9600_8n1;
 
 /**
  * Test the open port behaviour on COM1
+ * 
  * @author Christian Schwarz
- *
  */
 public class TestOpenPort {
 
-	/**
-	 * 
-	 */
-	private static final SerialPortSettings PORT_SETTINGS = from9600_8n1().create();
+	/** */
+	private static final SerialPortSettings PORT_SETTINGS = from9600_8n1().bauds(9600).create();
 
 	/** needed to verifiy exception */
 	@Rule
