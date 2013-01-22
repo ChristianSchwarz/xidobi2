@@ -17,6 +17,7 @@ package org.xidobi;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -468,6 +469,14 @@ public class TestSerialPortImpl {
 		finally {
 			verifyResourcesDisposed();
 		}
+	}
+
+	/**
+	 * Verifies that ??? when a pending result of the native write operation times out.
+	 */
+	@Test
+	public void read_timeout() {
+		fail("Not yet implemented!");
 	}
 
 	/**
