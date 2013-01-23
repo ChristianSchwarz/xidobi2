@@ -130,6 +130,22 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_RegEnumValueA
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    SetCommMask
+ * Signature: (IILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_SetCommMask
+  (JNIEnv *, jobject, jint, jint, jobject);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    WaitCommEvent
+ * Signature: (ILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WaitCommEvent
+  (JNIEnv *, jobject, jint, jobject, jobject, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */

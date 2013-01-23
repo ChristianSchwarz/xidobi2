@@ -446,6 +446,39 @@ Java_org_xidobi_OS_RegEnumValueA(JNIEnv *env, jobject this,
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    SetCommMask
+ * Signature: (IILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_SetCommMask(JNIEnv *env, jobject this,
+		jint hFile,
+		jint dwEvtMask,
+		jobject lastError) {
+
+	// TODO Implement call to SetCommMask
+
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    WaitCommEvent
+ * Signature: (ILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_WaitCommEvent(JNIEnv *env, jobject this,
+		jint hFile,
+		jobject lpEvtMask,
+		jobject lpOverlapped,
+		jobject lastError) {
+
+	// TODO Implement call to WaitCommEvent
+
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */
