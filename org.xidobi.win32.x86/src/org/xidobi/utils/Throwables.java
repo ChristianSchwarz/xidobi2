@@ -29,7 +29,7 @@ import org.xidobi.WinApi;
 import org.xidobi.internal.NativeCodeException;
 
 /**
- * Some utilities for the handling of exceptions.
+ * Some utilities for the creation of exceptions.
  * 
  * @author Tobias Breﬂler
  */
@@ -54,10 +54,7 @@ public final class Throwables {
 	 */
 	@Nonnull
 	public static final NativeCodeException newNativeCodeException(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
-		checkArgumentNotNull(message, "message");
-
-		String nativeErrorMessage = getNativeErrorMessage(win, errorCode);
-		return new NativeCodeException(message + "\r\nError-Code " + errorCode + ": " + nativeErrorMessage);
+		return new NativeCodeException(getErrorMessage(win, message, errorCode));
 	}
 
 	/**
@@ -74,10 +71,26 @@ public final class Throwables {
 	 */
 	@Nonnull
 	public static final IOException newIOException(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
-		checkArgumentNotNull(message, "message");
+		return new IOException(getErrorMessage(win, message, errorCode));
+	}
 
+	/**
+	 * Returns an error message with the given message, the given error-code and a message to the
+	 * error-code, if available.
+	 * 
+	 * @param win
+	 *            the native Win32-API, must not be <code>null</code>
+	 * @param message
+	 *            the message, must not be <code>null</code>
+	 * @param errorCode
+	 *            the native error code
+	 * @return error message, never <code>null</code>
+	 */
+	@Nonnull
+	public static final String getErrorMessage(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
+		checkArgumentNotNull(message, "message");
 		String nativeErrorMessage = getNativeErrorMessage(win, errorCode);
-		return new IOException(message + "\r\nError-Code " + errorCode + ": " + nativeErrorMessage);
+		return message + "\r\nError-Code " + errorCode + ": " + nativeErrorMessage;
 	}
 
 	/**
@@ -94,8 +107,8 @@ public final class Throwables {
 		//@formatter:on
 		if (result == 0)
 			return "No error description available.";
-		
-		// cut bytes to the length (result) without trailing linebreaks 
+
+		// cut bytes to the length (result) without trailing linebreaks
 		// and convert to a String:
 		return new String(lpMsgBuf, 0, result - 2);
 	}

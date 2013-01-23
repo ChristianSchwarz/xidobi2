@@ -26,6 +26,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
 
+import java.io.IOException;
+
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
@@ -107,6 +109,108 @@ public class TestThrowables {
 		assertThat(result, is(nativeCodeException("An error message!\r\nError-Code 1: This is a native error")));
 	}
 
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
+	 * passed.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void newIOException_withNullWinApi() {
+		Throwables.newIOException(null, MESSAGE, ERROR_CODE);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
+	 * passed.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void newIOException_withNullMessage() {
+		Throwables.newIOException(win, null, ERROR_CODE);
+	}
+
+	/**
+	 * Verifies that {@link Throwables#newNativeCodeException(WinApi, String, int)} returns a
+	 * {@link IOException} with a default text, when no error message is available for the given
+	 * error code.
+	 */
+	@Test
+	public void newIOException_noNativeErrorMessage() {
+		//@formatter:off
+		when(win.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
+			.thenReturn(0);
+		//@formatter:on
+
+		IOException result = Throwables.newIOException(win, MESSAGE, ERROR_CODE);
+
+		assertThat(result, is(ioException("An error message!\r\nError-Code 1: No error description available")));
+	}
+
+	/**
+	 * Verifies that {@link Throwables#newNativeCodeException(WinApi, String, int)} returns a
+	 * {@link NativeCodeException} with an error message for the given error code.
+	 */
+	@Test
+	public void newIOException_withNativeErrorMessage() {
+		//@formatter:off
+		doAnswer(withNativeErrorMessage("This is a native error\n\n")).
+			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
+		//@formatter:on
+
+		IOException result = Throwables.newIOException(win, MESSAGE, ERROR_CODE);
+
+		assertThat(result, is(ioException("An error message!\r\nError-Code 1: This is a native error")));
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
+	 * passed.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void getErrorMessage_withNullWinApi() {
+		Throwables.getErrorMessage(win, null, ERROR_CODE);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
+	 * passed.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void getErrorMessage_withNullMessage() {
+		Throwables.getErrorMessage(win, null, ERROR_CODE);
+	}
+
+	/**
+	 * Verifies that {@link Throwables#newNativeCodeException(WinApi, String, int)} returns a
+	 * {@link String} with a default error description, when no error message is available for the
+	 * given error code.
+	 */
+	@Test
+	public void getErrorMessage_noNativeErrorMessage() {
+		//@formatter:off
+		when(win.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
+			.thenReturn(0);
+		//@formatter:on
+
+		String result = Throwables.getErrorMessage(win, MESSAGE, ERROR_CODE);
+
+		assertThat(result, is(("An error message!\r\nError-Code 1: No error description available.")));
+	}
+
+	/**
+	 * Verifies that {@link Throwables#newNativeCodeException(WinApi, String, int)} returns a
+	 * {@link String} with an error description for the given error code.
+	 */
+	@Test
+	public void getErrorMessage_withNativeErrorMessage() {
+		//@formatter:off
+		doAnswer(withNativeErrorMessage("This is a native error\n\n")).
+			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
+		//@formatter:on
+
+		String result = Throwables.getErrorMessage(win, MESSAGE, ERROR_CODE);
+
+		assertThat(result, is("An error message!\r\nError-Code 1: This is a native error"));
+	}
+
 	// ///////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** Matcher for {@link NativeCodeException} starting with the message. */
@@ -114,6 +218,16 @@ public class TestThrowables {
 		return new CustomTypeSafeMatcher<NativeCodeException>("NativeCodeException with message >" + message + "<") {
 			@Override
 			protected boolean matchesSafely(NativeCodeException actual) {
+				return (actual.getMessage().startsWith(message));
+			}
+		};
+	}
+
+	/** Matcher for {@link IOException} starting with the message. */
+	private TypeSafeMatcher<IOException> ioException(final String message) {
+		return new CustomTypeSafeMatcher<IOException>("IOException with message >" + message + "<") {
+			@Override
+			protected boolean matchesSafely(IOException actual) {
 				return (actual.getMessage().startsWith(message));
 			}
 		};
