@@ -257,10 +257,11 @@ public class TestSerialPortImpl {
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		// This is the important part of the test, in the case the NativeCodeException must be thrown:
 		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		when(portHandle.getPortName()).thenReturn("COM1");
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("The write operation has been aborted!\r\nError-Code " + ERROR_OPERATION_ABORTED);
+		exception.expectMessage("Port COM1 is closed! Error-Code "+ERROR_OPERATION_ABORTED);
 
 		try {
 			port.write(DATA);
@@ -541,10 +542,11 @@ public class TestSerialPortImpl {
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		// This is the important part of the test, in the case the NativeCodeException must be thrown:
 		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		when(portHandle.getPortName()).thenReturn("COM1");
 		// @formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("The read operation has been aborted!\r\nError-Code " + ERROR_OPERATION_ABORTED);
+		exception.expectMessage("Port COM1 is closed! Error-Code "+ERROR_OPERATION_ABORTED);
 
 		try {
 			port.read();

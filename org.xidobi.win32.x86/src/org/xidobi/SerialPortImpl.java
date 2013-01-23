@@ -90,7 +90,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			overlapped = createOverlapped(eventHandle);
 
 			IOState state = write(overlapped, data);
-			if (state==IOState.FINISHED)
+			if (state==FINISHED)
 				return;
 
 			// the operation is pending, lets wait for completion
@@ -130,8 +130,9 @@ public class SerialPortImpl extends AbstractSerialPort {
 				overlapped = createOverlapped(eventHandle);
 
 				byte[] readBuffer = new byte[bufferSize];
-				if (read(overlapped, readBuffer)==FINISHED)
-					return readBuffer;
+				byte[] result=read(overlapped, readBuffer);
+				if (result!=null)
+					return result;
 
 				// the operation is pending, lets wait for completion
 				int waitResult = await(eventHandle, readTimeout);
@@ -234,19 +235,18 @@ public class SerialPortImpl extends AbstractSerialPort {
 	}
 
 	
-	private IOState read(OVERLAPPED overlapped, byte[] result) throws IOException {
+	private byte[] read(OVERLAPPED overlapped, byte[] result) throws IOException {
 		INT lpNumberOfBytesRead = new INT(0);
 		boolean succeed = win.ReadFile(handle, result, result.length, lpNumberOfBytesRead, overlapped);
 		if (succeed) {
 			// the read operation finished immediatly
-			copyOfRange(result, 0, lpNumberOfBytesRead.value);
-			return FINISHED;
+			return copyOfRange(result, 0, lpNumberOfBytesRead.value);
 		}
 
 		int lastError = win.getPreservedError();
 		// check if an error occured or the operation is pendig ...
 		if (lastError == ERROR_IO_PENDING)
-			return PENDING;
+			return null;
 		if (lastError == ERROR_INVALID_HANDLE)
 			throw newIOException(win, "Read operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
 
