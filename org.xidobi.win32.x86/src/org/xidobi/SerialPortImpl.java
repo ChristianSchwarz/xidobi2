@@ -39,7 +39,7 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.getErrorMessage;
 import static org.xidobi.utils.Throwables.newIOException;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
-import static org.xidobi.SerialPortImpl.State.*;
+import static org.xidobi.SerialPortImpl.IOState.*;
 /**
  * {@link SerialPort} implementation for Windows (32bit) x86 Platform.
  * 
@@ -89,8 +89,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 		try {
 			overlapped = createOverlapped(eventHandle);
 
-			State state = write(overlapped, data);
-			if (state==State.FINISHED)
+			IOState state = write(overlapped, data);
+			if (state==IOState.FINISHED)
 				return;
 
 			// the operation is pending, lets wait for completion
@@ -211,7 +211,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 	 *         <li> <code>false</code>, if the operation is pending
 	 *         </ul>
 	 */
-	private State write(OVERLAPPED overlapped, byte[] data) throws IOException {
+	private IOState write(OVERLAPPED overlapped, byte[] data) throws IOException {
 		INT lpNumberOfBytesWritten = new INT(0);
 		boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
 		if (succeed)
@@ -233,13 +233,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 		return PENDING;
 	}
 
-	/**
-	 * @return <ul>
-	 *         <li> <code>true</code>, if the operation is completed
-	 *         <li> <code>false</code>, if the operation is pending
-	 *         </ul>
-	 */
-	private State read(OVERLAPPED overlapped, byte[] result) throws IOException {
+	
+	private IOState read(OVERLAPPED overlapped, byte[] result) throws IOException {
 		INT lpNumberOfBytesRead = new INT(0);
 		boolean succeed = win.ReadFile(handle, result, result.length, lpNumberOfBytesRead, overlapped);
 		if (succeed) {
@@ -317,7 +312,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 		}
 	}
 	
-	static enum State{
+	static enum IOState{
 		PENDING,
 		FINISHED
 	}
