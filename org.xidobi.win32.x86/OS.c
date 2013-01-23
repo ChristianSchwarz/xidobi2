@@ -517,3 +517,20 @@ JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_sizeOf_1HKEY(JNIEnv *env, jobject this) {
 	return (jint) sizeof(HKEY);
 }
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    getByteArray
+ * Signature: (Lorg/xidobi/structs/NativeByteArray;I)[B
+ */
+JNIEXPORT jbyteArray JNICALL
+Java_org_xidobi_OS_getByteArray(JNIEnv *env, jobject this,
+		jobject nativeByteArray,
+		jint length) {
+
+	jbyteArray result = (*env)->NewByteArray(env, length);
+	jbyte *bytes = getNativeByteArray(env, nativeByteArray);
+	(*env)->SetByteArrayRegion(env, result, 0, length, bytes);
+
+	return result;
+}

@@ -38,4 +38,8 @@ void cacheHKEYFields(JNIEnv *, jobject);
 HKEY *getHKEY(JNIEnv *, jobject);
 void setHKEY(JNIEnv *, jobject, HKEY *);
 
+// NativeByteArray:
+void cacheNativeByteArrayFields(JNIEnv *, jobject);
+jbyte *getNativeByteArray(JNIEnv *, jobject);
+
 #endif /* OS_STRUCTS_H_ */

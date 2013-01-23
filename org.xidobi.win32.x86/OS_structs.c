@@ -331,3 +331,46 @@ void setHKEY(JNIEnv *env, jobject hkeyObject, HKEY *hkeyStruct) {
 	if (!HKEYc.cached)
 		cacheHKEYFields(env, hkeyObject);
 }
+
+// ***********************************************************************
+// **** NativeByteArray: *************************************************
+// ***********************************************************************
+
+/*
+ * a struct to cache the NativeByteArray fields
+ */
+typedef struct NativeByteArray_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID cPointer;
+} NativeByteArray_FID_CACHE;
+// cache for NativeByteArray fields
+NativeByteArray_FID_CACHE NativeByteArrayc;
+
+/*
+ * Caches the NativeByteArray fields in the NativeByteArray_FID_CACHE.
+ */
+void cacheNativeByteArrayFields(JNIEnv *env, jobject nativeByteArray) {
+	if (NativeByteArrayc.cached)
+		return;
+
+	NativeByteArrayc.clazz = (*env)->GetObjectClass(env, nativeByteArray);
+
+	NativeByteArrayc.cPointer = (*env)->GetFieldID(env, NativeByteArrayc.clazz, "cPointer", "I");
+
+	NativeByteArrayc.cached = TRUE;
+}
+
+/*
+ * Retrieves the fields from the given jobject and returns it as jbyte*.
+ */
+jbyte *getNativeByteArray(JNIEnv *env, jobject nativeByteArray) {
+	if (!NativeByteArrayc.cached)
+		cacheNativeByteArrayFields(env, nativeByteArray);
+
+	jbyte *bytes = (jbyte *) (*env)->GetIntField(env, nativeByteArray, NativeByteArrayc.cPointer);
+
+	return bytes;
+}
+
+
