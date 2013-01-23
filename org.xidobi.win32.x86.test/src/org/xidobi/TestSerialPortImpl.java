@@ -17,13 +17,13 @@ package org.xidobi;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -582,11 +582,26 @@ public class TestSerialPortImpl {
 	}
 
 	/**
-	 * Verifies that ??? when a pending result of the native write operation times out.
+	 * Verifies that a ReadFile() will be called two times, when a pending result of the first call
+	 * times out.
 	 */
 	@Test
-	public void read_timeout() {
-		fail("Not yet implemented!");
+	public void read_timeout() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false, true);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING); 
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+		// @formatter:on
+
+		try {
+			port.read();
+		}
+		finally {
+			verify(win).WaitForSingleObject(eventHandle, 2000);
+			verify(win, times(2)).CloseHandle(eventHandle);
+			verify(win, times(2)).free(overlapped);
+		}
 	}
 
 	/**
