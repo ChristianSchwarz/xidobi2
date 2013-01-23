@@ -16,6 +16,7 @@
 package org.xidobi.structs;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -128,6 +129,15 @@ public class TestNativeByteArray {
 	}
 
 	/**
+	 * Verifies that an {@link IllegalStateException} is thrown, when the {@link NativeByteArray} is
+	 * disposed and method {@link NativeByteArray#length()} is called.
+	 */
+	@Test(expected = IllegalStateException.class)
+	public void length_whenDisposed() {
+		fail("Not yet implemented!");
+	}
+
+	/**
 	 * Verifies that {@link NativeByteArray#getByteArray()} returns the byte array for the allocated
 	 * memory via the WIN-API.
 	 */
@@ -138,6 +148,15 @@ public class TestNativeByteArray {
 		byteArray = new NativeByteArray(win, LENGTH);
 
 		assertThat(byteArray.getByteArray(), is(DATA));
+	}
+
+	/**
+	 * Verifies that an {@link IllegalStateException} is thrown, when the {@link NativeByteArray} is
+	 * disposed and method {@link NativeByteArray#getByteArray()} is called.
+	 */
+	@Test(expected = IllegalStateException.class)
+	public void getByteArray_whenDisposed() {
+		fail("Not yet implemented!");
 	}
 
 	/**
@@ -183,6 +202,15 @@ public class TestNativeByteArray {
 	public void getByteArray_withNegativeSize() {
 		byteArray = new NativeByteArray(win, LENGTH);
 		byteArray.getByteArray(-1);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalStateException} is thrown, when the {@link NativeByteArray} is
+	 * disposed and method {@link NativeByteArray#getByteArray(int)} is called.
+	 */
+	@Test(expected = IllegalStateException.class)
+	public void getByteArray_withSizeWhenDisposed() {
+		fail("Not yet implemented!");
 	}
 
 }

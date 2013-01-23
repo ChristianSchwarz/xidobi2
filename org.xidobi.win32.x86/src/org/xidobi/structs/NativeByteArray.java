@@ -70,7 +70,7 @@ public class NativeByteArray {
 	}
 
 	public byte[] getByteArray() {
-		return win.getByteArray(this, length);
+		return getByteArray(length);
 	}
 
 	public byte[] getByteArray(int size) {
