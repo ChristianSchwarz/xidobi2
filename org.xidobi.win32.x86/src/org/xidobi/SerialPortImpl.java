@@ -15,6 +15,15 @@
  */
 package org.xidobi;
 
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import org.xidobi.internal.AbstractSerialPort;
+import org.xidobi.internal.NativeCodeException;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.OVERLAPPED;
+
 import static java.lang.Integer.toHexString;
 import static java.util.Arrays.copyOfRange;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
@@ -27,18 +36,10 @@ import static org.xidobi.WinApi.WAIT_OBJECT_0;
 import static org.xidobi.WinApi.WAIT_TIMEOUT;
 import static org.xidobi.internal.Preconditions.checkArgument;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.utils.Throwables.getErrorMessage;
 import static org.xidobi.utils.Throwables.newIOException;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
-
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.internal.AbstractSerialPort;
-import org.xidobi.internal.NativeCodeException;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.OVERLAPPED;
-
+import static org.xidobi.SerialPortImpl.State.*;
 /**
  * {@link SerialPort} implementation for Windows (32bit) x86 Platform.
  * 
@@ -88,8 +89,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 		try {
 			overlapped = createOverlapped(eventHandle);
 
-			boolean isPending = write(overlapped, data);
-			if (!isPending)
+			State state = write(overlapped, data);
+			if (state==State.FINISHED)
 				return;
 
 			// the operation is pending, lets wait for completion
@@ -97,24 +98,10 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 			switch (eventResult) {
 				case WAIT_OBJECT_0:
-					INT lpNumberOfBytesTransferred = new INT(0);
-					boolean succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
-
-					if (!succeed) {
-						int lastError = win.getPreservedError();
-						switch (lastError) {
-							case ERROR_OPERATION_ABORTED:
-								throw newIOException(win, "The write operation has been aborted!", lastError);
-							default:
-								throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
-						}
-					}
-					if (lpNumberOfBytesTransferred.value != data.length)
-						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + lpNumberOfBytesTransferred.value + " expected: " + data.length);
-					break;
+					processWriteResult(overlapped, data);
+					return;
 				case WAIT_TIMEOUT:
 					throw new IOException("Write timeout after " + writeTimeout + " ms!");
-
 				case WAIT_FAILED:
 					throw waitFailedException();
 				case WAIT_ABANDONED:
@@ -142,15 +129,16 @@ public class SerialPortImpl extends AbstractSerialPort {
 			try {
 				overlapped = createOverlapped(eventHandle);
 
-				byte[] lpBuffer = new byte[bufferSize];
-				read(overlapped, lpBuffer);
+				byte[] readBuffer = new byte[bufferSize];
+				if (read(overlapped, readBuffer)==FINISHED)
+					return readBuffer;
 
 				// the operation is pending, lets wait for completion
 				int waitResult = await(eventHandle, readTimeout);
 
 				switch (waitResult) {
 					case WAIT_OBJECT_0:
-						return readCompleted(overlapped, lpBuffer);
+						return processReadResult(overlapped, readBuffer);
 					case WAIT_TIMEOUT:
 						continue;// no bytes were received in the specified time, lets retry
 					case WAIT_FAILED:
@@ -223,12 +211,12 @@ public class SerialPortImpl extends AbstractSerialPort {
 	 *         <li> <code>false</code>, if the operation is pending
 	 *         </ul>
 	 */
-	private boolean write(OVERLAPPED overlapped, byte[] data) throws IOException {
+	private State write(OVERLAPPED overlapped, byte[] data) throws IOException {
 		INT lpNumberOfBytesWritten = new INT(0);
 		boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
 		if (succeed)
 			// the write operation finished immediatly
-			return false;
+			return FINISHED;
 
 		int lastError = win.getPreservedError();
 		// check if an error occured or the operation is pendig ...
@@ -242,7 +230,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			}
 		}
 
-		return true;
+		return PENDING;
 	}
 
 	/**
@@ -251,19 +239,19 @@ public class SerialPortImpl extends AbstractSerialPort {
 	 *         <li> <code>false</code>, if the operation is pending
 	 *         </ul>
 	 */
-	private boolean read(OVERLAPPED overlapped, byte[] result) throws IOException {
+	private State read(OVERLAPPED overlapped, byte[] result) throws IOException {
 		INT lpNumberOfBytesRead = new INT(0);
 		boolean succeed = win.ReadFile(handle, result, result.length, lpNumberOfBytesRead, overlapped);
 		if (succeed) {
 			// the read operation finished immediatly
 			copyOfRange(result, 0, lpNumberOfBytesRead.value);
-			return false;
+			return FINISHED;
 		}
 
 		int lastError = win.getPreservedError();
 		// check if an error occured or the operation is pendig ...
 		if (lastError == ERROR_IO_PENDING)
-			return true;
+			return PENDING;
 		if (lastError == ERROR_INVALID_HANDLE)
 			throw newIOException(win, "Read operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
 
@@ -272,24 +260,48 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 	/**
 	 * @param overlapped
-	 * @param lpBuffer
+	 * @param data the byte[] that was used as read buffer
 	 * @return
 	 * @throws IOException
 	 */
-	private byte[] readCompleted(OVERLAPPED overlapped, byte[] lpBuffer) throws IOException {
+	private byte[] processReadResult(OVERLAPPED overlapped, byte[] data) throws IOException {
+		int numberOfBytesRead = getNumberOfTransferredBytes(overlapped);
+		return copyOfRange(data, 0, numberOfBytesRead);
+	}
+
+	
+	
+	/**
+	 * @param overlapped
+	 * @param data
+	 * @throws IOException
+	 */
+	private void processWriteResult(OVERLAPPED overlapped, byte[] data) throws IOException {
+		int numberOfBytesTransferred = getNumberOfTransferredBytes(overlapped);
+		if (numberOfBytesTransferred!= data.length)
+			throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + numberOfBytesTransferred + " expected: " + data.length);
+	}
+	
+	/**
+	 * @param overlapped
+	 * @return
+	 * @throws IOException
+	 */
+	private int getNumberOfTransferredBytes(OVERLAPPED overlapped) throws IOException {
 		INT numberOfBytesRead = new INT(0);
 		boolean succeed = win.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
 		if (!succeed) {
 			int lastError = win.getPreservedError();
 			switch (lastError) {
 				case ERROR_OPERATION_ABORTED:
-					throw newIOException(win, "The read operation has been aborted!", lastError);
+					throw portClosedException(getErrorMessage(win, lastError));
 				default:
 					throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
 			}
 		}
-		return copyOfRange(lpBuffer, 0, numberOfBytesRead.value);
+		return numberOfBytesRead.value;
 	}
+
 	
 	/**
 	 * Disposed/Closes the handle and the {@link OVERLAPPED}-struct.
@@ -303,5 +315,10 @@ public class SerialPortImpl extends AbstractSerialPort {
 		finally {
 			win.CloseHandle(eventHandle);
 		}
+	}
+	
+	static enum State{
+		PENDING,
+		FINISHED
 	}
 }
