@@ -202,6 +202,26 @@ public class OS implements WinApi {
 	public native int RegEnumValueA(HKEY hKey, int dwIndex, byte[] lpValueName, INT lpcchValueName, int lpReserved, INT lpType, byte[] lpData, INT lpcbData);
 
 	/** {@inheritDoc} */
+	public boolean SetCommMask(int hFile, int dwEvtMask) {
+		INT lastError = new INT(0);
+		boolean result = SetCommMask(hFile, dwEvtMask, lastError);
+		storeLastNativeError(lastError);
+		return result;
+	}
+
+	private native boolean SetCommMask(int hFile, int dwEvtMask, INT lastError);
+
+	/** {@inheritDoc} */
+	public boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped) {
+		INT lastError = new INT(0);
+		boolean result = WaitCommEvent(hFile, lpEvtMask, lpOverlapped, lastError);
+		storeLastNativeError(lastError);
+		return result;
+	}
+
+	private native boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped, INT lastError);
+
+	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);
 
 	/** {@inheritDoc} */
