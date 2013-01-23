@@ -28,7 +28,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
@@ -194,6 +196,32 @@ public class TestSerialPortImpl {
 	}
 
 	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WriteFile()</code> returns false
+	 * and the last error code is not <code>ERROR_INVALID_HANDLE</code>. The error code should be
+	 * <code>ERROR_IO_PENDING</code>.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void write_writeFileFails_ERROR_INVALID_HANDLE() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
+		// @formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Write operation failed, because the handle is invalid! Maybe the serial port was closed before.\r\nError-Code " + ERROR_INVALID_HANDLE);
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
 	 * Verifies that an {@link NativeCodeException} is thrown if the native
 	 * {@link WinApi#WriteFile(int, byte[], int, INT, OVERLAPPED)} fails and is not pending.
 	 */
@@ -215,11 +243,39 @@ public class TestSerialPortImpl {
 	}
 
 	/**
+	 * Verifies that an {@link IOException} is thrown, when in an pending operation a call to
+	 * {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails with
+	 * <code>ERROR_OPERATION_ABORTED</code>.
+	 */
+	@Test
+	public void write_getOverlappedResultFails_ERROR_OPERATION_ABORTED() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
+		                                         ERROR_OPERATION_ABORTED); // GetOverlappedResult
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		// This is the important part of the test, in the case the NativeCodeException must be thrown:
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("The write operation has been aborted!\r\nError-Code " + ERROR_OPERATION_ABORTED);
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
 	 * Verifies that an {@link NativeCodeException} is thrown, when in an pending operation a call
 	 * to {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails.
 	 */
 	@Test
-	public void write_getOverlappedResultFail() throws Exception {
+	public void write_getOverlappedResultFailsUnexpected() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
@@ -420,6 +476,32 @@ public class TestSerialPortImpl {
 	}
 
 	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>ReadFile()</code> returns false and
+	 * the last error code is not <code>ERROR_INVALID_HANDLE</code>. The error code should be
+	 * <code>ERROR_IO_PENDING</code>.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void read_readFileFails_ERROR_INVALID_HANDLE() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
+		// @formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Read operation failed, because the handle is invalid! Maybe the serial port was closed before.\r\nError-Code " + ERROR_INVALID_HANDLE);
+
+		try {
+			port.read();
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile()</code> returns
 	 * false and the last error code is not <code>ERROR_IO_PENDING</code>.
 	 * 
@@ -445,11 +527,39 @@ public class TestSerialPortImpl {
 	}
 
 	/**
+	 * Verifies that an {@link IOException} is thrown, when in an pending operation a call to
+	 * {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails with
+	 * <code>ERROR_OPERATION_ABORTED</code>.
+	 */
+	@Test
+	public void read_getOverlappedResultFails_ERROR_OPERATION_ABORTED() throws Exception {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
+		                                         ERROR_OPERATION_ABORTED); // GetOverlappedResult
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		// This is the important part of the test, in the case the NativeCodeException must be thrown:
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		// @formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("The read operation has been aborted!\r\nError-Code " + ERROR_OPERATION_ABORTED);
+
+		try {
+			port.read();
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
 	 * Verifies that an {@link NativeCodeException} is thrown, when in an pending operation a call
 	 * to {@link WinApi#GetOverlappedResult(int, OVERLAPPED, INT, boolean)} fails.
 	 */
 	@Test
-	public void read_getOverlappedResultFail() throws Exception {
+	public void read_getOverlappedResultFailedUnexpected() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);

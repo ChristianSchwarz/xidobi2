@@ -103,7 +103,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 				// ... an error occured:
 				switch (lastError) {
 					case ERROR_INVALID_HANDLE:
-						throw newIOException(win, "WriteFile failed because the handle is invalid! Maybe the serial port was closed before.", lastError);
+						throw newIOException(win, "Write operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
 					default:
 						throw newNativeCodeException(win, "WriteFile failed unexpected!", lastError);
 				}
@@ -117,8 +117,15 @@ public class SerialPortImpl extends AbstractSerialPort {
 					INT lpNumberOfBytesTransferred = new INT(0);
 					succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
 					lastError = win.getPreservedError();
-					if (!succeed)
-						throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
+					if (!succeed) {
+						lastError = win.getPreservedError();
+						switch (lastError) {
+							case ERROR_OPERATION_ABORTED:
+								throw newIOException(win, "The write operation has been aborted!", lastError);
+							default:
+								throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
+						}
+					}
 					if (lpNumberOfBytesTransferred.value != data.length)
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + lpNumberOfBytesTransferred.value + " expected: " + data.length);
 					break;
@@ -174,7 +181,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 					// ... an error occured:
 					switch (lastError) {
 						case ERROR_INVALID_HANDLE:
-							throw newIOException(win, "ReadFile failed because the handle is invalid! Maybe the serial port was closed before.", lastError);
+							throw newIOException(win, "Read operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
 						default:
 							throw newNativeCodeException(win, "ReadFile failed unexpected!", lastError);
 					}
