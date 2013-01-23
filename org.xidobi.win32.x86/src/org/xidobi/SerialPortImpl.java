@@ -82,43 +82,26 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 	@Override
 	protected void writeInternal(byte[] data) throws IOException {
-		final int eventHandle = win.CreateEventA(0, true, false, null);
-		if (eventHandle == 0)
-			throw newNativeCodeException(win, "CreateEventA returned unexpected with 0!", win.getPreservedError());
+		final int eventHandle = createEventHandle();
 
 		OVERLAPPED overlapped = null;
 		try {
-			overlapped = new OVERLAPPED(win);
-			overlapped.hEvent = eventHandle;
+			overlapped = createOverlapped(eventHandle);
 
-			INT lpNumberOfBytesWritten = new INT(0);
-			boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
-			if (succeed)
-				// the write operation finished immediatly
+			boolean isPending = write(overlapped, data);
+			if (!isPending)
 				return;
 
-			int lastError = win.getPreservedError();
-			// check if an error occured or the operation is pendig ...
-			if (lastError != ERROR_IO_PENDING) {
-				// ... an error occured:
-				switch (lastError) {
-					case ERROR_INVALID_HANDLE:
-						throw newIOException(win, "Write operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
-					default:
-						throw newNativeCodeException(win, "WriteFile failed unexpected!", lastError);
-				}
-			}
-
 			// the operation is pending, lets wait for completion
-			int eventResult = win.WaitForSingleObject(eventHandle, writeTimeout);
+			int eventResult = await(eventHandle, writeTimeout);
 
 			switch (eventResult) {
 				case WAIT_OBJECT_0:
 					INT lpNumberOfBytesTransferred = new INT(0);
-					succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
-					lastError = win.getPreservedError();
+					boolean succeed = win.GetOverlappedResult(handle, overlapped, lpNumberOfBytesTransferred, true);
+
 					if (!succeed) {
-						lastError = win.getPreservedError();
+						int lastError = win.getPreservedError();
 						switch (lastError) {
 							case ERROR_OPERATION_ABORTED:
 								throw newIOException(win, "The write operation has been aborted!", lastError);
@@ -133,21 +116,15 @@ public class SerialPortImpl extends AbstractSerialPort {
 					throw new IOException("Write timeout after " + writeTimeout + " ms!");
 
 				case WAIT_FAILED:
-					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", win.getPreservedError());
+					throw waitFailedException();
 				case WAIT_ABANDONED:
-					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+					throw waitAbdonnedException();
 				default:
-					throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: 0x" + toHexString(eventResult), win.getPreservedError());
+					throw unexpectedWaitResult(eventResult);
 			}
 		}
 		finally {
-			// We have to dispose all previously allocated resources:
-			try {
-				overlapped.dispose();
-			}
-			finally {
-				win.CloseHandle(eventHandle);
-			}
+			dispose(eventHandle, overlapped);
 		}
 
 	}
@@ -156,75 +133,51 @@ public class SerialPortImpl extends AbstractSerialPort {
 	@Nonnull
 	protected byte[] readInternal() throws IOException {
 
-		// retry until we have read some data or an exception occurs
+		// loop until we have read some data or an exception occurs
 		while (true) {
 
-			int eventHandle = win.CreateEventA(0, true, false, null);
-			if (eventHandle == 0)
-				throw newNativeCodeException(win, "CreateEventA returned unexpected with 0!", win.getPreservedError());
+			int eventHandle = createEventHandle();
 
 			OVERLAPPED overlapped = null;
 			try {
-				overlapped = new OVERLAPPED(win);
-				overlapped.hEvent = eventHandle;
+				overlapped = createOverlapped(eventHandle);
 
 				byte[] lpBuffer = new byte[bufferSize];
-				INT lpNumberOfBytesRead = new INT(0);
-				boolean succeed = win.ReadFile(handle, lpBuffer, lpBuffer.length, lpNumberOfBytesRead, overlapped);
-				if (succeed)
-					// the read operation finished immediatly
-					return copyOfRange(lpBuffer, 0, lpNumberOfBytesRead.value);
-
-				int lastError = win.getPreservedError();
-				// check if an error occured or the operation is pendig ...
-				if (lastError != ERROR_IO_PENDING) {
-					// ... an error occured:
-					switch (lastError) {
-						case ERROR_INVALID_HANDLE:
-							throw newIOException(win, "Read operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
-						default:
-							throw newNativeCodeException(win, "ReadFile failed unexpected!", lastError);
-					}
-				}
+				read(overlapped, lpBuffer);
 
 				// the operation is pending, lets wait for completion
-				int eventResult = win.WaitForSingleObject(eventHandle, readTimeout);
+				int waitResult = await(eventHandle, readTimeout);
 
-				switch (eventResult) {
+				switch (waitResult) {
 					case WAIT_OBJECT_0:
-						INT numberOfBytesRead = new INT(0);
-						succeed = win.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
-						if (!succeed) {
-							lastError = win.getPreservedError();
-							switch (lastError) {
-								case ERROR_OPERATION_ABORTED:
-									throw newIOException(win, "The read operation has been aborted!", lastError);
-								default:
-									throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
-							}
-						}
-						return copyOfRange(lpBuffer, 0, numberOfBytesRead.value);
+						return readCompleted(overlapped, lpBuffer);
 					case WAIT_TIMEOUT:
-						// no bytes were received in the specified time, lets retry
-						continue;
+						continue;// no bytes were received in the specified time, lets retry
 					case WAIT_FAILED:
-						throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", win.getPreservedError());
+						throw waitFailedException();
 					case WAIT_ABANDONED:
-						throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+						throw waitAbdonnedException();
 					default:
-						throw newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: 0x" + toHexString(eventResult), win.getPreservedError());
+						throw unexpectedWaitResult(waitResult);
 				}
 			}
 			finally {
-				// We have to dispose all previously allocated resources:
-				try {
-					overlapped.dispose();
-				}
-				finally {
-					win.CloseHandle(eventHandle);
-				}
+				dispose(eventHandle, overlapped);
 			}
 		}
+	}
+
+	
+
+	
+	/**
+	 * @param eventHandle
+	 * @return
+	 */
+	private OVERLAPPED createOverlapped(int eventHandle) {
+		OVERLAPPED overlapped = new OVERLAPPED(win);
+		overlapped.hEvent = eventHandle;
+		return overlapped;
 	}
 
 	@Override
@@ -239,5 +192,116 @@ public class SerialPortImpl extends AbstractSerialPort {
 		// TODO Write Test!!!
 		super.finalize();
 		close();
+	}
+
+	private NativeCodeException waitFailedException() {
+		return newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", win.getPreservedError());
+	}
+
+	private NativeCodeException waitAbdonnedException() {
+		return new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+	}
+
+	private int createEventHandle() {
+		final int eventHandle = win.CreateEventA(0, true, false, null);
+		if (eventHandle == 0)
+			throw newNativeCodeException(win, "CreateEventA returned unexpected with 0!", win.getPreservedError());
+		return eventHandle;
+	}
+
+	private NativeCodeException unexpectedWaitResult(int eventResult) {
+		return newNativeCodeException(win, "WaitForSingleObject returned an unexpected value: 0x" + toHexString(eventResult), win.getPreservedError());
+	}
+
+	private int await(final int eventHandle, int timeout) {
+		return win.WaitForSingleObject(eventHandle, timeout);
+	}
+
+	/**
+	 * @return <ul>
+	 *         <li> <code>true</code>, if the operation is completed
+	 *         <li> <code>false</code>, if the operation is pending
+	 *         </ul>
+	 */
+	private boolean write(OVERLAPPED overlapped, byte[] data) throws IOException {
+		INT lpNumberOfBytesWritten = new INT(0);
+		boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
+		if (succeed)
+			// the write operation finished immediatly
+			return false;
+
+		int lastError = win.getPreservedError();
+		// check if an error occured or the operation is pendig ...
+		if (lastError != ERROR_IO_PENDING) {
+			// ... an error occured:
+			switch (lastError) {
+				case ERROR_INVALID_HANDLE:
+					throw newIOException(win, "Write operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
+				default:
+					throw newNativeCodeException(win, "WriteFile failed unexpected!", lastError);
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return <ul>
+	 *         <li> <code>true</code>, if the operation is completed
+	 *         <li> <code>false</code>, if the operation is pending
+	 *         </ul>
+	 */
+	private boolean read(OVERLAPPED overlapped, byte[] result) throws IOException {
+		INT lpNumberOfBytesRead = new INT(0);
+		boolean succeed = win.ReadFile(handle, result, result.length, lpNumberOfBytesRead, overlapped);
+		if (succeed) {
+			// the read operation finished immediatly
+			copyOfRange(result, 0, lpNumberOfBytesRead.value);
+			return false;
+		}
+
+		int lastError = win.getPreservedError();
+		// check if an error occured or the operation is pendig ...
+		if (lastError == ERROR_IO_PENDING)
+			return true;
+		if (lastError == ERROR_INVALID_HANDLE)
+			throw newIOException(win, "Read operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
+
+		throw newNativeCodeException(win, "ReadFile failed unexpected!", lastError);
+	}
+
+	/**
+	 * @param overlapped
+	 * @param lpBuffer
+	 * @return
+	 * @throws IOException
+	 */
+	private byte[] readCompleted(OVERLAPPED overlapped, byte[] lpBuffer) throws IOException {
+		INT numberOfBytesRead = new INT(0);
+		boolean succeed = win.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
+		if (!succeed) {
+			int lastError = win.getPreservedError();
+			switch (lastError) {
+				case ERROR_OPERATION_ABORTED:
+					throw newIOException(win, "The read operation has been aborted!", lastError);
+				default:
+					throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
+			}
+		}
+		return copyOfRange(lpBuffer, 0, numberOfBytesRead.value);
+	}
+	
+	/**
+	 * Disposed/Closes the handle and the {@link OVERLAPPED}-struct.
+	 */
+	private void dispose(final int eventHandle, OVERLAPPED overlapped) {
+		// We have to dispose all previously allocated resources:
+		try {
+			if (overlapped != null)
+				overlapped.dispose();
+		}
+		finally {
+			win.CloseHandle(eventHandle);
+		}
 	}
 }
