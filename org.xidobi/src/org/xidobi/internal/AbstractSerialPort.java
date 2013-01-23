@@ -47,16 +47,16 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 * </ul>
 	 */
 	private volatile boolean isClosed;
-	
+
 	/**
 	 * Ensures that {@link #writeInternal(byte[])} can only called by one Thread at a time.
 	 */
-	private final Lock writeLock= new ReentrantLock();;
+	private final Lock writeLock = new ReentrantLock();;
 	/**
 	 * Ensures that {@link #readInternal()} can only called by one Thread at a time.
 	 */
-	private final Lock readLock= new ReentrantLock();;
-	
+	private final Lock readLock = new ReentrantLock();;
+
 	/**
 	 * Creates a new instance with the {@link SerialPortHandle}.
 	 * 
@@ -68,7 +68,7 @@ public abstract class AbstractSerialPort implements SerialPort {
 	protected AbstractSerialPort(@Nonnull SerialPortHandle portHandle) {
 		checkArgumentNotNull(portHandle, "portHandle");
 		this.portHandle = portHandle;
-		
+
 	}
 
 	/**
@@ -120,9 +120,10 @@ public abstract class AbstractSerialPort implements SerialPort {
 		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
 		writeLock.lock();
-		try{
+		try {
 			writeInternal(data);
-		}finally{
+		}
+		finally {
 			writeLock.unlock();
 		}
 	}
@@ -132,9 +133,10 @@ public abstract class AbstractSerialPort implements SerialPort {
 	public final byte[] read() throws IOException {
 		ensurePortIsOpen();
 		readLock.lock();
-		try{
+		try {
 			return readInternal();
-		}finally{
+		}
+		finally {
 			readLock.unlock();
 		}
 	}
@@ -161,6 +163,17 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 */
 	private void ensurePortIsOpen() throws IOException {
 		if (isClosed)
-			throw new IOException("Port " + portHandle.getPortName() + " is closed!");
+			throw portClosedException();
+	}
+
+	/**
+	 * Returns a new {@link IOException} indicating that the port is closed. Subclasses may use this
+	 * to throw a consitent {@link IOException}, if a closed port was detected.
+	 * <p>
+	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw an
+	 * {@link IOException} if the port is closed. Overriding it may have consequences to the caller. 
+	 */
+	protected IOException portClosedException() {
+		return new IOException("Port " + portHandle.getPortName() + " is closed!");
 	}
 }
