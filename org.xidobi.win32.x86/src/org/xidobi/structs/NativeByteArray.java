@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 import org.xidobi.WinApi;
 
 /**
- * 
+ * Java representation of a byte array in C.
  * 
  * @author Tobias Breﬂler
  */

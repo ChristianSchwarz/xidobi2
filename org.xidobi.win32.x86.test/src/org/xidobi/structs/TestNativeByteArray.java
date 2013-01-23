@@ -170,9 +170,19 @@ public class TestNativeByteArray {
 	 * <code>size == 0</code>.
 	 */
 	@Test(expected = IllegalArgumentException.class)
-	public void getByteArray_withTooLowSize() {
+	public void getByteArray_withSize0() {
 		byteArray = new NativeByteArray(win, LENGTH);
 		byteArray.getByteArray(0);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when a negative
+	 * <code>size</code> is passed.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void getByteArray_withNegativeSize() {
+		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray.getByteArray(-1);
 	}
 
 }
