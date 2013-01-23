@@ -176,6 +176,14 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1OVERLAPPED
 JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1HKEY
   (JNIEnv *, jobject);
 
+/*
+ * Class:     org_xidobi_OS
+ * Method:    getByteArray
+ * Signature: (Lorg/xidobi/structs/NativeByteArray;I)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_org_xidobi_OS_getByteArray
+  (JNIEnv *, jobject, jobject, jint);
+
 #ifdef __cplusplus
 }
 #endif
