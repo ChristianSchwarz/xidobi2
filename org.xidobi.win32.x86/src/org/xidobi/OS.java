@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
@@ -232,5 +233,8 @@ public class OS implements WinApi {
 
 	/** {@inheritDoc} */
 	public native int sizeOf_HKEY();
+
+	/** {@inheritDoc} */
+	public native byte[] getByteArray(NativeByteArray nativeByteArray, int length);
 
 }
