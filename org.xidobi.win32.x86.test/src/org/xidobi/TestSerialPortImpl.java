@@ -585,7 +585,7 @@ public class TestSerialPortImpl {
 	 * Verifies that a ReadFile() will be called two times, when a pending result of the first call
 	 * times out.
 	 */
-	@Test
+	@Test(timeout = 2000)
 	public void read_timeout() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
