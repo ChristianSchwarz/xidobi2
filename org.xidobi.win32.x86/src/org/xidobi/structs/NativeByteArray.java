@@ -73,6 +73,13 @@ public class NativeByteArray {
 		return win.getByteArray(this, length);
 	}
 
+	public byte[] getByteArray(int size) {
+		checkArgument(size > 0, "size", "Expected a value greater than 0");
+		checkArgument(size <= length, "size", "Expected a value lesser than or equal to length");
+
+		return win.getByteArray(this, size);
+	}
+
 	/**
 	 * Frees the resources of this instance ( memory on the heap).
 	 */

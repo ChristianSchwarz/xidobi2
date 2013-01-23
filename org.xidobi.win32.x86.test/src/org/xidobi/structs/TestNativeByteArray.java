@@ -140,4 +140,39 @@ public class TestNativeByteArray {
 		assertThat(byteArray.getByteArray(), is(DATA));
 	}
 
+	/**
+	 * Verifies that {@link NativeByteArray#getByteArray()} returns the byte array of the passed
+	 * size for the allocated memory via the WIN-API.
+	 */
+	@Test
+	public void getByteArray_withSize() {
+		byte[] data = new byte[2];
+
+		when(win.getByteArray(any(NativeByteArray.class), eq(2))).thenReturn(data);
+
+		byteArray = new NativeByteArray(win, 5);
+
+		assertThat(byteArray.getByteArray(2), is(data));
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the passed
+	 * <code>size</code> is greater than the length of the {@link NativeByteArray}.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void getByteArray_withTooHighSize() {
+		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray.getByteArray(LENGTH + 2);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the passed
+	 * <code>size == 0</code>.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void getByteArray_withTooLowSize() {
+		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray.getByteArray(0);
+	}
+
 }
