@@ -22,6 +22,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortHandle;
@@ -173,7 +174,26 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw an
 	 * {@link IOException} if the port is closed. Overriding it may have consequences to the caller. 
 	 */
+	@Nonnull
 	protected IOException portClosedException() {
-		return new IOException("Port " + portHandle.getPortName() + " is closed!");
+		return portClosedException(null);
+	}
+	
+	/**
+	 * Returns a new {@link IOException} indicating that the port is closed. Subclasses may use this
+	 * to throw a consitent {@link IOException}, if a closed port was detected.
+	 * <p>
+	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw an
+	 * {@link IOException} if the port is closed. Overriding it may have consequences to the caller.
+	 * 
+	 *  @param message error description may be <code>null</code> 
+	 */
+	@Nonnull
+	protected IOException portClosedException(@Nullable String message) {
+		if (message==null)
+			message="";
+		else
+			message=" "+message;
+		return new IOException("Port " + portHandle.getPortName() + " is closed!"+message);
 	}
 }
