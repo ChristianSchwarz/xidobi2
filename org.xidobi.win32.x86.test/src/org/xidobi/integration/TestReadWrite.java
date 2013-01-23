@@ -65,7 +65,6 @@ public class TestReadWrite {
 	public void tearDown() throws Exception {
 		if (connection != null)
 			connection.close();
-		Thread.sleep(200);
 	}
 
 	/**

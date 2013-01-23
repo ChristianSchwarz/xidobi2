@@ -168,6 +168,29 @@ public interface WinApi {
 	/** System default sublanguage */
 	short SUBLANG_SYS_DEFAULT = 0x02;
 
+	/** A break was detected on input. */
+	int EV_BREAK = 0x0040;
+	/** The CTS (clear-to-send) signal changed state. */
+	int EV_CTS = 0x0008;
+	/** The DSR (data-set-ready) signal changed state. */
+	int EV_DSR = 0x0010;
+	/** A line-status error occurred. Line-status errors are CE_FRAME, CE_OVERRUN, and CE_RXPARITY. */
+	int EV_ERR = 0x0080;
+	/** A ring indicator was detected. */
+	int EV_RING = 0x0100;
+	/** The RLSD (receive-line-signal-detect) signal changed state. */
+	int EV_RLSD = 0x0020;
+	/** A character was received and placed in the input buffer. */
+	int EV_RXCHAR = 0x0001;
+	/**
+	 * The event character was received and placed in the input buffer. The event character is
+	 * specified in the device's DCB structure, which is applied to a serial port by using the
+	 * SetCommState function.
+	 */
+	int EV_RXFLAG = 0x0002;
+	/** The last character in the output buffer was sent. */
+	int EV_TXEMPTY = 0x0004;
+
 	/**
 	 * The CreateFile function can create a handle to a communications resource, such as the serial
 	 * port COM1. For communications resources, the dwCreationDisposition parameter must be
@@ -704,6 +727,57 @@ public interface WinApi {
 	 */
 	@CheckReturnValue
 	int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments);
+
+	/**
+	 * Specifies a set of events to be monitored for a communications device.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363435(v=vs.85).aspx">
+	 * SetCommMask (MSDN)</a> for more details.</i>
+	 * 
+	 * @param hFile
+	 *            {@code _In_ HANDLE} - A handle to the communications device.
+	 * @param dwEvtMask
+	 *            {@code _In_ DWORD} - The events to be enabled. A value of zero disables all
+	 *            events. This parameter can be one or more of the following values:
+	 *            <ul>
+	 *            <li>{@link #EV_BREAK}<li>{@link #EV_CTS}<li>{@link #EV_DSR}<li>{@link #EV_ERR} 
+	 *            <li>{@link #EV_RING}<li>{@link #EV_RLSD}<li> {@link #EV_RXCHAR}
+	 *            </ul>
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()}.
+	 */
+	@CheckReturnValue
+	boolean SetCommMask(int hFile, int dwEvtMask);
+
+	/**
+	 * Waits for an event to occur for a specified communications device. The set of events that are
+	 * monitored by this function is contained in the event mask associated with the device handle.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363479(v=vs.85).aspx">
+	 * WaitCommEvent (MSDN)</a> for more details.</i>
+	 * 
+	 * @param hFile
+	 *            {@code _In_ HANDLE} - A handle to the communications device.
+	 * @param lpEvtMask
+	 *            {@code _Out_ LPDWORD} -A pointer to a variable that receives a mask indicating the
+	 *            type of event that occurred. If an error occurs, the value is zero; otherwise, it
+	 *            is one of the following values:
+	 *            <ul>
+	 *            <li>{@link #EV_BREAK}<li>{@link #EV_CTS}<li>{@link #EV_DSR}<li>{@link #EV_ERR} 
+	 *            <li>{@link #EV_RING}<li>{@link #EV_RLSD}<li> {@link #EV_RXCHAR}
+	 *            </ul>
+	 * @param lpOverlapped
+	 *            {@code _In_ LPOVERLAPPED} - A pointer to an OVERLAPPED structure. This structure
+	 *            is required if hFile was opened with FILE_FLAG_OVERLAPPED.
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()}.
+	 */
+	@CheckReturnValue
+	boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Returns a pointer to the allocated memory of the given size.
