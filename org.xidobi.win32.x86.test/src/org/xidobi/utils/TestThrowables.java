@@ -98,7 +98,7 @@ public class TestThrowables {
 	@Test
 	public void newNativeCodeException_withNativeErrorMessage() {
 		//@formatter:off
-		doAnswer(withNativeErrorMessage("This is a native error")).
+		doAnswer(withNativeErrorMessage("This is a native error\n\n")).
 			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
 		//@formatter:on
 

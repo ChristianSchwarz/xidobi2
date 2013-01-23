@@ -15,8 +15,7 @@
  */
 package org.xidobi.integration;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static java.lang.Thread.sleep;
 import static org.xidobi.OS.OS;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 
@@ -83,13 +82,28 @@ public class TestReadWrite {
 	 * 
 	 * @throws Exception
 	 */
-	@Test(timeout = 3000)
+	@Test
 	public void openReadClose() throws Exception {
 		connection = portHandle.open(PORT_SETTINGS);
 
-		byte[] result = connection.read();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					sleep(100);
+					connection.read();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 
-		assertThat(result, is(notNullValue()));
+		sleep(100);
+		
+		connection.close();
+		
+		sleep(3000);
 	}
 
 	/**

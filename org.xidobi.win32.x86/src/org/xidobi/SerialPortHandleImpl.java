@@ -165,7 +165,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 */
 	@Nonnull
 	public String getPortName() {
-		throw new UnsupportedOperationException("Not implemented yet!");
+		return portName;
 	}
 
 }

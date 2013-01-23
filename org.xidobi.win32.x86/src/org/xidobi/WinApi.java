@@ -58,18 +58,24 @@ public interface WinApi {
 
 	/** No errors. */
 	int ERROR_SUCCESS = 0;
-	/** Access denied or port busy. */
-	int ERROR_ACCESS_DENIED = 5;
 	/** File not found or port unavailable. */
 	int ERROR_FILE_NOT_FOUND = 2;
-	/** Overlapped I/O operation is in progress. */
-	int ERROR_IO_PENDING = 997;
-	/** No more data is available. Indicates in an enumeration that no more elements are available. */
-	int ERROR_NO_MORE_ITEMS = 259;
+	/** Access denied or port busy. */
+	int ERROR_ACCESS_DENIED = 5;
+	/** The handle is invalid. */
+	int ERROR_INVALID_HANDLE = 6;
 	/** More data is available. */
 	int ERROR_MORE_DATA = 234;
+	/** No more data is available. Indicates in an enumeration that no more elements are available. */
+	int ERROR_NO_MORE_ITEMS = 259;
+	/**
+	 * The I/O operation has been aborted because of either a thread exit or an application request.
+	 */
+	int ERROR_OPERATION_ABORTED = 995;
 	/** Overlapped I/O event is not in a signaled state. */
 	int ERROR_IO_INCOMPLETE = 996;
+	/** Overlapped I/O operation is in progress. */
+	int ERROR_IO_PENDING = 997;
 
 	/**
 	 * The specified object is a mutex object that was not released by the thread that owned the

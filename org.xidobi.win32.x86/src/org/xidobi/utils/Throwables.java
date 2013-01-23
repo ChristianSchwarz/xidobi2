@@ -94,6 +94,9 @@ public final class Throwables {
 		//@formatter:on
 		if (result == 0)
 			return "No error description available.";
-		return new String(lpMsgBuf, 0, result);
+		
+		// cut bytes to the length (result) without trailing linebreaks 
+		// and convert to a String:
+		return new String(lpMsgBuf, 0, result - 2);
 	}
 }
