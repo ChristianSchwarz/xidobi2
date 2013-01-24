@@ -59,10 +59,10 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WriteFile
 /*
  * Class:     org_xidobi_OS
  * Method:    ReadFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ * Signature: (ILorg/xidobi/structs/NativeByteArray;ILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ReadFile
-  (JNIEnv *, jobject, jint, jbyteArray, jint, jobject, jobject, jobject);
+  (JNIEnv *, jobject, jint, jobject, jint, jobject, jobject, jobject);
 
 /*
  * Class:     org_xidobi_OS

@@ -201,12 +201,12 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 /*
  * Class:     org_xidobi_OS
  * Method:    ReadFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ * Signature: (ILorg/xidobi/structs/NativeByteArray;ILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 		jint handle,
-		jbyteArray lpBuffer,
+		jobject lpBuffer,
 		jint nNumberOfBytesToRead,
 		jobject lpNumberOfBytesRead,
 		jobject lpOverlapped,
@@ -215,11 +215,10 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 	DWORD bytesRead = 0;
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
-	jsize size = (*env)->GetArrayLength(env, lpBuffer);
-	const jbyte jBuffer[size];
+	const jbyte *jBuffer = getNativeByteArray(env, lpBuffer);
 
 	BOOL result = ReadFile( (HANDLE) handle,
-							 &jBuffer,
+							 (PVOID) jBuffer,
 							 (DWORD) nNumberOfBytesToRead,
 							 &bytesRead,
 							 overlapped);
@@ -228,8 +227,6 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 
 	setINT(env, lpNumberOfBytesRead, &bytesRead);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
-
-	(*env)->SetByteArrayRegion(env, lpBuffer, 0, bytesRead, jBuffer);
 
 	if (result)
 		return JNI_TRUE;
