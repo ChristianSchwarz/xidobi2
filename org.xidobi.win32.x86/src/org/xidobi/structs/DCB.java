@@ -27,6 +27,8 @@ package org.xidobi.structs;
  */
 public class DCB {
 
+	// WE DON'T NEED THIS FIELDS AT THE MOMENT: --------------------------------------------------
+	//
 	// /** Baudrate: 110 */
 	// public final static int CBR_110 = 110;
 	// /** Baudrate: 300 */
@@ -55,6 +57,8 @@ public class DCB {
 	// public final static int CBR_128000 = 128000;
 	// /** Baudrate: 256000 */
 	// public final static int CBR_256000 = 256000;
+	//
+	// -------------------------------------------------------------------------------------------
 
 	/** Disables the DTR line when the device is opened and leaves it disabled. */
 	public final static int DTR_CONTROL_DISABLE = 0x00;
@@ -68,7 +72,6 @@ public class DCB {
 
 	/** Disables the RTS line when the device is opened and leaves it disabled. */
 	public final static int RTS_CONTROL_DISABLE = 0x00;
-
 	/** Enables the RTS line when the device is opened and leaves it on. */
 	public final static int RTS_CONTROL_ENABLE = 0x01;
 	/**
@@ -101,143 +104,142 @@ public class DCB {
 	public final static int ONE5STOPBITS = 1;
 	/** 2 stop bits. */
 	public final static int TWOSTOPBITS = 2;
+
 	/**
-	 * DWORD The length of the structure, in bytes. The caller must set this member to sizeof(DCB).
-	 * */
+	 * {@code DWORD} - The length of the structure, in bytes. The caller must set this member to
+	 * sizeof(DCB).
+	 */
 	public int DCBlength;
 
-	/** DWORD The baud rate at which the communications device operates. */
+	/**
+	 * {@code DWORD} - The baud rate at which the communications device operates.
+	 */
 	public int BaudRate;
 
 	/**
-	 * DWORD If this member is TRUE, binary mode is enabled. Windows does not support nonbinary mode
-	 * transfers, so this member must be TRUE.
+	 * {@code DWORD} - If this member is TRUE, binary mode is enabled. Windows does not support
+	 * nonbinary mode transfers, so this member must be TRUE.
 	 */
 	public int fBinary = 1;
 
-	/** DWORD If this member is TRUE, parity checking is performed and errors are reported. */
+	/**
+	 * {@code DWORD} - If this member is TRUE, parity checking is performed and errors are reported.
+	 */
 	public int fParity = 1;
 
 	/**
-	 * DWORD If this member is TRUE, the CTS (clear-to-send) signal is monitored for output flow
-	 * control. If this member is TRUE and CTS is turned off, output is suspended until CTS is sent
-	 * again.
+	 * {@code DWORD} - If this member is TRUE, the CTS (clear-to-send) signal is monitored for
+	 * output flow control. If this member is TRUE and CTS is turned off, output is suspended until
+	 * CTS is sent again.
 	 */
 	public int fOutxCtsFlow = 1;
+
 	/**
-	 * DWORD If this member is TRUE, the DSR (data-set-ready) signal is monitored for output flow
-	 * control. If this member is TRUE and DSR is turned off, output is suspended until DSR is sent
-	 * again.
+	 * {@code DWORD} - If this member is TRUE, the DSR (data-set-ready) signal is monitored for
+	 * output flow control. If this member is TRUE and DSR is turned off, output is suspended until
+	 * DSR is sent again.
 	 */
 	public int fOutxDsrFlow = 1;
 
 	/**
-	 * The DTR (data-terminal-ready) flow control. This member can be one of the following values.
+	 * {@code DWORD} - The DTR (data-terminal-ready) flow control. This member can be one of the
+	 * following values.
 	 */
 	public int fDtrControl = 2;
+
 	/**
-	 * If this member is TRUE, the communications driver is sensitive to the state of the DSR
-	 * signal. The driver ignores any bytes received, unless the DSR modem input line is high.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - If this member is TRUE, the communications driver is sensitive to the state
+	 * of the DSR signal. The driver ignores any bytes received, unless the DSR modem input line is
+	 * high.
 	 */
 	public int fDsrSensitivity = 1;
+
 	/**
-	 * If this member is TRUE, transmission continues after the input buffer has come within XoffLim
-	 * bytes of being full and the driver has transmitted the XoffChar character to stop receiving
-	 * bytes. If this member is FALSE, transmission does not continue until the input buffer is
-	 * within XonLim bytes of being empty and the driver has transmitted the XonChar character to
-	 * resume reception.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - If this member is TRUE, transmission continues after the input buffer has
+	 * come within XoffLim bytes of being full and the driver has transmitted the XoffChar character
+	 * to stop receiving bytes. If this member is FALSE, transmission does not continue until the
+	 * input buffer is within XonLim bytes of being empty and the driver has transmitted the XonChar
+	 * character to resume reception.
 	 */
 	public int fTXContinueOnXoff = 1;
+
 	/**
-	 * Indicates whether XON/XOFF flow control is used during transmission. If this member is TRUE,
-	 * transmission stops when the XoffChar character is received and starts again when the XonChar
-	 * character is received.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - Indicates whether XON/XOFF flow control is used during transmission. If this
+	 * member is TRUE, transmission stops when the XoffChar character is received and starts again
+	 * when the XonChar character is received.
 	 */
 	public int fOutX = 1;
+
 	/**
-	 * Indicates whether XON/XOFF flow control is used during reception. If this member is TRUE, the
-	 * XoffChar character is sent when the input buffer comes within XoffLim bytes of being full,
-	 * and the XonChar character is sent when the input buffer comes within XonLim bytes of being
-	 * empty.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - Indicates whether XON/XOFF flow control is used during reception. If this
+	 * member is TRUE, the XoffChar character is sent when the input buffer comes within XoffLim
+	 * bytes of being full, and the XonChar character is sent when the input buffer comes within
+	 * XonLim bytes of being empty.
 	 */
 	public int fInX = 1;
+
 	/**
-	 * Indicates whether bytes received with parity errors are replaced with the character specified
-	 * by the ErrorChar member. If this member is TRUE and the fParity member is TRUE, replacement
-	 * occurs.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - Indicates whether bytes received with parity errors are replaced with the
+	 * character specified by the ErrorChar member. If this member is TRUE and the fParity member is
+	 * TRUE, replacement occurs.
 	 */
 	public int fErrorChar = 1;
+
 	/**
-	 * If this member is TRUE, null bytes are discarded when received.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - If this member is TRUE, null bytes are discarded when received.
 	 */
 	public int fNull = 1;
+
 	/**
-	 * The RTS (request-to-send) flow control. This member can be one of the following values.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - The RTS (request-to-send) flow control. This member can be one of the
+	 * following values.
 	 */
 	public int fRtsControl = 2;
+
 	/**
-	 * If this member is TRUE, the driver terminates all read and write operations with an error
-	 * status if an error occurs. The driver will not accept any further communications operations
-	 * until the application has acknowledged the error by calling the ClearCommError function.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - If this member is TRUE, the driver terminates all read and write operations
+	 * with an error status if an error occurs. The driver will not accept any further
+	 * communications operations until the application has acknowledged the error by calling the
+	 * ClearCommError function.
 	 */
 	public int fAbortOnError = 1;
+
 	/**
-	 * Reserved; do not use.
-	 * 
-	 * DWORD
+	 * {@code DWORD} - Reserved; do not use.
 	 */
 	public int fDummy2 = 17;
+
 	/**
-	 * Reserved; must be zero.
-	 * 
-	 * WORD
+	 * {@code WORD} - Reserved; must be zero.
 	 */
 	public short wReserved;
+
 	/**
-	 * The minimum number of bytes in use allowed in the input buffer before flow control is
-	 * activated to allow transmission by the sender. This assumes that either XON/XOFF, RTS, or DTR
-	 * input flow control is specified in the fInX, fRtsControl, or fDtrControl members.
-	 * 
-	 * WORD
+	 * {@code WORD} - The minimum number of bytes in use allowed in the input buffer before flow
+	 * control is activated to allow transmission by the sender. This assumes that either XON/XOFF,
+	 * RTS, or DTR input flow control is specified in the fInX, fRtsControl, or fDtrControl members.
 	 */
 	public short XonLim;
+
 	/**
-	 * The minimum number of free bytes allowed in the input buffer before flow control is activated
-	 * to inhibit the sender. Note that the sender may transmit characters after the flow control
-	 * signal has been activated, so this value should never be zero. This assumes that either
-	 * XON/XOFF, RTS, or DTR input flow control is specified in the fInX, fRtsControl, or
-	 * fDtrControl members. The maximum number of bytes in use allowed is calculated by subtracting
-	 * this value from the size, in bytes, of the input buffer.
-	 * 
-	 * WORD
+	 * {@code WORD} - The minimum number of free bytes allowed in the input buffer before flow
+	 * control is activated to inhibit the sender. Note that the sender may transmit characters
+	 * after the flow control signal has been activated, so this value should never be zero. This
+	 * assumes that either XON/XOFF, RTS, or DTR input flow control is specified in the fInX,
+	 * fRtsControl, or fDtrControl members. The maximum number of bytes in use allowed is calculated
+	 * by subtracting this value from the size, in bytes, of the input buffer.
 	 */
 	public short XoffLim;
+
 	/**
-	 * The number of bits in the bytes transmitted and received.The number of data bits must be 5 to
-	 * 8 bits.The use of 5 data bits with 2 stop bits is an invalid combination, as is 6, 7, or 8
-	 * data bits with 1.5 stop bits.
-	 * 
-	 * BYTE
+	 * {@code BYTE} - The number of bits in the bytes transmitted and received.The number of data
+	 * bits must be 5 to 8 bits.The use of 5 data bits with 2 stop bits is an invalid combination,
+	 * as is 6, 7, or 8 data bits with 1.5 stop bits.
 	 */
 	public byte ByteSize;
+
 	/**
-	 * The parity scheme to be used. Values are:
+	 * {@code BYTE} - The parity scheme to be used. Values are:
 	 * <ul>
 	 * <li>{@link #EVENPARITY}</li>
 	 * <li>{@link #NOPARITY}</li>
@@ -245,52 +247,44 @@ public class DCB {
 	 * <li>{@link #ODDPARITY}</li>
 	 * <li>{@link #SPACEPARITY}</li>
 	 * </ul>
-	 * 
-	 * BYTE
 	 */
 	public byte Parity;
+
 	/**
-	 * The number of stop bits to be used. The use of 5 data bits with 2 stop bits is an invalid
-	 * combination, as is 6, 7, or 8 data bits with 1.5 stop bits.This member can be one of the
-	 * following values.
-	 * 
-	 * BYTE
+	 * {@code BYTE} - The number of stop bits to be used. The use of 5 data bits with 2 stop bits is
+	 * an invalid combination, as is 6, 7, or 8 data bits with 1.5 stop bits.This member can be one
+	 * of the following values.
 	 */
 	public byte StopBits;
+
 	/**
-	 * The value of the XON character for both transmission and reception.
-	 * 
-	 * char
+	 * {@code char} - The value of the XON character for both transmission and reception.
 	 */
 	public char XonChar;
+
 	/**
-	 * The value of the XOFF character for both transmission and reception.
-	 * 
-	 * char
+	 * {@code char} - The value of the XOFF character for both transmission and reception.
 	 */
 	public char XoffChar;
+
 	/**
-	 * The value of the character used to replace bytes received with a parity error.
-	 * 
-	 * char
+	 * {@code char} - The value of the character used to replace bytes received with a parity error.
 	 */
 	public char ErrorChar;
+
 	/**
-	 * The value of the character used to signal the end of data.
-	 * 
-	 * char
+	 * {@code char} - The value of the character used to signal the end of data.
 	 */
 	public char EofChar;
+
 	/**
-	 * The value of the character used to signal an event.
-	 * 
-	 * char
+	 * {@code char} - The value of the character used to signal an event.
 	 */
 	public char EvtChar;
+
 	/**
-	 * Reserved; do not use.
-	 * 
-	 * WORD
+	 * {@code WORD} - Reserved; do not use.
 	 */
 	public short wReserved1;
+
 }
