@@ -19,16 +19,12 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.xidobi.OS.OS;
 
-import java.io.IOException;
-import java.util.Properties;
 import java.util.Set;
 
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Before;
 import org.junit.Test;
 import org.xidobi.SerialPortFinderImpl;
 import org.xidobi.SerialPortInfo;
@@ -42,23 +38,7 @@ import org.xidobi.SerialPortInfo;
  * 
  * @author Tobias Breßler
  */
-public class TestSerialPortFinderImpl {
-
-	private String availableSerialPort;
-
-	@Before
-	@SuppressWarnings("javadoc")
-	public void setUp() {
-		Properties prop = new Properties();
-		try {
-			prop.load(this.getClass().getResourceAsStream("setupIntegrationTests.properties"));
-			availableSerialPort = prop.getProperty("availableSerialPort");
-			assertThat(availableSerialPort, is(notNullValue()));
-		}
-		catch (IOException e) {
-			fail("Couldn't load file >setupIntegrationTests.properties<!");
-		}
-	}
+public class TestSerialPortFinderImpl extends AbstractIntegrationTest {
 
 	/**
 	 * Verifies that {@link SerialPortFinderImpl#find()} never returns a null value and never throws
@@ -69,7 +49,7 @@ public class TestSerialPortFinderImpl {
 		SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
 		Set<SerialPortInfo> result = finder.find();
 		assertThat(result, is(notNullValue()));
-		assertThat(result, hasItem(portInfoWith(availableSerialPort)));
+		assertThat(result, hasItem(portInfoWith(getAvailableSerialPort())));
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -22,7 +22,6 @@ import static org.xidobi.SerialPortSettings.from9600_8N1;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,7 +37,7 @@ import org.xidobi.SerialPortSettings;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-public class TestReadWrite {
+public class TestReadWrite extends AbstractIntegrationTest {
 
 	/** Settings for the serial port */
 	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().create();
@@ -53,10 +52,9 @@ public class TestReadWrite {
 
 	private SerialPort connection;
 
-	@Before
-	@SuppressWarnings("javadoc")
-	public void setUp() {
-		portHandle = new SerialPortHandleImpl(OS, "COM1");
+	@Override
+	protected void setUp() {
+		portHandle = new SerialPortHandleImpl(OS, getAvailableSerialPort());
 	}
 
 	@After
@@ -100,9 +98,9 @@ public class TestReadWrite {
 		}).start();
 
 		sleep(100);
-		
+
 		connection.close();
-		
+
 		sleep(3000);
 	}
 
