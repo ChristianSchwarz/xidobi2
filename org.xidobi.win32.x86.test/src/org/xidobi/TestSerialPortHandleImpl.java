@@ -109,6 +109,15 @@ public class TestSerialPortHandleImpl {
 	}
 
 	/**
+	 * Verifies that {@link SerialPortHandleImpl#getPortName()} returns the port name that was
+	 * passed to the constructor.
+	 */
+	@Test
+	public void getPortName() {
+		assertThat(handle.getPortName(), is("COM1"));
+	}
+
+	/**
 	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is passed
 	 * as argument <code>settings</code>.
 	 * 
@@ -121,8 +130,8 @@ public class TestSerialPortHandleImpl {
 
 	/**
 	 * Verifies that an {@link IOException} is thrown, when the call to
-	 * {@link WinApi#CreateFile(String, int, int, int, int, int, int)} returns an invalid handle (-1).
-	 * In this case the {@link IOException} must contain the error code that is returned by
+	 * {@link WinApi#CreateFile(String, int, int, int, int, int, int)} returns an invalid handle
+	 * (-1). In this case the {@link IOException} must contain the error code that is returned by
 	 * {@link WinApi#GetLastError()}.
 	 * 
 	 * @throws Exception

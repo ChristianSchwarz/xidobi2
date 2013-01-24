@@ -76,7 +76,7 @@ public class TestNativeByteArray {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withLength0() {
-		new NativeByteArray(null, 0);
+		new NativeByteArray(win, 0);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class TestNativeByteArray {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNegativeLength() {
-		new NativeByteArray(null, -1);
+		new NativeByteArray(win, -1);
 	}
 
 	/**

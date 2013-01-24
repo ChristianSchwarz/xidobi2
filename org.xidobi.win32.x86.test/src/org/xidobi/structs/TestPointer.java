@@ -67,6 +67,25 @@ public class TestPointer {
 	}
 
 	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>length == 0</code>.
+	 */
+	@SuppressWarnings("unused")
+	@Test(expected = IllegalArgumentException.class)
+	public void new_withLength0() {
+		new Pointer(win, 0);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>length</code> is
+	 * negative.
+	 */
+	@SuppressWarnings("unused")
+	@Test(expected = IllegalArgumentException.class)
+	public void new_withNegativeLength() {
+		new Pointer(win, -1);
+	}
+	
+	/**
 	 * Verifies that the construction of a {@link Pointer} allocates memory via the WIN-API.
 	 */
 	@Test
