@@ -30,6 +30,7 @@ import org.xidobi.structs.OVERLAPPED;
  * Interface for the native Windows API.
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
  */
 public interface WinApi {
 
