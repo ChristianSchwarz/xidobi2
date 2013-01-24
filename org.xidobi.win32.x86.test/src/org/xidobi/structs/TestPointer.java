@@ -84,12 +84,12 @@ public class TestPointer {
 	public void new_withNegativeLength() {
 		new Pointer(win, -1);
 	}
-	
+
 	/**
 	 * Verifies that the construction of a {@link Pointer} allocates memory via the WIN-API.
 	 */
 	@Test
-	public void new_allocatesOVERLAPPEDstruct() {
+	public void new_allocatesMemory() {
 		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
 
 		pointer = new Pointer(win, DUMMY_SIZE);
@@ -101,7 +101,7 @@ public class TestPointer {
 	 * Verifies that the method {@link Pointer#dispose()} frees the memory via the WIN-API.
 	 */
 	@Test
-	public void dispose_freesOVERLAPPEDstruct() {
+	public void dispose_freesMemory() {
 		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
 
 		pointer = new Pointer(win, DUMMY_SIZE);
@@ -109,6 +109,19 @@ public class TestPointer {
 
 		assertThat(pointer.isDisposed(), is(true));
 		verify(win).free(DUMMY_POINTER);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalStateException} is thrown, when the pointer is already
+	 * disposed.
+	 */
+	@Test(expected = IllegalStateException.class)
+	public void dispose_whenAlreadyDisposed() {
+		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
+		pointer = new Pointer(win, DUMMY_SIZE);
+		pointer.dispose();
+
+		pointer.dispose();
 	}
 
 }

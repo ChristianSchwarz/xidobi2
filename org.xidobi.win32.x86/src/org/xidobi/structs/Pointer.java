@@ -62,6 +62,7 @@ public class Pointer {
 	 * Frees the resources of this instance ( memory on the heap).
 	 */
 	public void dispose() {
+		checkIfDisposed();
 		win.free(cPointer);
 		isDisposed = true;
 	}

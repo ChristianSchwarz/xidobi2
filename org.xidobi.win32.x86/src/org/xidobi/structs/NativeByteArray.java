@@ -58,7 +58,7 @@ public class NativeByteArray extends Pointer {
 	}
 
 	/**
-	 * Returns the full byte array.
+	 * Returns the full byte array that is backed by this instance.
 	 * 
 	 * @return the byte array
 	 */
@@ -71,7 +71,11 @@ public class NativeByteArray extends Pointer {
 	 * Returns the byte array with the specified length.
 	 * 
 	 * @param length
-	 *            the length of the byte array
+	 *            the length of the byte array, must be:
+	 *            <ul>
+	 *            <li>>0
+	 *            <li><= size of array
+	 *            </ul>
 	 * @return the byte array of the specified length
 	 */
 	@Nonnull
