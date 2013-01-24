@@ -101,7 +101,7 @@ public class TestReadWrite extends AbstractIntegrationTest {
 
 		connection.close();
 
-		sleep(3000);
+		sleep(500);
 	}
 
 	/**

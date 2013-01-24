@@ -47,4 +47,19 @@ public class TestPointer {
 		}
 	}
 
+	/**
+	 * Verifies that a pointer can be created and disposed many times parallel without crashing the
+	 * VM.
+	 */
+	@Test(timeout = 1500)
+	public void allocatePointersParallelAndThenDisposeLoop() {
+		Pointer[] pointers = new Pointer[500_000];
+
+		for (int i = 0; i < 500_000; i++)
+			pointers[i] = new Pointer(win, 1024);
+
+		for (int i = 0; i < 500_000; i++)
+			pointers[i].dispose();
+	}
+
 }
