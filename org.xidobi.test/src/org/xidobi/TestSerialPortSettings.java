@@ -96,6 +96,36 @@ public class TestSerialPortSettings {
 	}
 
 	/**
+	 * Verifies that a valid {@link SerialPortSettings} is returned, when a valid value for baud
+	 * rate (1200) is passed.
+	 */
+	@Test
+	public void create_withBauds() {
+		SerialPortSettings result = builder.bauds(1200).create();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result.getBauds(), is(1200));
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when a <code>bauds == 0</code>
+	 * is passed.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void create_withBauds0() {
+		builder.bauds(0).create();
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when a negative baud rate is
+	 * passed.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void create_withNegativeBauds() {
+		builder.bauds(-1).create();
+	}
+
+	/**
 	 * Verifies that a valid {@link SerialPortSettings} is returned, when a valid value for data
 	 * bits (6) is passed.
 	 */

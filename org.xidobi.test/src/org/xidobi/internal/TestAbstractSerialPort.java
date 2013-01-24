@@ -1,8 +1,17 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 16.01.2013 17:04:21
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.internal;
 
@@ -13,6 +22,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -69,7 +79,10 @@ public class TestAbstractSerialPort {
 	@Before
 	public void setUp() {
 		initMocks(this);
+
 		port = new _AbstractSerialPort(portHandle);
+
+		when(portHandle.getPortName()).thenReturn("COM1");
 	}
 
 	/**
@@ -142,7 +155,25 @@ public class TestAbstractSerialPort {
 		catch (IOException ignored) {}
 
 		verify(abstr, times(2)).closeInternal();
+	}
 
+	/**
+	 * Verifies that {@link AbstractSerialPort#isClosed()} returns <code>false</code>, when the port
+	 * is not closed.
+	 */
+	@Test
+	public void isClosed_whenOpen() {
+		assertThat(port.isClosed(), is(false));
+	}
+
+	/**
+	 * Verifies that {@link AbstractSerialPort#isClosed()} returns <code>true</code>, when the port
+	 * is closed.
+	 */
+	@Test
+	public void isClosed_whenClosed() throws Exception {
+		port.close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
@@ -229,7 +260,7 @@ public class TestAbstractSerialPort {
 
 		verify(abstr).readInternal();
 	}
-	
+
 	/**
 	 * Verifies that {@link AbstractSerialPort#readInternal(byte[])} will not be call concurrent.
 	 */
@@ -247,11 +278,36 @@ public class TestAbstractSerialPort {
 		assertThat(ex.awaitTermination(2, SECONDS), is(true));
 
 		assertThat("Only one Thread at a time is allowed to call readInternal()", maxNumberOfParallelThreads.get(), is(1));
+	}
 
+	/**
+	 * Verifies that {@link AbstractSerialPort#portClosedException()} returns an {@link IOException}
+	 * with a message 'Port ??? is closed!'.
+	 */
+	@Test
+	public void portClosedException() {
+		IOException result = port.portClosedException();
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result.getMessage(), is("Port COM1 is closed!"));
+	}
+
+	/**
+	 * Verifies that {@link AbstractSerialPort#portClosedException(String)} returns an
+	 * {@link IOException} with a message 'Port ??? is closed!' and an additional message.
+	 */
+	@Test
+	public void portClosedException_withMessage() {
+		IOException result = port.portClosedException("Additional message.");
+
+		assertThat(result, is(notNullValue()));
+		assertThat(result.getMessage(), is("Port COM1 is closed! Additional message."));
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
+
 	public final class _AbstractSerialPort extends AbstractSerialPort {
+
 		public _AbstractSerialPort(SerialPortHandle portHandle) {
 			super(portHandle);
 		}
@@ -286,8 +342,11 @@ public class TestAbstractSerialPort {
 	 * Captures the max. number of Threads calling the method in parallel, during the given
 	 * {@code captureDurationMs} Timespan.
 	 * 
-	 * @param maxConcurrentInvocations used to set the the max. number of parallel invocations, the initial value must be 0
-	 * @param captureDurationMs milliseconds to capture 
+	 * @param maxConcurrentInvocations
+	 *            used to set the the max. number of parallel invocations, the initial value must be
+	 *            0
+	 * @param captureDurationMs
+	 *            milliseconds to capture
 	 * @return <code>null</code>
 	 */
 	private Answer<Void> captureConcurrentThreads(final AtomicInteger maxConcurrentInvocations, final long captureDurationMs) {
@@ -321,9 +380,10 @@ public class TestAbstractSerialPort {
 			}
 		};
 	}
+
 	private Runnable readBytes() {
 		return new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {

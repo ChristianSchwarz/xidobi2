@@ -34,7 +34,16 @@ public class NativeCodeException extends RuntimeException {
 	 *            an error description, can be <code>null</code>
 	 */
 	public NativeCodeException(String message) {
-		super(message + "\r\nOops this should never happen, you found a bug! Please report it at: https://code.google.com/p/xidobi/issues");
+		super(buildMessage(message));
+	}
+
+	/** Returns a message with additional bug report link. */
+	private static String buildMessage(String message) {
+		if (message == null)
+			message = "";
+		else
+			message = message + "\r\n";
+		return message + "Oops this should never happen, you found a bug! Please report it at: https://code.google.com/p/xidobi/issues";
 	}
 
 }

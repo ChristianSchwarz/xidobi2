@@ -106,7 +106,7 @@ public class TestPreconditions {
 
 		Preconditions.checkArgument(false, "argName", null);
 	}
-	
+
 	/**
 	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
 	 * Containing the argument name as message.
@@ -115,10 +115,10 @@ public class TestPreconditions {
 	public void checkArgument_conditionMismatch_nullArg_withExpectation() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The expected exception message.");
-		
+
 		Preconditions.checkArgument(false, null, "The expected exception message.");
 	}
-	
+
 	/**
 	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
 	 * Containing the argument name as message.
@@ -127,7 +127,7 @@ public class TestPreconditions {
 	public void checkArgument_conditionMismatch_withArg_withExpectation() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >argName< is invalid! The expected exception message.");
-		
+
 		Preconditions.checkArgument(false, "argName", "The expected exception message.");
 	}
 

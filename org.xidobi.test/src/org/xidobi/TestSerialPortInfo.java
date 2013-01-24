@@ -78,4 +78,24 @@ public class TestSerialPortInfo {
 		assertThat(info.getDescription(), is(nullValue()));
 	}
 
+	/**
+	 * Verifies that {@link SerialPortInfo#toString()} returns a String with the port name and the
+	 * description.
+	 */
+	@Test
+	public void toString_withPortNameAndDescription() {
+		SerialPortInfo info = new SerialPortInfo("portName", "description");
+		assertThat(info.toString(), is("SerialPortInfo [portName=portName, description=description]"));
+	}
+
+	/**
+	 * Verifies that {@link SerialPortInfo#toString()} returns a String with the port name and no
+	 * description, when no description is passed to the constructor.
+	 */
+	@Test
+	public void toString_withPortName() {
+		SerialPortInfo info = new SerialPortInfo("portName", null);
+		assertThat(info.toString(), is("SerialPortInfo [portName=portName, description=null]"));
+	}
+
 }
