@@ -15,17 +15,10 @@
  */
 package org.xidobi;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.internal.AbstractSerialPort;
-import org.xidobi.internal.NativeCodeException;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.OVERLAPPED;
-
 import static java.lang.Integer.toHexString;
 import static java.util.Arrays.copyOfRange;
+import static org.xidobi.SerialPortImpl.IOState.FINISHED;
+import static org.xidobi.SerialPortImpl.IOState.PENDING;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
@@ -39,7 +32,16 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.getErrorMessage;
 import static org.xidobi.utils.Throwables.newIOException;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
-import static org.xidobi.SerialPortImpl.IOState.*;
+
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import org.xidobi.internal.AbstractSerialPort;
+import org.xidobi.internal.NativeCodeException;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.OVERLAPPED;
+
 /**
  * {@link SerialPort} implementation for Windows (32bit) x86 Platform.
  * 
@@ -90,7 +92,7 @@ public class SerialPortImpl extends AbstractSerialPort {
 			overlapped = createOverlapped(eventHandle);
 
 			IOState state = write(overlapped, data);
-			if (state==FINISHED)
+			if (state == FINISHED)
 				return;
 
 			// the operation is pending, lets wait for completion
@@ -130,8 +132,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 				overlapped = createOverlapped(eventHandle);
 
 				byte[] readBuffer = new byte[bufferSize];
-				byte[] result=read(overlapped, readBuffer);
-				if (result!=null)
+				byte[] result = read(overlapped, readBuffer);
+				if (result != null)
 					return result;
 
 				// the operation is pending, lets wait for completion
@@ -156,9 +158,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 		}
 	}
 
-	
-
-	
 	/**
 	 * @param eventHandle
 	 * @return
@@ -234,7 +233,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 		return PENDING;
 	}
 
-	
 	private byte[] read(OVERLAPPED overlapped, byte[] result) throws IOException {
 		INT lpNumberOfBytesRead = new INT(0);
 		boolean succeed = win.ReadFile(handle, result, result.length, lpNumberOfBytesRead, overlapped);
@@ -255,7 +253,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 	/**
 	 * @param overlapped
-	 * @param data the byte[] that was used as read buffer
+	 * @param data
+	 *            the byte[] that was used as read buffer
 	 * @return
 	 * @throws IOException
 	 */
@@ -264,8 +263,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 		return copyOfRange(data, 0, numberOfBytesRead);
 	}
 
-	
-	
 	/**
 	 * @param overlapped
 	 * @param data
@@ -273,10 +270,10 @@ public class SerialPortImpl extends AbstractSerialPort {
 	 */
 	private void processWriteResult(OVERLAPPED overlapped, byte[] data) throws IOException {
 		int numberOfBytesTransferred = getNumberOfTransferredBytes(overlapped);
-		if (numberOfBytesTransferred!= data.length)
+		if (numberOfBytesTransferred != data.length)
 			throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + numberOfBytesTransferred + " expected: " + data.length);
 	}
-	
+
 	/**
 	 * @param overlapped
 	 * @return
@@ -297,7 +294,6 @@ public class SerialPortImpl extends AbstractSerialPort {
 		return numberOfBytesRead.value;
 	}
 
-	
 	/**
 	 * Disposed/Closes the handle and the {@link OVERLAPPED}-struct.
 	 */
@@ -311,8 +307,8 @@ public class SerialPortImpl extends AbstractSerialPort {
 			win.CloseHandle(eventHandle);
 		}
 	}
-	
-	static enum IOState{
+
+	static enum IOState {
 		PENDING,
 		FINISHED
 	}
