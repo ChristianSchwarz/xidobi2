@@ -35,9 +35,7 @@ import org.xidobi.SerialPortHandle;
  */
 public abstract class AbstractSerialPort implements SerialPort {
 
-	/**
-	 * The Handle of this Port contains e.g. the Name.
-	 */
+	/** The Handle of this port contains e.g. the name. */
 	@Nonnull
 	private final SerialPortHandle portHandle;
 
@@ -49,13 +47,9 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 */
 	private volatile boolean isClosed;
 
-	/**
-	 * Ensures that {@link #writeInternal(byte[])} can only called by one Thread at a time.
-	 */
+	/** Ensures that {@link #writeInternal(byte[])} can only called by one thread at a time. */
 	private final Lock writeLock = new ReentrantLock();;
-	/**
-	 * Ensures that {@link #readInternal()} can only called by one Thread at a time.
-	 */
+	/** Ensures that {@link #readInternal()} can only called by one thread at a time. */
 	private final Lock readLock = new ReentrantLock();;
 
 	/**
@@ -171,29 +165,32 @@ public abstract class AbstractSerialPort implements SerialPort {
 	 * Returns a new {@link IOException} indicating that the port is closed. Subclasses may use this
 	 * to throw a consitent {@link IOException}, if a closed port was detected.
 	 * <p>
-	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw an
-	 * {@link IOException} if the port is closed. Overriding it may have consequences to the caller. 
+	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw
+	 * an {@link IOException} if the port is closed. Overriding it may have consequences to the
+	 * caller.
 	 */
 	@Nonnull
 	protected IOException portClosedException() {
 		return portClosedException(null);
 	}
-	
+
 	/**
 	 * Returns a new {@link IOException} indicating that the port is closed. Subclasses may use this
 	 * to throw a consitent {@link IOException}, if a closed port was detected.
 	 * <p>
-	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw an
-	 * {@link IOException} if the port is closed. Overriding it may have consequences to the caller.
+	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw
+	 * an {@link IOException} if the port is closed. Overriding it may have consequences to the
+	 * caller.
 	 * 
-	 *  @param message error description may be <code>null</code> 
+	 * @param message
+	 *            error description may be <code>null</code>
 	 */
 	@Nonnull
 	protected IOException portClosedException(@Nullable String message) {
-		if (message==null)
-			message="";
+		if (message == null)
+			message = "";
 		else
-			message=" "+message;
-		return new IOException("Port " + portHandle.getPortName() + " is closed!"+message);
+			message = " " + message;
+		return new IOException("Port " + portHandle.getPortName() + " is closed!" + message);
 	}
 }

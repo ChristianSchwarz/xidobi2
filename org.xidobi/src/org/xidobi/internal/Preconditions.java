@@ -61,11 +61,10 @@ public class Preconditions {
 	 *  checkArgument(array.length>5,"array"); -> throws an IllegalArgumentException("Argument >array< is invalid!");
 	 * </pre>
 	 * 
-	 * 
 	 * @param condition
 	 *            the condition to be checked
 	 * @param argName
-	 *            the name of the argument can be <code>null</code>
+	 *            the name of the argument, can be <code>null</code>
 	 * 
 	 */
 	public static void checkArgument(boolean condition, String argName) {
@@ -91,11 +90,10 @@ public class Preconditions {
 	 *    -> throws an IllegalArgumentException("Argument >array< is invalid! Expected more than 5 elements!");
 	 * </pre>
 	 * 
-	 * 
 	 * @param condition
 	 *            the condition to be checked
 	 * @param argName
-	 *            the name of the argument can be <code>null</code>
+	 *            the name of the argument, can be <code>null</code>
 	 * @param description
 	 *            the description to be used when the {@code condition} is not <code>true</code>,
 	 *            can be <code>null</code>

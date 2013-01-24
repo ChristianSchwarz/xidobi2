@@ -80,16 +80,16 @@ public final class Throwables {
 	 * 
 	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
-	
 	 * @param errorCode
 	 *            the native error code
 	 * @return error message, never <code>null</code>
 	 */
 	@Nonnull
-	public static final String getErrorMessage(@Nonnull WinApi win,  int errorCode) {
+	public static final String getErrorMessage(@Nonnull WinApi win, int errorCode) {
 		String nativeErrorMessage = getNativeErrorMessage(win, errorCode);
 		return "Error-Code " + errorCode + ": " + nativeErrorMessage;
 	}
+
 	/**
 	 * Returns an error message with the given message, the given error-code and a message to the
 	 * error-code, if available.
@@ -105,7 +105,7 @@ public final class Throwables {
 	@Nonnull
 	public static final String getErrorMessage(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
 		checkArgumentNotNull(message, "message");
-		return message + "\r\n" +getErrorMessage(win, errorCode);
+		return message + "\r\n" + getErrorMessage(win, errorCode);
 	}
 
 	/**

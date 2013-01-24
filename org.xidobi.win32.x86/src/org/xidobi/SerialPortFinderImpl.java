@@ -58,6 +58,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	}
 
 	/** {@inheritDoc} */
+	@Nonnull
 	public Set<SerialPortInfo> find() {
 		HKEY keyHandle = new HKEY(win);
 		try {
@@ -96,14 +97,17 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		byte[] registryValue = new byte[255]; // port name
 		INT sizeOfValue = new INT(); // size of the port name
 
+		// iterate through all enum values ...
 		for (int index = 0; index < MAX_VALUE; index++) {
 			sizeOfKey.value = 255;
 			sizeOfValue.value = 255;
 
 			int status = win.RegEnumValueA(phkResult, index, registryKey, sizeOfKey, 0, new INT(), registryValue, sizeOfValue);
 			if (status != ERROR_SUCCESS)
+				// ... no more values, stop iteration
 				break;
 
+			// add serial port values to set:
 			String portName = new String(registryValue, 0, sizeOfValue.value - 1);
 			String description = new String(registryKey, 0, sizeOfKey.value);
 			SerialPortInfo serialPort = new SerialPortInfo(portName, description);

@@ -17,23 +17,24 @@ package org.xidobi.internal;
 
 /**
  * This exception is used to indicate an unexpected result, behavior or error that was detected
- * after a native method call.
+ * after a native method was called.
  * 
  * @author Christian Schwarz
  */
 public class NativeCodeException extends RuntimeException {
 
-	/**	 */
+	/** Serial-Version-UID */
 	private static final long serialVersionUID = 8424047512526437203L;
 
 	/**
-	 * Creates a new NativeCodeException to indicate an unexpected result, behavior or error that
-	 * was detected after a native method call.
+	 * Creates a new {@link NativeCodeException} to indicate an unexpected result, behavior or error
+	 * that was detected after a native method was called.
 	 * 
 	 * @param message
-	 *            can be <code>null</code>
+	 *            an error description, can be <code>null</code>
 	 */
 	public NativeCodeException(String message) {
 		super(message + "\r\nOops this should never happen, you found a bug! Please report it at: https://code.google.com/p/xidobi/issues");
 	}
+
 }

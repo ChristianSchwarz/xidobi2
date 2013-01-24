@@ -88,11 +88,8 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		this.configurator = checkArgumentNotNull(configurator, "configurator");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.xidobi.SerialPortHandle#open(SerialPortSettings)
-	 */
+	/** {@inheritDoc} */
+	@Nonnull
 	public SerialPort open(SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
@@ -158,11 +155,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		return newIOException(win, message, win.getPreservedError());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.xidobi.SerialPortHandle#getPortName()
-	 */
+	/** {@inheritDoc} */
 	@Nonnull
 	public String getPortName() {
 		return portName;

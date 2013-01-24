@@ -12,6 +12,8 @@ import org.xidobi.WinApi;
 
 /**
  * A pointer to an HKEY in C.
+ * <p>
+ * A HKEY is a handle to an open registry key.
  * 
  * @author Tobias Breﬂler
  */
