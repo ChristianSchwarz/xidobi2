@@ -41,15 +41,17 @@ import org.xidobi.SerialPortInfo;
 public class TestSerialPortFinderImpl extends AbstractIntegrationTest {
 
 	/**
-	 * Verifies that {@link SerialPortFinderImpl#find()} never returns a null value and never throws
-	 * an exception.
+	 * Verifies that {@link SerialPortFinderImpl#find()} never returns a <code>null</code> value and
+	 * never throws an exception.
 	 */
-	@Test
+	@Test(timeout = 1500)
 	public void findSerialPortsLoop() {
-		SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
-		Set<SerialPortInfo> result = finder.find();
-		assertThat(result, is(notNullValue()));
-		assertThat(result, hasItem(portInfoWith(getAvailableSerialPort())));
+		for (int i = 0; i < 10_000; i++) {
+			SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
+			Set<SerialPortInfo> result = finder.find();
+			assertThat(result, is(notNullValue()));
+			assertThat(result, hasItem(portInfoWith(getAvailableSerialPort())));
+		}
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////
