@@ -30,7 +30,7 @@ import org.xidobi.WinApi;
 public class NativeByteArray extends Pointer {
 
 	/** the size of the native byte array */
-	private final int length;
+	private final int size;
 
 	/**
 	 * Creates a new byte array instance on the heap. The instance must be disposed, when it isn't
@@ -38,13 +38,13 @@ public class NativeByteArray extends Pointer {
 	 * 
 	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
-	 * @param length
+	 * @param size
 	 *            the size of the native byte array, must be greater than 0
 	 */
 	public NativeByteArray(	@Nonnull WinApi win,
-							@Nonnegative int length) {
-		super(win, length);
-		this.length = length;
+							@Nonnegative int size) {
+		super(win, size);
+		this.size = size;
 	}
 
 	/**
@@ -52,20 +52,34 @@ public class NativeByteArray extends Pointer {
 	 * 
 	 * @return size of byte array
 	 */
-	public int length() {
+	public int size() {
 		checkIfDisposed();
-		return length;
+		return size;
 	}
 
+	/**
+	 * Returns the full byte array.
+	 * 
+	 * @return the byte array
+	 */
+	@Nonnull
 	public byte[] getByteArray() {
-		return getByteArray(length);
+		return getByteArray(size);
 	}
 
-	public byte[] getByteArray(int size) {
-		checkArgument(size > 0, "size", "Expected a value greater than 0");
-		checkArgument(size <= length, "size", "Expected a value lesser than or equal to length");
+	/**
+	 * Returns the byte array with the specified length.
+	 * 
+	 * @param length
+	 *            the length of the byte array
+	 * @return the byte array of the specified length
+	 */
+	@Nonnull
+	public byte[] getByteArray(int length) {
+		checkArgument(length > 0, "length", "Expected a value greater than 0");
+		checkArgument(length <= size, "length", "Expected a value lesser than or equal to length");
 		checkIfDisposed();
-		return getWinApi().getByteArray(this, size);
+		return getWinApi().getByteArray(this, length);
 	}
 
 }

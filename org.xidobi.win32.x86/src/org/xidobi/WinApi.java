@@ -817,6 +817,16 @@ public interface WinApi {
 	 */
 	int sizeOf_HKEY();
 
-	byte[] getByteArray(NativeByteArray nativeByteArray, int length);
+	/**
+	 * Returns the byte array with the specified length for the given native byte array pointer.
+	 * 
+	 * @param nativeByteArray
+	 *            the native byte array pointer
+	 * @param length
+	 *            the length of the byte array, must be greater than 0 and lower than or equal to
+	 *            the size of the native byte array
+	 * @return the byte array of the specified length
+	 */
+	byte[] getByteArray(@Nonnull NativeByteArray nativeByteArray, @Nonnegative int length);
 
 }

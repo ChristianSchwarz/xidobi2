@@ -118,25 +118,25 @@ public class TestNativeByteArray {
 	}
 
 	/**
-	 * Verifies that {@link NativeByteArray#length()} returns the length that was passed to the
+	 * Verifies that {@link NativeByteArray#size()} returns the length that was passed to the
 	 * constructor.
 	 */
 	@Test
 	public void length() {
 		byteArray = new NativeByteArray(win, LENGTH);
-		assertThat(byteArray.length(), is(LENGTH));
+		assertThat(byteArray.size(), is(LENGTH));
 	}
 
 	/**
 	 * Verifies that an {@link IllegalStateException} is thrown, when the {@link NativeByteArray} is
-	 * disposed and method {@link NativeByteArray#length()} is called.
+	 * disposed and method {@link NativeByteArray#size()} is called.
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void length_whenDisposed() {
 		byteArray = new NativeByteArray(win, LENGTH);
 		byteArray.dispose();
 
-		byteArray.length();
+		byteArray.size();
 	}
 
 	/**
