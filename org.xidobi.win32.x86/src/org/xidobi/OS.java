@@ -143,14 +143,14 @@ public class OS implements WinApi {
 
 	/** {@inheritDoc} */
 	@CheckReturnValue
-	public boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped) {
+	public boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = ReadFile(handle, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped, lastError);
 		storeLastNativeError(lastError);
 		return result;
 	}
 
-	private native boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
+	private native boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
 	public int getPreservedError() {

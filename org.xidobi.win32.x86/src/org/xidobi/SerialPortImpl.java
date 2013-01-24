@@ -40,6 +40,7 @@ import javax.annotation.Nonnull;
 import org.xidobi.internal.AbstractSerialPort;
 import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
@@ -128,10 +129,12 @@ public class SerialPortImpl extends AbstractSerialPort {
 			int eventHandle = createEventHandle();
 
 			OVERLAPPED overlapped = null;
+			// TODO Optimize: The buffer just needs to be initialized once.
+			NativeByteArray readBuffer = null;
 			try {
 				overlapped = createOverlapped(eventHandle);
 
-				byte[] readBuffer = new byte[bufferSize];
+				readBuffer = new NativeByteArray(win, bufferSize);
 				byte[] result = read(overlapped, readBuffer);
 				if (result != null)
 					return result;
@@ -153,7 +156,13 @@ public class SerialPortImpl extends AbstractSerialPort {
 				}
 			}
 			finally {
-				dispose(eventHandle, overlapped);
+				try {
+					if (readBuffer != null)
+						readBuffer.dispose();
+				}
+				finally {
+					dispose(eventHandle, overlapped);
+				}
 			}
 		}
 	}
@@ -233,12 +242,13 @@ public class SerialPortImpl extends AbstractSerialPort {
 		return PENDING;
 	}
 
-	private byte[] read(OVERLAPPED overlapped, byte[] result) throws IOException {
+	private byte[] read(OVERLAPPED overlapped, NativeByteArray result) throws IOException {
 		INT lpNumberOfBytesRead = new INT(0);
-		boolean succeed = win.ReadFile(handle, result, result.length, lpNumberOfBytesRead, overlapped);
+		boolean succeed = win.ReadFile(handle, result, result.size(), lpNumberOfBytesRead, overlapped);
 		if (succeed) {
 			// the read operation finished immediatly
-			return copyOfRange(result, 0, lpNumberOfBytesRead.value);
+			int bytesRead = lpNumberOfBytesRead.value;
+			return copyOfRange(result.getByteArray(bytesRead), 0, bytesRead);
 		}
 
 		int lastError = win.getPreservedError();
@@ -258,9 +268,9 @@ public class SerialPortImpl extends AbstractSerialPort {
 	 * @return
 	 * @throws IOException
 	 */
-	private byte[] processReadResult(OVERLAPPED overlapped, byte[] data) throws IOException {
+	private byte[] processReadResult(OVERLAPPED overlapped, NativeByteArray data) throws IOException {
 		int numberOfBytesRead = getNumberOfTransferredBytes(overlapped);
-		return copyOfRange(data, 0, numberOfBytesRead);
+		return copyOfRange(data.getByteArray(numberOfBytesRead), 0, numberOfBytesRead);
 	}
 
 	/**

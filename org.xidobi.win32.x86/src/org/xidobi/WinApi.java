@@ -427,7 +427,7 @@ public interface WinApi {
 	 *         the {@link #GetLastError()} function.
 	 */
 	@CheckReturnValue
-	boolean ReadFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
+	boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Returns the last error code, that occured during a native method call by the current thread.

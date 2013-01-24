@@ -48,6 +48,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
@@ -82,7 +83,9 @@ public class TestSerialPortImpl {
 	private SerialPortImpl port;
 
 	/** pointer to an {@link OVERLAPPED}-struct */
-	private int overlapped;
+	private int overlapped = 1;
+	/** pointer to an {@link NativeByteArray} */
+	private int nativeByteArray = 2;
 
 	@Before
 	public void setUp() {
@@ -90,7 +93,8 @@ public class TestSerialPortImpl {
 		port = new SerialPortImpl(portHandle, win, handle);
 
 		when(win.sizeOf_OVERLAPPED()).thenReturn(1);
-		when(win.malloc(anyInt())).thenReturn(overlapped);
+		when(win.malloc(1)).thenReturn(overlapped);
+		when(win.malloc(255)).thenReturn(nativeByteArray);
 	}
 
 	/**
@@ -448,7 +452,8 @@ public class TestSerialPortImpl {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		doAnswer(readBytesAndReturn(DATA, true)).
-			when(win).ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED());;
+			when(win).ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED());
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		// @formatter:on
 
 		byte[] result = port.read();
@@ -466,10 +471,11 @@ public class TestSerialPortImpl {
 	@Test
 	public void read_succeedPending() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).then(setReadBytesAndReturn(DATA.length, true));
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 
 		byte[] result = port.read();
 
@@ -489,7 +495,7 @@ public class TestSerialPortImpl {
 	public void read_readFileFails_ERROR_INVALID_HANDLE() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
 		// @formatter:on
 
@@ -514,7 +520,7 @@ public class TestSerialPortImpl {
 	public void read_readFileFailsUnexpected() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 		// @formatter:on
 
@@ -538,7 +544,7 @@ public class TestSerialPortImpl {
 	public void read_getOverlappedResultFails_ERROR_OPERATION_ABORTED() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         ERROR_OPERATION_ABORTED); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
@@ -555,6 +561,7 @@ public class TestSerialPortImpl {
 		}
 		finally {
 			verifyResourcesDisposed();
+			verify(win).free(nativeByteArray);
 		}
 	}
 
@@ -566,7 +573,7 @@ public class TestSerialPortImpl {
 	public void read_getOverlappedResultFailedUnexpected() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
@@ -582,6 +589,7 @@ public class TestSerialPortImpl {
 		}
 		finally {
 			verifyResourcesDisposed();
+			verify(win).free(nativeByteArray);
 		}
 	}
 
@@ -593,9 +601,12 @@ public class TestSerialPortImpl {
 	public void read_timeout() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false, true);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).
+			thenAnswer(readBytesAndReturn(new byte[0], false)).
+			thenAnswer(readBytesAndReturn(DATA, true));
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING); 
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		// @formatter:on
 
 		try {
@@ -605,6 +616,7 @@ public class TestSerialPortImpl {
 			verify(win).WaitForSingleObject(eventHandle, 2000);
 			verify(win, times(2)).CloseHandle(eventHandle);
 			verify(win, times(2)).free(overlapped);
+			verify(win, times(2)).free(nativeByteArray);
 		}
 	}
 
@@ -617,7 +629,7 @@ public class TestSerialPortImpl {
 	public void read_UnexpectedWaitResult_WAIT_FAILED() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
@@ -631,6 +643,7 @@ public class TestSerialPortImpl {
 		}
 		finally {
 			verifyResourcesDisposed();
+			verify(win).free(nativeByteArray);
 		}
 	}
 
@@ -643,7 +656,7 @@ public class TestSerialPortImpl {
 	public void read_UnexpectedWaitResult_WAIT_ABANDONED() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
 		// @formatter:on
@@ -656,6 +669,7 @@ public class TestSerialPortImpl {
 		}
 		finally {
 			verifyResourcesDisposed();
+			verify(win).free(nativeByteArray);
 		}
 	}
 
@@ -667,7 +681,7 @@ public class TestSerialPortImpl {
 	@Test
 	public void read_UnexpectedWaitResult() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(byte[].class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
 
@@ -679,6 +693,7 @@ public class TestSerialPortImpl {
 		}
 		finally {
 			verifyResourcesDisposed();
+			verify(win).free(nativeByteArray);
 		}
 	}
 
@@ -761,22 +776,11 @@ public class TestSerialPortImpl {
 			public Boolean answer(InvocationOnMock invocation) throws Throwable {
 				if (!"ReadFile".equals(invocation.getMethod().getName()))
 					throw new IllegalStateException("This Answer can only be applied to method: ReadFile(..)");
-				byte[] readBytes = (byte[]) invocation.getArguments()[1];
-				copyToBytes(data, readBytes);
 				INT countReadBytes = (INT) invocation.getArguments()[3];
 				countReadBytes.value = data.length;
 				return returnValue;
 			}
 		};
-	}
-
-	/**
-	 * Copies the bytes from the given {@link String} to the byte[] and sets the size on the
-	 * pointer.
-	 */
-	private void copyToBytes(byte[] source, byte[] destination) {
-		for (int i = 0; i < source.length; i++)
-			destination[i] = source[i];
 	}
 
 	/** Verifies that all allocated resources are freed. */
