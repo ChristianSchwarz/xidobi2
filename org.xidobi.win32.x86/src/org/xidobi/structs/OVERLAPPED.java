@@ -32,17 +32,10 @@ import org.xidobi.WinApi;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-public class OVERLAPPED {
+public class OVERLAPPED extends Pointer {
 
-	/** the native Win32-API, never <code>null</code> */
-	private WinApi win;
-
-	/** The pointer to the C struct */
-	private final int cPointer;
-
-	/** <code>true</code> if the instance is disposed */
-	private boolean isDisposed = false;
-
+	// WE DON'T NEED THIS FIELDS AT THE MOMENT: --------------------------------------------------
+	//
 	// /**
 	// * {@code ULONG_PTR} - The error code for the I/O request. When the request is issued, the
 	// * system sets this member to STATUS_PENDING to indicate that the operation has not yet
@@ -87,6 +80,7 @@ public class OVERLAPPED {
 	// public int Pointer;
 
 	// };
+	// -------------------------------------------------------------------------------------------
 
 	/** {@code HANDLE} - Event handle */
 	public int hEvent;
@@ -99,37 +93,13 @@ public class OVERLAPPED {
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
 	public OVERLAPPED(WinApi win) {
-		this.win = checkArgumentNotNull(win, "win");
-
-		int sizeofOVERLAPPED = win.sizeOf_OVERLAPPED();
-		cPointer = win.malloc(sizeofOVERLAPPED);
+		super(win, sizeOfOVERLAPPED(win));
 	}
 
-	/**
-	 * Frees the resources of this instance ( memory on the heap).
-	 */
-	public void dispose() {
-		win.free(cPointer);
-		isDisposed = true;
-	}
-
-	/**
-	 * Returns <code>true</code>, if this instance was disposed.
-	 * 
-	 * @return <ul>
-	 *         <li> <code>true</code>, if the instance was disposed
-	 *         <li> <code>false</code>, if the instance is not disposed
-	 *         </ul>
-	 */
-	public boolean isDisposed() {
-		return isDisposed;
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-		if (!isDisposed)
-			dispose();
+	/** Returns the size of an OVERLAPPED struct. */
+	private static int sizeOfOVERLAPPED(WinApi win) {
+		checkArgumentNotNull(win, "win");
+		return win.sizeOf_OVERLAPPED();
 	}
 
 }

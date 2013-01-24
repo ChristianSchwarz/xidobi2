@@ -15,15 +15,7 @@ import org.xidobi.WinApi;
  * 
  * @author Tobias Breﬂler
  */
-public class HKEY {
-
-	/** the native Win32-API, never <code>null</code> */
-	private WinApi win;
-
-	/** The pointer to the C instance */
-	private final int cPointer;
-
-	private boolean isDisposed = false;
+public class HKEY extends Pointer {
 
 	/**
 	 * Creates a new instance on the heap. The instance must be disposed, when it isn't used
@@ -33,36 +25,13 @@ public class HKEY {
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
 	public HKEY(WinApi win) {
-		this.win = checkArgumentNotNull(win, "win");
-
-		int sizeOfHKEY = win.sizeOf_HKEY();
-		cPointer = win.malloc(sizeOfHKEY);
+		super(win, sizeOfHKEY(win));
 	}
 
-	/**
-	 * Disposed this instance and frees the memory on the heap.
-	 */
-	public void dispose() {
-		win.free(cPointer);
-		isDisposed = true;
+	/** Returns the size of an HKEY struct. */
+	private static int sizeOfHKEY(WinApi win) {
+		checkArgumentNotNull(win, "win");
+		return win.sizeOf_HKEY();
 	}
 
-	/**
-	 * Returns <code>true</code>, if this instance is disposed.
-	 * 
-	 * @return <ul>
-	 *         <li> <code>true</code>, if the instance is disposed
-	 *         <li> <code>false</code>, if the instance is not disposed
-	 *         </ul>
-	 */
-	public boolean isDisposed() {
-		return isDisposed;
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		if (!isDisposed)
-			dispose();
-		super.finalize();
-	}
 }

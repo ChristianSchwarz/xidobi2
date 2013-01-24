@@ -80,6 +80,8 @@ public class TestSerialPortFinderImpl {
 	public void setUp() {
 		initMocks(this);
 		finder = new SerialPortFinderImpl(win);
+
+		when(win.sizeOf_HKEY()).thenReturn(1);
 	}
 
 	/**

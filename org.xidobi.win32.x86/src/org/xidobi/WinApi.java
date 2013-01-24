@@ -787,7 +787,7 @@ public interface WinApi {
 	boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped);
 
 	/**
-	 * Returns a pointer to the allocated memory of the given size.
+	 * Allocates memory of the given size and returns a pointer to that memory.
 	 * 
 	 * @param size
 	 *            the size of the memory

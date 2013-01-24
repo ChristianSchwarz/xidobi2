@@ -16,7 +16,6 @@
 package org.xidobi.structs;
 
 import static org.xidobi.internal.Preconditions.checkArgument;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -28,16 +27,7 @@ import org.xidobi.WinApi;
  * 
  * @author Tobias Breﬂler
  */
-public class NativeByteArray {
-
-	/** the native Win32-API, never <code>null</code> */
-	private WinApi win;
-
-	/** The pointer to the C struct */
-	private final int cPointer;
-
-	/** <code>true</code> if the instance is disposed */
-	private boolean isDisposed = false;
+public class NativeByteArray extends Pointer {
 
 	/** the size of the native byte array */
 	private final int length;
@@ -53,11 +43,8 @@ public class NativeByteArray {
 	 */
 	public NativeByteArray(	@Nonnull WinApi win,
 							@Nonnegative int length) {
-		this.win = checkArgumentNotNull(win, "win");
-		checkArgument(length > 0, "length", "Expected a value greater than 0");
+		super(win, length);
 		this.length = length;
-
-		cPointer = win.malloc(length);
 	}
 
 	/**
@@ -66,6 +53,7 @@ public class NativeByteArray {
 	 * @return size of byte array
 	 */
 	public int length() {
+		checkIfDisposed();
 		return length;
 	}
 
@@ -76,35 +64,8 @@ public class NativeByteArray {
 	public byte[] getByteArray(int size) {
 		checkArgument(size > 0, "size", "Expected a value greater than 0");
 		checkArgument(size <= length, "size", "Expected a value lesser than or equal to length");
-
-		return win.getByteArray(this, size);
-	}
-
-	/**
-	 * Frees the resources of this instance ( memory on the heap).
-	 */
-	public void dispose() {
-		win.free(cPointer);
-		isDisposed = true;
-	}
-
-	/**
-	 * Returns <code>true</code>, if this instance was disposed.
-	 * 
-	 * @return <ul>
-	 *         <li> <code>true</code>, if the instance was disposed
-	 *         <li> <code>false</code>, if the instance is not disposed
-	 *         </ul>
-	 */
-	public boolean isDisposed() {
-		return isDisposed;
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-		if (!isDisposed)
-			dispose();
+		checkIfDisposed();
+		return getWinApi().getByteArray(this, size);
 	}
 
 }

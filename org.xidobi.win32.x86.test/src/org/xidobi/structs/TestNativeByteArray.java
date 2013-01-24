@@ -16,7 +16,6 @@
 package org.xidobi.structs;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -134,7 +133,10 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void length_whenDisposed() {
-		fail("Not yet implemented!");
+		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray.dispose();
+
+		byteArray.length();
 	}
 
 	/**
@@ -156,7 +158,10 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void getByteArray_whenDisposed() {
-		fail("Not yet implemented!");
+		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray.dispose();
+
+		byteArray.getByteArray();
 	}
 
 	/**
@@ -210,7 +215,10 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void getByteArray_withSizeWhenDisposed() {
-		fail("Not yet implemented!");
+		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray.dispose();
+
+		byteArray.getByteArray(LENGTH);
 	}
 
 }

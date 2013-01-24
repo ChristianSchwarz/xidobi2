@@ -88,6 +88,8 @@ public class TestSerialPortImpl {
 	public void setUp() {
 		initMocks(this);
 		port = new SerialPortImpl(portHandle, win, handle);
+
+		when(win.sizeOf_OVERLAPPED()).thenReturn(1);
 		when(win.malloc(anyInt())).thenReturn(overlapped);
 	}
 
@@ -261,7 +263,7 @@ public class TestSerialPortImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Error-Code "+ERROR_OPERATION_ABORTED);
+		exception.expectMessage("Port COM1 is closed! Error-Code " + ERROR_OPERATION_ABORTED);
 
 		try {
 			port.write(DATA);
@@ -546,7 +548,7 @@ public class TestSerialPortImpl {
 		// @formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Error-Code "+ERROR_OPERATION_ABORTED);
+		exception.expectMessage("Port COM1 is closed! Error-Code " + ERROR_OPERATION_ABORTED);
 
 		try {
 			port.read();
