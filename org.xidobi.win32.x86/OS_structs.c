@@ -1,6 +1,4 @@
 /*
- * OS_structs.c
- *
  * Copyright 2013 Gemtec GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
