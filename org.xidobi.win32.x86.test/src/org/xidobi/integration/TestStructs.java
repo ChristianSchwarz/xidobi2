@@ -15,18 +15,24 @@
  */
 package org.xidobi.integration;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.xidobi.OS;
 import org.xidobi.WinApi;
+import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.Pointer;
 
 /**
- * Integration test for class {@link Pointer}.
+ * Integration test for classes {@link Pointer}, {@link NativeByteArray} and other Java
+ * representations of structs.
  * 
  * @author Tobias Breﬂler
  */
-public class TestPointer {
+public class TestStructs {
 
 	private WinApi win;
 
@@ -62,4 +68,20 @@ public class TestPointer {
 			pointers[i].dispose();
 	}
 
+	/**
+	 * Verifies that a {@link NativeByteArray} can be created and disposed many times without
+	 * crashing the VM. Additionally the {@link NativeByteArray#getByteArray()} method is called.
+	 */
+	@Test(timeout = 1500)
+	public void allocateNativeByteArrayAndDisposeLoop() {
+		for (int i = 0; i < 500_000; i++) {
+			NativeByteArray byteArray = new NativeByteArray(win, 1024);
+
+			byte[] result = byteArray.getByteArray();
+			assertThat(result, is(notNullValue()));
+			assertThat(result.length, is(1024));
+
+			byteArray.dispose();
+		}
+	}
 }

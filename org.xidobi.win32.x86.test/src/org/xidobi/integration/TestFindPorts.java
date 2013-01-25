@@ -38,7 +38,7 @@ import org.xidobi.SerialPortInfo;
  * 
  * @author Tobias Breﬂler
  */
-public class TestSerialPortFinderImpl extends AbstractIntegrationTest {
+public class TestFindPorts extends AbstractIntegrationTest {
 
 	/**
 	 * Verifies that {@link SerialPortFinderImpl#find()} never returns a <code>null</code> value and
