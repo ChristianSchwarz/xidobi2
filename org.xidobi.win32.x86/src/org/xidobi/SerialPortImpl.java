@@ -229,17 +229,14 @@ public class SerialPortImpl extends AbstractSerialPort {
 
 		int lastError = win.getPreservedError();
 		// check if an error occured or the operation is pendig ...
-		if (lastError != ERROR_IO_PENDING) {
-			// ... an error occured:
-			switch (lastError) {
-				case ERROR_INVALID_HANDLE:
-					throw newIOException(win, "Write operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
-				default:
-					throw newNativeCodeException(win, "WriteFile failed unexpected!", lastError);
-			}
-		}
+		if (lastError == ERROR_IO_PENDING)
+			return PENDING;
+		
+		if (lastError == ERROR_INVALID_HANDLE)
+			throw newIOException(win, "Write operation failed, because the handle is invalid! Maybe the serial port was closed before.", lastError);
 
-		return PENDING;
+		throw newNativeCodeException(win, "WriteFile failed unexpected!", lastError);
+
 	}
 
 	private byte[] read(OVERLAPPED overlapped, NativeByteArray result) throws IOException {
@@ -292,16 +289,15 @@ public class SerialPortImpl extends AbstractSerialPort {
 	private int getNumberOfTransferredBytes(OVERLAPPED overlapped) throws IOException {
 		INT numberOfBytesRead = new INT(0);
 		boolean succeed = win.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
-		if (!succeed) {
-			int lastError = win.getPreservedError();
-			switch (lastError) {
-				case ERROR_OPERATION_ABORTED:
-					throw portClosedException(getErrorMessage(win, lastError));
-				default:
-					throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
-			}
-		}
-		return numberOfBytesRead.value;
+		if (succeed)
+			return numberOfBytesRead.value;
+
+		int lastError = win.getPreservedError();
+		if (lastError == ERROR_OPERATION_ABORTED)
+			throw portClosedException(getErrorMessage(win, lastError));
+
+		throw newNativeCodeException(win, "GetOverlappedResult failed unexpected!", lastError);
+
 	}
 
 	/**
