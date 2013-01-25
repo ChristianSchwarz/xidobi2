@@ -24,20 +24,20 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
-import org.xidobi.SerialPortHandle;
 
 /**
- * A basic implementation of the {@link SerialPort} to provide synchonisation and proper behaviour
+ * A basic implementation of the {@link SerialConnection} to provide synchonisation and proper behaviour
  * when the port is closed.
  * 
  * @author Christian Schwarz
  */
-public abstract class AbstractSerialPort implements SerialPort {
+public abstract class AbstractSerialConnection implements SerialConnection {
 
 	/** The Handle of this port contains e.g. the name. */
 	@Nonnull
-	private final SerialPortHandle portHandle;
+	private final SerialPort portHandle;
 
 	/**
 	 * <ul>
@@ -53,14 +53,14 @@ public abstract class AbstractSerialPort implements SerialPort {
 	private final Lock readLock = new ReentrantLock();;
 
 	/**
-	 * Creates a new instance with the {@link SerialPortHandle}.
+	 * Creates a new instance with the {@link SerialPort}.
 	 * 
 	 * @param portHandle
 	 *            must not be <code>null</code>
 	 * @exception IllegalArgumentException
 	 *                if {@code portHandle==null}
 	 */
-	protected AbstractSerialPort(@Nonnull SerialPortHandle portHandle) {
+	protected AbstractSerialConnection(@Nonnull SerialPort portHandle) {
 		checkArgumentNotNull(portHandle, "portHandle");
 		this.portHandle = portHandle;
 

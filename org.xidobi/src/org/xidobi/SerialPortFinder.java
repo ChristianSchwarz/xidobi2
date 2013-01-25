@@ -36,6 +36,6 @@ public interface SerialPortFinder {
 	 *         but never <code>null</code>
 	 */
 	@Nonnull
-	Set<SerialPortHandle> find();
+	Set<SerialPort> find();
 
 }

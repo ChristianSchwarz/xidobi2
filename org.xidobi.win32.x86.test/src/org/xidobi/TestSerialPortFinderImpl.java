@@ -130,7 +130,7 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPortHandle> result = finder.find();
+		Set<SerialPort> result = finder.find();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(0)));
@@ -151,7 +151,7 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPortHandle> result = finder.find();
+		Set<SerialPort> result = finder.find();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(1)));
@@ -175,7 +175,7 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPortHandle> result = finder.find();
+		Set<SerialPort> result = finder.find();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(2)));
@@ -215,11 +215,11 @@ public class TestSerialPortFinderImpl {
 		sizePointer.value = source.length();
 	}
 
-	/** Returns a Matcher that verifies the portName and description of a {@link SerialPortHandle}. */
-	private TypeSafeMatcher<SerialPortHandle> serialPortWith(final String portName, final String description) {
-		return new CustomTypeSafeMatcher<SerialPortHandle>("a serial port info with portName >" + portName + "< and description >" + description + "<") {
+	/** Returns a Matcher that verifies the portName and description of a {@link SerialPort}. */
+	private TypeSafeMatcher<SerialPort> serialPortWith(final String portName, final String description) {
+		return new CustomTypeSafeMatcher<SerialPort>("a serial port info with portName >" + portName + "< and description >" + description + "<") {
 			@Override
-			protected boolean matchesSafely(SerialPortHandle actual) {
+			protected boolean matchesSafely(SerialPort actual) {
 				if (!actual.getPortName().equals(portName))
 					return false;
 				if (!actual.getDescription().equals(description))

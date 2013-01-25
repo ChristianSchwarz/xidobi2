@@ -46,17 +46,17 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
-import org.xidobi.SerialPortHandle;
 
 /**
- * Tests the class {@link AbstractSerialPort}
+ * Tests the class {@link AbstractSerialConnection}
  * 
  * @author Christian Schwarz
  * 
  */
 @SuppressWarnings("javadoc")
-public class TestAbstractSerialPort {
+public class TestAbstractSerialConnection {
 
 	/** constant for better readability */
 	private static final IOException IO_EXCEPTION = new IOException();
@@ -64,10 +64,10 @@ public class TestAbstractSerialPort {
 	private static final byte[] BYTES = {};
 
 	/** the class under test */
-	private AbstractSerialPort port;
+	private AbstractSerialConnection port;
 
 	@Mock
-	private SerialPortHandle portHandle;
+	private SerialPort portHandle;
 
 	@Mock
 	private AbstractPart abstr;
@@ -80,7 +80,7 @@ public class TestAbstractSerialPort {
 	public void setUp() {
 		initMocks(this);
 
-		port = new _AbstractSerialPort(portHandle);
+		port = new _AbstractSerialConnection(portHandle);
 
 		when(portHandle.getPortName()).thenReturn("COM1");
 	}
@@ -95,12 +95,12 @@ public class TestAbstractSerialPort {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");
 
-		new _AbstractSerialPort(null);
+		new _AbstractSerialConnection(null);
 	}
 
 	/**
-	 * Verifies that a call to {@link SerialPort#close()} will be deleagted to
-	 * {@link AbstractSerialPort#closeInternal()}.
+	 * Verifies that a call to {@link SerialConnection#close()} will be deleagted to
+	 * {@link AbstractSerialConnection#closeInternal()}.
 	 * 
 	 * @throws IOException
 	 */
@@ -112,8 +112,8 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that only the first call to {@link SerialPort#close()} will be deleagted to
-	 * {@link AbstractSerialPort#closeInternal()}.
+	 * Verifies that only the first call to {@link SerialConnection#close()} will be deleagted to
+	 * {@link AbstractSerialConnection#closeInternal()}.
 	 */
 	@Test
 	public void close_2x() throws Exception {
@@ -124,8 +124,8 @@ public class TestAbstractSerialPort {
 
 	/**
 	 * Verifies that the same {@link IOException} thrown by
-	 * {@link AbstractSerialPort#closeInternal()} is forwarded to the caller of
-	 * {@link SerialPort#close()} without modification.
+	 * {@link AbstractSerialConnection#closeInternal()} is forwarded to the caller of
+	 * {@link SerialConnection#close()} without modification.
 	 */
 	@Test
 	public void close_IOException() throws Exception {
@@ -136,8 +136,8 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that all calls to {@link SerialPort#close()} will be delegate to
-	 * {@link SerialPort#close()} when all previous calls thrown an IOException and thus the port
+	 * Verifies that all calls to {@link SerialConnection#close()} will be delegate to
+	 * {@link SerialConnection#close()} when all previous calls thrown an IOException and thus the port
 	 * was not closed.
 	 */
 	@Test
@@ -158,7 +158,7 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialPort#isClosed()} returns <code>false</code>, when the port
+	 * Verifies that {@link AbstractSerialConnection#isClosed()} returns <code>false</code>, when the port
 	 * is not closed.
 	 */
 	@Test
@@ -167,7 +167,7 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialPort#isClosed()} returns <code>true</code>, when the port
+	 * Verifies that {@link AbstractSerialConnection#isClosed()} returns <code>true</code>, when the port
 	 * is closed.
 	 */
 	@Test
@@ -203,8 +203,8 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link SerialPort#write(byte[])} deleagtes to
-	 * {@link AbstractSerialPort#writeInternal(byte[])} if <code>data!=null</code> and the port is
+	 * Verifies that {@link SerialConnection#write(byte[])} deleagtes to
+	 * {@link AbstractSerialConnection#writeInternal(byte[])} if <code>data!=null</code> and the port is
 	 * not closed.
 	 */
 	@Test
@@ -214,7 +214,7 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialPort#writeInternal(byte[])} will not be call concurrent.
+	 * Verifies that {@link AbstractSerialConnection#writeInternal(byte[])} will not be call concurrent.
 	 */
 	@Test
 	public void write_concurrentCalls() throws Exception {
@@ -239,7 +239,7 @@ public class TestAbstractSerialPort {
 	@Test
 	public void read_portIsClosed() throws Exception {
 		when(portHandle.getPortName()).thenReturn("COM1");
-		port = new _AbstractSerialPort(portHandle);
+		port = new _AbstractSerialConnection(portHandle);
 		port.close();
 
 		exception.expect(IOException.class);
@@ -249,8 +249,8 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link SerialPort#read()} is delegated to
-	 * {@link AbstractSerialPort#readInternal()} if the port is not closed.
+	 * Verifies that {@link SerialConnection#read()} is delegated to
+	 * {@link AbstractSerialConnection#readInternal()} if the port is not closed.
 	 * 
 	 * @throws IOException
 	 */
@@ -262,7 +262,7 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialPort#readInternal(byte[])} will not be call concurrent.
+	 * Verifies that {@link AbstractSerialConnection#readInternal(byte[])} will not be call concurrent.
 	 */
 	@Test
 	public void read_concurrentCalls() throws Exception {
@@ -281,7 +281,7 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialPort#portClosedException()} returns an {@link IOException}
+	 * Verifies that {@link AbstractSerialConnection#portClosedException()} returns an {@link IOException}
 	 * with a message 'Port ??? is closed!'.
 	 */
 	@Test
@@ -293,7 +293,7 @@ public class TestAbstractSerialPort {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialPort#portClosedException(String)} returns an
+	 * Verifies that {@link AbstractSerialConnection#portClosedException(String)} returns an
 	 * {@link IOException} with a message 'Port ??? is closed!' and an additional message.
 	 */
 	@Test
@@ -306,9 +306,9 @@ public class TestAbstractSerialPort {
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
-	public final class _AbstractSerialPort extends AbstractSerialPort {
+	public final class _AbstractSerialConnection extends AbstractSerialConnection {
 
-		public _AbstractSerialPort(SerialPortHandle portHandle) {
+		public _AbstractSerialConnection(SerialPort portHandle) {
 			super(portHandle);
 		}
 

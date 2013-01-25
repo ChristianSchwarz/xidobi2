@@ -23,13 +23,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
-import org.xidobi.SerialPort;
-import org.xidobi.SerialPortHandleImpl;
+import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortImpl;
+import org.xidobi.SerialConnectionImpl;
 import org.xidobi.SerialPortSettings;
 
 /**
- * Integration test for classes {@link SerialPortImpl} and {@link SerialPortHandleImpl}.
+ * Integration test for classes {@link SerialConnectionImpl} and {@link SerialPortImpl}.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
@@ -45,13 +45,13 @@ public class TestOpenClose extends AbstractIntegrationTest {
 
 	/** class under test */
 	@InjectMocks
-	private SerialPortHandleImpl portHandle;
+	private SerialPortImpl portHandle;
 
-	private SerialPort connection;
+	private SerialConnection connection;
 
 	@Override
 	protected void setUp() {
-		portHandle = new SerialPortHandleImpl(OS, getAvailableSerialPort(), null);
+		portHandle = new SerialPortImpl(OS, getAvailableSerialPort(), null);
 	}
 
 	@After

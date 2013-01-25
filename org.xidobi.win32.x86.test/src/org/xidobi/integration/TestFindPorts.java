@@ -27,7 +27,7 @@ import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import org.xidobi.SerialPortFinderImpl;
-import org.xidobi.SerialPortHandle;
+import org.xidobi.SerialPort;
 
 /**
  * Integration test for class {@link SerialPortFinderImpl}.
@@ -48,7 +48,7 @@ public class TestFindPorts extends AbstractIntegrationTest {
 	public void findSerialPortsLoop() {
 		for (int i = 0; i < 10_000; i++) {
 			SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
-			Set<SerialPortHandle> result = finder.find();
+			Set<SerialPort> result = finder.find();
 			assertThat(result, is(notNullValue()));
 			assertThat(result, hasItem(serialPortWith(getAvailableSerialPort())));
 		}
@@ -57,10 +57,10 @@ public class TestFindPorts extends AbstractIntegrationTest {
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** Returns a Matcher that verifies the portName of a {@link SerialPortInfo}. */
-	private TypeSafeMatcher<SerialPortHandle> serialPortWith(final String portName) {
-		return new CustomTypeSafeMatcher<SerialPortHandle>("a serial port with portName >" + portName + "<") {
+	private TypeSafeMatcher<SerialPort> serialPortWith(final String portName) {
+		return new CustomTypeSafeMatcher<SerialPort>("a serial port with portName >" + portName + "<") {
 			@Override
-			protected boolean matchesSafely(SerialPortHandle actual) {
+			protected boolean matchesSafely(SerialPort actual) {
 				if (!actual.getPortName().equals(portName))
 					return false;
 				return true;

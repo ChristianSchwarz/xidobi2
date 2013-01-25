@@ -15,50 +15,51 @@
  */
 package org.xidobi;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.WillCloseWhenClosed;
 
 /**
- * Repesents a connected Serial-Port. Clients must call {@link #close()} to free this serial port
- * after usage!
+ * Interface for serial port handles.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-public interface SerialPort extends Closeable {
+public interface SerialPort {
 
 	/**
-	 * Writes the given byte[]. All bytes of the array were written.
+	 * Opens a serial port with the given control settings and returns the connected serial port.
+	 * <p>
+	 * <b>IMPORTANT:</b> The returned {@link SerialConnection} must be closed, when it is not used
+	 * anymore! Otherwise the port stays open!
 	 * 
-	 * @param data
-	 *            must not be <code>null</code>
+	 * @param settings
+	 *            the control settings for the port, must not be <code>null</code>
+	 * 
+	 * @return a connected serial port, never <code>null</code>
 	 * @throws IOException
-	 *             when the Port is closed
+	 *             if the port cannot be opened
 	 */
-	void write(@Nonnull byte[] data) throws IOException;
+	@WillCloseWhenClosed
+	SerialConnection open(@Nonnull SerialPortSettings settings) throws IOException;
 
 	/**
-	 * Reads from this Serialport and returns the read byte's or throws an {@link IOException} when
-	 * the port was closed or an other I/O error occurs. This method blocks until at least one byte
-	 * can be returned or an {@link IOException} is thrown.
+	 * Returns the name of this port
 	 * 
-	 * @return the received byte[], never <code>null</code>
-	 * @throws IOException
-	 *             if this port was closed or an unexpected I/O error occurs.
+	 * @return the port name, not <code>null</code>
 	 */
 	@Nonnull
-	byte[] read() throws IOException;
+	String getPortName();
 
 	/**
-	 * Returns <code>true</code> if the serial port is closed.
+	 * Returns the additional description for the serial port.
 	 * 
-	 * @return <ul>
-	 *         <li> <code>true</code> if the serial port is closed
-	 *         <li> <code>false</code> if the serial port is open
-	 *         </ul>
+	 * @return the description for the serial port, can be <code>null</code> if no description is
+	 *         available
 	 */
-	boolean isClosed();
+	@Nullable
+	String getDescription();
 
 }
