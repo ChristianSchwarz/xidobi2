@@ -29,15 +29,13 @@ import org.xidobi.WinApi;
 import org.xidobi.internal.NativeCodeException;
 
 /**
- * Some utilities for the creation of exceptions.
+ * Some utilities which helps to create exceptions.
  * 
  * @author Tobias Breﬂler
  */
 public final class Throwables {
 
-	/**
-	 * This class can not be instantiated
-	 */
+	/** This class can not be instantiated */
 	private Throwables() {}
 
 	/**

@@ -90,7 +90,7 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 
 	/** {@inheritDoc} */
 	@Nonnull
-	public SerialPort open(SerialPortSettings settings) throws IOException {
+	public SerialPort open(@Nonnull SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
 		final int handle = tryOpen(portName);

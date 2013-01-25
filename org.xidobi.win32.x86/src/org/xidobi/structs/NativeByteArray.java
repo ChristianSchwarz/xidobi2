@@ -33,8 +33,9 @@ public class NativeByteArray extends Pointer {
 	private final int size;
 
 	/**
-	 * Creates a new byte array instance on the heap. The instance must be disposed, when it isn't
-	 * used anymore.
+	 * Creates a new byte array instance on the heap.
+	 * <p>
+	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
 	 * 
 	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>

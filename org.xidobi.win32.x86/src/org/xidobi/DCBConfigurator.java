@@ -46,9 +46,9 @@ import org.xidobi.structs.DCB;
  */
 public class DCBConfigurator {
 
-	/** int value for <code>true</code> */
+	/** <code>int</code> value for <code>true</code> */
 	private static final int TRUE = 1;
-	/** int value for <code>false</code> */
+	/** <code>int</code> value for <code>false</code> */
 	private static final int FALSE = 0;
 
 	/**

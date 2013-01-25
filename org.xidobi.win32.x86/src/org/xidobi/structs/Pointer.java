@@ -21,7 +21,7 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import org.xidobi.WinApi;
 
 /**
- * A pointer on an allocated memory on the heap.
+ * A pointer to an allocated memory on the heap.
  * 
  * @author Tobias Breﬂler
  */
@@ -37,8 +37,9 @@ public class Pointer {
 	private boolean isDisposed = false;
 
 	/**
-	 * Allocates memory of the given size on the heap and stores a pointer to that memory. The
-	 * instance must be disposed, when it isn't used anymore.
+	 * Allocates memory of the given size on the heap and stores a pointer to that memory.
+	 * <p>
+	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
 	 * 
 	 * @param win
 	 *            the native Win32-API, must not be <code>null</code>
