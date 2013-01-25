@@ -17,6 +17,7 @@ package org.xidobi;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -75,7 +76,7 @@ public class TestSerialPortHandleImpl {
 	public void setUp() {
 		initMocks(this);
 
-		handle = new SerialPortHandleImpl(win, "COM1", configurator);
+		handle = new SerialPortHandleImpl(win, "COM1", "description", configurator);
 	}
 
 	/**
@@ -85,7 +86,7 @@ public class TestSerialPortHandleImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullOS() {
-		new SerialPortHandleImpl(null, "COM1", configurator);
+		new SerialPortHandleImpl(null, "COM1", "description", configurator);
 	}
 
 	/**
@@ -95,7 +96,7 @@ public class TestSerialPortHandleImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullPortName() {
-		new SerialPortHandleImpl(win, null, configurator);
+		new SerialPortHandleImpl(win, null, "description", configurator);
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class TestSerialPortHandleImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullConfigurator() {
-		new SerialPortHandleImpl(win, "COM1", null);
+		new SerialPortHandleImpl(win, "COM1", null, null);
 	}
 
 	/**
@@ -218,5 +219,25 @@ public class TestSerialPortHandleImpl {
 		verify(win).SetCommState(eq(A_PORT_HANDLE), any(DCB.class));
 		verify(win, never()).CloseHandle(A_PORT_HANDLE);
 		assertThat(result, is(notNullValue()));
+	}
+
+	/**
+	 * Verifies that {@link SerialPortInfo#getDescription()} returns the <code>description</code>
+	 * that was given ton the constructor.
+	 */
+	@Test
+	public void getDescription() {
+		SerialPortHandle info = new SerialPortHandleImpl(win, "portName", "description");
+		assertThat(info.getDescription(), is("description"));
+	}
+
+	/**
+	 * Verifies that {@link SerialPortInfo#getDescription()} returns <code>null</code>, when no
+	 * description was given to the constructor.
+	 */
+	@Test
+	public void getDescription_isNull() {
+		SerialPortHandle info = new SerialPortHandleImpl(win, "portName", null);
+		assertThat(info.getDescription(), is(nullValue()));
 	}
 }

@@ -30,12 +30,12 @@ import javax.annotation.Nonnull;
 public interface SerialPortFinder {
 
 	/**
-	 * Returns a {@link Set} with the infos of all serial ports that are installed on the system.
+	 * Returns a {@link Set} with all serial ports that are installed on the system.
 	 * 
-	 * @return a {@link Set} with serial port infos or an empty {@link Set} if no ports are
-	 *         available, but never <code>null</code>
+	 * @return a {@link Set} with serial ports or an empty {@link Set} if no ports are available,
+	 *         but never <code>null</code>
 	 */
 	@Nonnull
-	Set<SerialPortInfo> find();
+	Set<SerialPortHandle> find();
 
 }

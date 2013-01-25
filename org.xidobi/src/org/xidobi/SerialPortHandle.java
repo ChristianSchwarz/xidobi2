@@ -18,6 +18,7 @@ package org.xidobi;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.WillCloseWhenClosed;
 
 /**
@@ -51,4 +52,14 @@ public interface SerialPortHandle {
 	 */
 	@Nonnull
 	String getPortName();
+
+	/**
+	 * Returns the additional description for the serial port.
+	 * 
+	 * @return the description for the serial port, can be <code>null</code> if no description is
+	 *         available
+	 */
+	@Nullable
+	String getDescription();
+
 }

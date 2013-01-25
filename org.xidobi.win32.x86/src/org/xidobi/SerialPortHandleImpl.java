@@ -28,6 +28,7 @@ import static org.xidobi.utils.Throwables.newIOException;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.xidobi.structs.DCB;
 
@@ -56,6 +57,10 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	@Nonnull
 	private final DCBConfigurator configurator;
 
+	/** The additional description for the serial port, maybe <code>null</code> */
+	@Nullable
+	private String description;
+
 	/**
 	 * Creates a new handle using the native Win32-API provided by the {@link WinApi}.
 	 * 
@@ -63,10 +68,13 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param portName
 	 *            the name of this port, must not be <code>null</code>
+	 * @param description
+	 *            the additional description for the serial port, maybe <code>null</code>
 	 */
 	public SerialPortHandleImpl(@Nonnull WinApi os,
-								@Nonnull String portName) {
-		this(os, portName, new DCBConfigurator());
+								@Nonnull String portName,
+								@Nullable String description) {
+		this(os, portName, description, new DCBConfigurator());
 	}
 
 	/**
@@ -76,16 +84,20 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param portName
 	 *            the name of this port, must not be <code>null</code>
+	 * @param description
+	 *            the additional description for the serial port, maybe <code>null</code>
 	 * @param configurator
 	 *            configures the native DCB "struct" with the values from the serial port settings,
 	 *            must not be <code>null</code>
 	 */
 	public SerialPortHandleImpl(@Nonnull WinApi win,
 								@Nonnull String portName,
+								@Nullable String description,
 								@Nonnull DCBConfigurator configurator) {
 		this.portName = checkArgumentNotNull(portName, "portName");
 		this.win = checkArgumentNotNull(win, "win");
 		this.configurator = checkArgumentNotNull(configurator, "configurator");
+		this.description = description;
 	}
 
 	/** {@inheritDoc} */
@@ -161,4 +173,9 @@ public class SerialPortHandleImpl implements SerialPortHandle {
 		return portName;
 	}
 
+	/** {@inheritDoc} */
+	@Nullable
+	public String getDescription() {
+		return description;
+	}
 }

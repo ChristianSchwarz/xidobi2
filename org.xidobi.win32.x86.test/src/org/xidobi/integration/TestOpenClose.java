@@ -51,7 +51,7 @@ public class TestOpenClose extends AbstractIntegrationTest {
 
 	@Override
 	protected void setUp() {
-		portHandle = new SerialPortHandleImpl(OS, getAvailableSerialPort());
+		portHandle = new SerialPortHandleImpl(OS, getAvailableSerialPort(), null);
 	}
 
 	@After

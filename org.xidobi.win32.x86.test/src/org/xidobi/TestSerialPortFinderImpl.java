@@ -130,7 +130,7 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPortInfo> result = finder.find();
+		Set<SerialPortHandle> result = finder.find();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(0)));
@@ -151,11 +151,11 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPortInfo> result = finder.find();
+		Set<SerialPortHandle> result = finder.find();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(1)));
-		assertThat(result, contains(portInfoWith("COM1", "/Device/Serial1")));
+		assertThat(result, contains(serialPortWith("COM1", "/Device/Serial1")));
 	}
 
 	/**
@@ -175,13 +175,13 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPortInfo> result = finder.find();
+		Set<SerialPortHandle> result = finder.find();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(2)));
 		//@formatter:off
-		assertThat(result, containsInAnyOrder(portInfoWith("COM1", "/Device/Serial1"), 
-		                                      portInfoWith("COM2", "/Device/Serial2")));
+		assertThat(result, containsInAnyOrder(serialPortWith("COM1", "/Device/Serial1"), 
+		                                      serialPortWith("COM2", "/Device/Serial2")));
 		//@formatter:on
 	}
 
@@ -215,11 +215,11 @@ public class TestSerialPortFinderImpl {
 		sizePointer.value = source.length();
 	}
 
-	/** Returns a Matcher that verifies the portName and description of a {@link SerialPortInfo}. */
-	private TypeSafeMatcher<SerialPortInfo> portInfoWith(final String portName, final String description) {
-		return new CustomTypeSafeMatcher<SerialPortInfo>("a serial port info with portName >" + portName + "< and description >" + description + "<") {
+	/** Returns a Matcher that verifies the portName and description of a {@link SerialPortHandle}. */
+	private TypeSafeMatcher<SerialPortHandle> serialPortWith(final String portName, final String description) {
+		return new CustomTypeSafeMatcher<SerialPortHandle>("a serial port info with portName >" + portName + "< and description >" + description + "<") {
 			@Override
-			protected boolean matchesSafely(SerialPortInfo actual) {
+			protected boolean matchesSafely(SerialPortHandle actual) {
 				if (!actual.getPortName().equals(portName))
 					return false;
 				if (!actual.getDescription().equals(description))

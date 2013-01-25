@@ -54,7 +54,7 @@ public class TestReadWrite extends AbstractIntegrationTest {
 
 	@Override
 	protected void setUp() {
-		portHandle = new SerialPortHandleImpl(OS, getAvailableSerialPort());
+		portHandle = new SerialPortHandleImpl(OS, getAvailableSerialPort(), null);
 	}
 
 	@After
@@ -127,7 +127,7 @@ public class TestReadWrite extends AbstractIntegrationTest {
 	 */
 	@Test
 	public void openNoneExistingPort() throws Exception {
-		portHandle = new SerialPortHandleImpl(OS, "XXX");
+		portHandle = new SerialPortHandleImpl(OS, "XXX", null);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port not found");

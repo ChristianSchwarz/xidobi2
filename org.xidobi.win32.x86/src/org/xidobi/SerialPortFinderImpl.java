@@ -59,7 +59,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 
 	/** {@inheritDoc} */
 	@Nonnull
-	public Set<SerialPortInfo> find() {
+	public Set<SerialPortHandle> find() {
 		HKEY keyHandle = new HKEY(win);
 		try {
 			openRegistry(keyHandle);
@@ -88,8 +88,8 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * Returns a {@link Set} with informations of the serial ports that are available in the Windows
 	 * Registry.
 	 */
-	private Set<SerialPortInfo> getPortsFromRegistry(HKEY phkResult) {
-		Set<SerialPortInfo> ports = new HashSet<SerialPortInfo>();
+	private Set<SerialPortHandle> getPortsFromRegistry(HKEY phkResult) {
+		Set<SerialPortHandle> ports = new HashSet<SerialPortHandle>();
 
 		byte[] registryKey = new byte[255]; // port description
 		INT sizeOfKey = new INT(); // size of the port description
@@ -110,7 +110,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 			// add serial port values to set:
 			String portName = new String(registryValue, 0, sizeOfValue.value - 1);
 			String description = new String(registryKey, 0, sizeOfKey.value);
-			SerialPortInfo serialPort = new SerialPortInfo(portName, description);
+			SerialPortHandle serialPort = new SerialPortHandleImpl(win, portName, description);
 			ports.add(serialPort);
 		}
 
