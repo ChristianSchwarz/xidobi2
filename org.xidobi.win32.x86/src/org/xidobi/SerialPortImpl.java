@@ -178,4 +178,11 @@ public class SerialPortImpl implements SerialPort {
 	public String getDescription() {
 		return description;
 	}
+
+	@Override
+	public String toString() {
+		return "SerialPortImpl [portName=" + getPortName() + ", description=" + getDescription() + "]";
+	}
+	
+	
 }
