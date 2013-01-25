@@ -20,6 +20,7 @@ import static java.lang.Long.MAX_VALUE;
 import static java.lang.System.out;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -52,7 +53,7 @@ public class Application implements IApplication {
 		SerialConnection connection = port.open(from9600_8N1().create());
 		ScheduledExecutorService ex = newScheduledThreadPool(2);
 		ex.scheduleAtFixedRate(write(connection), 0, 1, SECONDS);
-		ex.scheduleWithFixedDelay(read(connection), 0, 0, SECONDS);
+		ex.scheduleWithFixedDelay(read(connection), 0, 1, MILLISECONDS);
 		return ex;
 	}
 
