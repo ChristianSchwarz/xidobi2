@@ -46,6 +46,14 @@ public interface WinApi {
 	int OPEN_EXISTING = 3;
 
 	/**
+	 * The file or device is being opened with no system caching for data reads and writes. This
+	 * flag does not affect hard disk caching or memory mapped files. There are strict requirements
+	 * for successfully working with files opened with CreateFile using the
+	 * {@link #FILE_FLAG_NO_BUFFERING} flag, for details see File Buffering.
+	 */
+	int FILE_FLAG_NO_BUFFERING = 0x20000000;
+
+	/**
 	 * The file or device is being opened or created for asynchronous I/O. When subsequent I/O
 	 * operations are completed on this handle, the event specified in the OVERLAPPED structure will
 	 * be set to the signaled state. If this flag is specified, the file can be used for
@@ -54,6 +62,11 @@ public interface WinApi {
 	 * structure.
 	 */
 	int FILE_FLAG_OVERLAPPED = 0x40000000;
+	/**
+	 * Write operations will not go through any intermediate cache, they will go directly to disk.
+	 * For additional information, see the Caching Behavior section of this topic.
+	 */
+	int FILE_FLAG_WRITE_THROUGH = 0x80000000;
 
 	/** Invalid handle value. */
 	int INVALID_HANDLE_VALUE = -1;
