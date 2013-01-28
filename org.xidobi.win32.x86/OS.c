@@ -450,7 +450,7 @@ Java_org_xidobi_OS_SetCommMask(JNIEnv *env, jobject this,
 		jint dwEvtMask,
 		jobject lastError) {
 
-	// TODO Implement call to SetCommMask
+
 
 	return JNI_FALSE;
 }
@@ -466,9 +466,18 @@ Java_org_xidobi_OS_WaitCommEvent(JNIEnv *env, jobject this,
 		jobject lpEvtMask,
 		jobject lpOverlapped,
 		jobject lastError) {
+	DWORD evtMask=0;
+	getINT(env,lpEvtMask,&evtMask);
+	OVERLAPPED* overlapped=	getOVERLAPPED(env,lpOverlapped);
 
-	// TODO Implement call to WaitCommEvent
+	BOOL result=WaitCommEvent((HANDLE)hFile,&evtMask,overlapped);
 
+	setLastNativeError(env, lastError);
+	setOVERLAPPED(env,lpOverlapped,overlapped);
+	setINT(env, lpEvtMask, &evtMask);
+
+	if (result)
+		return JNI_TRUE;
 	return JNI_FALSE;
 }
 

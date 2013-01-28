@@ -10,21 +10,22 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.xidobi.DCBConfigurator;
+import org.xidobi.FlowControl;
 import org.xidobi.OS;
-import org.xidobi.SerialPortSettings;
 import org.xidobi.WinApi;
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
+import static java.lang.Thread.sleep;
 import static java.nio.charset.Charset.forName;
+import static org.xidobi.FlowControl.FlowControl_RTSCTS_In_Out;
+import static org.xidobi.FlowControl.FlowControl_XONXOFF_Out;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.ERROR_SUCCESS;
-import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.WinApi.FILE_FLAG_WRITE_THROUGH;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
 import static org.xidobi.WinApi.GENERIC_READ;
@@ -35,6 +36,7 @@ import static org.xidobi.WinApi.LANG_NEUTRAL;
 import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 
 /**
  * @author Christian Schwarz
@@ -60,7 +62,6 @@ public class TestRW {
 			throw new IOException("Unable to retrieve the current control settings for port (COM1)!");
 
 		configurator.configureDCB(dcb, from9600_8N1().create());
-
 		if (!os.SetCommState(portHandle, dcb))
 			throw new IOException("Unable to set the control settings!");
 
@@ -71,13 +72,14 @@ public class TestRW {
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 		overlapped.hEvent = eventHandle;
 
-		NativeByteArray readBuffer = new NativeByteArray(os, 256);
-		int i=0;
+		NativeByteArray readBuffer = new NativeByteArray(os, 16);
+		int i = 0;
 		while (true) {
-			i++;
-			write(portHandle, (""+i).getBytes("UTF-8"), overlapped);
-
-			//System.out.println("<<" + new String(bytesRead, forName("UTF-8")));
+			 i++;
+			write(portHandle, ("\r\n"+i).getBytes("UTF-8"), overlapped);
+//			byte[] bytesRead = read(portHandle, overlapped, readBuffer);
+//			System.out.println("\r\n<<" + new String(bytesRead, forName("UTF-8")));
+			sleep(200);
 		}
 	}
 
@@ -90,9 +92,9 @@ public class TestRW {
 	 */
 	private void write(int portHandle, byte[] bytesToWrite, OVERLAPPED overlapped) throws IOException {
 
-		INT numberOfBytesRead = new INT(0);
-		boolean succeed = os.WriteFile(portHandle, bytesToWrite, bytesToWrite.length, numberOfBytesRead, overlapped);
-
+		INT numberOfBytesWritten = new INT(0);
+		os.WriteFile(portHandle, bytesToWrite, bytesToWrite.length, numberOfBytesWritten, overlapped);
+		
 		int lastError = os.getPreservedError();
 		if (lastError != ERROR_IO_PENDING && lastError != ERROR_SUCCESS)
 			throw new IOException("ReadFile failed unexpected! " + getNativeErrorMessage(lastError));
@@ -102,7 +104,7 @@ public class TestRW {
 		if (waitResult != WAIT_OBJECT_0)
 			throw new IOException("WaitForSingleObject failed! " + waitResult + " " + getNativeErrorMessage(os.getPreservedError()));
 
-		succeed = os.GetOverlappedResult(portHandle, overlapped, numberOfBytesRead, true);
+		boolean succeed = os.GetOverlappedResult(portHandle, overlapped, numberOfBytesWritten, true);
 		if (!succeed)
 			throw new IOException("GetOverlappedResult failed! " + getNativeErrorMessage(os.getPreservedError()));
 
@@ -126,11 +128,15 @@ public class TestRW {
 		if (lastError != ERROR_IO_PENDING && lastError != ERROR_SUCCESS)
 			throw new IOException("ReadFile failed unexpected! " + getNativeErrorMessage(lastError));
 
-		int waitResult = os.WaitForSingleObject(overlapped.hEvent, INFINITE);
+		while (true) {
+			int waitResult = os.WaitForSingleObject(overlapped.hEvent, 10);
 
-		if (waitResult != WAIT_OBJECT_0)
+			if (waitResult == WAIT_TIMEOUT)
+				continue;
+			if (waitResult == WAIT_OBJECT_0)
+				break;
 			throw new IOException("WaitForSingleObject failed! " + waitResult + " " + getNativeErrorMessage(os.getPreservedError()));
-
+		}
 		succeed = os.GetOverlappedResult(portHandle, overlapped, numberOfBytesRead, true);
 		if (!succeed)
 			throw new IOException("GetOverlappedResult failed! " + getNativeErrorMessage(os.getPreservedError()));

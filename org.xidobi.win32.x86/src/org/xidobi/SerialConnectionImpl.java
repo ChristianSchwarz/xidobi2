@@ -15,8 +15,17 @@
  */
 package org.xidobi;
 
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import org.xidobi.internal.AbstractSerialConnection;
+import org.xidobi.internal.NativeCodeException;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
+import org.xidobi.structs.OVERLAPPED;
+
 import static java.lang.Integer.toHexString;
-import static java.util.Arrays.copyOfRange;
 import static org.xidobi.SerialConnectionImpl.IOState.FINISHED;
 import static org.xidobi.SerialConnectionImpl.IOState.PENDING;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
@@ -32,16 +41,6 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.getErrorMessage;
 import static org.xidobi.utils.Throwables.newIOException;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
-
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.internal.AbstractSerialConnection;
-import org.xidobi.internal.NativeCodeException;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.NativeByteArray;
-import org.xidobi.structs.OVERLAPPED;
 
 /**
  * {@link SerialConnection} implementation for Windows (32bit) x86 Platform.
@@ -101,7 +100,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 
 			switch (eventResult) {
 				case WAIT_OBJECT_0:
-					processWriteResult(overlapped, data);
+					processWriteResult(overlapped, data.length);
 					return;
 				case WAIT_TIMEOUT:
 					throw new IOException("Write timeout after " + writeTimeout + " ms!");
@@ -124,23 +123,21 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	protected byte[] readInternal() throws IOException {
 
 		// loop until we have read some data or an exception occurs
-		while (true) {
+		int eventHandle = createEventHandle();
+		OVERLAPPED overlapped = null;
+		// TODO Optimize: The buffer just needs to be initialized once.
+		NativeByteArray readBuffer = null;
+		try {
+			overlapped = createOverlapped(eventHandle);
+			readBuffer = new NativeByteArray(win, bufferSize);
+			while (true) {
 
-			int eventHandle = createEventHandle();
-
-			OVERLAPPED overlapped = null;
-			// TODO Optimize: The buffer just needs to be initialized once.
-			NativeByteArray readBuffer = null;
-			try {
-				overlapped = createOverlapped(eventHandle);
-
-				readBuffer = new NativeByteArray(win, bufferSize);
 				byte[] result = read(overlapped, readBuffer);
 				if (result != null)
 					return result;
 
 				// the operation is pending, lets wait for completion
-				int waitResult = await(eventHandle, readTimeout);
+				int waitResult = await(eventHandle, 50);
 
 				switch (waitResult) {
 					case WAIT_OBJECT_0:
@@ -155,14 +152,14 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 						throw unexpectedWaitResult(waitResult);
 				}
 			}
+		}
+		finally {
+			try {
+				if (readBuffer != null)
+					readBuffer.dispose();
+			}
 			finally {
-				try {
-					if (readBuffer != null)
-						readBuffer.dispose();
-				}
-				finally {
-					dispose(eventHandle, overlapped);
-				}
+				dispose(eventHandle, overlapped);
 			}
 		}
 	}
@@ -245,7 +242,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 		if (succeed) {
 			// the read operation finished immediatly
 			int bytesRead = lpNumberOfBytesRead.value;
-			return copyOfRange(result.getByteArray(bytesRead), 0, bytesRead);
+			return result.getByteArray(bytesRead);
 		}
 
 		int lastError = win.getPreservedError();
@@ -267,7 +264,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	 */
 	private byte[] processReadResult(OVERLAPPED overlapped, NativeByteArray data) throws IOException {
 		int numberOfBytesRead = getNumberOfTransferredBytes(overlapped);
-		return copyOfRange(data.getByteArray(numberOfBytesRead), 0, numberOfBytesRead);
+		return data.getByteArray(numberOfBytesRead);
 	}
 
 	/**
@@ -275,10 +272,11 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	 * @param data
 	 * @throws IOException
 	 */
-	private void processWriteResult(OVERLAPPED overlapped, byte[] data) throws IOException {
+	private void processWriteResult(OVERLAPPED overlapped, int expectedBytesWritten) throws IOException {
 		int numberOfBytesTransferred = getNumberOfTransferredBytes(overlapped);
-		if (numberOfBytesTransferred != data.length)
-			throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + numberOfBytesTransferred + " expected: " + data.length);
+
+		if (numberOfBytesTransferred != expectedBytesWritten)
+			throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + numberOfBytesTransferred + " expected: " + expectedBytesWritten);
 	}
 
 	/**
