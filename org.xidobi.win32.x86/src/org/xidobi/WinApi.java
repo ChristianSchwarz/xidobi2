@@ -33,6 +33,8 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Tobias Breﬂler
  */
 public interface WinApi {
+	
+	int INFINITE = -1;
 
 	/** Opens port for input. */
 	int GENERIC_READ = 0x80000000;

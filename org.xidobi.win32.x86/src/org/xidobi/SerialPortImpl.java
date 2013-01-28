@@ -17,7 +17,9 @@ package org.xidobi;
 
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
+import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.WinApi.FILE_FLAG_WRITE_THROUGH;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
@@ -125,7 +127,7 @@ public class SerialPortImpl implements SerialPort {
 	 *                if the port is already open or does not exist
 	 */
 	private int tryOpen(final String portName) throws IOException {
-		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH, 0);
 
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
