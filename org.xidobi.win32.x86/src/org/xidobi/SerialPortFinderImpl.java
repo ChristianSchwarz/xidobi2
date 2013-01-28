@@ -67,7 +67,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 
 	/** {@inheritDoc} */
 	@Nonnull
-	public Set<SerialPort> find() {
+	public Set<SerialPort> getAll() {
 		HKEY keyHandle = new HKEY(win);
 		try {
 			openRegistry(keyHandle);

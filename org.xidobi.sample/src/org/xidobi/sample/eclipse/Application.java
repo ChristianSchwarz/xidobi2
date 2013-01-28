@@ -32,7 +32,7 @@ public class Application implements IApplication {
 
 		SerialPortFinder finder = SerialPortProvider.getSerialPortFinder();
 		
-		Set<SerialPort> ports = finder.find();
+		Set<SerialPort> ports = finder.getAll();
 		for (SerialPort port : ports) {
 			out.println(port);
 			if ("COM1".equals(port.getPortName()))

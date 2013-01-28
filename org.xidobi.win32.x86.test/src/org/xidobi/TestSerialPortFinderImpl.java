@@ -100,7 +100,7 @@ public class TestSerialPortFinderImpl {
 	 * HKEY must be disposed at the end.
 	 */
 	@Test
-	public void find_whenRegOpenKeyExANotSuccessful() {
+	public void getAll_whenRegOpenKeyExANotSuccessful() {
 		when(win.sizeOf_HKEY()).thenReturn(SIZE_OF_HKEY);
 		when(win.malloc(SIZE_OF_HKEY)).thenReturn(HKEY_POINTER);
 		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
@@ -109,7 +109,7 @@ public class TestSerialPortFinderImpl {
 		exception.expectMessage("Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<!\r\nError-Code " + AN_ERROR_CODE);
 
 		try {
-			finder.find();
+			finder.getAll();
 		}
 		finally {
 			verify(win, times(1)).malloc(SIZE_OF_HKEY);
@@ -122,7 +122,7 @@ public class TestSerialPortFinderImpl {
 	 * in the Windows Registry.
 	 */
 	@Test
-	public void find_withNoSerialPortValuesInRegistry() {
+	public void getAll_withNoSerialPortValuesInRegistry() {
 		//@formatter:off
 		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
@@ -130,7 +130,7 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPort> result = finder.find();
+		Set<SerialPort> result = finder.getAll();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(0)));
@@ -141,7 +141,7 @@ public class TestSerialPortFinderImpl {
 	 * port is present in the Windows Registry.
 	 */
 	@Test
-	public void find_withOneSerialPortValueInRegistry() {
+	public void getAll_withOneSerialPortValueInRegistry() {
 		//@formatter:off
 		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
@@ -151,7 +151,7 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPort> result = finder.find();
+		Set<SerialPort> result = finder.getAll();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(1)));
@@ -163,7 +163,7 @@ public class TestSerialPortFinderImpl {
 	 * ports are present in the Windows Registry.
 	 */
 	@Test
-	public void find_withTwoSerialPortValueInRegistry() {
+	public void getAll_withTwoSerialPortValueInRegistry() {
 		//@formatter:off
 		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
 			.thenReturn(ERROR_SUCCESS);
@@ -175,7 +175,7 @@ public class TestSerialPortFinderImpl {
 			.when(win).RegEnumValueA(any(HKEY.class), eq(2), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
 		//@formatter:on
 
-		Set<SerialPort> result = finder.find();
+		Set<SerialPort> result = finder.getAll();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(hasSize(2)));
