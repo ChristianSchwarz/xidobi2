@@ -245,6 +245,16 @@ public class OS implements WinApi {
 	private native boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat, INT lastError);
 
 	/** {@inheritDoc} */
+	public boolean ResetEvent(int hEvent) {
+		INT lastError = new INT(0);
+		boolean result = ResetEvent(hEvent, lastError);
+		storeLastNativeError(lastError);
+		return result;
+	}
+
+	private native boolean ResetEvent(int hEvent, INT lastError);
+
+	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);
 
 	/** {@inheritDoc} */
