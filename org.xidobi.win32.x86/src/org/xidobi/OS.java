@@ -234,6 +234,7 @@ public class OS implements WinApi {
 
 	private native boolean PurgeComm(int hFile, int dwFlags, INT lastError);
 
+	/** {@inheritDoc} */
 	public boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat) {
 		INT lastError = new INT(0);
 		boolean result = ClearCommError(hFile, lpErrors, lpStat, lastError);

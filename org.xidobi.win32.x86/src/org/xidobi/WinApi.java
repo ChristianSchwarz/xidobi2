@@ -232,6 +232,22 @@ public interface WinApi {
 	/** Clears the output buffer (if the device driver has one). */
 	int PURGE_TXCLEAR = 0x0004;
 
+	/** The hardware detected a break condition. */
+	int CE_BREAK = 0x0010;
+	/** The hardware detected a framing error. */
+	int CE_FRAME = 0x0008;
+	/**
+	 * A character-buffer overrun has occurred. The next character is lost.
+	 */
+	int CE_OVERRUN = 0x0002;
+	/**
+	 * An input buffer overflow has occurred. There is either no room in the input buffer, or a
+	 * character was received after the end-of-file (EOF) character.
+	 */
+	int CE_RXOVER = 0x0001;
+	/** The hardware detected a parity error. */
+	int CE_RXPARITY = 0x0004;
+
 	/**
 	 * The CreateFile function can create a handle to a communications resource, such as the serial
 	 * port COM1. For communications resources, the dwCreationDisposition parameter must be
@@ -844,7 +860,7 @@ public interface WinApi {
 	 *            </ul>
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
-	 *         {@link #GetLastError()} .
+	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
 	boolean PurgeComm(int hFile, int dwFlags);
@@ -861,18 +877,11 @@ public interface WinApi {
 	 *            indicating the type of error. This parameter can be one or more of the following
 	 *            values:
 	 *            <ul>
-	 *            <li>CE_BREAK 0x0010 The hardware detected a break condition.
-	 *            <li>
-	 *            CE_FRAME 0x0008 The hardware detected a framing error.
-	 *            <li>
-	 *            CE_OVERRUN 0x0002 A character-buffer overrun has occurred. The next character is
-	 *            lost.
-	 *            <li>
-	 *            CE_RXOVER 0x0001 An input buffer overflow has occurred. There is either no room in
-	 *            the input buffer, or a character was received after the end-of-file (EOF)
-	 *            character.
-	 *            <li>
-	 *            CE_RXPARITY 0x0004
+	 *            <li>{@link #CE_BREAK}
+	 *            <li>{@link #CE_FRAME}
+	 *            <li>{@link #CE_OVERRUN}
+	 *            <li>{@link #CE_RXOVER}
+	 *            <li>{@link #CE_RXPARITY}
 	 *            </ul>
 	 * @param lpStat
 	 *            {@code _Out_opt_ LPCOMSTAT} - A pointer to a COMSTAT structure in which the
@@ -880,8 +889,9 @@ public interface WinApi {
 	 *            information is returned.
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
-	 *         {@link #GetLastError()} .
+	 *         {@link #GetLastError()}.
 	 */
+	@CheckReturnValue
 	boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat);
 
 	/**

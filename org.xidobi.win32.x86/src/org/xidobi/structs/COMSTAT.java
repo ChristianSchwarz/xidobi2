@@ -15,9 +15,11 @@
  */
 package org.xidobi.structs;
 
+import org.xidobi.WinApi;
+
 /**
  * Contains information about a communications device. This structure is filled by the
- * ClearCommError function.
+ * {@link WinApi#ClearCommError(int, INT, COMSTAT)} function.
  * 
  * @author Tobias Breﬂler
  */
@@ -57,14 +59,15 @@ public class COMSTAT {
 	// public int fTxim;
 	// /** Reserved; do not use. */
 	// public int fReserved;
-	
+
 	/**
-	 * The number of bytes received by the serial provider but not yet read by a ReadFile operation.
+	 * {@code DWORD} - The number of bytes received by the serial provider but not yet read by a
+	 * ReadFile operation.
 	 */
 	public int cbInQue;
 	/**
-	 * The number of bytes of user data remaining to be transmitted for all write operations. This
-	 * value will be zero for a nonoverlapped write.
+	 * {@code DWORD} - The number of bytes of user data remaining to be transmitted for all write
+	 * operations. This value will be zero for a nonoverlapped write.
 	 */
 	public int cbOutQue;
 
