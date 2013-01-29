@@ -20,23 +20,49 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import org.xidobi.WinApi;
 
 /**
- * Pointer to an int value in C.
+ * Pointer to a DWORD in C.
  * 
  * @author Tobias Breﬂler
  */
 public class DWORD extends Pointer {
 
 	/**
-	 * Creates a new pointer to an int value in C.
+	 * Creates a new pointer to a DWORD value in C.
+	 * <p>
+	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
+	 * 
+	 * @param win
+	 *            the native Win32-API, must not be <code>null</code>
 	 */
 	public DWORD(WinApi win) {
 		super(win, sizeOfDWORD(win));
 	}
 
-	/** Returns the size of an DWORD. */
+	/** Returns the size of a DWORD. */
 	private static int sizeOfDWORD(WinApi win) {
 		checkArgumentNotNull(win, "win");
 		return win.sizeOf_DWORD();
+	}
+
+	/**
+	 * Returns the value of the DWORD pointer.
+	 * 
+	 * @return the value
+	 */
+	public int getValue() {
+		checkIfDisposed();
+		return getWinApi().getValue_DWORD(this);
+	}
+
+	/**
+	 * Returns the value of the DWORD pointer.
+	 * 
+	 * @param value
+	 *            the value
+	 */
+	public void setValue(int value) {
+		checkIfDisposed();
+		getWinApi().setValue_DWORD(this, value);
 	}
 
 }
