@@ -20,11 +20,16 @@ import org.xidobi.WinApi;
 /**
  * Contains information about a communications device. This structure is filled by the
  * {@link WinApi#ClearCommError(int, INT, COMSTAT)} function.
+ * <p>
+ * <i>Please see <a
+ * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363200(v=vs.85).aspx">COMSTAT
+ * structure (MSDN)</a> for detailed information!</i>
  * 
  * @author Tobias Breﬂler
  */
 public class COMSTAT {
 
+	// -- WE DON'T NEED THESE FIELDS AT THE MOMENT! ------------------------------------------------
 	// /**
 	// * If this member is TRUE, transmission is waiting for the CTS (clear-to-send) signal to be
 	// * sent.
@@ -59,6 +64,7 @@ public class COMSTAT {
 	// public int fTxim;
 	// /** Reserved; do not use. */
 	// public int fReserved;
+	// ---------------------------------------------------------------------------------------------
 
 	/**
 	 * {@code DWORD} - The number of bytes received by the serial provider but not yet read by a
