@@ -91,6 +91,7 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 		jint handle,
 		jobject dcbObject,
 		jobject lastError) {
+
 	DCB dcb;
 	FillMemory(&dcb, sizeof(dcb), 0);
 
@@ -116,6 +117,7 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
 		jint handle,
 		jobject dcbObject,
 		jobject lastError) {
+
 	DCB dcb;
 	getDCBFields(env, dcbObject, &dcb);
 
@@ -301,7 +303,7 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 		  jobject lpOverlapped,
 		  jobject lpNumberOfBytesTransferred,
 		  jboolean bWait,
-		  jobject lastError){
+		  jobject lastError) {
 
 	DWORD written = 0;
 
@@ -332,12 +334,13 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jobject this,
 		jint hhandle,
 		jint dwMilliseconds,
 		jobject lastError) {
-	DWORD error = WaitForSingleObject(	(HANDLE) hhandle,
-										dwMilliseconds);
+
+	DWORD result = WaitForSingleObject(	(HANDLE) hhandle,
+										(DWORD) dwMilliseconds);
 
 	setLastNativeError(env, lastError);
 
-	return (jint) error;
+	return (jint) result;
 }
 
 /*
@@ -473,8 +476,8 @@ Java_org_xidobi_OS_WaitCommEvent(JNIEnv *env, jobject this,
 
 	DWORD evtMask = 0;
 
-	getINT(env, lpEvtMask, &evtMask);
-	OVERLAPPED* overlapped =	getOVERLAPPED(env,lpOverlapped);
+	// getINT(env, lpEvtMask, &evtMask);
+	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
 	BOOL result = WaitCommEvent((HANDLE) hFile,
 							    &evtMask,
