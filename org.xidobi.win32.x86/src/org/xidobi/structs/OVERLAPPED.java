@@ -85,7 +85,6 @@ public class OVERLAPPED extends Pointer {
 	 */
 	public OVERLAPPED(WinApi win) {
 		super(win, sizeOfOVERLAPPED(win));
-		win.memset(getNativePointer(), 0, size());
 	}
 
 	/** Returns the size of an OVERLAPPED struct. */

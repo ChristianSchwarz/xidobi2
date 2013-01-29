@@ -31,7 +31,7 @@ public class Pointer {
 	private WinApi win;
 
 	/** The pointer to the allocated memory */
-	private final int nativePointer;
+	private final int cPointer;
 
 	/** <code>true</code> if the instance is disposed */
 	private boolean isDisposed = false;
@@ -53,8 +53,12 @@ public class Pointer {
 					int size) {
 		this.win = checkArgumentNotNull(win, "win");
 		checkArgument(size > 0, "size", "Expected a value greater than 0");
-		nativePointer = win.malloc(size);
 		this.size = size;
+		
+		// allocate memory
+		cPointer = win.malloc(size);
+		// set all bytes to zero
+		win.memset(getNativePointer(), 0, size());
 	}
 
 	/**
@@ -74,7 +78,7 @@ public class Pointer {
 	 */
 	protected int getNativePointer() {
 		checkIfDisposed();
-		return nativePointer;
+		return cPointer;
 	}
 
 	/** Throws an {@link IllegalStateException} when this instance is disposed. */
@@ -88,7 +92,7 @@ public class Pointer {
 	 */
 	public void dispose() {
 		checkIfDisposed();
-		win.free(nativePointer);
+		win.free(cPointer);
 		isDisposed = true;
 	}
 
