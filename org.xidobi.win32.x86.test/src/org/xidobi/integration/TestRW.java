@@ -8,6 +8,7 @@ package org.xidobi.integration;
 
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xidobi.DCBConfigurator;
 import org.xidobi.FlowControl;
@@ -25,6 +26,7 @@ import static org.xidobi.FlowControl.FlowControl_XONXOFF_Out;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.ERROR_SUCCESS;
+import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
@@ -56,6 +58,12 @@ public class TestRW {
 		if (portHandle == INVALID_HANDLE_VALUE)
 			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.getPreservedError()));
 
+		os.PurgeComm(portHandle, WinApi.PURGE_RXCLEAR);
+		
+		boolean setCommMaskResult = os.SetCommMask(portHandle, EV_RXCHAR);
+		if (!setCommMaskResult)
+			throw new IOException("SetCommMask failed: " + getNativeErrorMessage(os.getPreservedError()));
+
 		final DCB dcb = new DCB();
 
 		if (!os.GetCommState(portHandle, dcb))
@@ -65,84 +73,61 @@ public class TestRW {
 		if (!os.SetCommState(portHandle, dcb))
 			throw new IOException("Unable to set the control settings!");
 
-		final int eventHandle = os.CreateEventA(0, true, false, null);
-		if (eventHandle == 0)
-			throw new IOException("CreateEventA returned unexpected with 0! " + getNativeErrorMessage(os.getPreservedError()));
-
-		OVERLAPPED overlapped = new OVERLAPPED(os);
-		overlapped.hEvent = eventHandle;
-
-		NativeByteArray readBuffer = new NativeByteArray(os, 16);
-		int i = 0;
 		while (true) {
-			 i++;
-			write(portHandle, ("\r\n"+i).getBytes("UTF-8"), overlapped);
-//			byte[] bytesRead = read(portHandle, overlapped, readBuffer);
-//			System.out.println("\r\n<<" + new String(bytesRead, forName("UTF-8")));
-			sleep(200);
+			read(portHandle);
 		}
 	}
 
 	/**
-	 * 
 	 * @param portHandle
-	 * @param bytesToWrite
-	 * @param overlapped
 	 * @throws IOException
 	 */
-	private void write(int portHandle, byte[] bytesToWrite, OVERLAPPED overlapped) throws IOException {
+	private void read(int portHandle) throws IOException {
+		int lastError;
+		OVERLAPPED ov = new OVERLAPPED(os);
+		ov.hEvent = os.CreateEventA(0, true, false, null);
 
-		INT numberOfBytesWritten = new INT(0);
-		os.WriteFile(portHandle, bytesToWrite, bytesToWrite.length, numberOfBytesWritten, overlapped);
-		
-		int lastError = os.getPreservedError();
-		if (lastError != ERROR_IO_PENDING && lastError != ERROR_SUCCESS)
-			throw new IOException("ReadFile failed unexpected! " + getNativeErrorMessage(lastError));
+		try {
+			if (ov.hEvent == 0) {
+				lastError = os.getPreservedError();
+				throw new IOException("CreateEventA failed! " + getNativeErrorMessage(lastError));
+			}
 
-		int waitResult = os.WaitForSingleObject(overlapped.hEvent, INFINITE);
+			boolean waitCommEvent = os.WaitCommEvent(portHandle, new INT(0), ov);
+			lastError = os.getPreservedError();
 
-		if (waitResult != WAIT_OBJECT_0)
-			throw new IOException("WaitForSingleObject failed! " + waitResult + " " + getNativeErrorMessage(os.getPreservedError()));
+			if (!waitCommEvent && lastError != ERROR_IO_PENDING)
+				throw new IOException("WaitCommEvent failed! " + getNativeErrorMessage(lastError));
 
-		boolean succeed = os.GetOverlappedResult(portHandle, overlapped, numberOfBytesWritten, true);
-		if (!succeed)
-			throw new IOException("GetOverlappedResult failed! " + getNativeErrorMessage(os.getPreservedError()));
-
-	}
-
-	/**
-	 * @param os
-	 * @param portHandle
-	 * @param eventHandle
-	 * @param overlapped
-	 * @param readBuffer
-	 * @return
-	 * @throws IOException
-	 */
-	private byte[] read(int portHandle, OVERLAPPED overlapped, NativeByteArray readBuffer) throws IOException {
-
-		INT numberOfBytesRead = new INT(0);
-		boolean succeed = os.ReadFile(portHandle, readBuffer, readBuffer.size(), numberOfBytesRead, overlapped);
-
-		int lastError = os.getPreservedError();
-		if (lastError != ERROR_IO_PENDING && lastError != ERROR_SUCCESS)
-			throw new IOException("ReadFile failed unexpected! " + getNativeErrorMessage(lastError));
-
-		while (true) {
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, 10);
-
-			if (waitResult == WAIT_TIMEOUT)
-				continue;
-			if (waitResult == WAIT_OBJECT_0)
-				break;
-			throw new IOException("WaitForSingleObject failed! " + waitResult + " " + getNativeErrorMessage(os.getPreservedError()));
+			int waitForSingleObject = os.WaitForSingleObject(ov.hEvent, INFINITE);
+			switch (waitForSingleObject) {
+				case WinApi.WAIT_OBJECT_0:
+					INT lpNumberOfBytesRead = new INT(0);
+					NativeByteArray lpBuffer = new NativeByteArray(os, 64);
+					do {
+						os.ReadFile(portHandle, lpBuffer, lpBuffer.size(), lpNumberOfBytesRead, ov);
+						if (lpNumberOfBytesRead.value > 0) {
+							byte[] data = lpBuffer.getByteArray(lpNumberOfBytesRead.value);
+							System.out.println(new String(data));
+							System.out.println("___________________________");
+							System.out.flush();
+						}
+					}
+					while (lpNumberOfBytesRead.value > 0);
+					lpBuffer.dispose();
+					break;
+				default:
+					throw new IOException("WaitForSingleObject failed!");
+			}
 		}
-		succeed = os.GetOverlappedResult(portHandle, overlapped, numberOfBytesRead, true);
-		if (!succeed)
-			throw new IOException("GetOverlappedResult failed! " + getNativeErrorMessage(os.getPreservedError()));
-
-		byte[] bytesRead = readBuffer.getByteArray(numberOfBytesRead.value);
-		return bytesRead;
+		finally {
+			try {
+				os.CloseHandle(ov.hEvent);
+			}
+			finally {
+				ov.dispose();
+			}
+		}
 	}
 
 	/**
