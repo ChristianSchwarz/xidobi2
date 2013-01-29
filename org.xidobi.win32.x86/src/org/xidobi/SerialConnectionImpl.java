@@ -15,17 +15,6 @@
  */
 package org.xidobi;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.internal.AbstractSerialConnection;
-import org.xidobi.internal.NativeCodeException;
-import org.xidobi.structs.DWORD;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.NativeByteArray;
-import org.xidobi.structs.OVERLAPPED;
-
 import static java.lang.Integer.toHexString;
 import static org.xidobi.SerialConnectionImpl.IOState.FINISHED;
 import static org.xidobi.SerialConnectionImpl.IOState.PENDING;
@@ -42,6 +31,16 @@ import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.getErrorMessage;
 import static org.xidobi.utils.Throwables.newIOException;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
+
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import org.xidobi.internal.AbstractSerialConnection;
+import org.xidobi.internal.NativeCodeException;
+import org.xidobi.structs.DWORD;
+import org.xidobi.structs.NativeByteArray;
+import org.xidobi.structs.OVERLAPPED;
 
 /**
  * {@link SerialConnection} implementation for Windows (32bit) x86 Platform.

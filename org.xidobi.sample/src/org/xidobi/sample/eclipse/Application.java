@@ -1,10 +1,16 @@
 package org.xidobi.sample.eclipse;
 
+import static java.lang.Long.MAX_VALUE;
+import static java.lang.System.out;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.xidobi.SerialPortSettings.from9600_8N1;
+
 import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -12,16 +18,6 @@ import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortFinder;
 import org.xidobi.SerialPortProvider;
-import org.xidobi.SerialPortSettings;
-
-import static org.xidobi.SerialPortSettings.from9600_8N1;
-
-import static java.lang.Long.MAX_VALUE;
-import static java.lang.System.out;
-import static java.util.concurrent.Executors.newScheduledThreadPool;
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This class controls all aspects of the application's execution

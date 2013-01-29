@@ -26,8 +26,8 @@ import java.util.Set;
 import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
-import org.xidobi.SerialPortFinderImpl;
 import org.xidobi.SerialPort;
+import org.xidobi.SerialPortFinderImpl;
 
 /**
  * Integration test for class {@link SerialPortFinderImpl}.
