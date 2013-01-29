@@ -24,7 +24,6 @@ void setDCBFields(JNIEnv *, jobject, DCB *);
 // OVERLAPPED:
 void cacheOVERLAPPEDFields(JNIEnv *, jobject);
 OVERLAPPED *getOVERLAPPED(JNIEnv *, jobject);
-// void setOVERLAPPED(JNIEnv *, jobject, OVERLAPPED *);
 
 // INT:
 void cacheINT(JNIEnv *env, jobject);
@@ -45,7 +44,6 @@ DWORD *getDWORD(JNIEnv *, jobject);
 
 // DCB:
 void cacheCOMSTATFields(JNIEnv *, jobject);
-COMSTAT *getCOMSTATFields(JNIEnv *, jobject, COMSTAT *);
 void setCOMSTATFields(JNIEnv *, jobject, COMSTAT *);
 
 #endif /* OS_STRUCTS_H_ */
