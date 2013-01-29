@@ -234,6 +234,9 @@ public class OS implements WinApi {
 
 	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);
+	
+	/** {@inheritDoc} */
+	public native void memset(int ptr, int value, int num);
 
 	/** {@inheritDoc} */
 	public native void free(int pointer);
