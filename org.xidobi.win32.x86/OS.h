@@ -162,6 +162,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ClearCommError
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    ResetEvent
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ResetEvent
+  (JNIEnv *, jobject, jint, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */

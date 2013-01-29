@@ -533,6 +533,25 @@ Java_org_xidobi_OS_ClearCommError(JNIEnv *env, jobject this,
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    ResetEvent
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_ResetEvent(JNIEnv *env, jobject this,
+		jint hEvent,
+		jobject lastError) {
+
+	BOOL result = ResetEvent((HANDLE) hEvent);
+
+	setLastNativeError(env, lastError);
+
+	if (result)
+		return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */
