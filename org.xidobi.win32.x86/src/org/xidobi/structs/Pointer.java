@@ -36,6 +36,9 @@ public class Pointer {
 	/** <code>true</code> if the instance is disposed */
 	private boolean isDisposed = false;
 
+	/** the size of the allocated memory */
+	private int size;
+
 	/**
 	 * Allocates memory of the given size on the heap and stores a pointer to that memory.
 	 * <p>
@@ -51,6 +54,17 @@ public class Pointer {
 		this.win = checkArgumentNotNull(win, "win");
 		checkArgument(size > 0, "size", "Expected a value greater than 0");
 		cPointer = win.malloc(size);
+		this.size = size;
+	}
+
+	/**
+	 * Returns the size of the allocated memory.
+	 * 
+	 * @return the size
+	 */
+	public int size() {
+		checkIfDisposed();
+		return size;
 	}
 
 	/** Throws an {@link IllegalStateException} when this instance is disposed. */

@@ -29,9 +29,6 @@ import org.xidobi.WinApi;
  */
 public class NativeByteArray extends Pointer {
 
-	/** the size of the native byte array */
-	private final int size;
-
 	/**
 	 * Creates a new byte array instance on the heap.
 	 * <p>
@@ -45,17 +42,6 @@ public class NativeByteArray extends Pointer {
 	public NativeByteArray(	@Nonnull WinApi win,
 							@Nonnegative int size) {
 		super(win, size);
-		this.size = size;
-	}
-
-	/**
-	 * Returns the size of the native byte array.
-	 * 
-	 * @return size of byte array
-	 */
-	public int size() {
-		checkIfDisposed();
-		return size;
 	}
 
 	/**
@@ -65,7 +51,7 @@ public class NativeByteArray extends Pointer {
 	 */
 	@Nonnull
 	public byte[] getByteArray() {
-		return getByteArray(size);
+		return getByteArray(size());
 	}
 
 	/**
@@ -82,7 +68,7 @@ public class NativeByteArray extends Pointer {
 	@Nonnull
 	public byte[] getByteArray(int length) {
 		checkArgument(length > 0, "length", "Expected a value greater than 0");
-		checkArgument(length <= size, "length", "Expected a value lesser than or equal to length");
+		checkArgument(length <= size(), "length", "Expected a value lesser than or equal to the size of the byte array");
 		checkIfDisposed();
 		return getWinApi().getByteArray(this, length);
 	}
