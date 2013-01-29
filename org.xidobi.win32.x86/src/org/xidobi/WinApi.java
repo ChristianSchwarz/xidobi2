@@ -869,6 +869,10 @@ public interface WinApi {
 	 * Retrieves information about a communications error and reports the current status of a
 	 * communications device. The function is called when a communications error occurs, and it
 	 * clears the device's error flag to enable additional input and output (I/O) operations.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363180(v=vs.85).aspx">
+	 * ClearCommError (MSDN)</a> for more details.</i>
 	 * 
 	 * @param hFile
 	 *            {@code _In_ HANDLE} - A handle to the communications device.
@@ -877,11 +881,8 @@ public interface WinApi {
 	 *            indicating the type of error. This parameter can be one or more of the following
 	 *            values:
 	 *            <ul>
-	 *            <li>{@link #CE_BREAK}
-	 *            <li>{@link #CE_FRAME}
-	 *            <li>{@link #CE_OVERRUN}
-	 *            <li>{@link #CE_RXOVER}
-	 *            <li>{@link #CE_RXPARITY}
+	 *            <li>{@link #CE_BREAK} <li>{@link #CE_FRAME} <li>{@link #CE_OVERRUN} <li>
+	 *            {@link #CE_RXOVER} <li>{@link #CE_RXPARITY}
 	 *            </ul>
 	 * @param lpStat
 	 *            {@code _Out_opt_ LPCOMSTAT} - A pointer to a COMSTAT structure in which the
