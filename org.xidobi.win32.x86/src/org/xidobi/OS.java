@@ -223,6 +223,16 @@ public class OS implements WinApi {
 	private native boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
+	public boolean PurgeComm(int hFile, int dwFlags) {
+		INT lastError = new INT(0);
+		boolean result = PurgeComm(hFile, dwFlags, lastError);
+		storeLastNativeError(lastError);
+		return result;
+	}
+
+	private native boolean PurgeComm(int hFile, int dwFlags, INT lastError);
+
+	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);
 
 	/** {@inheritDoc} */

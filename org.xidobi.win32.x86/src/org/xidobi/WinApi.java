@@ -33,7 +33,8 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Tobias Breﬂler
  */
 public interface WinApi {
-	
+
+	/** Used for timeout durations. */
 	int INFINITE = -1;
 
 	/** Opens port for input. */
@@ -213,6 +214,21 @@ public interface WinApi {
 	int EV_RXFLAG = 0x0002;
 	/** The last character in the output buffer was sent. */
 	int EV_TXEMPTY = 0x0004;
+
+	/**
+	 * Terminates all outstanding overlapped read operations and returns immediately, even if the
+	 * read operations have not been completed.
+	 */
+	int PURGE_RXABORT = 0x0002;
+	/** Clears the input buffer (if the device driver has one). */
+	int PURGE_RXCLEAR = 0x0008;
+	/**
+	 * Terminates all outstanding overlapped write operations and returns immediately, even if the
+	 * write operations have not been completed.
+	 */
+	int PURGE_TXABORT = 0x0001;
+	/** Clears the output buffer (if the device driver has one). */
+	int PURGE_TXCLEAR = 0x0004;
 
 	/**
 	 * The CreateFile function can create a handle to a communications resource, such as the serial
@@ -801,6 +817,33 @@ public interface WinApi {
 	 */
 	@CheckReturnValue
 	boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped);
+
+	/**
+	 * Discards all characters from the output or input buffer of a specified communications
+	 * resource. It can also terminate pending read or write operations on the resource.
+	 * <p>
+	 * <b>Remarks:</b> If a thread uses PurgeComm to flush an output buffer, the deleted characters
+	 * are not transmitted. To empty the output buffer while ensuring that the contents are
+	 * transmitted, call the FlushFileBuffers function (a synchronous operation). Note, however,
+	 * that FlushFileBuffers is subject to flow control but not to write time-outs, and it will not
+	 * return until all pending write operations have been transmitted.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363428(v=vs.85).aspx">
+	 * PurgeComm (MSDN)</a> for more details.</i>
+	 * 
+	 * @param hFile
+	 *            {@code _In_ HANDLE} - A handle to the communications resource.
+	 * @param dwFlags
+	 *            {@code _In_ DWORD} - This parameter can be one or more of the following values:
+	 *            <ul>
+	 *            <li>{@link #PURGE_RXABORT} <li>{@link #PURGE_RXCLEAR} <li>{@link #PURGE_TXABORT}
+	 *            <li>{@link #PURGE_TXCLEAR}
+	 *            </ul>
+	 * @return If the function succeeds, the return value is nonzero. If the function fails, the
+	 *         return value is zero.
+	 */
+	boolean PurgeComm(int hFile, int dwFlags);
 
 	/**
 	 * Allocates memory of the given size and returns a pointer to that memory.
