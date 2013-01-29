@@ -43,4 +43,9 @@ jbyte *getNativeByteArray(JNIEnv *, jobject);
 void cacheDWORDFields(JNIEnv *, jobject);
 DWORD *getDWORD(JNIEnv *, jobject);
 
+// DCB:
+void cacheCOMSTATFields(JNIEnv *, jobject);
+COMSTAT *getCOMSTATFields(JNIEnv *, jobject, COMSTAT *);
+void setCOMSTATFields(JNIEnv *, jobject, COMSTAT *);
+
 #endif /* OS_STRUCTS_H_ */

@@ -501,6 +501,38 @@ Java_org_xidobi_OS_PurgeComm(JNIEnv *env, jobject this,
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    ClearCommError
+ * Signature: (ILorg/xidobi/structs/INT;Lorg/xidobi/structs/COMSTAT;Lorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_ClearCommError(JNIEnv *env, jobject this,
+		jint hFile,
+		jobject lpErrors,
+		jobject lpStat,
+		jobject lastError) {
+
+	DWORD errors = 0;
+	getINT(env, lpErrors, &errors);
+
+	COMSTAT comstat;
+	FillMemory(&comstat, sizeof(comstat), 0);
+
+	BOOL result = ClearCommError((HANDLE) hFile,
+								 &errors,
+								 &comstat);
+
+	setLastNativeError(env, lastError);
+
+	setINT(env, lpErrors, &errors);
+	setCOMSTATFields(env, lpStat, &comstat);
+
+	if (result)
+		return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */

@@ -154,6 +154,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_PurgeComm
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    ClearCommError
+ * Signature: (ILorg/xidobi/structs/INT;Lorg/xidobi/structs/COMSTAT;Lorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ClearCommError
+  (JNIEnv *, jobject, jint, jobject, jobject, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */

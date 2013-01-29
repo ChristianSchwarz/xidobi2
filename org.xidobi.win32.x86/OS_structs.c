@@ -445,3 +445,54 @@ DWORD *getDWORD(JNIEnv *env, jobject dword) {
 
 	return ptr;
 }
+
+// ***********************************************************************
+// **** COMSTAT: *************************************************************
+// ***********************************************************************
+
+/*
+ * a struct to cache the COMSTAT fields
+ */
+typedef struct COMSTAT_FID_CACHE {
+	int cached;
+	jclass clazz;
+	jfieldID cbInQue;
+} COMSTAT_FID_CACHE;
+// cache for DCB fields
+COMSTAT_FID_CACHE COMSTATc;
+
+/*
+ * Caches the COMSTAT fields in the COMSTAT_FID_CACHE.
+ */
+void cacheCOMSTATFields(JNIEnv *env, jobject comstatObject) {
+	if (COMSTATc.cached)
+		return;
+
+	COMSTATc.clazz = (*env)->GetObjectClass(env, comstatObject);
+	COMSTATc.cbInQue = (*env)->GetFieldID(env, COMSTATc.clazz, "cbInQue", "I");
+
+	COMSTATc.cached = TRUE;
+}
+
+/*
+ * Retrieves the fields from the given jobject and returns it as COMSTAT*.
+ */
+COMSTAT *getCOMSTATFields(JNIEnv *env, jobject comstatObject, COMSTAT *comstatStruct) {
+	if (!COMSTATc.cached)
+		cacheCOMSTATFields(env, comstatObject);
+
+	comstatStruct->cbInQue = (*env)->GetIntField(env, comstatObject, COMSTATc.cbInQue);
+
+	return comstatStruct;
+}
+
+/*
+ * Sets the fields of the given jobject to the value of the given COMSTAT*.
+ */
+void setCOMSTATFields(JNIEnv *env, jobject comstatObject, COMSTAT *comstatStruct) {
+	if (!COMSTATc.cached)
+		cacheCOMSTATFields(env, comstatObject);
+
+	(*env)->SetIntField(env, comstatObject, COMSTATc.cbInQue, (jint) comstatStruct->cbInQue);
+
+}
