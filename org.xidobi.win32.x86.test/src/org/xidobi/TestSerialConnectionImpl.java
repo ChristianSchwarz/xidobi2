@@ -47,6 +47,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.internal.NativeCodeException;
+import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
@@ -146,16 +147,16 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_succeedImmediatly() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(true);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).thenReturn(true);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
 
 		port.write(DATA);
 
 		verify(win).CreateEventA(0, true, false, null);
-		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
+		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 		verify(win, never()).WaitForSingleObject(anyInt(), anyInt());
-		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
+		verify(win, never()).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyDWORD(), anyBoolean());
 
 		verifyResourcesDisposed();
 	}
@@ -169,17 +170,17 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_succeedPending() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).then(setWrittenBytesAndReturn(DATA.length, true));
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).then(setWrittenBytesAndReturn(DATA.length, true));
 
 		port.write(DATA);
 
 		verify(win).CreateEventA(0, true, false, null);
-		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED());
+		verify(win).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 		verify(win).WaitForSingleObject(eventHandle, 2000);
-		verify(win).GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true));
+		verify(win).GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true));
 
 		verifyResourcesDisposed();
 	}
@@ -212,7 +213,7 @@ public class TestSerialConnectionImpl {
 	public void write_writeFileFails_ERROR_INVALID_HANDLE() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
 		// @formatter:on
 
@@ -234,7 +235,7 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_writeFileFailsUnexpected() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
@@ -257,12 +258,12 @@ public class TestSerialConnectionImpl {
 	public void write_getOverlappedResultFails_ERROR_OPERATION_ABORTED() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         ERROR_OPERATION_ABORTED); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		// This is the important part of the test, in the case the NativeCodeException must be thrown:
-		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyDWORD(), anyBoolean())).thenReturn(false);
 		when(portHandle.getPortName()).thenReturn("COM1");
 		//@formatter:on
 
@@ -285,12 +286,12 @@ public class TestSerialConnectionImpl {
 	public void write_getOverlappedResultFailsUnexpected() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		// This is the important part of the test, in the case the NativeCodeException must be thrown:
-		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyDWORD(), anyBoolean())).thenReturn(false);
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -311,13 +312,13 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_unexpectedTransmittedBytes() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 
 		// This is the important part of the test, in the case the NativeCodeException must be
 		// thrown
-		doAnswer(setWrittenBytesAndReturn(DATA.length - 1, true)).when(win).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyINT(), anyBoolean());
+		doAnswer(setWrittenBytesAndReturn(DATA.length - 1, true)).when(win).GetOverlappedResult(anyInt(), anyOVERLAPPED(), anyDWORD(), anyBoolean());
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + (DATA.length - 1) + " expected: " + DATA.length);
@@ -340,7 +341,7 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_timeout() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
 
@@ -363,7 +364,7 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_UnexpectedWaitResult_WAIT_FAILED() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 
@@ -386,7 +387,7 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_UnexpectedWaitResult_WAIT_ABANDONED() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
 
@@ -409,7 +410,7 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void write_UnexpectedWaitResult() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
 
@@ -452,7 +453,7 @@ public class TestSerialConnectionImpl {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		doAnswer(readBytesAndReturn(DATA, true)).
-			when(win).ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED());
+			when(win).ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED());
 		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		// @formatter:on
 
@@ -471,10 +472,10 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void read_succeedPending() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyINT(), eq(true))).then(setReadBytesAndReturn(DATA.length, true));
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).then(setReadBytesAndReturn(DATA.length, true));
 		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 
 		byte[] result = port.read();
@@ -495,7 +496,7 @@ public class TestSerialConnectionImpl {
 	public void read_readFileFails_ERROR_INVALID_HANDLE() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
 		// @formatter:on
 
@@ -520,7 +521,7 @@ public class TestSerialConnectionImpl {
 	public void read_readFileFailsUnexpected() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 		// @formatter:on
 
@@ -544,12 +545,12 @@ public class TestSerialConnectionImpl {
 	public void read_getOverlappedResultFails_ERROR_OPERATION_ABORTED() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         ERROR_OPERATION_ABORTED); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		// This is the important part of the test, in the case the NativeCodeException must be thrown:
-		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyDWORD(), anyBoolean())).thenReturn(false);
 		when(portHandle.getPortName()).thenReturn("COM1");
 		// @formatter:on
 
@@ -573,12 +574,12 @@ public class TestSerialConnectionImpl {
 	public void read_getOverlappedResultFailedUnexpected() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		// This is the important part of the test, in the case the NativeCodeException must be thrown:
-		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyINT(), anyBoolean())).thenReturn(false);
+		when(win.GetOverlappedResult(eq(eventHandle), anyOVERLAPPED(), anyDWORD(), anyBoolean())).thenReturn(false);
 		// @formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -601,7 +602,7 @@ public class TestSerialConnectionImpl {
 	public void read_timeout() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).
 			thenAnswer(readBytesAndReturn(new byte[0], false)).
 			thenAnswer(readBytesAndReturn(DATA, true));
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING); 
@@ -629,7 +630,7 @@ public class TestSerialConnectionImpl {
 	public void read_UnexpectedWaitResult_WAIT_FAILED() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, // WriteFile
 		                                         DUMMY_ERROR_CODE); // GetOverlappedResult
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
@@ -656,7 +657,7 @@ public class TestSerialConnectionImpl {
 	public void read_UnexpectedWaitResult_WAIT_ABANDONED() throws Exception {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
 		// @formatter:on
@@ -681,7 +682,7 @@ public class TestSerialConnectionImpl {
 	@Test
 	public void read_UnexpectedWaitResult() throws Exception {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyINT(), anyOVERLAPPED())).thenReturn(false);
+		when(win.ReadFile(eq(handle), any(NativeByteArray.class), anyInt(), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
 
@@ -736,8 +737,8 @@ public class TestSerialConnectionImpl {
 	}
 
 	/** matches any {@link INT} */
-	private INT anyINT() {
-		return any(INT.class);
+	private DWORD anyDWORD() {
+		return any(DWORD.class);
 	}
 
 	/** This answer returns <code>returnValue</code> and set the written bytes. */

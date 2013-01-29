@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.internal.AbstractSerialConnection;
 import org.xidobi.internal.NativeCodeException;
+import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
@@ -218,7 +219,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	 *         </ul>
 	 */
 	private IOState write(OVERLAPPED overlapped, byte[] data) throws IOException {
-		INT lpNumberOfBytesWritten = new INT(0);
+		DWORD lpNumberOfBytesWritten = new DWORD(win);
 		boolean succeed = win.WriteFile(handle, data, data.length, lpNumberOfBytesWritten, overlapped);
 		if (succeed)
 			// the write operation finished immediatly
@@ -237,11 +238,11 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	}
 
 	private byte[] read(OVERLAPPED overlapped, NativeByteArray result) throws IOException {
-		INT lpNumberOfBytesRead = new INT(0);
+		DWORD lpNumberOfBytesRead = new DWORD(win);
 		boolean succeed = win.ReadFile(handle, result, result.size(), lpNumberOfBytesRead, overlapped);
 		if (succeed) {
 			// the read operation finished immediatly
-			int bytesRead = lpNumberOfBytesRead.value;
+			int bytesRead = lpNumberOfBytesRead.getValue();
 			return result.getByteArray(bytesRead);
 		}
 
@@ -285,10 +286,10 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	 * @throws IOException
 	 */
 	private int getNumberOfTransferredBytes(OVERLAPPED overlapped) throws IOException {
-		INT numberOfBytesRead = new INT(0);
+		DWORD numberOfBytesRead = new DWORD(win);
 		boolean succeed = win.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
 		if (succeed)
-			return numberOfBytesRead.value;
+			return numberOfBytesRead.getValue();
 
 		int lastError = win.getPreservedError();
 		if (lastError == ERROR_OPERATION_ABORTED)
