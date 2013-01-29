@@ -20,6 +20,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.xidobi.structs.COMSTAT;
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.HKEY;
@@ -841,12 +842,47 @@ public interface WinApi {
 	 *            <li>{@link #PURGE_RXABORT} <li>{@link #PURGE_RXCLEAR} <li>{@link #PURGE_TXABORT}
 	 *            <li>{@link #PURGE_TXCLEAR}
 	 *            </ul>
-	 * @return If the function succeeds, the return value is nonzero. If the function fails, the
-	 *         return value is zero. To get extended error information, call {@link #GetLastError()}
-	 *         .
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()} .
 	 */
 	@CheckReturnValue
 	boolean PurgeComm(int hFile, int dwFlags);
+
+	/**
+	 * Retrieves information about a communications error and reports the current status of a
+	 * communications device. The function is called when a communications error occurs, and it
+	 * clears the device's error flag to enable additional input and output (I/O) operations.
+	 * 
+	 * @param hFile
+	 *            {@code _In_ HANDLE} - A handle to the communications device.
+	 * @param lpErrors
+	 *            {@code _Out_opt_ LPDWORD} - A pointer to a variable that receives a mask
+	 *            indicating the type of error. This parameter can be one or more of the following
+	 *            values:
+	 *            <ul>
+	 *            <li>CE_BREAK 0x0010 The hardware detected a break condition.
+	 *            <li>
+	 *            CE_FRAME 0x0008 The hardware detected a framing error.
+	 *            <li>
+	 *            CE_OVERRUN 0x0002 A character-buffer overrun has occurred. The next character is
+	 *            lost.
+	 *            <li>
+	 *            CE_RXOVER 0x0001 An input buffer overflow has occurred. There is either no room in
+	 *            the input buffer, or a character was received after the end-of-file (EOF)
+	 *            character.
+	 *            <li>
+	 *            CE_RXPARITY 0x0004
+	 *            </ul>
+	 * @param lpStat
+	 *            {@code _Out_opt_ LPCOMSTAT} - A pointer to a COMSTAT structure in which the
+	 *            device's status information is returned. If this parameter is NULL, no status
+	 *            information is returned.
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()} .
+	 */
+	boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat);
 
 	/**
 	 * Allocates memory of the given size and returns a pointer to that memory.

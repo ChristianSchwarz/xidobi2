@@ -26,6 +26,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.xidobi.structs.COMSTAT;
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.HKEY;
@@ -232,6 +233,15 @@ public class OS implements WinApi {
 	}
 
 	private native boolean PurgeComm(int hFile, int dwFlags, INT lastError);
+
+	public boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat) {
+		INT lastError = new INT(0);
+		boolean result = ClearCommError(hFile, lpErrors, lpStat, lastError);
+		storeLastNativeError(lastError);
+		return result;
+	}
+
+	private native boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat, INT lastError);
 
 	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);

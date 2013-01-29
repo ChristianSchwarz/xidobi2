@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.xidobi.DCBConfigurator;
 import org.xidobi.OS;
 import org.xidobi.WinApi;
+import org.xidobi.structs.COMSTAT;
 import org.xidobi.structs.DCB;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
@@ -102,27 +103,33 @@ public class TestRW {
 			System.err.println("GetOverlappedResult");
 			os.GetOverlappedResult(portHandle, ov, evtResult, true);
 			System.err.println("GetOverlappedResult = " + evtResult.getValue());
+			System.err.println("GetOverlappedResult = " + dword.getValue());
+
+			COMSTAT lpStat = new COMSTAT();
+			os.ClearCommError(portHandle, new INT(0), lpStat);
+			int availableBytes = lpStat.cbInQue;
+			System.err.println("COMSTAT.cbInQue = " + availableBytes);
+			if (availableBytes == 0)
+				return;
+
 			switch (waitForSingleObject) {
 				case WinApi.WAIT_OBJECT_0:
 					DWORD lpNumberOfBytesRead = new DWORD(os);
-					NativeByteArray lpBuffer = new NativeByteArray(os, 64);
-					do {
-						System.err.println("ReadFile");
-						boolean readFile = os.ReadFile(portHandle, lpBuffer, lpBuffer.size(), lpNumberOfBytesRead, ov);
-						if (!readFile) {
-							System.err.println("WaitForSingleObject");
-							os.WaitForSingleObject(ov.hEvent, INFINITE);
-							os.GetOverlappedResult(portHandle, ov, lpNumberOfBytesRead, true);
-						}
-						System.err.println("lpNumberOfBytesRead = " + lpNumberOfBytesRead.getValue());
-						if (lpNumberOfBytesRead.getValue() > 0) {
-							byte[] data = lpBuffer.getByteArray(lpNumberOfBytesRead.getValue());
-							System.out.println(new String(data));
-							System.out.println("___________________________");
-							System.out.flush();
-						}
+					NativeByteArray lpBuffer = new NativeByteArray(os, availableBytes);
+					System.err.println("ReadFile");
+					boolean readFile = os.ReadFile(portHandle, lpBuffer, lpBuffer.size(), lpNumberOfBytesRead, ov);
+					if (!readFile) {
+						System.err.println("WaitForSingleObject");
+						os.WaitForSingleObject(ov.hEvent, 100);
+						os.GetOverlappedResult(portHandle, ov, lpNumberOfBytesRead, true);
 					}
-					while (lpNumberOfBytesRead.getValue() > 0);
+					System.err.println("lpNumberOfBytesRead = " + lpNumberOfBytesRead.getValue());
+					if (lpNumberOfBytesRead.getValue() > 0) {
+						byte[] data = lpBuffer.getByteArray(lpNumberOfBytesRead.getValue());
+						System.out.println(new String(data));
+						System.out.println("___________________________");
+						System.out.flush();
+					}
 					lpBuffer.dispose();
 					lpNumberOfBytesRead.dispose();
 					break;
