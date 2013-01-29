@@ -6,26 +6,8 @@
  */
 package org.xidobi.integration;
 
-import java.io.IOException;
-
-import org.junit.Ignore;
-import org.junit.Test;
-import org.xidobi.DCBConfigurator;
-import org.xidobi.FlowControl;
-import org.xidobi.OS;
-import org.xidobi.WinApi;
-import org.xidobi.structs.DCB;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.NativeByteArray;
-import org.xidobi.structs.OVERLAPPED;
-
-import static java.lang.Thread.sleep;
-import static java.nio.charset.Charset.forName;
-import static org.xidobi.FlowControl.FlowControl_RTSCTS_In_Out;
-import static org.xidobi.FlowControl.FlowControl_XONXOFF_Out;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
-import static org.xidobi.WinApi.ERROR_SUCCESS;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
@@ -37,8 +19,18 @@ import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.LANG_NEUTRAL;
 import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
-import static org.xidobi.WinApi.WAIT_OBJECT_0;
-import static org.xidobi.WinApi.WAIT_TIMEOUT;
+
+import java.io.IOException;
+
+import org.junit.Test;
+import org.xidobi.DCBConfigurator;
+import org.xidobi.OS;
+import org.xidobi.WinApi;
+import org.xidobi.structs.DCB;
+import org.xidobi.structs.DWORD;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
+import org.xidobi.structs.OVERLAPPED;
 
 /**
  * @author Christian Schwarz
@@ -85,6 +77,7 @@ public class TestRW {
 	private void read(int portHandle) throws IOException {
 		int lastError;
 		OVERLAPPED ov = new OVERLAPPED(os);
+		DWORD dword = new DWORD(os);
 		ov.hEvent = os.CreateEventA(0, true, false, null);
 
 		try {
@@ -93,7 +86,7 @@ public class TestRW {
 				throw new IOException("CreateEventA failed! " + getNativeErrorMessage(lastError));
 			}
 
-			boolean waitCommEvent = os.WaitCommEvent(portHandle, new INT(0), ov);
+			boolean waitCommEvent = os.WaitCommEvent(portHandle, dword, ov);
 			lastError = os.getPreservedError();
 
 			if (!waitCommEvent && lastError != ERROR_IO_PENDING)
@@ -126,6 +119,7 @@ public class TestRW {
 			}
 			finally {
 				ov.dispose();
+				dword.dispose();
 			}
 		}
 	}

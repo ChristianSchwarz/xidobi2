@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.xidobi.structs.DCB;
+import org.xidobi.structs.DWORD;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
@@ -816,7 +817,7 @@ public interface WinApi {
 	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
-	boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped);
+	boolean WaitCommEvent(int hFile, DWORD lpEvtMask, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Discards all characters from the output or input buffer of a specified communications
@@ -892,6 +893,13 @@ public interface WinApi {
 	int sizeOf_HKEY();
 
 	/**
+	 * Size of an HKEY struct.
+	 * 
+	 * @return the size of the HKEY struct
+	 */
+	int sizeOf_DWORD();
+
+	/**
 	 * Returns the byte array with the specified length for the given native byte array pointer.
 	 * 
 	 * @param nativeByteArray
@@ -902,5 +910,24 @@ public interface WinApi {
 	 * @return the byte array of the specified length
 	 */
 	byte[] getByteArray(@Nonnull NativeByteArray nativeByteArray, @Nonnegative int length);
+
+	/**
+	 * Returns the value of the DWORD pointer.
+	 * 
+	 * @param dword
+	 *            the pointer to the DWORD, must not be <code>null</code>
+	 * @return the value of the DWORD pointer
+	 */
+	int getValue_DWORD(@Nonnull DWORD dword);
+
+	/**
+	 * Sets the value of the DWORD pointer.
+	 * 
+	 * @param dword
+	 *            the pointer to the DWORD, must not be <code>null</code>
+	 * @param value
+	 *            the value of the DWORD pointer
+	 */
+	void setValue_DWORD(@Nonnull DWORD dword, int value);
 
 }

@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.xidobi.structs.DCB;
+import org.xidobi.structs.DWORD;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
@@ -213,14 +214,14 @@ public class OS implements WinApi {
 	private native boolean SetCommMask(int hFile, int dwEvtMask, INT lastError);
 
 	/** {@inheritDoc} */
-	public boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped) {
+	public boolean WaitCommEvent(int hFile, DWORD lpEvtMask, OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = WaitCommEvent(hFile, lpEvtMask, lpOverlapped, lastError);
 		storeLastNativeError(lastError);
 		return result;
 	}
 
-	private native boolean WaitCommEvent(int hFile, INT lpEvtMask, OVERLAPPED lpOverlapped, INT lastError);
+	private native boolean WaitCommEvent(int hFile, DWORD lpEvtMask, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
 	public boolean PurgeComm(int hFile, int dwFlags) {
@@ -234,7 +235,7 @@ public class OS implements WinApi {
 
 	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);
-	
+
 	/** {@inheritDoc} */
 	public native void memset(int ptr, int value, int num);
 
@@ -248,6 +249,15 @@ public class OS implements WinApi {
 	public native int sizeOf_HKEY();
 
 	/** {@inheritDoc} */
+	public native int sizeOf_DWORD();
+
+	/** {@inheritDoc} */
 	public native byte[] getByteArray(NativeByteArray nativeByteArray, int length);
+
+	/** {@inheritDoc} */
+	public native int getValue_DWORD(@Nonnull DWORD dword);
+
+	/** {@inheritDoc} */
+	public native void setValue_DWORD(@Nonnull DWORD dword, int value);
 
 }
