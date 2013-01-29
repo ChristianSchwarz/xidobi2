@@ -39,4 +39,8 @@ HKEY *getHKEY(JNIEnv *, jobject);
 void cacheNativeByteArrayFields(JNIEnv *, jobject);
 jbyte *getNativeByteArray(JNIEnv *, jobject);
 
+// DWORD:
+void cacheDWORDFields(JNIEnv *, jobject);
+DWORD *getDWORD(JNIEnv *, jobject);
+
 #endif /* OS_STRUCTS_H_ */

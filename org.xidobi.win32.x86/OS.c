@@ -474,18 +474,14 @@ Java_org_xidobi_OS_WaitCommEvent(JNIEnv *env, jobject this,
 		jobject lpOverlapped,
 		jobject lastError) {
 
-	DWORD evtMask = 0;
-
-	// getINT(env, lpEvtMask, &evtMask);
+	DWORD *evtMask = getDWORD(env, lpEvtMask);
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
 	BOOL result = WaitCommEvent((HANDLE) hFile,
-							    &evtMask,
+							    evtMask,
 							    overlapped);
 
 	setLastNativeError(env, lastError);
-	// setOVERLAPPED(env, lpOverlapped, overlapped);
-	setINT(env, lpEvtMask, &evtMask);
 
 	if (result)
 		return JNI_TRUE;
@@ -569,6 +565,16 @@ Java_org_xidobi_OS_sizeOf_1HKEY(JNIEnv *env, jobject this) {
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    sizeOf_DWORD
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_sizeOf_1DWORD(JNIEnv *env, jobject this) {
+	return (jint) sizeof(DWORD);
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    getByteArray
  * Signature: (Lorg/xidobi/structs/NativeByteArray;I)[B
  */
@@ -582,4 +588,32 @@ Java_org_xidobi_OS_getByteArray(JNIEnv *env, jobject this,
 	(*env)->SetByteArrayRegion(env, result, 0, length, bytes);
 
 	return result;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    getValue_DWORD
+ * Signature: (Lorg/xidobi/structs/DWORD;)I
+ */
+JNIEXPORT jint JNICALL
+Java_org_xidobi_OS_getValue_1DWORD(JNIEnv *env, jobject this,
+		jobject dword) {
+
+	DWORD *ptr = getDWORD(env, dword);
+
+	return (jint) *ptr;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    setValue_DWORD
+ * Signature: (Lorg/xidobi/structs/DWORD;I)V
+ */
+JNIEXPORT void JNICALL
+Java_org_xidobi_OS_setValue_1DWORD(JNIEnv *env, jobject this,
+		jobject dword,
+		jint value) {
+
+	DWORD *ptr = getDWORD(env, dword);
+	*ptr = (DWORD) value;
 }

@@ -194,10 +194,34 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1HKEY
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    sizeOf_DWORD
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_sizeOf_1DWORD
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    getByteArray
  * Signature: (Lorg/xidobi/structs/NativeByteArray;I)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_org_xidobi_OS_getByteArray
+  (JNIEnv *, jobject, jobject, jint);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    getValue_DWORD
+ * Signature: (Lorg/xidobi/structs/DWORD;)I
+ */
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_getValue_1DWORD
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    setValue_DWORD
+ * Signature: (Lorg/xidobi/structs/DWORD;I)V
+ */
+JNIEXPORT void JNICALL Java_org_xidobi_OS_setValue_1DWORD
   (JNIEnv *, jobject, jobject, jint);
 
 #ifdef __cplusplus
