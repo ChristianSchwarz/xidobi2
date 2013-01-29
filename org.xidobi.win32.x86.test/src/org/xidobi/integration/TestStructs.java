@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xidobi.OS;
 import org.xidobi.WinApi;
+import org.xidobi.structs.DWORD;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.Pointer;
 
@@ -82,6 +83,20 @@ public class TestStructs {
 			assertThat(result.length, is(1024));
 
 			byteArray.dispose();
+		}
+	}
+
+	/**
+	 * Verifies that a {@link DWORD} can be created and disposed many times without crashing the VM.
+	 * Additionally the {@link DWORD#setValue(int)} and {@link DWORD#getValue()} methods are called.
+	 */
+	@Test(timeout = 1500)
+	public void allocateDWORDAndSetAndGetValueLoop() {
+		for (int i = 0; i < 100_000; i++) {
+			DWORD dword = new DWORD(win);
+			assertThat(dword.getValue(), is(0));
+			dword.setValue(100);
+			assertThat(dword.getValue(), is(100));
 		}
 	}
 }
