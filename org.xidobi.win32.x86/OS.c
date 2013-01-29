@@ -166,7 +166,7 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
 /*
  * Class:     org_xidobi_OS
  * Method:    WriteFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ * Signature: (I[BILorg/xidobi/structs/DWORD;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
@@ -177,7 +177,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 		jobject lpOverlapped,
 		jobject lastError) {
 
-	DWORD bytesWritten = 0;
+	DWORD *bytesWritten = getDWORD(env, lpNumberOfBytesWritten);
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
 	jbyte* jBuffer = (*env)->GetByteArrayElements(env, lpBuffer, NULL);
@@ -185,13 +185,10 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 	BOOL result = WriteFile( (HANDLE) handle,
 							 jBuffer,
 							 (DWORD) nNumberOfBytesToWrite,
-							 &bytesWritten,
+							 bytesWritten,
 							 overlapped);
 
 	setLastNativeError(env, lastError);
-
-	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
-	// setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
 
@@ -203,7 +200,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 /*
  * Class:     org_xidobi_OS
  * Method:    ReadFile
- * Signature: (ILorg/xidobi/structs/NativeByteArray;ILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ * Signature: (ILorg/xidobi/structs/NativeByteArray;ILorg/xidobi/structs/DWORD;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
@@ -214,7 +211,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 		jobject lpOverlapped,
 		jobject lastError) {
 
-	DWORD bytesRead = 0;
+	DWORD *bytesRead = getDWORD(env, lpNumberOfBytesRead);
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
 	const jbyte *jBuffer = getNativeByteArray(env, lpBuffer);
@@ -222,13 +219,10 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 	BOOL result = ReadFile( (HANDLE) handle,
 							 (PVOID) jBuffer,
 							 (DWORD) nNumberOfBytesToRead,
-							 &bytesRead,
+							 bytesRead,
 							 overlapped);
 
 	setLastNativeError(env, lastError);
-
-	setINT(env, lpNumberOfBytesRead, &bytesRead);
-	// setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	if (result)
 		return JNI_TRUE;
@@ -305,19 +299,15 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 		  jboolean bWait,
 		  jobject lastError) {
 
-	DWORD written = 0;
-
+	DWORD *bytesTransferred = getDWORD(env, lpNumberOfBytesTransferred);
 	OVERLAPPED *overlapped = getOVERLAPPED(env, lpOverlapped);
 
 	BOOL result = GetOverlappedResult((HANDLE) handle,
 									  overlapped,
-									  &written,
+									  bytesTransferred,
 									  (BOOL) bWait);
 
 	setLastNativeError(env, lastError);
-
-	setINT(env, lpNumberOfBytesTransferred, &written);
-	// setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	if (result)
 		return JNI_TRUE;
@@ -453,7 +443,7 @@ Java_org_xidobi_OS_SetCommMask(JNIEnv *env, jobject this,
 		jobject lastError) {
 
 	BOOL result = SetCommMask((HANDLE) hFile,
-							  dwEvtMask);
+							  (DWORD) dwEvtMask);
 
 	setLastNativeError(env, lastError);
 
@@ -600,7 +590,6 @@ Java_org_xidobi_OS_getValue_1DWORD(JNIEnv *env, jobject this,
 		jobject dword) {
 
 	DWORD *ptr = getDWORD(env, dword);
-
 	return (jint) *ptr;
 }
 

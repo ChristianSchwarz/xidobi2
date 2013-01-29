@@ -51,7 +51,7 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateEventA
 /*
  * Class:     org_xidobi_OS
  * Method:    WriteFile
- * Signature: (I[BILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ * Signature: (I[BILorg/xidobi/structs/DWORD;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WriteFile
   (JNIEnv *, jobject, jint, jbyteArray, jint, jobject, jobject, jobject);
@@ -59,7 +59,7 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WriteFile
 /*
  * Class:     org_xidobi_OS
  * Method:    ReadFile
- * Signature: (ILorg/xidobi/structs/NativeByteArray;ILorg/xidobi/structs/INT;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
+ * Signature: (ILorg/xidobi/structs/NativeByteArray;ILorg/xidobi/structs/DWORD;Lorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ReadFile
   (JNIEnv *, jobject, jint, jobject, jint, jobject, jobject, jobject);
@@ -91,7 +91,7 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_FormatMessageA
 /*
  * Class:     org_xidobi_OS
  * Method:    GetOverlappedResult
- * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/INT;ZLorg/xidobi/structs/INT;)Z
+ * Signature: (ILorg/xidobi/structs/OVERLAPPED;Lorg/xidobi/structs/DWORD;ZLorg/xidobi/structs/INT;)Z
  */
 JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_GetOverlappedResult
   (JNIEnv *, jobject, jint, jobject, jobject, jboolean, jobject);
