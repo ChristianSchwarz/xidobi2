@@ -453,6 +453,8 @@ Java_org_xidobi_OS_SetCommMask(JNIEnv *env, jobject this,
 	BOOL result = SetCommMask((HANDLE) hFile,
 							  dwEvtMask);
 
+	setLastNativeError(env, lastError);
+
 	if (result)
 		return JNI_TRUE;
 	return JNI_FALSE;
@@ -482,6 +484,27 @@ Java_org_xidobi_OS_WaitCommEvent(JNIEnv *env, jobject this,
 	setLastNativeError(env, lastError);
 	setOVERLAPPED(env, lpOverlapped, overlapped);
 	setINT(env, lpEvtMask, &evtMask);
+
+	if (result)
+		return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    PurgeComm
+ * Signature: (IILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_PurgeComm(JNIEnv *env, jobject this,
+		jint hFile,
+		jint dwFlags,
+		jobject lastError) {
+
+	BOOL result = PurgeComm((HANDLE) hFile,
+							dwFlags);
+
+	setLastNativeError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;

@@ -146,6 +146,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_WaitCommEvent
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    PurgeComm
+ * Signature: (IILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_PurgeComm
+  (JNIEnv *, jobject, jint, jint, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */
