@@ -30,8 +30,8 @@ public class Pointer {
 	/** the native Win32-API, never <code>null</code> */
 	private WinApi win;
 
-	/** The pointer to the C struct */
-	protected final int cPointer;
+	/** The pointer to the allocated memory */
+	private final int nativePointer;
 
 	/** <code>true</code> if the instance is disposed */
 	private boolean isDisposed = false;
@@ -53,7 +53,7 @@ public class Pointer {
 					int size) {
 		this.win = checkArgumentNotNull(win, "win");
 		checkArgument(size > 0, "size", "Expected a value greater than 0");
-		cPointer = win.malloc(size);
+		nativePointer = win.malloc(size);
 		this.size = size;
 	}
 
@@ -67,6 +67,16 @@ public class Pointer {
 		return size;
 	}
 
+	/**
+	 * Returns the native pointer to the allocated memory.
+	 * 
+	 * @return the pointer
+	 */
+	protected int getNativePointer() {
+		checkIfDisposed();
+		return nativePointer;
+	}
+
 	/** Throws an {@link IllegalStateException} when this instance is disposed. */
 	protected void checkIfDisposed() {
 		if (isDisposed)
@@ -78,7 +88,7 @@ public class Pointer {
 	 */
 	public void dispose() {
 		checkIfDisposed();
-		win.free(cPointer);
+		win.free(nativePointer);
 		isDisposed = true;
 	}
 

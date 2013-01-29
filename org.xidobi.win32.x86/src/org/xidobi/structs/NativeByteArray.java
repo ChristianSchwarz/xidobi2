@@ -42,6 +42,7 @@ public class NativeByteArray extends Pointer {
 	public NativeByteArray(	@Nonnull WinApi win,
 							@Nonnegative int size) {
 		super(win, size);
+		win.memset(getNativePointer(), 0, size());
 	}
 
 	/**
