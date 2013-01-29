@@ -416,7 +416,7 @@ public interface WinApi {
 	 *         the {@link #GetLastError()} function.
 	 */
 	@CheckReturnValue
-	boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped);
+	boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable DWORD lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped);
 
 	/**
 	 * Reads data from the specified file or input/output (I/O) device. Reads occur at the position
@@ -459,7 +459,7 @@ public interface WinApi {
 	 *         the {@link #GetLastError()} function.
 	 */
 	@CheckReturnValue
-	boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
+	boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable DWORD lpNumberOfBytesRead, OVERLAPPED lpOverlapped);
 
 	/**
 	 * Returns the last error code, that occured during a native method call by the current thread.
@@ -518,7 +518,7 @@ public interface WinApi {
 	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
-	boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait);
+	boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, DWORD lpNumberOfBytesTransferred, boolean bWait);
 
 	/**
 	 * Waits until the specified object is in the signaled state or the time-out interval elapses.

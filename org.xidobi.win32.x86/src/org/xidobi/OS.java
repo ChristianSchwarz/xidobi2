@@ -133,25 +133,25 @@ public class OS implements WinApi {
 
 	/** {@inheritDoc} */
 	@CheckReturnValue
-	public boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped) {
+	public boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable DWORD lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = WriteFile(handle, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped, lastError);
 		storeLastNativeError(lastError);
 		return result;
 	}
 
-	private native boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable INT lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped, INT lastError);
+	private native boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable DWORD lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
 	@CheckReturnValue
-	public boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped) {
+	public boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable DWORD lpNumberOfBytesRead, OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = ReadFile(handle, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped, lastError);
 		storeLastNativeError(lastError);
 		return result;
 	}
 
-	private native boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable INT lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
+	private native boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable DWORD lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
 	public int getPreservedError() {
@@ -175,14 +175,14 @@ public class OS implements WinApi {
 	private native int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments, INT lastError);
 
 	/** {@inheritDoc} */
-	public boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait) {
+	public boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, DWORD lpNumberOfBytesTransferred, boolean bWait) {
 		INT lastError = new INT(0);
 		boolean result = GetOverlappedResult(handle, lpOverlapped, lpNumberOfBytesTransferred, bWait, lastError);
 		storeLastNativeError(lastError);
 		return result;
 	}
 
-	private native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, INT lpNumberOfBytesTransferred, boolean bWait, INT lastError);
+	private native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, DWORD lpNumberOfBytesTransferred, boolean bWait, INT lastError);
 
 	/** {@inheritDoc} */
 	public int WaitForSingleObject(int hHandle, int dwMilliseconds) {

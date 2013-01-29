@@ -9,6 +9,8 @@ package org.xidobi.integration;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.EV_TXEMPTY;
+import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
@@ -46,12 +48,12 @@ public class TestRW {
 	@Test
 	public void read() throws Exception {
 
-		int portHandle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		int portHandle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
 		if (portHandle == INVALID_HANDLE_VALUE)
 			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.getPreservedError()));
 
 		os.PurgeComm(portHandle, WinApi.PURGE_RXCLEAR);
-		
+
 		boolean setCommMaskResult = os.SetCommMask(portHandle, EV_RXCHAR);
 		if (!setCommMaskResult)
 			throw new IOException("SetCommMask failed: " + getNativeErrorMessage(os.getPreservedError()));
@@ -67,6 +69,7 @@ public class TestRW {
 
 		while (true) {
 			read(portHandle);
+			System.err.println("-- Read finished! --");
 		}
 	}
 
@@ -86,28 +89,42 @@ public class TestRW {
 				throw new IOException("CreateEventA failed! " + getNativeErrorMessage(lastError));
 			}
 
+			System.err.println("WaitCommEvent");
 			boolean waitCommEvent = os.WaitCommEvent(portHandle, dword, ov);
 			lastError = os.getPreservedError();
 
 			if (!waitCommEvent && lastError != ERROR_IO_PENDING)
 				throw new IOException("WaitCommEvent failed! " + getNativeErrorMessage(lastError));
 
+			System.err.println("WaitForSingleObject");
 			int waitForSingleObject = os.WaitForSingleObject(ov.hEvent, INFINITE);
+			DWORD evtResult = new DWORD(os);
+			System.err.println("GetOverlappedResult");
+			os.GetOverlappedResult(portHandle, ov, evtResult, true);
+			System.err.println("GetOverlappedResult = " + evtResult.getValue());
 			switch (waitForSingleObject) {
 				case WinApi.WAIT_OBJECT_0:
-					INT lpNumberOfBytesRead = new INT(0);
+					DWORD lpNumberOfBytesRead = new DWORD(os);
 					NativeByteArray lpBuffer = new NativeByteArray(os, 64);
 					do {
-						os.ReadFile(portHandle, lpBuffer, lpBuffer.size(), lpNumberOfBytesRead, ov);
-						if (lpNumberOfBytesRead.value > 0) {
-							byte[] data = lpBuffer.getByteArray(lpNumberOfBytesRead.value);
+						System.err.println("ReadFile");
+						boolean readFile = os.ReadFile(portHandle, lpBuffer, lpBuffer.size(), lpNumberOfBytesRead, ov);
+						if (!readFile) {
+							System.err.println("WaitForSingleObject");
+							os.WaitForSingleObject(ov.hEvent, INFINITE);
+							os.GetOverlappedResult(portHandle, ov, lpNumberOfBytesRead, true);
+						}
+						System.err.println("lpNumberOfBytesRead = " + lpNumberOfBytesRead.getValue());
+						if (lpNumberOfBytesRead.getValue() > 0) {
+							byte[] data = lpBuffer.getByteArray(lpNumberOfBytesRead.getValue());
 							System.out.println(new String(data));
 							System.out.println("___________________________");
 							System.out.flush();
 						}
 					}
-					while (lpNumberOfBytesRead.value > 0);
+					while (lpNumberOfBytesRead.getValue() > 0);
 					lpBuffer.dispose();
+					lpNumberOfBytesRead.dispose();
 					break;
 				default:
 					throw new IOException("WaitForSingleObject failed!");
@@ -118,8 +135,12 @@ public class TestRW {
 				os.CloseHandle(ov.hEvent);
 			}
 			finally {
-				ov.dispose();
-				dword.dispose();
+				try {
+					ov.dispose();
+				}
+				finally {
+					dword.dispose();
+				}
 			}
 		}
 	}
