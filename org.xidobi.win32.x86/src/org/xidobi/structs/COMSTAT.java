@@ -23,39 +23,41 @@ package org.xidobi.structs;
  */
 public class COMSTAT {
 
-	/**
-	 * If this member is TRUE, transmission is waiting for the CTS (clear-to-send) signal to be
-	 * sent.
-	 */
-	public int fCtsHold;
-	/**
-	 * If this member is TRUE, transmission is waiting for the DSR (data-set-ready) signal to be
-	 * sent.
-	 */
-	public int fDsrHold;
-	/**
-	 * If this member is TRUE, transmission is waiting for the RLSD (receive-line-signal-detect)
-	 * signal to be sent.
-	 */
-	public int fRlsdHold;
-	/** If this member is TRUE, transmission is waiting because the XOFF character was received. */
-	public int fXoffHold;
-	/**
-	 * If this member is TRUE, transmission is waiting because the XOFF character was transmitted.
-	 * (Transmission halts when the XOFF character is transmitted to a system that takes the next
-	 * character as XON, regardless of the actual character.)
-	 */
-	public int fXoffSent;
-	/** If this member is TRUE, the end-of-file (EOF) character has been received. */
-	public int fEof;
-	/**
-	 * If this member is TRUE, there is a character queued for transmission that has come to the
-	 * communications device by way of the TransmitCommChar function. The communications device
-	 * transmits such a character ahead of other characters in the device's output buffer.
-	 */
-	public int fTxim;
-	/** Reserved; do not use. */
-	public int fReserved;
+	// /**
+	// * If this member is TRUE, transmission is waiting for the CTS (clear-to-send) signal to be
+	// * sent.
+	// */
+	// public int fCtsHold;
+	// /**
+	// * If this member is TRUE, transmission is waiting for the DSR (data-set-ready) signal to be
+	// * sent.
+	// */
+	// public int fDsrHold;
+	// /**
+	// * If this member is TRUE, transmission is waiting for the RLSD (receive-line-signal-detect)
+	// * signal to be sent.
+	// */
+	// public int fRlsdHold;
+	// /** If this member is TRUE, transmission is waiting because the XOFF character was received.
+	// */
+	// public int fXoffHold;
+	// /**
+	// * If this member is TRUE, transmission is waiting because the XOFF character was transmitted.
+	// * (Transmission halts when the XOFF character is transmitted to a system that takes the next
+	// * character as XON, regardless of the actual character.)
+	// */
+	// public int fXoffSent;
+	// /** If this member is TRUE, the end-of-file (EOF) character has been received. */
+	// public int fEof;
+	// /**
+	// * If this member is TRUE, there is a character queued for transmission that has come to the
+	// * communications device by way of the TransmitCommChar function. The communications device
+	// * transmits such a character ahead of other characters in the device's output buffer.
+	// */
+	// public int fTxim;
+	// /** Reserved; do not use. */
+	// public int fReserved;
+	
 	/**
 	 * The number of bytes received by the serial provider but not yet read by a ReadFile operation.
 	 */
