@@ -182,11 +182,11 @@ void cacheOVERLAPPEDFields(JNIEnv *env, jobject overlappedObject) {
 
 	OVERLAPPEDc.cPointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "cPointer", "I");
 
-	OVERLAPPEDc.Internal = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Internal", "J");
-	OVERLAPPEDc.InternalHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "InternalHigh", "J");
-	OVERLAPPEDc.Offset = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Offset", "I");
-	OVERLAPPEDc.OffsetHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "OffsetHigh", "I");
-	OVERLAPPEDc.Pointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Pointer", "I");
+//	OVERLAPPEDc.Internal = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Internal", "J");
+//	OVERLAPPEDc.InternalHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "InternalHigh", "J");
+//	OVERLAPPEDc.Offset = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Offset", "I");
+//	OVERLAPPEDc.OffsetHigh = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "OffsetHigh", "I");
+//	OVERLAPPEDc.Pointer = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "Pointer", "I");
 	OVERLAPPEDc.hEvent = (*env)->GetFieldID(env, OVERLAPPEDc.clazz, "hEvent", "I");
 
 	OVERLAPPEDc.cached = TRUE;
