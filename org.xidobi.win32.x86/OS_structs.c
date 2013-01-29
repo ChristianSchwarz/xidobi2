@@ -165,7 +165,7 @@ void setDCBFields(JNIEnv *env, jobject dcbObject, DCB *dcbStruct) {
 typedef struct OVERLAPPED_FID_CACHE {
 	int cached;
 	jclass clazz;
-	jfieldID cPointer, Internal, InternalHigh, Offset, OffsetHigh, Pointer,
+	jfieldID cPointer, /* Internal, InternalHigh, Offset, OffsetHigh, Pointer, */
 			hEvent;
 } OVERLAPPED_FID_CACHE;
 // cache for OVERLAPPED fields
@@ -211,21 +211,21 @@ OVERLAPPED *getOVERLAPPED(JNIEnv *env, jobject overlappedObject) {
 	return overlapped;
 }
 
-/*
- * Sets the fields of the given jobject to the value of the given OVERLAPPED*.
- */
-void setOVERLAPPED(JNIEnv *env, jobject overlappedObject,
-		OVERLAPPED *overlappedStruct) {
-	if (!OVERLAPPEDc.cached)
-		cacheOVERLAPPEDFields(env, overlappedObject);
-
-//	(*env)->SetLongField(env, overlappedObject, OVERLAPPEDc.Internal, (jlong) overlappedStruct->Internal);
-//	(*env)->SetLongField(env, overlappedObject, OVERLAPPEDc.InternalHigh, (jlong) overlappedStruct->InternalHigh);
-//	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Offset, (jint) overlappedStruct->Offset);
-//	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.OffsetHigh, (jint) overlappedStruct->OffsetHigh);
-//	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Pointer, (jint) overlappedStruct->Pointer);
-	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.hEvent, (jint) overlappedStruct->hEvent);
-}
+///*
+// * Sets the fields of the given jobject to the value of the given OVERLAPPED*.
+// */
+//void setOVERLAPPED(JNIEnv *env, jobject overlappedObject,
+//		OVERLAPPED *overlappedStruct) {
+//	if (!OVERLAPPEDc.cached)
+//		cacheOVERLAPPEDFields(env, overlappedObject);
+//
+////	(*env)->SetLongField(env, overlappedObject, OVERLAPPEDc.Internal, (jlong) overlappedStruct->Internal);
+////	(*env)->SetLongField(env, overlappedObject, OVERLAPPEDc.InternalHigh, (jlong) overlappedStruct->InternalHigh);
+////	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Offset, (jint) overlappedStruct->Offset);
+////	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.OffsetHigh, (jint) overlappedStruct->OffsetHigh);
+////	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.Pointer, (jint) overlappedStruct->Pointer);
+//	(*env)->SetIntField(env, overlappedObject, OVERLAPPEDc.hEvent, (jint) overlappedStruct->hEvent);
+//}
 
 // ****************************************************************
 // **** INT: ******************************************************

@@ -189,7 +189,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 	setLastNativeError(env, lastError);
 
 	setINT(env, lpNumberOfBytesWritten, &bytesWritten);
-	setOVERLAPPED(env, lpOverlapped, overlapped);
+	// setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
 
@@ -226,7 +226,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 	setLastNativeError(env, lastError);
 
 	setINT(env, lpNumberOfBytesRead, &bytesRead);
-	setOVERLAPPED(env, lpOverlapped, overlapped);
+	// setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	if (result)
 		return JNI_TRUE;
@@ -315,7 +315,7 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 	setLastNativeError(env, lastError);
 
 	setINT(env, lpNumberOfBytesTransferred, &written);
-	setOVERLAPPED(env, lpOverlapped, overlapped);
+	// setOVERLAPPED(env, lpOverlapped, overlapped);
 
 	if (result)
 		return JNI_TRUE;
@@ -481,7 +481,7 @@ Java_org_xidobi_OS_WaitCommEvent(JNIEnv *env, jobject this,
 							    overlapped);
 
 	setLastNativeError(env, lastError);
-	setOVERLAPPED(env, lpOverlapped, overlapped);
+	// setOVERLAPPED(env, lpOverlapped, overlapped);
 	setINT(env, lpEvtMask, &evtMask);
 
 	if (result)

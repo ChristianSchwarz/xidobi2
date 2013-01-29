@@ -24,7 +24,7 @@ void setDCBFields(JNIEnv *, jobject, DCB *);
 // OVERLAPPED:
 void cacheOVERLAPPEDFields(JNIEnv *, jobject);
 OVERLAPPED *getOVERLAPPED(JNIEnv *, jobject);
-void setOVERLAPPED(JNIEnv *, jobject, OVERLAPPED *);
+// void setOVERLAPPED(JNIEnv *, jobject, OVERLAPPED *);
 
 // INT:
 void cacheINT(JNIEnv *env, jobject);
