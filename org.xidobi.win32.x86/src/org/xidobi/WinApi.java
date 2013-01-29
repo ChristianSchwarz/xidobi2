@@ -841,8 +841,10 @@ public interface WinApi {
 	 *            <li>{@link #PURGE_TXCLEAR}
 	 *            </ul>
 	 * @return If the function succeeds, the return value is nonzero. If the function fails, the
-	 *         return value is zero.
+	 *         return value is zero. To get extended error information, call {@link #GetLastError()}
+	 *         .
 	 */
+	@CheckReturnValue
 	boolean PurgeComm(int hFile, int dwFlags);
 
 	/**
