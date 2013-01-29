@@ -34,7 +34,6 @@ void setINT(JNIEnv *, jobject, DWORD *);
 // HKEY:
 void cacheHKEYFields(JNIEnv *, jobject);
 HKEY *getHKEY(JNIEnv *, jobject);
-void setHKEY(JNIEnv *, jobject, HKEY *);
 
 // NativeByteArray:
 void cacheNativeByteArrayFields(JNIEnv *, jobject);

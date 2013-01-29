@@ -162,6 +162,14 @@ JNIEXPORT jint JNICALL Java_org_xidobi_OS_malloc
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    memset
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_org_xidobi_OS_memset
+  (JNIEnv *, jobject, jint, jint, jint);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    free
  * Signature: (I)V
  */

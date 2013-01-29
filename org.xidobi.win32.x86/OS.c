@@ -365,7 +365,6 @@ Java_org_xidobi_OS_RegOpenKeyExA(JNIEnv *env, jobject this,
 								(PHKEY) hkresult);
 
 	(*env)->ReleaseStringUTFChars(env, lpSubKey, subKey);
-	setHKEY(env, phkResult, hkresult);
 
 	return (jint) result;
 }
@@ -520,6 +519,19 @@ JNIEXPORT jint JNICALL
 Java_org_xidobi_OS_malloc(JNIEnv *env, jobject this,
 		jint size) {
 	return (jint) malloc(size);
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    memset
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL
+Java_org_xidobi_OS_memset(JNIEnv *env, jobject this,
+		jint ptr,
+		jint value,
+		jint num) {
+	memset((void *) ptr, value, num);
 }
 
 /*
