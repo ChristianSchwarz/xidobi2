@@ -34,40 +34,43 @@ import org.xidobi.WinApi;
  */
 public class OVERLAPPED extends Pointer {
 
-	/**
-	 * {@code ULONG_PTR} - The error code for the I/O request. When the request is issued, the
-	 * system sets this member to STATUS_PENDING to indicate that the operation has not yet started.
-	 * When the request is completed, the system sets this member to the error code for the
-	 * completed request. The Internal member was originally reserved for system use and its
-	 * behavior may change.
-	 */
-	private long Internal;
-
-	/**
-	 * {@code ULONG_PTR} - The number of bytes transferred for the I/O request. The system sets this
-	 * member if the request is completed without errors. The InternalHigh member was originally
-	 * reserved for system use and its behavior may change.
-	 */
-	private long InternalHigh;
-
-	/**
-	 * {@code DWORD} - The low-order portion of the file position at which to start the I/O request,
-	 * as specified by the user. This member is nonzero only when performing I/O requests on a
-	 * seeking device that supports the concept of an offset (also referred to as a file pointer
-	 * mechanism), such as a file. Otherwise, this member must be zero.
-	 */
-	private int Offset;
-
-	/**
-	 * {@code DWORD} - The high-order portion of the file position at which to start the I/O
-	 * request, as specified by the user. This member is nonzero only when performing I/O requests
-	 * on a seeking device that supports the concept of an offset (also referred to as a file
-	 * pointer mechanism), such as a file. Otherwise, this member must be zero.
-	 */
-	private int OffsetHigh;
-
-	/** {@code PVOID} - Reserved for system use; do not use after initialization to zero. */
-	private int Pointer;
+	// /**
+	// * {@code ULONG_PTR} - The error code for the I/O request. When the request is issued, the
+	// * system sets this member to STATUS_PENDING to indicate that the operation has not yet
+	// started.
+	// * When the request is completed, the system sets this member to the error code for the
+	// * completed request. The Internal member was originally reserved for system use and its
+	// * behavior may change.
+	// */
+	// private long Internal;
+	//
+	// /**
+	// * {@code ULONG_PTR} - The number of bytes transferred for the I/O request. The system sets
+	// this
+	// * member if the request is completed without errors. The InternalHigh member was originally
+	// * reserved for system use and its behavior may change.
+	// */
+	// private long InternalHigh;
+	//
+	// /**
+	// * {@code DWORD} - The low-order portion of the file position at which to start the I/O
+	// request,
+	// * as specified by the user. This member is nonzero only when performing I/O requests on a
+	// * seeking device that supports the concept of an offset (also referred to as a file pointer
+	// * mechanism), such as a file. Otherwise, this member must be zero.
+	// */
+	// private int Offset;
+	//
+	// /**
+	// * {@code DWORD} - The high-order portion of the file position at which to start the I/O
+	// * request, as specified by the user. This member is nonzero only when performing I/O requests
+	// * on a seeking device that supports the concept of an offset (also referred to as a file
+	// * pointer mechanism), such as a file. Otherwise, this member must be zero.
+	// */
+	// private int OffsetHigh;
+	//
+	// /** {@code PVOID} - Reserved for system use; do not use after initialization to zero. */
+	// private int Pointer;
 
 	/** {@code HANDLE} - Event handle */
 	public int hEvent;
@@ -82,6 +85,7 @@ public class OVERLAPPED extends Pointer {
 	 */
 	public OVERLAPPED(WinApi win) {
 		super(win, sizeOfOVERLAPPED(win));
+		win.memset(cPointer, 0, sizeOfOVERLAPPED(win));
 	}
 
 	/** Returns the size of an OVERLAPPED struct. */
@@ -92,7 +96,10 @@ public class OVERLAPPED extends Pointer {
 
 	@Override
 	public String toString() {
-		return "OVERLAPPED [Internal=" + Internal + ", InternalHigh=" + InternalHigh + ", Offset=" + Offset + ", OffsetHigh=" + OffsetHigh + ", Pointer=" + Pointer + ", hEvent=" + hEvent + "]";
+		return "OVERLAPPED [hEvent=" + hEvent + "]";
+		// return "OVERLAPPED [Internal=" + Internal + ", InternalHigh=" + InternalHigh +
+		// ", Offset=" + Offset + ", OffsetHigh=" + OffsetHigh + ", Pointer=" + Pointer +
+		// ", hEvent=" + hEvent + "]";
 	}
 
 }

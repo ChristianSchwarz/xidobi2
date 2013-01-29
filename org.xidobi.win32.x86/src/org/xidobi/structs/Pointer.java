@@ -31,7 +31,7 @@ public class Pointer {
 	private WinApi win;
 
 	/** The pointer to the C struct */
-	private final int cPointer;
+	protected final int cPointer;
 
 	/** <code>true</code> if the instance is disposed */
 	private boolean isDisposed = false;
