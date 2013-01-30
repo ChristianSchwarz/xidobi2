@@ -103,8 +103,6 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			if (lastError != ERROR_IO_PENDING)
 				throw newNativeCodeException(os, "WriteFile failed unexpected!", lastError);
 
-			// the I/O operation is pending:
-
 			// wait for pending I/O operation to complete
 			int waitResult = os.WaitForSingleObject(overlapped.hEvent, writeTimeout);
 			switch (waitResult) {
@@ -121,7 +119,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 					return;
 				case WAIT_TIMEOUT:
 					// I/O operation timed out
-					throw new IOException("Write operation timed out!");
+					throw new IOException("Write operation timed out after " + writeTimeout + " milliseconds!");
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 				case WAIT_FAILED:

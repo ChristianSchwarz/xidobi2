@@ -314,7 +314,7 @@ public class TestSerialConnectionImpl {
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Write operation timed out!");
+		exception.expectMessage("Write operation timed out after 2000 milliseconds!");
 
 		try {
 			port.write(DATA);
