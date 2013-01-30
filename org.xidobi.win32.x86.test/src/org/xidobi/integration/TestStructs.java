@@ -48,7 +48,7 @@ public class TestStructs {
 	 */
 	@Test(timeout = 1500)
 	public void allocatePointerAndDisposeLoop() {
-		for (int i = 0; i < 500_000; i++) {
+		for (int i = 0; i < 100_000; i++) {
 			Pointer pointer = new Pointer(win, 5000);
 			pointer.dispose();
 		}
@@ -60,12 +60,12 @@ public class TestStructs {
 	 */
 	@Test(timeout = 1500)
 	public void allocatePointersParallelAndThenDisposeLoop() {
-		Pointer[] pointers = new Pointer[500_000];
+		Pointer[] pointers = new Pointer[100_000];
 
-		for (int i = 0; i < 500_000; i++)
+		for (int i = 0; i < 100_000; i++)
 			pointers[i] = new Pointer(win, 1024);
 
-		for (int i = 0; i < 500_000; i++)
+		for (int i = 0; i < 100_000; i++)
 			pointers[i].dispose();
 	}
 
@@ -75,7 +75,7 @@ public class TestStructs {
 	 */
 	@Test(timeout = 1500)
 	public void allocateNativeByteArrayAndDisposeLoop() {
-		for (int i = 0; i < 500_000; i++) {
+		for (int i = 0; i < 100_000; i++) {
 			NativeByteArray byteArray = new NativeByteArray(win, 1024);
 
 			byte[] result = byteArray.getByteArray();
