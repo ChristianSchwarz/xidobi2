@@ -77,7 +77,13 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 
 		try {
-			
+
+			// create event object
+			overlapped.hEvent = os.CreateEventA(0, true, false, null);
+			if (overlapped.hEvent == 0)
+				throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
+
+			// write data to serial port
 			boolean writeFileResult = os.WriteFile(handle, data, data.length, numberOfBytesWritten, overlapped);
 
 			if (writeFileResult)
@@ -87,17 +93,22 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			// TODO the I/O operation is pending
 		}
 		finally {
-			disposeWriteResources(numberOfBytesWritten, overlapped);
+			disposeAndCloseSafe(numberOfBytesWritten, overlapped);
 		}
 	}
 
 	/** Disposes the given resources. */
-	private void disposeWriteResources(DWORD dword, OVERLAPPED overlapped) {
+	private void disposeAndCloseSafe(DWORD dword, OVERLAPPED overlapped) {
 		try {
-			dword.dispose();
+			os.CloseHandle(overlapped.hEvent);
 		}
 		finally {
-			overlapped.dispose();
+			try {
+				overlapped.dispose();
+			}
+			finally {
+				dword.dispose();
+			}
 		}
 	}
 
