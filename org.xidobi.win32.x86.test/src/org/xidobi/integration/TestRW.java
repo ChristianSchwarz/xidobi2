@@ -6,22 +6,6 @@
  */
 package org.xidobi.integration;
 
-import static org.xidobi.SerialPortSettings.from9600_8N1;
-import static org.xidobi.WinApi.ERROR_IO_PENDING;
-import static org.xidobi.WinApi.EV_RXCHAR;
-import static org.xidobi.WinApi.EV_TXEMPTY;
-import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
-import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
-import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
-import static org.xidobi.WinApi.GENERIC_READ;
-import static org.xidobi.WinApi.GENERIC_WRITE;
-import static org.xidobi.WinApi.INFINITE;
-import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
-import static org.xidobi.WinApi.LANG_NEUTRAL;
-import static org.xidobi.WinApi.OPEN_EXISTING;
-import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
-
 import java.io.IOException;
 
 import org.junit.Test;
@@ -34,6 +18,22 @@ import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
+
+import static org.xidobi.SerialPortSettings.from9600_8N1;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
+import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
+import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.INFINITE;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.LANG_NEUTRAL;
+import static org.xidobi.WinApi.OPEN_EXISTING;
+import static org.xidobi.WinApi.PURGE_RXCLEAR;
+import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
 
 /**
  * @author Christian Schwarz
@@ -53,7 +53,7 @@ public class TestRW {
 		if (portHandle == INVALID_HANDLE_VALUE)
 			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.getPreservedError()));
 
-		os.PurgeComm(portHandle, WinApi.PURGE_RXCLEAR);
+		os.PurgeComm(portHandle, PURGE_RXCLEAR);
 
 		boolean setCommMaskResult = os.SetCommMask(portHandle, EV_RXCHAR);
 		if (!setCommMaskResult)
@@ -70,7 +70,7 @@ public class TestRW {
 
 		while (true) {
 			read(portHandle);
-			System.err.println("-- Read finished! --");
+			println("-- Read finished! --");
 		}
 	}
 
@@ -90,25 +90,25 @@ public class TestRW {
 				throw new IOException("CreateEventA failed! " + getNativeErrorMessage(lastError));
 			}
 
-			System.err.println("WaitCommEvent");
+			println("WaitCommEvent");
 			boolean waitCommEvent = os.WaitCommEvent(portHandle, dword, ov);
 			lastError = os.getPreservedError();
 
 			if (!waitCommEvent && lastError != ERROR_IO_PENDING)
 				throw new IOException("WaitCommEvent failed! " + getNativeErrorMessage(lastError));
 
-			System.err.println("WaitForSingleObject");
+			println("WaitForSingleObject");
 			int waitForSingleObject = os.WaitForSingleObject(ov.hEvent, INFINITE);
 			DWORD evtResult = new DWORD(os);
-			System.err.println("GetOverlappedResult");
+			println("GetOverlappedResult");
 			os.GetOverlappedResult(portHandle, ov, evtResult, true);
-			System.err.println("GetOverlappedResult = " + evtResult.getValue());
-			System.err.println("GetOverlappedResult = " + dword.getValue());
+			println("GetOverlappedResult = " + evtResult.getValue());
+			println("GetOverlappedResult = " + dword.getValue());
 
 			COMSTAT lpStat = new COMSTAT();
 			os.ClearCommError(portHandle, new INT(0), lpStat);
 			int availableBytes = lpStat.cbInQue;
-			System.err.println("COMSTAT.cbInQue = " + availableBytes);
+			println("COMSTAT.cbInQue = " + availableBytes);
 			if (availableBytes == 0)
 				return;
 
@@ -116,19 +116,18 @@ public class TestRW {
 				case WinApi.WAIT_OBJECT_0:
 					DWORD lpNumberOfBytesRead = new DWORD(os);
 					NativeByteArray lpBuffer = new NativeByteArray(os, availableBytes);
-					System.err.println("ReadFile");
+					println("ReadFile");
 					boolean readFile = os.ReadFile(portHandle, lpBuffer, lpBuffer.size(), lpNumberOfBytesRead, ov);
 					if (!readFile) {
-						System.err.println("WaitForSingleObject");
+						println("WaitForSingleObject");
 						os.WaitForSingleObject(ov.hEvent, 100);
 						os.GetOverlappedResult(portHandle, ov, lpNumberOfBytesRead, true);
 					}
 					System.err.println("lpNumberOfBytesRead = " + lpNumberOfBytesRead.getValue());
 					if (lpNumberOfBytesRead.getValue() > 0) {
 						byte[] data = lpBuffer.getByteArray(lpNumberOfBytesRead.getValue());
-						System.out.println(new String(data));
-						System.out.println("___________________________");
-						System.out.flush();
+						println(new String(data));
+						println("___________________________");
 					}
 					lpBuffer.dispose();
 					lpNumberOfBytesRead.dispose();
@@ -169,5 +168,9 @@ public class TestRW {
 		// cut bytes to the length (result) without trailing linebreaks
 		// and convert to a String:
 		return new String(lpMsgBuf, 0, result - 2);
+	}
+	
+	private static void println(String text){
+		System.err.println(text);
 	}
 }

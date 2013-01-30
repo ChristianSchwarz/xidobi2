@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 import org.xidobi.internal.AbstractSerialConnection;
 import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.DWORD;
-import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
