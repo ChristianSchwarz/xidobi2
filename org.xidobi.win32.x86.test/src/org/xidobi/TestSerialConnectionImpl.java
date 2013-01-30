@@ -376,6 +376,33 @@ public class TestSerialConnectionImpl {
 	}
 
 	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when the
+	 * <code>GetOverlappedResult(...)</code> returns <code>false</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_GetOverlappedResultFails() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("GetOverlappedResult failed unexpected!");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verify(win, times(1)).WaitForSingleObject(eventHandle, 2000);
+			verify(win, times(1)).GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true));
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
 	 * Verifies that a call to {@link SerialConnection#close()} frees the native resources.
 	 */
 	@Test
