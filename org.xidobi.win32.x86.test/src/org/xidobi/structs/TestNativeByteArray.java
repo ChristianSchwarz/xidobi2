@@ -122,7 +122,7 @@ public class TestNativeByteArray {
 	 * constructor.
 	 */
 	@Test
-	public void length() {
+	public void size() {
 		byteArray = new NativeByteArray(win, LENGTH);
 		assertThat(byteArray.size(), is(LENGTH));
 	}

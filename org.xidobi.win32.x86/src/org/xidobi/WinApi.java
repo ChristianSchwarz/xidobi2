@@ -921,7 +921,7 @@ public interface WinApi {
 	int malloc(@Nonnegative int size);
 
 	/**
-	 * Sets the first num bytes of the block of memory pointed by ptr to the specified value.
+	 * Sets the bytes of the memory to the specified value.
 	 * 
 	 * @param ptr
 	 *            pointer to the block of memory to fill

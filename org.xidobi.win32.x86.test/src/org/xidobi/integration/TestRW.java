@@ -6,19 +6,6 @@
  */
 package org.xidobi.integration;
 
-import java.io.IOException;
-
-import org.junit.Test;
-import org.xidobi.DCBConfigurator;
-import org.xidobi.OS;
-import org.xidobi.WinApi;
-import org.xidobi.structs.COMSTAT;
-import org.xidobi.structs.DCB;
-import org.xidobi.structs.DWORD;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.NativeByteArray;
-import org.xidobi.structs.OVERLAPPED;
-
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.EV_RXCHAR;
@@ -35,10 +22,25 @@ import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
 
+import java.io.IOException;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.xidobi.DCBConfigurator;
+import org.xidobi.OS;
+import org.xidobi.WinApi;
+import org.xidobi.structs.COMSTAT;
+import org.xidobi.structs.DCB;
+import org.xidobi.structs.DWORD;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
+import org.xidobi.structs.OVERLAPPED;
+
 /**
  * @author Christian Schwarz
  * 
  */
+@Ignore
 public class TestRW {
 	private static WinApi os = OS.OS;
 	private DCBConfigurator configurator = new DCBConfigurator();

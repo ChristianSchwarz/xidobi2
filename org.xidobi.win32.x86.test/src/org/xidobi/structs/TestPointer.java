@@ -124,4 +124,27 @@ public class TestPointer {
 		pointer.dispose();
 	}
 
+	/**
+	 * Verifies that {@link Pointer#size()} returns the size that was passed to the constructor.
+	 */
+	@Test
+	public void size() {
+		pointer = new Pointer(win, DUMMY_SIZE);
+
+		assertThat(pointer.size(), is(DUMMY_SIZE));
+	}
+
+	/**
+	 * Verifies that an {@link IllegalStateException} is thrown, when {@link Pointer#size()} is
+	 * called and the {@link Pointer} was already disposed.
+	 */
+	@Test(expected = IllegalStateException.class)
+	public void size_whenDisposed() {
+		pointer = new Pointer(win, DUMMY_SIZE);
+
+		pointer.dispose();
+
+		assertThat(pointer.size(), is(DUMMY_SIZE));
+	}
+
 }

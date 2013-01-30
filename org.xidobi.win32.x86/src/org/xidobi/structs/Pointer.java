@@ -54,11 +54,11 @@ public class Pointer {
 		this.win = checkArgumentNotNull(win, "win");
 		checkArgument(size > 0, "size", "Expected a value greater than 0");
 		this.size = size;
-		
+
 		// allocate memory
 		cPointer = win.malloc(size);
 		// set all bytes to zero
-		win.memset(getNativePointer(), 0, size());
+		win.memset(cPointer, 0, size());
 	}
 
 	/**
@@ -69,16 +69,6 @@ public class Pointer {
 	public int size() {
 		checkIfDisposed();
 		return size;
-	}
-
-	/**
-	 * Returns the native pointer to the allocated memory.
-	 * 
-	 * @return the pointer
-	 */
-	protected int getNativePointer() {
-		checkIfDisposed();
-		return cPointer;
 	}
 
 	/** Throws an {@link IllegalStateException} when this instance is disposed. */

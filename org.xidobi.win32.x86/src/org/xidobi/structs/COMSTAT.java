@@ -71,6 +71,7 @@ public class COMSTAT {
 	 * ReadFile operation.
 	 */
 	public int cbInQue;
+	
 	/**
 	 * {@code DWORD} - The number of bytes of user data remaining to be transmitted for all write
 	 * operations. This value will be zero for a nonoverlapped write.
