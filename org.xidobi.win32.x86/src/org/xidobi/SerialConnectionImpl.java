@@ -15,7 +15,13 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 import static org.xidobi.internal.Preconditions.checkArgument;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
@@ -25,6 +31,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.xidobi.internal.AbstractSerialConnection;
+import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
 
@@ -73,7 +80,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	@Override
 	protected void writeInternal(byte[] data) throws IOException {
 
-		DWORD numberOfBytesWritten = new DWORD(os);
+		DWORD numberOfBytesTransferred = new DWORD(os);
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 
 		try {
@@ -83,21 +90,50 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
 
 			// write data to serial port
-			boolean writeFileResult = os.WriteFile(handle, data, data.length, numberOfBytesWritten, overlapped);
+			boolean writeFileResult = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
 
 			if (writeFileResult)
 				// the write operation succeeded immediatly
 				return;
 
-			// TODO the I/O operation is pending
+			int lastError = os.getPreservedError();
+
+			if (lastError == ERROR_INVALID_HANDLE)
+				throw portClosedException("Write operation failed, because the handle is invalid!");
+			if (lastError != ERROR_IO_PENDING)
+				throw newNativeCodeException(os, "WriteFile failed unexpected!", lastError);
+
+			// wait for pending I/O operation to complete
+			int waitResult = os.WaitForSingleObject(overlapped.hEvent, writeTimeout);
+			switch (waitResult) {
+				case WAIT_OBJECT_0:
+					// I/O operation has finished
+					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
+					if (!overlappedResult)
+						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
+
+					// verify that the number of transferred bytes is equal to the data length
+					int bytesWritten = numberOfBytesTransferred.getValue();
+					if (bytesWritten != data.length)
+						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + bytesWritten + " expected: " + data.length);
+					return;
+				case WAIT_TIMEOUT:
+					// I/O operation timed out
+					throw new IOException("Write operation timed out after " + writeTimeout + " milliseconds!");
+				case WAIT_ABANDONED:
+					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+				case WAIT_FAILED:
+					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+			}
+			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
 		finally {
-			disposeAndCloseSafe(numberOfBytesWritten, overlapped);
+			disposeAndCloseSafe(numberOfBytesTransferred, overlapped);
 		}
 	}
 
 	/** Disposes the given resources. */
-	private void disposeAndCloseSafe(DWORD dword, OVERLAPPED overlapped) {
+	private void disposeAndCloseSafe(DWORD numberOfBytesTransferred, OVERLAPPED overlapped) {
 		try {
 			if (overlapped.hEvent != 0)
 				os.CloseHandle(overlapped.hEvent);
@@ -107,7 +143,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				overlapped.dispose();
 			}
 			finally {
-				dword.dispose();
+				numberOfBytesTransferred.dispose();
 			}
 		}
 	}

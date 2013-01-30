@@ -34,6 +34,7 @@ import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
 import java.io.IOException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xidobi.DCBConfigurator;
 import org.xidobi.OS;
@@ -48,6 +49,7 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
+@Ignore
 public class TestLowLevelWrite {
 
 	private static WinApi os = OS.OS;
