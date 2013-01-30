@@ -51,7 +51,7 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-public class TestLowLevelAPI {
+public class TestLowLevelRead {
 
 	private static WinApi os = OS.OS;
 	private DCBConfigurator configurator = new DCBConfigurator();
@@ -86,58 +86,10 @@ public class TestLowLevelAPI {
 	}
 
 	/**
-	 * @throws IOException
+	 * @throws Exception
 	 */
 	@Test
-	public void write() throws IOException {
-		while (true) {
-			println("-- Start ------");
-			int lastError;
-			OVERLAPPED ov = new OVERLAPPED(os);
-			DWORD lpNumberOfBytesRead = new DWORD(os);
-			ov.hEvent = os.CreateEventA(0, true, false, null);
-
-			try {
-				if (ov.hEvent == 0) {
-					lastError = os.getPreservedError();
-					throw new IOException("CreateEventA failed! " + getNativeErrorMessage(lastError));
-				}
-
-				byte[] lpBuffer = "Dies ist ein bisschen Text!".getBytes();
-				boolean readFile = os.WriteFile(portHandle, lpBuffer, lpBuffer.length, lpNumberOfBytesRead, ov);
-				if (!readFile) {
-					println("WaitForSingleObject");
-					int waitForSingleObject = os.WaitForSingleObject(ov.hEvent, 1000);
-					if (waitForSingleObject == WinApi.WAIT_TIMEOUT) {
-						println("GetOverlappedResult");
-						os.GetOverlappedResult(portHandle, ov, lpNumberOfBytesRead, true);
-					} else {
-						println("=" + waitForSingleObject);
-					}
-				}
-			}
-			finally {
-				try {
-					os.CloseHandle(ov.hEvent);
-				}
-				finally {
-					try {
-						ov.dispose();
-					}
-					finally {
-						lpNumberOfBytesRead.dispose();
-					}
-				}
-			}
-			println("-- Finished ---");
-		}
-	}
-
-	/**
-	 * @throws IOException
-	 */
-	@Test
-	public void read() throws IOException {
+	public void read() throws Exception {
 		while (true) {
 			println("-- Start ------");
 			int lastError;
@@ -211,6 +163,7 @@ public class TestLowLevelAPI {
 				}
 			}
 			println("-- Finished ---");
+			Thread.sleep(100);
 		}
 	}
 
