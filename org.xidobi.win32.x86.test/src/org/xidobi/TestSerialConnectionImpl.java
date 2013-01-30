@@ -17,6 +17,7 @@ package org.xidobi;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -135,6 +136,29 @@ public class TestSerialConnectionImpl {
 	}
 
 	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>CreateEventA(...)</code>
+	 * fails. In this case the method returns 0.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_CreateEventAReturns0() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(0);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("CreateEventA illegally returned 0!");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verify(win, never()).CloseHandle(0);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(1)).free(ptrDword);
+		}
+	}
+
+	/**
 	 * Simulates are write operation that completes immediatly without the need to wait for
 	 * completion of the pendig operation..
 	 * 
@@ -142,11 +166,13 @@ public class TestSerialConnectionImpl {
 	 */
 	@Test
 	public void write_succeedImmediatly() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 
 		port.write(DATA);
 
 		verify(win, times(1)).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
+		verify(win, times(1)).CloseHandle(eventHandle);
 		verify(win, times(1)).free(ptrOverlapped);
 		verify(win, times(1)).free(ptrDword);
 	}

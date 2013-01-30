@@ -77,7 +77,6 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 
 		try {
-
 			// create event object
 			overlapped.hEvent = os.CreateEventA(0, true, false, null);
 			if (overlapped.hEvent == 0)
@@ -100,7 +99,8 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	/** Disposes the given resources. */
 	private void disposeAndCloseSafe(DWORD dword, OVERLAPPED overlapped) {
 		try {
-			os.CloseHandle(overlapped.hEvent);
+			if (overlapped.hEvent != 0)
+				os.CloseHandle(overlapped.hEvent);
 		}
 		finally {
 			try {
