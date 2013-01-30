@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.xidobi.SerialConnection;
-import org.xidobi.SerialPortImpl;
 import org.xidobi.SerialConnectionImpl;
+import org.xidobi.SerialPortImpl;
 import org.xidobi.SerialPortSettings;
 
 /**

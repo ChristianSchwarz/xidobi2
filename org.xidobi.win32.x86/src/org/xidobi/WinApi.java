@@ -837,6 +837,22 @@ public interface WinApi {
 	boolean WaitCommEvent(int hFile, DWORD lpEvtMask, OVERLAPPED lpOverlapped);
 
 	/**
+	 * Sets the specified event object to the nonsignaled state.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms685081(v=vs.85).aspx">
+	 * ResetEvent (MSDN)</a> for more details.</i>
+	 * 
+	 * @param hEvent
+	 *            {@code _In_ HANDLE} - A handle to the event object.
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()}.
+	 */
+	@CheckReturnValue
+	boolean ResetEvent(int hEvent);
+
+	/**
 	 * Discards all characters from the output or input buffer of a specified communications
 	 * resource. It can also terminate pending read or write operations on the resource.
 	 * <p>
