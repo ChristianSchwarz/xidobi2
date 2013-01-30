@@ -52,7 +52,7 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Tobias Breﬂler
  */
 public class TestLowLevelAPI {
-	
+
 	private static WinApi os = OS.OS;
 	private DCBConfigurator configurator = new DCBConfigurator();
 
@@ -107,9 +107,13 @@ public class TestLowLevelAPI {
 				boolean readFile = os.WriteFile(portHandle, lpBuffer, lpBuffer.length, lpNumberOfBytesRead, ov);
 				if (!readFile) {
 					println("WaitForSingleObject");
-					os.WaitForSingleObject(ov.hEvent, 1000);
-					println("GetOverlappedResult");
-					os.GetOverlappedResult(portHandle, ov, lpNumberOfBytesRead, true);
+					int waitForSingleObject = os.WaitForSingleObject(ov.hEvent, 1000);
+					if (waitForSingleObject == WinApi.WAIT_TIMEOUT) {
+						println("GetOverlappedResult");
+						os.GetOverlappedResult(portHandle, ov, lpNumberOfBytesRead, true);
+					} else {
+						println("=" + waitForSingleObject);
+					}
 				}
 			}
 			finally {
@@ -167,7 +171,7 @@ public class TestLowLevelAPI {
 				int availableBytes = lpStat.cbInQue;
 				println("COMSTAT.cbInQue = " + availableBytes);
 				if (availableBytes == 0)
-					return;
+					continue;
 
 				switch (waitForSingleObject) {
 					case WinApi.WAIT_OBJECT_0:
