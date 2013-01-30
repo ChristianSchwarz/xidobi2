@@ -23,7 +23,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 
 import java.io.IOException;
 
@@ -75,7 +81,7 @@ public class TestSerialConnectionImpl {
 	/** pointer to an {@link OVERLAPPED}-struct */
 	private int ptrOverlapped = 1;
 	/** pointer to an {@link DWORD} */
-	private int ptrDword = 2;
+	private int ptrBytesTransferred = 2;
 
 	/** pointer to an {@link NativeByteArray} */
 	private int ptrNativeByteArray = 3;
@@ -90,9 +96,11 @@ public class TestSerialConnectionImpl {
 		when(win.sizeOf_DWORD()).thenReturn(DWORD_SIZE);
 
 		when(win.malloc(OVERLAPPED_SIZE)).thenReturn(ptrOverlapped);
-		when(win.malloc(DWORD_SIZE)).thenReturn(ptrDword);
+		when(win.malloc(DWORD_SIZE)).thenReturn(ptrBytesTransferred);
 
 		when(win.malloc(255)).thenReturn(ptrNativeByteArray);
+
+		when(portHandle.getPortName()).thenReturn("COM1");
 	}
 
 	/**
@@ -152,9 +160,7 @@ public class TestSerialConnectionImpl {
 			port.write(DATA);
 		}
 		finally {
-			verify(win, never()).CloseHandle(0);
-			verify(win, times(1)).free(ptrOverlapped);
-			verify(win, times(1)).free(ptrDword);
+			verifyResourcesDisposed();
 		}
 	}
 
@@ -174,7 +180,199 @@ public class TestSerialConnectionImpl {
 		verify(win, times(1)).WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 		verify(win, times(1)).CloseHandle(eventHandle);
 		verify(win, times(1)).free(ptrOverlapped);
-		verify(win, times(1)).free(ptrDword);
+		verify(win, times(1)).free(ptrBytesTransferred);
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WriteFile(...)</code>
+	 * returns <code>false</code> and the last error code is not <code>ERROR_IO_PENDING</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WriteFileFailsWithERROR_INVALID_HANDLE() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! Write operation failed, because the handle is invalid!");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WriteFile(...)</code>
+	 * returns <code>false</code> and the last error code is not <code>ERROR_IO_PENDING</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WriteFileFails() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WriteFile failed unexpected!");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when
+	 * <code>WaitForSingleObject(...)</code> returns an undefined value.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WaitForSingleObjectReturnsUndefinedValue() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned unexpected value! Got: " + DUMMY_ERROR_CODE);
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verify(win, times(1)).WaitForSingleObject(eventHandle, 2000);
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that {@link SerialConnection#write(byte[])} returns normally, when all bytes are
+	 * written.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_successfull() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
+
+		port.write(DATA);
+
+		verifyResourcesDisposed();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when GetOverlappedResult(...)
+	 * indicates that not all bytes are written.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_lessBytesWritten() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + (DATA.length - 1) + " expected: " + DATA.length);
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when the
+	 * <code>WaitForSingleObject(...)</code> indicates a time-out.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WaitForSingleObjectReturnsWAIT_TIMEOUT() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Write operation timed out!");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verify(win, times(1)).WaitForSingleObject(eventHandle, 2000);
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when the
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WaitForSingleObjectReturnsWAIT_FAILED() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verify(win, times(1)).WaitForSingleObject(eventHandle, 2000);
+			verifyResourcesDisposed();
+		}
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when the
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_ABANDONED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WaitForSingleObjectReturnsWAIT_ABANDONED() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(handle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+
+		try {
+			port.write(DATA);
+		}
+		finally {
+			verify(win, times(1)).WaitForSingleObject(eventHandle, 2000);
+			verifyResourcesDisposed();
+		}
 	}
 
 	/**
@@ -220,22 +418,12 @@ public class TestSerialConnectionImpl {
 		return any(DWORD.class);
 	}
 
-	// /** This answer returns <code>returnValue</code> and set the written bytes. */
-	// private Answer<Boolean> setWrittenBytesAndReturn(final int bytesWritten, final boolean
-	// returnValue) {
-	// return new Answer<Boolean>() {
-	//
-	// @Override
-	// public Boolean answer(InvocationOnMock invocation) throws Throwable {
-	// if (!"GetOverlappedResult".equals(invocation.getMethod().getName()))
-	// throw new
-	// IllegalStateException("This Answer can only be applied to method: GetOverlappedResult(..)");
-	// INT writtenBytes = (INT) invocation.getArguments()[2];
-	// writtenBytes.value = bytesWritten;
-	// return returnValue;
-	// }
-	// };
-	// }
+	private void verifyResourcesDisposed() {
+		verify(win, never()).CloseHandle(0);
+		verify(win, times(1)).free(ptrOverlapped);
+		verify(win, times(1)).free(ptrBytesTransferred);
+	}
+
 	//
 	// /** This answer returns <code>returnValue</code> and set the written bytes. */
 	// private Answer<Boolean> setReadBytesAndReturn(final int bytesRead, final boolean returnValue)
@@ -266,10 +454,4 @@ public class TestSerialConnectionImpl {
 	// }
 	// };
 	// }
-
-	/** Verifies that all allocated resources are freed. */
-	private void verifyResourcesDisposed() {
-		verify(win).CloseHandle(eventHandle);
-		verify(win).free(ptrOverlapped);
-	}
 }

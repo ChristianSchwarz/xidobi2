@@ -15,7 +15,13 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 import static org.xidobi.internal.Preconditions.checkArgument;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
@@ -25,6 +31,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.xidobi.internal.AbstractSerialConnection;
+import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
 
@@ -89,7 +96,36 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				// the write operation succeeded immediatly
 				return;
 
-			// TODO the I/O operation is pending
+			int lastError = os.getPreservedError();
+
+			if (lastError == ERROR_INVALID_HANDLE)
+				throw portClosedException("Write operation failed, because the handle is invalid!");
+			if (lastError != ERROR_IO_PENDING)
+				throw newNativeCodeException(os, "WriteFile failed unexpected!", lastError);
+
+			// the I/O operation is pending:
+
+			// wait for pending I/O operation to complete
+			int waitResult = os.WaitForSingleObject(overlapped.hEvent, writeTimeout);
+			switch (waitResult) {
+				case WAIT_OBJECT_0:
+					// I/O operation has finished
+					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesWritten, true);
+					if (!overlappedResult)
+						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
+					int bytesWritten = numberOfBytesWritten.getValue();
+					if (bytesWritten != data.length)
+						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + bytesWritten + " expected: " + data.length);
+					return;
+				case WAIT_TIMEOUT:
+					// I/O operation timed out
+					throw new IOException("Write operation timed out!");
+				case WAIT_ABANDONED:
+					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+				case WAIT_FAILED:
+					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+			}
+			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
 		finally {
 			disposeAndCloseSafe(numberOfBytesWritten, overlapped);
