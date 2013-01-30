@@ -80,7 +80,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	@Override
 	protected void writeInternal(byte[] data) throws IOException {
 
-		DWORD numberOfBytesWritten = new DWORD(os);
+		DWORD numberOfBytesTransferred = new DWORD(os);
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 
 		try {
@@ -90,7 +90,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
 
 			// write data to serial port
-			boolean writeFileResult = os.WriteFile(handle, data, data.length, numberOfBytesWritten, overlapped);
+			boolean writeFileResult = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
 
 			if (writeFileResult)
 				// the write operation succeeded immediatly
@@ -110,10 +110,12 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			switch (waitResult) {
 				case WAIT_OBJECT_0:
 					// I/O operation has finished
-					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesWritten, true);
+					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
 					if (!overlappedResult)
 						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
-					int bytesWritten = numberOfBytesWritten.getValue();
+
+					// verify that the number of transferred bytes is equal to the data length
+					int bytesWritten = numberOfBytesTransferred.getValue();
 					if (bytesWritten != data.length)
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + bytesWritten + " expected: " + data.length);
 					return;
@@ -128,12 +130,12 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
 		finally {
-			disposeAndCloseSafe(numberOfBytesWritten, overlapped);
+			disposeAndCloseSafe(numberOfBytesTransferred, overlapped);
 		}
 	}
 
 	/** Disposes the given resources. */
-	private void disposeAndCloseSafe(DWORD dword, OVERLAPPED overlapped) {
+	private void disposeAndCloseSafe(DWORD numberOfBytesTransferred, OVERLAPPED overlapped) {
 		try {
 			if (overlapped.hEvent != 0)
 				os.CloseHandle(overlapped.hEvent);
@@ -143,7 +145,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				overlapped.dispose();
 			}
 			finally {
-				dword.dispose();
+				numberOfBytesTransferred.dispose();
 			}
 		}
 	}
