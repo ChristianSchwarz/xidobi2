@@ -117,6 +117,9 @@ public abstract class AbstractSerialConnection implements SerialConnection {
 		writeLock.lock();
 		try {
 			writeInternal(data);
+		}catch (IOException e) {
+			close();
+			throw e;
 		}
 		finally {
 			writeLock.unlock();
@@ -130,6 +133,9 @@ public abstract class AbstractSerialConnection implements SerialConnection {
 		readLock.lock();
 		try {
 			return readInternal();
+		}catch (IOException e) {
+			close();
+			throw e;
 		}
 		finally {
 			readLock.unlock();

@@ -15,22 +15,6 @@
  */
 package org.xidobi.internal;
 
-import static java.lang.Math.max;
-import static java.lang.Thread.currentThread;
-import static java.lang.Thread.sleep;
-import static java.util.concurrent.Executors.newFixedThreadPool;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,6 +32,25 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
+
+import static java.lang.Math.max;
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.sleep;
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static junit.framework.Assert.fail;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link AbstractSerialConnection}
@@ -137,8 +140,8 @@ public class TestAbstractSerialConnection {
 
 	/**
 	 * Verifies that all calls to {@link SerialConnection#close()} will be delegate to
-	 * {@link SerialConnection#close()} when all previous calls thrown an IOException and thus the port
-	 * was not closed.
+	 * {@link SerialConnection#close()} when all previous calls thrown an IOException and thus the
+	 * port was not closed.
 	 */
 	@Test
 	public void close_2xIOException() throws Exception {
@@ -158,8 +161,8 @@ public class TestAbstractSerialConnection {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialConnection#isClosed()} returns <code>false</code>, when the port
-	 * is not closed.
+	 * Verifies that {@link AbstractSerialConnection#isClosed()} returns <code>false</code>, when
+	 * the port is not closed.
 	 */
 	@Test
 	public void isClosed_whenOpen() {
@@ -167,8 +170,8 @@ public class TestAbstractSerialConnection {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialConnection#isClosed()} returns <code>true</code>, when the port
-	 * is closed.
+	 * Verifies that {@link AbstractSerialConnection#isClosed()} returns <code>true</code>, when the
+	 * port is closed.
 	 */
 	@Test
 	public void isClosed_whenClosed() throws Exception {
@@ -180,7 +183,7 @@ public class TestAbstractSerialConnection {
 	 * Verifies that an {@link IOException} is thrown when the port is closed.
 	 */
 	@Test
-	public void write_portIsClosed() throws Exception {
+	public void write_toClosedPort() throws Exception {
 		when(portHandle.getPortName()).thenReturn("COM1");
 
 		port.close();
@@ -204,8 +207,8 @@ public class TestAbstractSerialConnection {
 
 	/**
 	 * Verifies that {@link SerialConnection#write(byte[])} deleagtes to
-	 * {@link AbstractSerialConnection#writeInternal(byte[])} if <code>data!=null</code> and the port is
-	 * not closed.
+	 * {@link AbstractSerialConnection#writeInternal(byte[])} if <code>data!=null</code> and the
+	 * port is not closed.
 	 */
 	@Test
 	public void write_delegate() throws Exception {
@@ -214,7 +217,8 @@ public class TestAbstractSerialConnection {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialConnection#writeInternal(byte[])} will not be call concurrent.
+	 * Verifies that {@link AbstractSerialConnection#writeInternal(byte[])} will not be call
+	 * concurrent.
 	 */
 	@Test
 	public void write_concurrentCalls() throws Exception {
@@ -231,6 +235,20 @@ public class TestAbstractSerialConnection {
 
 		assertThat("Only one Thread at a time is allowed to call writeInternal(byte[])", maxNumberOfParallelThreads.get(), is(1));
 
+	}
+
+	/**
+	 * Verifies that in case of an {@link IOException} the port will be closed
+	 */
+	@Test
+	public void write_closePortOnIOException() throws Exception {
+		doThrow(IO_EXCEPTION).when(abstr).writeInternal(BYTES);
+		try{
+			port.write(BYTES);
+			fail("expected an IOException");
+		}catch(IOException ignore) {
+		}
+		verify(abstr).closeInternal();
 	}
 
 	/**
@@ -262,7 +280,8 @@ public class TestAbstractSerialConnection {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialConnection#readInternal(byte[])} will not be call concurrent.
+	 * Verifies that {@link AbstractSerialConnection#readInternal(byte[])} will not be call
+	 * concurrent.
 	 */
 	@Test
 	public void read_concurrentCalls() throws Exception {
@@ -281,8 +300,22 @@ public class TestAbstractSerialConnection {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialConnection#portClosedException()} returns an {@link IOException}
-	 * with a message 'Port ??? is closed!'.
+	 * Verifies that in case of an {@link IOException} the port will be closed
+	 */
+	@Test
+	public void read_closePortOnIOException() throws Exception {
+		doThrow(IO_EXCEPTION).when(abstr).readInternal();
+		try{
+			port.read();
+			fail("expected an IOException");
+		}catch(IOException ignore) {
+		}
+		verify(abstr).closeInternal();
+	}
+
+	/**
+	 * Verifies that {@link AbstractSerialConnection#portClosedException()} returns an
+	 * {@link IOException} with a message 'Port ??? is closed!'.
 	 */
 	@Test
 	public void portClosedException() {
@@ -305,7 +338,7 @@ public class TestAbstractSerialConnection {
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
-
+	/** Delegates all abstract methods to the mocked {@link AbstractPart} */
 	public final class _AbstractSerialConnection extends AbstractSerialConnection {
 
 		public _AbstractSerialConnection(SerialPort portHandle) {
@@ -329,6 +362,7 @@ public class TestAbstractSerialConnection {
 		}
 	}
 
+	/** This class in used to mock the abstract methods of {@link AbstractSerialConnection} */
 	public interface AbstractPart {
 
 		void closeInternal() throws IOException;
@@ -366,6 +400,7 @@ public class TestAbstractSerialConnection {
 		};
 	}
 
+	/** Returns a new {@link Runnable} that writes the {@link #BYTES} to the {@link #port}. */
 	private Runnable writeBytes() {
 		return new Runnable() {
 
@@ -381,6 +416,7 @@ public class TestAbstractSerialConnection {
 		};
 	}
 
+	/** Returns a new {@link Runnable} that read from the {@link #port}. */
 	private Runnable readBytes() {
 		return new Runnable() {
 
