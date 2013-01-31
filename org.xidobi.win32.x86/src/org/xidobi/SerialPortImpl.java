@@ -15,24 +15,26 @@
  */
 package org.xidobi;
 
-import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
-import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
-import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
-import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.WinApi.FILE_FLAG_WRITE_THROUGH;
-import static org.xidobi.WinApi.GENERIC_READ;
-import static org.xidobi.WinApi.GENERIC_WRITE;
-import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
-import static org.xidobi.WinApi.OPEN_EXISTING;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
-import static org.xidobi.utils.Throwables.newIOException;
-
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.xidobi.internal.NativeCodeException;
 import org.xidobi.structs.DCB;
+import org.xidobi.utils.Throwables;
+
+import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
+import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
+import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.OPEN_EXISTING;
+import static org.xidobi.WinApi.PURGE_RXCLEAR;
+import static org.xidobi.WinApi.PURGE_TXCLEAR;
+import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.utils.Throwables.newIOException;
 
 /**
  * {@link SerialPort} to open a serial port.
@@ -110,13 +112,27 @@ public class SerialPortImpl implements SerialPort {
 		final int handle = tryOpen(portName);
 		try {
 			applySettings(handle, settings);
+			clearIOBuffers(handle);
 		}
 		catch (IOException e) {
+			win.CloseHandle(handle);
+			throw e;
+		}catch (NativeCodeException e){
 			win.CloseHandle(handle);
 			throw e;
 		}
 
 		return new SerialConnectionImpl(this, win, handle);
+	}
+
+	/**
+	 * Discards all characters from the output and input buffer of a specified communications resource.
+	 * @param handle the handle of the port to clear
+	 */
+	private void clearIOBuffers(final int handle) {
+		if (win.PurgeComm(handle, PURGE_RXCLEAR | PURGE_TXCLEAR))
+			return;
+		throw Throwables.newNativeCodeException(win, "PurgeComm failed!", win.getPreservedError());
 	}
 
 	/**
@@ -127,7 +143,7 @@ public class SerialPortImpl implements SerialPort {
 	 *                if the port is already open or does not exist
 	 */
 	private int tryOpen(final String portName) throws IOException {
-		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH, 0);
+		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
