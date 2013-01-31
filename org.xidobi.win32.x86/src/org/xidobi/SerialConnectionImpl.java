@@ -49,6 +49,9 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public class SerialConnectionImpl extends AbstractSerialConnection {
 
+	/** A timeout for the ReadFile operation */
+	private final static int READ_FILE_TIMEOUT = 1000;
+
 	/** the native Win32-API, never <code>null</code> */
 	private final WinApi os;
 	/** The HANDLE of the opened port */
@@ -98,7 +101,6 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				return;
 
 			int lastError = os.getPreservedError();
-
 			if (lastError == ERROR_INVALID_HANDLE)
 				throw portClosedException("Write operation failed, because the handle is invalid!");
 			if (lastError != ERROR_IO_PENDING)
@@ -179,6 +181,8 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			}
 
 			int lastError = os.getPreservedError();
+			if (lastError == ERROR_INVALID_HANDLE)
+				throw portClosedException("Read operation failed, because the handle is invalid!");
 			if (lastError != ERROR_IO_PENDING)
 				throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
 
@@ -227,8 +231,6 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	/** Reads and returns the data that is available in the read buffer. */
 	private byte[] readAvailableBytes(int availableBytes, DWORD numberOfBytesRead, OVERLAPPED overlapped) throws IOException {
 
-		// TODO Maybe we should use a MAXIMUM buffer size, in order to avoid out of memory errors?
-
 		NativeByteArray data = new NativeByteArray(os, availableBytes);
 
 		try {
@@ -245,7 +247,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				throw newNativeCodeException(os, "ReadFile failed unexpected!", lastError);
 
 			// wait for pending I/O operation to complete
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
+			int waitResult = os.WaitForSingleObject(overlapped.hEvent, READ_FILE_TIMEOUT);
 			switch (waitResult) {
 				case WAIT_OBJECT_0:
 					// I/O operation has finished
@@ -260,9 +262,9 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead + ", expected: " + availableBytes);
 					return data.getByteArray();
 				case WAIT_TIMEOUT:
-					// I/O operation has timed out. This should not happen, because we determined
-					// that data is available
-					throw new NativeCodeException("Read operation timed out after " + readTimeout + " milliseconds!");
+					// ReadFile has timed out. This should not happen, because we determined that
+					// data is available
+					throw new NativeCodeException("ReadFile timed out after " + READ_FILE_TIMEOUT + " milliseconds!");
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 				case WAIT_FAILED:
