@@ -16,6 +16,7 @@
 package org.xidobi;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -101,6 +102,7 @@ public class TestSerialConnectionImpl {
 		when(win.malloc(255)).thenReturn(ptrNativeByteArray);
 
 		when(portHandle.getPortName()).thenReturn("COM1");
+		when(win.CloseHandle(anyInt())).thenReturn(true);
 	}
 
 	/**
@@ -290,7 +292,7 @@ public class TestSerialConnectionImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + (DATA.length - 1) + " expected: " + DATA.length);
+		exception.expectMessage("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + (DATA.length - 1) + ", expected: " + DATA.length);
 
 		try {
 			port.write(DATA);
@@ -451,34 +453,4 @@ public class TestSerialConnectionImpl {
 		verify(win, times(1)).free(ptrBytesTransferred);
 	}
 
-	//
-	// /** This answer returns <code>returnValue</code> and set the written bytes. */
-	// private Answer<Boolean> setReadBytesAndReturn(final int bytesRead, final boolean returnValue)
-	// {
-	// return new Answer<Boolean>() {
-	// @Override
-	// public Boolean answer(InvocationOnMock invocation) throws Throwable {
-	// if (!"GetOverlappedResult".equals(invocation.getMethod().getName()))
-	// throw new
-	// IllegalStateException("This Answer can only be applied to method: GetOverlappedResult(..)");
-	// INT writtenBytes = (INT) invocation.getArguments()[2];
-	// writtenBytes.value = bytesRead;
-	// return returnValue;
-	// }
-	// };
-	// }
-	//
-	// /** This answer returns <code>returnValue</code> and set the read bytes. */
-	// private Answer<Boolean> readBytesAndReturn(final byte[] data, final boolean returnValue) {
-	// return new Answer<Boolean>() {
-	// @Override
-	// public Boolean answer(InvocationOnMock invocation) throws Throwable {
-	// if (!"ReadFile".equals(invocation.getMethod().getName()))
-	// throw new IllegalStateException("This Answer can only be applied to method: ReadFile(..)");
-	// INT countReadBytes = (INT) invocation.getArguments()[3];
-	// countReadBytes.value = data.length;
-	// return returnValue;
-	// }
-	// };
-	// }
 }
