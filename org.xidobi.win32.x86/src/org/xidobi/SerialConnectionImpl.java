@@ -115,7 +115,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 					// verify that the number of transferred bytes is equal to the data length
 					int bytesWritten = numberOfBytesTransferred.getValue();
 					if (bytesWritten != data.length)
-						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of bytes transferred! Transferred: " + bytesWritten + " expected: " + data.length);
+						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + bytesWritten + ", expected: " + data.length);
 					return;
 				case WAIT_TIMEOUT:
 					// I/O operation timed out
