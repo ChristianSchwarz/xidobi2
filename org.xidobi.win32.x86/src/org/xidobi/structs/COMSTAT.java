@@ -76,4 +76,9 @@ public class COMSTAT {
 	 */
 	public int cbOutQue;
 
+	@Override
+	public String toString() {
+		return "COMSTAT [cbInQue=" + cbInQue + ", cbOutQue=" + cbOutQue + "]";
+	}
+
 }
