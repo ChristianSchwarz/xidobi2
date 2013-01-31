@@ -28,8 +28,8 @@ import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 
 /**
- * A basic implementation of the {@link SerialConnection} to provide synchonisation and proper behaviour
- * when the port is closed.
+ * A basic implementation of the {@link SerialConnection} to provide synchonisation and proper
+ * behaviour when the port is closed.
  * 
  * @author Christian Schwarz
  */
@@ -72,14 +72,15 @@ public abstract class AbstractSerialConnection implements SerialConnection {
 	 * This method will be called by {@link #write(byte[])}, if following conditions apply:
 	 * <ul>
 	 * <li>the port is open
-	 * <li>{@code data!=null}.
+	 * <li>{@code data != null}.
 	 * </ul>
-	 * 
-	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
-	 * port is open and data is not <code>null</code>!
+	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
+	 * port is currently open and data is not <code>null</code>!
 	 * 
 	 * @param data
 	 *            never <code>null</code>
+	 * @throws IOException
+	 *             when the write operation timed out or the serial port is not open
 	 */
 	protected abstract void writeInternal(@Nonnull byte[] data) throws IOException;
 
@@ -89,11 +90,10 @@ public abstract class AbstractSerialConnection implements SerialConnection {
 	 * <p>
 	 * This method will be called by {@link #read()} only if the port is open.
 	 * <p>
-	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
-	 * port is open!
+	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
+	 * port is currently open!
 	 * 
 	 * @return the byte's read from the port, never <code>null</code>
-	 * @throws IOException
 	 */
 	@Nonnull
 	protected abstract byte[] readInternal() throws IOException;
@@ -103,10 +103,9 @@ public abstract class AbstractSerialConnection implements SerialConnection {
 	 * <p>
 	 * This method will be called by {@link #close()} as long as this method returns with not normal
 	 * / throws an {@link IOException}.
-	 * 
 	 * <p>
-	 * <b>IMPORTANT:</b> Dont call this method your self! Otherwise there is no guaratee that the
-	 * port is open!
+	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
+	 * port is currently open!
 	 */
 	protected abstract void closeInternal() throws IOException;
 
@@ -117,7 +116,8 @@ public abstract class AbstractSerialConnection implements SerialConnection {
 		writeLock.lock();
 		try {
 			writeInternal(data);
-		}catch (IOException e) {
+		}
+		catch (IOException e) {
 			close();
 			throw e;
 		}
@@ -133,7 +133,8 @@ public abstract class AbstractSerialConnection implements SerialConnection {
 		readLock.lock();
 		try {
 			return readInternal();
-		}catch (IOException e) {
+		}
+		catch (IOException e) {
 			close();
 			throw e;
 		}

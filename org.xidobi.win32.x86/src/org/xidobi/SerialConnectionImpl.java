@@ -112,13 +112,18 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 					if (!overlappedResult)
 						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
 
-					// verify that the number of transferred bytes is equal to the data length
+					// verify that the number of transferred bytes is equal to the data length that
+					// was written:
 					int bytesWritten = numberOfBytesTransferred.getValue();
 					if (bytesWritten != data.length)
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + bytesWritten + ", expected: " + data.length);
 					return;
 				case WAIT_TIMEOUT:
 					// I/O operation timed out
+
+					// TODO Maybe we should purge the serial port here, so all outstanding data will
+					// be cleared?
+
 					throw new IOException("Write operation timed out after " + writeTimeout + " milliseconds!");
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
@@ -132,8 +137,14 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 		}
 	}
 
+	@Override
+	@Nonnull
+	protected byte[] readInternal() throws IOException {
+		return null;
+	}
+
 	/** Disposes the given resources. */
-	private void disposeAndCloseSafe(DWORD numberOfBytesTransferred, OVERLAPPED overlapped) {
+	private void disposeAndCloseSafe(DWORD numberOfBytes, OVERLAPPED overlapped) {
 		try {
 			if (overlapped.hEvent != 0)
 				os.CloseHandle(overlapped.hEvent);
@@ -143,15 +154,9 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				overlapped.dispose();
 			}
 			finally {
-				numberOfBytesTransferred.dispose();
+				numberOfBytes.dispose();
 			}
 		}
-	}
-
-	@Override
-	@Nonnull
-	protected byte[] readInternal() throws IOException {
-		return null;
 	}
 
 	@Override
