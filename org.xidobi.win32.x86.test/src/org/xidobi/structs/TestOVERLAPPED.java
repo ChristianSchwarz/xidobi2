@@ -55,6 +55,9 @@ public class TestOVERLAPPED {
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
+
+		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
+		when(win.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
 	}
 
 	/**
@@ -72,9 +75,6 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void new_allocatesOVERLAPPEDstruct() {
-		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
-		when(win.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
-
 		overlapped = new OVERLAPPED(win);
 
 		verify(win, times(1)).sizeOf_OVERLAPPED();
@@ -87,14 +87,32 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void dispose_freesOVERLAPPEDstruct() {
-		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
-		when(win.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
-
 		overlapped = new OVERLAPPED(win);
 		overlapped.dispose();
 
 		assertThat(overlapped.isDisposed(), is(true));
 		verify(win).free(A_OVERLAPPED_POINTER);
+	}
+
+	/**
+	 * Verifies that {@link OVERLAPPED#toString()} returns a String with <code>hEvent == 0</code>,
+	 * when no <code>hEvent</code> was set before.
+	 */
+	@Test
+	public void toString_withoutHEvent() {
+		overlapped = new OVERLAPPED(win);
+		assertThat(overlapped.toString(), is("OVERLAPPED [hEvent=0]"));
+	}
+
+	/**
+	 * Verifies that {@link OVERLAPPED#toString()} returns a String with a <code>hEvent</code>, when
+	 * <code>hEvent</code> was set before.
+	 */
+	@Test
+	public void toString_withHEvent() {
+		overlapped = new OVERLAPPED(win);
+		overlapped.hEvent = 100;
+		assertThat(overlapped.toString(), is("OVERLAPPED [hEvent=100]"));
 	}
 
 }

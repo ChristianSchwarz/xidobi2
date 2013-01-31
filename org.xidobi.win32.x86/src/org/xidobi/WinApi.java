@@ -543,6 +543,13 @@ public interface WinApi {
 	 * To enter an alertable wait state, use the WaitForSingleObjectEx function. To wait for
 	 * multiple objects, use the WaitForMultipleObjects.
 	 * <p>
+	 * <b>Remarks:</b> The WaitForSingleObject function checks the current state of the specified
+	 * object. If the object's state is nonsignaled, the calling thread enters the wait state until
+	 * the object is signaled or the time-out interval elapses. The function modifies the state of
+	 * some types of synchronization objects. Modification occurs only for the object whose signaled
+	 * state caused the function to return. For example, the count of a semaphore object is
+	 * decreased by one.
+	 * <p>
 	 * <i>Please see <a
 	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms687032(v=vs.85).aspx">
 	 * WaitForSingleObject (MSDN)</a> for more details.</i>
