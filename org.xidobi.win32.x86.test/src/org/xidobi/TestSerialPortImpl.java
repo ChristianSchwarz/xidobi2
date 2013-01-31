@@ -52,7 +52,7 @@ public class TestSerialPortImpl {
 	/** some value for an unspecific win32 error code */
 	private static final int DUMMY_ERROR_CODE = 1;
 	/** some value for an unspecific handle */
-	private static final int A_PORT_HANDLE = 1;
+	private static final int PORT_HANDLE = 1;
 
 	/** constant for an invalid handle */
 	private static final int INVALID_HANDLE = -1;
@@ -158,8 +158,8 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_GetCommStateReturnsFalse() throws Exception {
-		when(win.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(A_PORT_HANDLE);
-		when(win.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
+		when(win.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(PORT_HANDLE);
+		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
@@ -169,7 +169,7 @@ public class TestSerialPortImpl {
 			handle.open(settings);
 		}
 		finally {
-			verify(win).CloseHandle(A_PORT_HANDLE);
+			verify(win).CloseHandle(PORT_HANDLE);
 		}
 	}
 
@@ -183,9 +183,9 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_SetCommStateReturnsFalse() throws Exception {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
-		when(win.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
-		when(win.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(false);
+		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
+		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
@@ -195,7 +195,7 @@ public class TestSerialPortImpl {
 			handle.open(settings);
 		}
 		finally {
-			verify(win).CloseHandle(A_PORT_HANDLE);
+			verify(win).CloseHandle(PORT_HANDLE);
 		}
 	}
 
@@ -207,19 +207,21 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_returnsSerialPort() throws Exception {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(A_PORT_HANDLE);
-		when(win.GetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
-		when(win.SetCommState(eq(A_PORT_HANDLE), any(DCB.class))).thenReturn(true);
+		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
+		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
 
 		SerialConnection result = handle.open(settings);
 
 		verify(win).CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
-		verify(win).GetCommState(eq(A_PORT_HANDLE), any(DCB.class));
-		verify(configurator).configureDCB(any(DCB.class), eq(settings));
-		verify(win).SetCommState(eq(A_PORT_HANDLE), any(DCB.class));
-		verify(win, never()).CloseHandle(A_PORT_HANDLE);
+		verify(win).GetCommState(eq(PORT_HANDLE), anyDCB());
+		verify(configurator).configureDCB(anyDCB(), eq(settings));
+		verify(win).SetCommState(eq(PORT_HANDLE), anyDCB());
+		verify(win, never()).CloseHandle(PORT_HANDLE);
 		assertThat(result, is(notNullValue()));
 	}
+
+	
 
 	/**
 	 * Verifies that {@link SerialPortInfo#getDescription()} returns the <code>description</code>
@@ -239,5 +241,13 @@ public class TestSerialPortImpl {
 	public void getDescription_isNull() {
 		SerialPort info = new SerialPortImpl(win, "portName", null);
 		assertThat(info.getDescription(), is(nullValue()));
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Matcher for {@link DCB}
+	 */
+	private DCB anyDCB() {
+		return any(DCB.class);
 	}
 }

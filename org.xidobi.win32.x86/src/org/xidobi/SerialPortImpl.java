@@ -127,7 +127,7 @@ public class SerialPortImpl implements SerialPort {
 	 *                if the port is already open or does not exist
 	 */
 	private int tryOpen(final String portName) throws IOException {
-		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH, 0);
+		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
