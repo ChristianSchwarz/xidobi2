@@ -17,6 +17,7 @@ package org.xidobi;
 
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
@@ -32,7 +33,10 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.internal.AbstractSerialConnection;
 import org.xidobi.internal.NativeCodeException;
+import org.xidobi.structs.COMSTAT;
 import org.xidobi.structs.DWORD;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
@@ -44,9 +48,6 @@ import org.xidobi.structs.OVERLAPPED;
  * @see SerialConnection
  */
 public class SerialConnectionImpl extends AbstractSerialConnection {
-
-	/** The maximum size of the buffer that receives the read bytes */
-	private static int MAX_BUFFER_SIZE = 1024;
 
 	/** the native Win32-API, never <code>null</code> */
 	private final WinApi os;
@@ -119,7 +120,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + bytesWritten + ", expected: " + data.length);
 					return;
 				case WAIT_TIMEOUT:
-					// I/O operation timed out
+					// I/O operation has timed out
 
 					// TODO Maybe we should purge the serial port here, so all outstanding data will
 					// be cleared?
@@ -140,7 +141,148 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	@Override
 	@Nonnull
 	protected byte[] readInternal() throws IOException {
-		return null;
+
+		DWORD numberOfBytesRead = new DWORD(os);
+		OVERLAPPED overlapped = new OVERLAPPED(os);
+
+		try {
+			// create event object
+			overlapped.hEvent = os.CreateEventA(0, true, false, null);
+			if (overlapped.hEvent == 0)
+				throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
+
+			// wait for some data to arrive
+			awaitArrivalOfData(overlapped);
+			int availableBytes = getAvailableBytes();
+			if (availableBytes == 0)
+				throw new NativeCodeException("Arrival of data was signaled, but number of available bytes is 0!");
+
+			// now we can read the available data
+			return readAvailableBytes(availableBytes, numberOfBytesRead, overlapped);
+		}
+		finally {
+			disposeAndCloseSafe(numberOfBytesRead, overlapped);
+		}
+	}
+
+	/** Blocks until data arrives or an {@link IOException} is thrown. */
+	private void awaitArrivalOfData(OVERLAPPED overlapped) throws IOException {
+
+		DWORD eventMask = new DWORD(os);
+
+		try {
+			boolean waitCommEventResult = os.WaitCommEvent(handle, eventMask, overlapped);
+			if (waitCommEventResult) {
+				// event was signaled immediatly
+				checkForRXCHARFlag(eventMask);
+				return;
+			}
+
+			int lastError = os.getPreservedError();
+			if (lastError != ERROR_IO_PENDING)
+				throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
+
+			// wait for pending operation to complete
+			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
+			switch (waitResult) {
+				case WAIT_OBJECT_0:
+					// wait finished successfull
+					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, eventMask, true);
+					if (!overlappedResult)
+						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
+					checkForRXCHARFlag(eventMask);
+					return;
+				case WAIT_TIMEOUT:
+					// operation has timed out
+
+					// TODO What should happen, when a timeout occurs?
+
+					break;
+				case WAIT_ABANDONED:
+					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+				case WAIT_FAILED:
+					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+			}
+			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+		}
+		finally {
+			try {
+				os.ResetEvent(overlapped.hEvent);
+			}
+			finally {
+				eventMask.dispose();
+			}
+		}
+	}
+
+	/** Returns the number of bytes that are available to read. */
+	private int getAvailableBytes() {
+		COMSTAT lpStat = new COMSTAT();
+		boolean clearCommErrorResult = os.ClearCommError(handle, new INT(0), lpStat);
+		if (!clearCommErrorResult)
+			throw newNativeCodeException(os, "ClearCommError failed unexpected!", os.getPreservedError());
+		return lpStat.cbInQue;
+	}
+
+	/** Reads and returns the data that is available in the read buffer. */
+	private byte[] readAvailableBytes(int availableBytes, DWORD numberOfBytesRead, OVERLAPPED overlapped) throws IOException {
+
+		// TODO Maybe we should use a MAXIMUM buffer size, in order to avoid out of memory errors?
+
+		NativeByteArray data = new NativeByteArray(os, availableBytes);
+
+		try {
+
+			boolean readFileResult = os.ReadFile(handle, data, availableBytes, numberOfBytesRead, overlapped);
+			if (readFileResult)
+				// the read operation succeeded immediatly
+				return data.getByteArray();
+
+			int lastError = os.getPreservedError();
+			if (lastError == ERROR_INVALID_HANDLE)
+				throw portClosedException("Read operation failed, because the handle is invalid!");
+			if (lastError != ERROR_IO_PENDING)
+				throw newNativeCodeException(os, "ReadFile failed unexpected!", lastError);
+
+			// wait for pending I/O operation to complete
+			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
+			switch (waitResult) {
+				case WAIT_OBJECT_0:
+					// I/O operation has finished
+					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
+					if (!overlappedResult)
+						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
+
+					// verify that the number of read bytes is equal to the number of available
+					// bytes:
+					int bytesRead = numberOfBytesRead.getValue();
+					if (bytesRead != availableBytes)
+						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead + ", expected: " + availableBytes);
+					return data.getByteArray();
+				case WAIT_TIMEOUT:
+					// I/O operation has timed out. This should not happen, because we determined
+					// that data is available
+					throw new NativeCodeException("Read operation timed out after " + readTimeout + " milliseconds!");
+				case WAIT_ABANDONED:
+					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+				case WAIT_FAILED:
+					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+			}
+			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+		}
+		finally {
+			data.dispose();
+		}
+	}
+
+	/**
+	 * Throws an {@link NativeCodeException} when the <code>EV_RXCHAR</code> flag in the given
+	 * <code>eventMask</code> is not set.
+	 */
+	private void checkForRXCHARFlag(DWORD eventMask) {
+		int mask = eventMask.getValue();
+		if ((mask & EV_RXCHAR) != EV_RXCHAR)
+			throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: " + mask + ", expected: " + EV_RXCHAR);
 	}
 
 	/** Disposes the given resources. */

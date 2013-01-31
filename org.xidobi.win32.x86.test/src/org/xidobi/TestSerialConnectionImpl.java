@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
@@ -162,7 +163,9 @@ public class TestSerialConnectionImpl {
 			port.write(DATA);
 		}
 		finally {
-			verifyResourcesDisposed();
+			verify(win, never()).CloseHandle(0);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(1)).free(ptrBytesTransferred);
 		}
 	}
 
@@ -405,6 +408,177 @@ public class TestSerialConnectionImpl {
 	}
 
 	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>CreateEventA(...)</code>
+	 * fails. In this case the method returns 0.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_CreateEventAReturns0() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(0);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("CreateEventA illegally returned 0!");
+
+		try {
+			port.read();
+		}
+		finally {
+			verify(win, never()).CloseHandle(0);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(1)).free(ptrBytesTransferred);
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * returns <code>false</code> and the last error is not <code>ERROR_IO_PENDING</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventFailsWithUnexpectedErrorCode() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WaitCommEvent(eq(handle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitCommEvent failed unexpected!");
+
+		try {
+			port.read();
+		}
+		finally {
+			verify(win, times(1)).ResetEvent(eventHandle);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(2)).free(ptrBytesTransferred);
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code>,
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_OBJECT_0</code> and
+	 * <code>GetOverlappedResult(...)</code> returns <code>false</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingAndGetOverlappedResultFails() throws IOException {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WaitCommEvent(eq(handle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		                                         DUMMY_ERROR_CODE);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("GetOverlappedResult failed unexpected!");
+
+		try {
+			port.read();
+		}
+		finally {
+			verify(win, times(1)).ResetEvent(eventHandle);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(2)).free(ptrBytesTransferred);
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * is pending and <code>GetOverlappedResult(...)</code> signals an unexpected event (not
+	 * <code>EV_RXCHAR</code>).
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventUnexpectedEvent() throws IOException {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WaitCommEvent(eq(handle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR + 1);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitCommEvt was signaled for unexpected event! Got: " + (EV_RXCHAR + 1) + ", expected: " + EV_RXCHAR);
+
+		try {
+			port.read();
+		}
+		finally {
+			verify(win, times(1)).ResetEvent(eventHandle);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(2)).free(ptrBytesTransferred);
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code> and
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_ABANDONED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingReturnsWAIT_ABANDONED() throws IOException {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WaitCommEvent(eq(handle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		                                         DUMMY_ERROR_CODE);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+
+		try {
+			port.read();
+		}
+		finally {
+			verify(win, times(1)).ResetEvent(eventHandle);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(2)).free(ptrBytesTransferred);
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code> and
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_OBJECT_0</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingReturnsWAIT_FAILED() throws IOException {
+		//@formatter:off
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WaitCommEvent(eq(handle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		                                         DUMMY_ERROR_CODE);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
+
+		try {
+			port.read();
+		}
+		finally {
+			verify(win, times(1)).ResetEvent(eventHandle);
+			verify(win, times(1)).free(ptrOverlapped);
+			verify(win, times(2)).free(ptrBytesTransferred);
+		}
+	}
+
+	/**
 	 * Verifies that a call to {@link SerialConnection#close()} frees the native resources.
 	 */
 	@Test
@@ -448,7 +622,7 @@ public class TestSerialConnectionImpl {
 	}
 
 	private void verifyResourcesDisposed() {
-		verify(win, never()).CloseHandle(0);
+		verify(win, times(1)).CloseHandle(eventHandle);
 		verify(win, times(1)).free(ptrOverlapped);
 		verify(win, times(1)).free(ptrBytesTransferred);
 	}
