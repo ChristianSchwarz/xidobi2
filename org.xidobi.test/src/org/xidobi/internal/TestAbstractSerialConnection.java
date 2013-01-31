@@ -15,6 +15,22 @@
  */
 package org.xidobi.internal;
 
+import static java.lang.Math.max;
+import static java.lang.Thread.currentThread;
+import static java.lang.Thread.sleep;
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,25 +48,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
-
-import static java.lang.Math.max;
-import static java.lang.Thread.currentThread;
-import static java.lang.Thread.sleep;
-import static java.util.concurrent.Executors.newFixedThreadPool;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static junit.framework.Assert.fail;
-
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
-import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link AbstractSerialConnection}

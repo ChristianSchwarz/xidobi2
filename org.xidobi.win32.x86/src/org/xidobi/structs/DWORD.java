@@ -55,7 +55,7 @@ public class DWORD extends Pointer {
 	}
 
 	/**
-	 * Returns the value of the DWORD pointer.
+	 * Sets the value of the DWORD pointer.
 	 * 
 	 * @param value
 	 *            the value

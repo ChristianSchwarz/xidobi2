@@ -18,7 +18,7 @@ package org.xidobi.structs;
 import static java.lang.String.valueOf;
 
 /**
- * Pointer to an int value in C.
+ * Wrapper for an int value in C, which can be used as parameter for native methods.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler

@@ -28,16 +28,16 @@ import org.xidobi.WinApi;
 public class Pointer {
 
 	/** the native Win32-API, never <code>null</code> */
-	private WinApi win;
+	private final WinApi win;
 
 	/** The pointer to the allocated memory */
 	private final int cPointer;
 
+	/** the size of the allocated memory */
+	private final int size;
+
 	/** <code>true</code> if the instance is disposed */
 	private boolean isDisposed = false;
-
-	/** the size of the allocated memory */
-	private int size;
 
 	/**
 	 * Allocates memory of the given size on the heap and stores a pointer to that memory.
@@ -71,6 +71,18 @@ public class Pointer {
 		return size;
 	}
 
+	/**
+	 * Returns <code>true</code>, if this instance was disposed.
+	 * 
+	 * @return <ul>
+	 *         <li> <code>true</code>, if the instance was disposed
+	 *         <li> <code>false</code>, if the instance is not disposed
+	 *         </ul>
+	 */
+	public boolean isDisposed() {
+		return isDisposed;
+	}
+
 	/** Throws an {@link IllegalStateException} when this instance is disposed. */
 	protected void checkIfDisposed() {
 		if (isDisposed)
@@ -78,7 +90,7 @@ public class Pointer {
 	}
 
 	/**
-	 * Frees the resources of this instance ( memory on the heap).
+	 * Frees the resources of this instance (memory on the heap).
 	 */
 	public void dispose() {
 		checkIfDisposed();
@@ -93,18 +105,6 @@ public class Pointer {
 	 */
 	protected WinApi getWinApi() {
 		return win;
-	}
-
-	/**
-	 * Returns <code>true</code>, if this instance was disposed.
-	 * 
-	 * @return <ul>
-	 *         <li> <code>true</code>, if the instance was disposed
-	 *         <li> <code>false</code>, if the instance is not disposed
-	 *         </ul>
-	 */
-	public boolean isDisposed() {
-		return isDisposed;
 	}
 
 	@Override
