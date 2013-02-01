@@ -19,7 +19,7 @@ import static java.lang.Integer.MAX_VALUE;
 import static org.xidobi.WinApi.ERROR_SUCCESS;
 import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
 import static org.xidobi.WinApi.KEY_READ;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import java.util.HashSet;

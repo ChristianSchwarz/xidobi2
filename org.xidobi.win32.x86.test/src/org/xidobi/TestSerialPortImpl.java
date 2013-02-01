@@ -22,7 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.xidobi.internal.NativeCodeException;
+import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DCB;
 
 import static org.mockito.Matchers.any;

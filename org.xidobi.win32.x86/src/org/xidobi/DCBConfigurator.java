@@ -17,7 +17,7 @@ package org.xidobi;
 
 import static org.xidobi.StopBits.StopBits_1_5;
 import static org.xidobi.StopBits.StopBits_2;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.structs.DCB.DTR_CONTROL_DISABLE;
 import static org.xidobi.structs.DCB.DTR_CONTROL_ENABLE;
 import static org.xidobi.structs.DCB.EVENPARITY;

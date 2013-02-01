@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.xidobi.internal;
+package org.xidobi.spi;
 
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;

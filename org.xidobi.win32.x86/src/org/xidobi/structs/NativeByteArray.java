@@ -15,7 +15,7 @@
  */
 package org.xidobi.structs;
 
-import static org.xidobi.internal.Preconditions.checkArgument;
+import static org.xidobi.spi.Preconditions.checkArgument;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;

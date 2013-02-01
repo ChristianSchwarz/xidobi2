@@ -36,7 +36,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.WinApi;
-import org.xidobi.internal.NativeCodeException;
+import org.xidobi.spi.NativeCodeException;
 
 /**
  * Tests class {@link Throwables}.

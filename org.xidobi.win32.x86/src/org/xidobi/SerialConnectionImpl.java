@@ -23,16 +23,16 @@ import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
 import static org.xidobi.WinApi.WAIT_TIMEOUT;
-import static org.xidobi.internal.Preconditions.checkArgument;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.spi.Preconditions.checkArgument;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-import org.xidobi.internal.AbstractSerialConnection;
-import org.xidobi.internal.NativeCodeException;
+import org.xidobi.spi.AbstractSerialConnection;
+import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.COMSTAT;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;

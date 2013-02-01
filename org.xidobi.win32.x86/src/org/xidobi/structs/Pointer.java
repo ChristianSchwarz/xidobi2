@@ -15,8 +15,8 @@
  */
 package org.xidobi.structs;
 
-import static org.xidobi.internal.Preconditions.checkArgument;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.spi.Preconditions.checkArgument;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 import org.xidobi.WinApi;
 

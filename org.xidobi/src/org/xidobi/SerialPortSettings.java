@@ -19,8 +19,8 @@ import static org.xidobi.DataBits.DataBits_8;
 import static org.xidobi.FlowControl.FlowControl_None;
 import static org.xidobi.Parity.Parity_None;
 import static org.xidobi.StopBits.StopBits_1;
-import static org.xidobi.internal.Preconditions.checkArgument;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.spi.Preconditions.checkArgument;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;

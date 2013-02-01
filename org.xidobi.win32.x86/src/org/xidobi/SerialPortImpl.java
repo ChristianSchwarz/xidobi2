@@ -20,7 +20,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.xidobi.internal.NativeCodeException;
+import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DCB;
 import org.xidobi.utils.Throwables;
 
@@ -34,7 +34,7 @@ import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.PURGE_TXCLEAR;
-import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newIOException;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.xidobi.internal;
+package org.xidobi.spi;
 
 /**
  * This exception is used to indicate an unexpected result, behavior or error that was detected
