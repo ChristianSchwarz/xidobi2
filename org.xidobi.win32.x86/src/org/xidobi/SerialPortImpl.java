@@ -129,6 +129,48 @@ public class SerialPortImpl implements SerialPort {
 	}
 
 	/**
+	 * Tries to open the port.
+	 * 
+	 * @return the HANDLE of the port on success
+	 * @exception IOException
+	 *                if the port is already open or does not exist
+	 */
+	private int tryOpen(final String portName) throws IOException {
+		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+	
+		if (handle != INVALID_HANDLE_VALUE)
+			return handle;
+	
+		int err = win.getPreservedError();
+	
+		switch (err) {
+			case ERROR_ACCESS_DENIED:
+				throw new IOException("Port in use (" + portName + ")!");
+			case ERROR_FILE_NOT_FOUND:
+				throw new IOException("Port not found (" + portName + ")!");
+		}
+		throw lastError("Unable to open port (" + portName + ")!");
+	}
+
+	/**
+	 * Tries to apply the {@link SerialPortSettings} to the port.
+	 * 
+	 * @throws IOException
+	 *             if it was not possible to apply the settings e.g. if they are invalid
+	 */
+	private void applySettings(final int handle, final SerialPortSettings settings) throws IOException {
+		final DCB dcb = new DCB();
+	
+		if (!win.GetCommState(handle, dcb))
+			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!");
+	
+		configurator.configureDCB(dcb, settings);
+	
+		if (!win.SetCommState(handle, dcb))
+			throw lastError("Unable to set the control settings (" + portName + ")!");
+	}
+
+	/**
 	 * Discards all characters from the output and input buffer of a specified communications resource.
 	 * @param handle the handle of the port to clear
 	 */
@@ -147,48 +189,6 @@ public class SerialPortImpl implements SerialPort {
 			return;
 		
 		throw newNativeCodeException(win,"SetCommMask failed!", win.getPreservedError());
-	}
-
-	/**
-	 * Tries to open the port.
-	 * 
-	 * @return the HANDLE of the port on success
-	 * @exception IOException
-	 *                if the port is already open or does not exist
-	 */
-	private int tryOpen(final String portName) throws IOException {
-		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
-
-		if (handle != INVALID_HANDLE_VALUE)
-			return handle;
-
-		int err = win.getPreservedError();
-
-		switch (err) {
-			case ERROR_ACCESS_DENIED:
-				throw new IOException("Port in use (" + portName + ")!");
-			case ERROR_FILE_NOT_FOUND:
-				throw new IOException("Port not found (" + portName + ")!");
-		}
-		throw lastError("Unable to open port (" + portName + ")!");
-	}
-
-	/**
-	 * Tries to apply the {@link SerialPortSettings} to the port.
-	 * 
-	 * @throws IOException
-	 *             if it was not possible to apply the settings e.g. if they are invalid
-	 */
-	private void applySettings(final int handle, final SerialPortSettings settings) throws IOException {
-		final DCB dcb = new DCB();
-
-		if (!win.GetCommState(handle, dcb))
-			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!");
-
-		configurator.configureDCB(dcb, settings);
-
-		if (!win.SetCommState(handle, dcb))
-			throw lastError("Unable to set the control settings (" + portName + ")!");
 	}
 
 	/**

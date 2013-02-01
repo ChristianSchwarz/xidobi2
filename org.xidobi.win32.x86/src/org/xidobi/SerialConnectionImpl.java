@@ -94,10 +94,9 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 				throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
 
 			// write data to serial port
-			boolean writeFileResult = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
+			boolean succeed = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
 
-			if (writeFileResult)
-				// the write operation succeeded immediatly
+			if (succeed)// the write operation succeeded immediatly
 				return;
 
 			int lastError = os.getPreservedError();
@@ -109,8 +108,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			// wait for pending I/O operation to complete
 			int waitResult = os.WaitForSingleObject(overlapped.hEvent, writeTimeout);
 			switch (waitResult) {
-				case WAIT_OBJECT_0:
-					// I/O operation has finished
+				case WAIT_OBJECT_0: // IO operation has finished
 					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
 					if (!overlappedResult)
 						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
@@ -121,8 +119,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 					if (bytesWritten != data.length)
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + bytesWritten + ", expected: " + data.length);
 					return;
-				case WAIT_TIMEOUT:
-					// I/O operation has timed out
+				case WAIT_TIMEOUT:// IO operation has timed out
 
 					// TODO Maybe we should purge the serial port here, so all outstanding data will
 					// be cleared?
@@ -170,14 +167,18 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	/** Blocks until data arrives or an {@link IOException} is thrown. */
 	private void awaitArrivalOfData(OVERLAPPED overlapped) throws IOException {
 
-		DWORD eventMask = new DWORD(os);
-
 		try {
-			boolean waitCommEventResult = os.WaitCommEvent(handle, eventMask, overlapped);
-			if (waitCommEventResult) {
-				// event was signaled immediatly
-				checkForRXCHARFlag(eventMask);
-				return;
+			final DWORD evtMask = new DWORD(os);
+			try {
+				boolean succeed = os.WaitCommEvent(handle, evtMask, overlapped);
+				if (succeed) {
+					// event was signaled immediatly, the input buffer contains data
+					checkEventMask(evtMask);
+					return;
+				}
+			}
+			finally {
+				evtMask.dispose();
 			}
 
 			int lastError = os.getPreservedError();
@@ -191,10 +192,11 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			switch (waitResult) {
 				case WAIT_OBJECT_0:
 					// wait finished successfull
-					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, eventMask, true);
+					final DWORD bytesRead = new DWORD(os);
+					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, bytesRead, true);
 					if (!overlappedResult)
 						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
-					checkForRXCHARFlag(eventMask);
+					
 					return;
 				case WAIT_TIMEOUT:
 					// operation has timed out
@@ -210,20 +212,15 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
 		finally {
-			try {
-				os.ResetEvent(overlapped.hEvent);
-			}
-			finally {
-				eventMask.dispose();
-			}
+			os.ResetEvent(overlapped.hEvent);
 		}
 	}
 
 	/** Returns the number of bytes that are available to read. */
 	private int getAvailableBytes() {
 		COMSTAT lpStat = new COMSTAT();
-		boolean clearCommErrorResult = os.ClearCommError(handle, new INT(0), lpStat);
-		if (!clearCommErrorResult)
+		boolean succeed = os.ClearCommError(handle, new INT(0), lpStat);
+		if (!succeed)
 			throw newNativeCodeException(os, "ClearCommError failed unexpected!", os.getPreservedError());
 		return lpStat.cbInQue;
 	}
@@ -281,7 +278,7 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 	 * Throws an {@link NativeCodeException} when the <code>EV_RXCHAR</code> flag in the given
 	 * <code>eventMask</code> is not set.
 	 */
-	private void checkForRXCHARFlag(DWORD eventMask) {
+	private void checkEventMask(DWORD eventMask) {
 		int mask = eventMask.getValue();
 		if ((mask & EV_RXCHAR) != EV_RXCHAR)
 			throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: " + mask + ", expected: " + EV_RXCHAR);
