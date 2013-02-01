@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
@@ -233,6 +234,34 @@ public class TestSerialPortImpl {
 			verify(win).CloseHandle(PORT_HANDLE);
 		}
 	}
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when the call to
+	 * {@link WinApi#SetCommMask(int, int)} returns <code>false</code>. In this
+	 * case the {@link NativeCodeException} must contain the error code that is returned by
+	 * {@link WinApi#GetLastError()} .
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void open_fail_SetCommMaskReturnsFalse() throws Exception {
+		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
+		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(win.PurgeComm(PORT_HANDLE,PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(win.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(false);
+		
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("SetCommMask failed!\r\nError-Code " + DUMMY_ERROR_CODE);
+		
+		try {
+			handle.open(settings);
+		}
+		finally {
+			verify(win).CloseHandle(PORT_HANDLE);
+		}
+	}
 
 	/**
 	 * Verifies that a non <code>null</code> {@link SerialConnection} is returned, when the native methods
@@ -246,6 +275,7 @@ public class TestSerialPortImpl {
 		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
 		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
 		when(win.PurgeComm(PORT_HANDLE,PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(win.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(true);
 		
 		SerialConnection result = handle.open(settings);
 

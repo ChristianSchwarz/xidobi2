@@ -26,6 +26,7 @@ import org.xidobi.utils.Throwables;
 
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
+import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
@@ -35,6 +36,7 @@ import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.PURGE_TXCLEAR;
 import static org.xidobi.internal.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newIOException;
+import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 /**
  * {@link SerialPort} to open a serial port.
@@ -113,6 +115,7 @@ public class SerialPortImpl implements SerialPort {
 		try {
 			applySettings(handle, settings);
 			clearIOBuffers(handle);
+			registerRxEvent(handle);
 		}
 		catch (IOException e) {
 			win.CloseHandle(handle);
@@ -133,6 +136,17 @@ public class SerialPortImpl implements SerialPort {
 		if (win.PurgeComm(handle, PURGE_RXCLEAR | PURGE_TXCLEAR))
 			return;
 		throw Throwables.newNativeCodeException(win, "PurgeComm failed!", win.getPreservedError());
+	}
+	
+	/**
+	 * Set the event mask to the given handle in order to be notified about received bytes.
+	 * @param portHandle
+	 */
+	private void registerRxEvent(int portHandle){
+		if (win.SetCommMask(portHandle, EV_RXCHAR))
+			return;
+		
+		throw newNativeCodeException(win,"SetCommMask failed!", win.getPreservedError());
 	}
 
 	/**
@@ -201,6 +215,4 @@ public class SerialPortImpl implements SerialPort {
 	public String toString() {
 		return "SerialPortImpl [portName=" + getPortName() + ", description=" + getDescription() + "]";
 	}
-	
-	
 }
