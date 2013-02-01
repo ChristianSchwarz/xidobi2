@@ -77,9 +77,9 @@ public class SerialPortImpl implements SerialPort {
 	 * @param description
 	 *            the additional description for the serial port, maybe <code>null</code>
 	 */
-	public SerialPortImpl(@Nonnull WinApi os,
-								@Nonnull String portName,
-								@Nullable String description) {
+	public SerialPortImpl(	@Nonnull WinApi os,
+							@Nonnull String portName,
+							@Nullable String description) {
 		this(os, portName, description, new DCBConfigurator());
 	}
 
@@ -96,10 +96,10 @@ public class SerialPortImpl implements SerialPort {
 	 *            configures the native DCB "struct" with the values from the serial port settings,
 	 *            must not be <code>null</code>
 	 */
-	public SerialPortImpl(@Nonnull WinApi win,
-								@Nonnull String portName,
-								@Nullable String description,
-								@Nonnull DCBConfigurator configurator) {
+	public SerialPortImpl(	@Nonnull WinApi win,
+							@Nonnull String portName,
+							@Nullable String description,
+							@Nonnull DCBConfigurator configurator) {
 		this.portName = checkArgumentNotNull(portName, "portName");
 		this.win = checkArgumentNotNull(win, "win");
 		this.configurator = checkArgumentNotNull(configurator, "configurator");
@@ -120,7 +120,8 @@ public class SerialPortImpl implements SerialPort {
 		catch (IOException e) {
 			win.CloseHandle(handle);
 			throw e;
-		}catch (NativeCodeException e){
+		}
+		catch (NativeCodeException e) {
 			win.CloseHandle(handle);
 			throw e;
 		}
@@ -137,12 +138,12 @@ public class SerialPortImpl implements SerialPort {
 	 */
 	private int tryOpen(final String portName) throws IOException {
 		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
-	
+
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
-	
+
 		int err = win.getPreservedError();
-	
+
 		switch (err) {
 			case ERROR_ACCESS_DENIED:
 				throw new IOException("Port in use (" + portName + ")!");
@@ -160,35 +161,39 @@ public class SerialPortImpl implements SerialPort {
 	 */
 	private void applySettings(final int handle, final SerialPortSettings settings) throws IOException {
 		final DCB dcb = new DCB();
-	
+
 		if (!win.GetCommState(handle, dcb))
 			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!");
-	
+
 		configurator.configureDCB(dcb, settings);
-	
+
 		if (!win.SetCommState(handle, dcb))
 			throw lastError("Unable to set the control settings (" + portName + ")!");
 	}
 
 	/**
-	 * Discards all characters from the output and input buffer of a specified communications resource.
-	 * @param handle the handle of the port to clear
+	 * Discards all characters from the output and input buffer of a specified communications
+	 * resource.
+	 * 
+	 * @param handle
+	 *            the handle of the port to clear
 	 */
 	private void clearIOBuffers(final int handle) {
 		if (win.PurgeComm(handle, PURGE_RXCLEAR | PURGE_TXCLEAR))
 			return;
 		throw Throwables.newNativeCodeException(win, "PurgeComm failed!", win.getPreservedError());
 	}
-	
+
 	/**
 	 * Set the event mask to the given handle in order to be notified about received bytes.
+	 * 
 	 * @param portHandle
 	 */
-	private void registerRxEvent(int portHandle){
+	private void registerRxEvent(int portHandle) {
 		if (win.SetCommMask(portHandle, EV_RXCHAR))
 			return;
-		
-		throw newNativeCodeException(win,"SetCommMask failed!", win.getPreservedError());
+
+		throw newNativeCodeException(win, "SetCommMask failed!", win.getPreservedError());
 	}
 
 	/**
