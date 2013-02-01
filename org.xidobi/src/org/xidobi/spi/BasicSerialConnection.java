@@ -45,8 +45,11 @@ public class BasicSerialConnection extends AbstractSerialConnection {
 	@Override
 	@OverridingMethodsMustInvokeSuper
 	protected void closeInternal() throws IOException {
-		writer.close();
-		reader.close();
+		try{
+			writer.close();
+		}finally{
+			reader.close();
+		}
 	}
 
 }

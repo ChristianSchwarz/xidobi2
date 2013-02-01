@@ -12,10 +12,13 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 /**
+ * This interface is implemented by service provider to write to a serial port.
+ * 
+ * @see BasicSerialConnection
  * @author Christian Schwarz
- *
+ * 
  */
-public interface Writer extends Closeable{
+public interface Writer extends Closeable {
 
 	/**
 	 * Writes the given byte[]. All bytes of the array were written.
