@@ -489,24 +489,23 @@ public class TestSerialConnectionImpl {
 
 	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
-	 * is pending and <code>GetOverlappedResult(...)</code> signals an unexpected event (not
-	 * <code>EV_RXCHAR</code>).
+	 * is pending and <code>GetOverlappedResult(...)</code> returnes less bytes read.
 	 * 
 	 * @throws IOException
 	 */
 	@Test
 	public void read_WaitCommEventUnexpectedEvent() throws IOException {
-		//@formatter:off
+		final int BYTES_READ = 123;
+
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WaitCommEvent(eq(handle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		when(win.GetOverlappedResult(eq(handle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
-		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR + 1);
-		//@formatter:on
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(BYTES_READ);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitCommEvt was signaled for unexpected event! Got: " + (EV_RXCHAR + 1) + ", expected: " + EV_RXCHAR);
+		exception.expectMessage("What do we expect here??");
 
 		try {
 			port.read();
@@ -520,13 +519,12 @@ public class TestSerialConnectionImpl {
 
 	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
-	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code> and
-	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_ABANDONED</code>.
+	 * is pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_ABANDONED</code>.
 	 * 
 	 * @throws IOException
 	 */
 	@Test
-	public void read_WaitCommEventPendingReturnsWAIT_ABANDONED() throws IOException {
+	public void read_WaitForSingleObject_abandoned() throws IOException {
 		//@formatter:off
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WaitCommEvent(eq(handle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);

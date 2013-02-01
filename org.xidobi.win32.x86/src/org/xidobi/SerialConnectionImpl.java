@@ -189,14 +189,20 @@ public class SerialConnectionImpl extends AbstractSerialConnection {
 
 			// wait for pending operation to complete
 			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
+			
+			
 			switch (waitResult) {
 				case WAIT_OBJECT_0:
 					// wait finished successfull
 					final DWORD bytesRead = new DWORD(os);
-					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, bytesRead, true);
-					if (!overlappedResult)
-						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
-					
+					try {
+						boolean succeed = os.GetOverlappedResult(handle, overlapped, bytesRead, true);
+						if (!succeed)
+							throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
+					}
+					finally {
+						bytesRead.dispose();
+					}
 					return;
 				case WAIT_TIMEOUT:
 					// operation has timed out
