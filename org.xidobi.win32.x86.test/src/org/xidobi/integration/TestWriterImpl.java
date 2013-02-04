@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,9 +41,11 @@ import org.xidobi.WriterImpl;
 import org.xidobi.structs.DCB;
 
 /**
- * @author Christian Schwarz
+ * Integration test for class {@link WriterImpl}.
  * 
+ * @author Christian Schwarz
  */
+@Ignore
 public class TestWriterImpl {
 
 	/** Settings for the serial port */
@@ -61,6 +64,7 @@ public class TestWriterImpl {
 	private WriterImpl writer;
 
 	@Before
+	@SuppressWarnings("javadoc")
 	public void setUp() throws IOException {
 		initMocks(this);
 

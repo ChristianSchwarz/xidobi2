@@ -82,6 +82,7 @@ public class TestWriterImpl {
 	private int ptrBytesTransferred = 2;
 
 	@Before
+	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
 
@@ -102,7 +103,7 @@ public class TestWriterImpl {
 	 * <code>null</code>.
 	 */
 	@Test
-	@SuppressWarnings({ "resource" })
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_nullOs() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >os< must not be null!");
@@ -115,7 +116,7 @@ public class TestWriterImpl {
 	 * is <code>null</code>.
 	 */
 	@Test
-	@SuppressWarnings({ "resource" })
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_nullPortHandle() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >port< must not be null!");
@@ -129,7 +130,7 @@ public class TestWriterImpl {
 	 * 
 	 */
 	@Test
-	@SuppressWarnings({ "resource" })
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_negativeHandle() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >handle< is invalid! Invalid handle value");
@@ -143,6 +144,7 @@ public class TestWriterImpl {
 	 * 
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unused")
 	@Test
 	public void new_CreateEventAReturns0() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(0);
