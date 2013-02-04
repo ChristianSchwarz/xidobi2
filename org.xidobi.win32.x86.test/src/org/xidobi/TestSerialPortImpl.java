@@ -27,10 +27,13 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
+import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.PURGE_TXCLEAR;
@@ -288,6 +291,40 @@ public class TestSerialPortImpl {
 
 		verify(win, never()).CloseHandle(PORT_HANDLE);
 		assertThat(result, is(notNullValue()));
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when <code>CreateFile(...)</code> returns an
+	 * invalid handle and the last error code is <code>ERROR_ACCESS_DENIED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void open_invalidHandleAndERROR_ACCESS_DENIED() throws IOException {
+		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE_VALUE);
+		when(win.getPreservedError()).thenReturn(ERROR_ACCESS_DENIED);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port in use (COM1)!");
+
+		handle.open(settings);
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when <code>CreateFile(...)</code> returns an
+	 * invalid handle and the last error code is <code>ERROR_FILE_NOT_FOUND</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void open_invalidHandleAndERROR_FILE_NOT_FOUND() throws IOException {
+		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE_VALUE);
+		when(win.getPreservedError()).thenReturn(ERROR_FILE_NOT_FOUND);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port not found (COM1)!");
+
+		handle.open(settings);
 	}
 
 	/**
