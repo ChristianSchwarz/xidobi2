@@ -35,7 +35,7 @@ public interface Writer extends Closeable {
 	 * @param data
 	 *            must not be <code>null</code>
 	 * @throws IOException
-	 *             when the Port is closed
+	 *             if this port was closed or an unexpected I/O error occurs.
 	 */
 	void write(@Nonnull byte[] data) throws IOException;
 

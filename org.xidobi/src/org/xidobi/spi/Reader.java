@@ -24,6 +24,8 @@ import javax.annotation.Nonnull;
  * This interface is implemented by service provider to read from a serial port.
  * 
  * @author Christian Schwarz
+ * 
+ * @see BasicSerialConnection
  */
 public interface Reader extends Closeable {
 

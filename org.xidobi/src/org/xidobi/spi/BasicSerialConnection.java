@@ -97,28 +97,6 @@ public class BasicSerialConnection implements SerialConnection {
 	 *             when the write operation timed out or the serial port is not open
 	 */
 
-	/**
-	 * The implementation must block until at least one byte can be returned or and
-	 * {@link IOException} is thrown.
-	 * <p>
-	 * This method will be called by {@link #read()} only if the port is open.
-	 * <p>
-	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
-	 * port is currently open!
-	 * 
-	 * @return the byte's read from the port, never <code>null</code>
-	 */
-
-	/**
-	 * The implementation must release all native resources.
-	 * <p>
-	 * This method will be called by {@link #close()} as long as this method returns with not normal
-	 * / throws an {@link IOException}.
-	 * <p>
-	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
-	 * port is currently open!
-	 */
-
 	/** {@inheritDoc} */
 	public final void write(@Nonnull byte[] data) throws IOException {
 		checkArgumentNotNull(data, "data");
