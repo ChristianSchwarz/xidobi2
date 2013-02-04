@@ -15,13 +15,6 @@
  */
 package org.xidobi;
 
-import static java.lang.Integer.MAX_VALUE;
-import static org.xidobi.WinApi.ERROR_SUCCESS;
-import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
-import static org.xidobi.WinApi.KEY_READ;
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-import static org.xidobi.utils.Throwables.newNativeCodeException;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +22,13 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
+
+import static java.lang.Integer.MAX_VALUE;
+import static org.xidobi.WinApi.ERROR_SUCCESS;
+import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
+import static org.xidobi.WinApi.KEY_READ;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
+import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 /**
  * Implementation of the interface {@link SerialPortFinder}, that finds all serial ports that are
@@ -81,6 +81,15 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		finally {
 			keyHandle.dispose();
 		}
+	}
+
+	/** {@inheritDoc}*/
+	public SerialPort get(String portName) {
+		checkArgumentNotNull(portName, "portName");
+		for (SerialPort port: getAll())
+			if (port.getPortName().equals(portName))
+				return port;
+		return null;
 	}
 
 	/**
