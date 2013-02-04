@@ -1,8 +1,17 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 01.02.2013 13:53:21
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.integration;
 
@@ -33,9 +42,9 @@ import static org.xidobi.WinApi.OPEN_EXISTING;
 
 /**
  * @author Christian Schwarz
- *
+ * 
  */
-public class TestWriterImpl   {
+public class TestWriterImpl {
 
 	/** Settings for the serial port */
 	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().create();
@@ -55,7 +64,7 @@ public class TestWriterImpl   {
 	@Before
 	public void setUp() throws IOException {
 		initMocks(this);
-		
+
 		handle = OS.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
 		if (handle == INVALID_HANDLE_VALUE)
 			throw new IOException("Invalid handle! " + OS.getPreservedError());
@@ -68,7 +77,7 @@ public class TestWriterImpl   {
 		new DCBConfigurator().configureDCB(dcb, PORT_SETTINGS);
 		if (!OS.SetCommState(handle, dcb))
 			throw new IOException("Unable to set the control settings!");
-		
+
 		writer = new WriterImpl(portHandle, OS, handle);
 	}
 
@@ -85,9 +94,9 @@ public class TestWriterImpl   {
 	 */
 	@Test
 	public void write() throws Exception {
-		for(int i=0; i<20000; i++){
-		writer.write("Hello".getBytes());
-		writer.write("World".getBytes());
+		for (int i = 0; i < 20000; i++) {
+			writer.write("Hello".getBytes());
+			writer.write("World".getBytes());
 		}
 	}
 }

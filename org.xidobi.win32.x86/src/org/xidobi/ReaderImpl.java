@@ -1,8 +1,17 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 01.02.2013 15:58:24
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi;
 
@@ -29,12 +38,12 @@ import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 /**
  * @author Christian Schwarz
- * 
+ * @author Tobias Breﬂler
  */
 public class ReaderImpl extends IoOperation implements Reader {
 
 	private static final int READ_FILE_TIMEOUT = 0;
-	
+
 	private int readTimeout = 2000;
 
 	/**
@@ -50,31 +59,27 @@ public class ReaderImpl extends IoOperation implements Reader {
 
 	@Nonnull
 	public byte[] read() throws IOException {
-			// wait for some data to arrive
-			awaitArrivalOfData(overlapped);
-			int availableBytes = getAvailableBytes();
-			if (availableBytes == 0)
-				throw new NativeCodeException("Arrival of data was signaled, but number of available bytes is 0!");
+		// wait for some data to arrive
+		awaitArrivalOfData(overlapped);
+		int availableBytes = getAvailableBytes();
+		if (availableBytes == 0)
+			throw new NativeCodeException("Arrival of data was signaled, but number of available bytes is 0!");
 
-			// now we can read the available data
-			return readAvailableBytes(availableBytes, numberOfBytesTransferred, overlapped);
+		// now we can read the available data
+		return readAvailableBytes(availableBytes, numberOfBytesTransferred, overlapped);
 	}
 
 	/** Blocks until data arrives or an {@link IOException} is thrown. */
 	private void awaitArrivalOfData(OVERLAPPED overlapped) throws IOException {
 
+		final DWORD evtMask = new DWORD(os);
+
 		try {
-			final DWORD evtMask = new DWORD(os);
-			try {
-				boolean succeed = os.WaitCommEvent(handle, evtMask, overlapped);
-				if (succeed) {
-					// event was signaled immediatly, the input buffer contains data
-					checkEventMask(evtMask);
-					return;
-				}
-			}
-			finally {
-				evtMask.dispose();
+			boolean succeed = os.WaitCommEvent(handle, evtMask, overlapped);
+			if (succeed) {
+				// event was signaled immediatly, the input buffer contains data
+				checkEventMask(evtMask);
+				return;
 			}
 
 			int lastError = os.getPreservedError();
@@ -85,19 +90,14 @@ public class ReaderImpl extends IoOperation implements Reader {
 
 			// wait for pending operation to complete
 			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
-			
-			
+
 			switch (waitResult) {
 				case WAIT_OBJECT_0:
 					// wait finished successfull
-					final DWORD bytesRead = new DWORD(os);
-					try {
-						if (!os.GetOverlappedResult(handle, overlapped, bytesRead, true))
-							throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
-					}
-					finally {
-						bytesRead.dispose();
-					}
+
+					// TODO Do we need the overlapped result?
+
+					checkEventMask(evtMask);
 					return;
 				case WAIT_TIMEOUT:
 					// operation has timed out
@@ -113,7 +113,12 @@ public class ReaderImpl extends IoOperation implements Reader {
 			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
 		finally {
-			os.ResetEvent(overlapped.hEvent);
+			try {
+				os.ResetEvent(overlapped.hEvent);
+			}
+			finally {
+				evtMask.dispose();
+			}
 		}
 	}
 
@@ -176,7 +181,7 @@ public class ReaderImpl extends IoOperation implements Reader {
 	}
 
 	/**
-	 * Throws an {@link NativeCodeException} when the <code>EV_RXCHAR</code> flag in the given
+	 * Throws an {@link NativeCodeException}, when the <code>EV_RXCHAR</code> flag in the given
 	 * <code>eventMask</code> is not set.
 	 */
 	private void checkEventMask(DWORD eventMask) {

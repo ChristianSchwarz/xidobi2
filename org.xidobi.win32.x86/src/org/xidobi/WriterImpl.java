@@ -1,17 +1,19 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 01.02.2013 11:14:33
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi;
-
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.spi.NativeCodeException;
-import org.xidobi.spi.Writer;
 
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
@@ -21,13 +23,21 @@ import static org.xidobi.WinApi.WAIT_OBJECT_0;
 import static org.xidobi.WinApi.WAIT_TIMEOUT;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import org.xidobi.spi.NativeCodeException;
+import org.xidobi.spi.Writer;
+
 /**
  * @author Christian Schwarz
- * 
+ * @author Tobias Breﬂler
  */
 public class WriterImpl extends IoOperation implements Writer {
 
 	private int writeTimeout = 2000;
+
 	/**
 	 * 
 	 * @param port
