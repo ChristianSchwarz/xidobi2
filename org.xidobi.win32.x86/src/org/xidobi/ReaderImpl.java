@@ -15,6 +15,15 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
+import static org.xidobi.utils.Throwables.newNativeCodeException;
+
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
@@ -26,15 +35,6 @@ import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
-
-import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
-import static org.xidobi.WinApi.ERROR_IO_PENDING;
-import static org.xidobi.WinApi.EV_RXCHAR;
-import static org.xidobi.WinApi.WAIT_ABANDONED;
-import static org.xidobi.WinApi.WAIT_FAILED;
-import static org.xidobi.WinApi.WAIT_OBJECT_0;
-import static org.xidobi.WinApi.WAIT_TIMEOUT;
-import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 /**
  * Implementation for read operations.

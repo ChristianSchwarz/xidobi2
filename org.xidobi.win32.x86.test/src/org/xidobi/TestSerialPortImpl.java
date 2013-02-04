@@ -15,6 +15,26 @@
  */
 package org.xidobi;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.OPEN_EXISTING;
+import static org.xidobi.WinApi.PURGE_RXCLEAR;
+import static org.xidobi.WinApi.PURGE_TXCLEAR;
+
 import java.io.IOException;
 
 import org.junit.Before;
@@ -24,30 +44,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DCB;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.xidobi.WinApi.EV_RXCHAR;
-import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.WinApi.GENERIC_READ;
-import static org.xidobi.WinApi.GENERIC_WRITE;
-import static org.xidobi.WinApi.OPEN_EXISTING;
-import static org.xidobi.WinApi.PURGE_RXCLEAR;
-import static org.xidobi.WinApi.PURGE_TXCLEAR;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-
-import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link SerialPortImpl}

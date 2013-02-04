@@ -15,6 +15,9 @@
  */
 package org.xidobi.integration;
 
+import static org.xidobi.OS.OS;
+import static org.xidobi.SerialPortSettings.from9600_8N1;
+
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,9 +27,6 @@ import org.xidobi.SerialConnection;
 import org.xidobi.SerialConnectionImpl;
 import org.xidobi.SerialPortImpl;
 import org.xidobi.SerialPortSettings;
-
-import static org.xidobi.OS.OS;
-import static org.xidobi.SerialPortSettings.from9600_8N1;
 
 /**
  * Integration test for classes {@link SerialConnectionImpl} and {@link SerialPortImpl}.

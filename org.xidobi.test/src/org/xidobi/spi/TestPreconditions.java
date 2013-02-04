@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.xidobi.spi.Preconditions;
 
 /**
  * Tests the class {@link Preconditions}

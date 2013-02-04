@@ -48,7 +48,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
-import org.xidobi.spi.AbstractSerialConnection;
 
 /**
  * Tests the class {@link AbstractSerialConnection}
