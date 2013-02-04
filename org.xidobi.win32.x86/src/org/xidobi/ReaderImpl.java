@@ -122,7 +122,10 @@ public class ReaderImpl extends IoOperation implements Reader {
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 				case WAIT_FAILED:
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+					lastError = os.getPreservedError();
+					if (lastError == ERROR_INVALID_HANDLE)
+						throw portClosedException("Read operation failed, because the handle is invalid!");
+					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", lastError);
 			}
 			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
@@ -177,6 +180,9 @@ public class ReaderImpl extends IoOperation implements Reader {
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 				case WAIT_FAILED:
+					lastError = os.getPreservedError();
+					if (lastError == ERROR_INVALID_HANDLE)
+						throw portClosedException("Read operation failed, because the handle is invalid!");
 					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
 			}
 			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());

@@ -27,25 +27,25 @@ public class Application implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 
 		SerialPortFinder finder = SerialPortProvider.getSerialPortFinder();
-		
+
 		Set<SerialPort> ports = finder.getAll();
 		for (SerialPort port : ports) {
 			out.println(port);
-			if ("COM1".equals(port.getPortName()))
+			if ("COM75".equals(port.getPortName()))
 				connect(port).awaitTermination(MAX_VALUE, DAYS);
-			
+
 		}
-		
+
 		return EXIT_OK;
 	}
 
 	/**
 	 * @param port
-	 * @return 
-	 * @throws IOException 
+	 * @return
+	 * @throws IOException
 	 */
 	private ScheduledExecutorService connect(SerialPort port) throws IOException {
-		
+
 		SerialConnection connection = port.open(from9600_8N1().create());
 		ScheduledExecutorService ex = newScheduledThreadPool(2);
 		ex.scheduleAtFixedRate(write(connection), 0, 1, SECONDS);
@@ -54,16 +54,18 @@ public class Application implements IApplication {
 	}
 
 	/**
-	 * @param connection 
+	 * @param connection
 	 * @return
 	 */
 	private Runnable read(final SerialConnection connection) {
 		return new Runnable() {
-			
+
 			public void run() {
 				try {
-					byte[] bytes = connection.read();
-					System.out.println(new String(bytes));
+					if (!connection.isClosed()) {
+						byte[] bytes = connection.read();
+						System.out.println(new String(bytes));
+					}
 				}
 				catch (Exception e) {
 					e.printStackTrace();
@@ -74,15 +76,16 @@ public class Application implements IApplication {
 	}
 
 	/**
-	 * @param connection 
+	 * @param connection
 	 * @return
 	 */
 	private Runnable write(final SerialConnection connection) {
 		return new Runnable() {
-			
+
 			public void run() {
 				try {
-					connection.write("Hello Wörld!".getBytes());
+					if (!connection.isClosed())
+						connection.write("Hello Wörld!".getBytes());
 				}
 				catch (Exception e) {
 					e.printStackTrace();
