@@ -33,17 +33,12 @@ public class Application implements IApplication {
 			out.println(port);
 			if ("COM75".equals(port.getPortName()))
 				connect(port).awaitTermination(MAX_VALUE, DAYS);
-
 		}
 
 		return EXIT_OK;
 	}
 
-	/**
-	 * @param port
-	 * @return
-	 * @throws IOException
-	 */
+	/** Connects the serial port an starts write and read tests. */
 	private ScheduledExecutorService connect(SerialPort port) throws IOException {
 
 		SerialConnection connection = port.open(from9600_8N1().create());
@@ -53,10 +48,7 @@ public class Application implements IApplication {
 		return ex;
 	}
 
-	/**
-	 * @param connection
-	 * @return
-	 */
+	/** Returns the runnable for the read test */
 	private Runnable read(final SerialConnection connection) {
 		return new Runnable() {
 
@@ -69,33 +61,30 @@ public class Application implements IApplication {
 				}
 				catch (Exception e) {
 					e.printStackTrace();
-					new RuntimeException(e);
+					throw new RuntimeException(e);
 				}
 			}
 		};
 	}
 
-	/**
-	 * @param connection
-	 * @return
-	 */
+	private int i = 0;
+
+	/** Returns the runnable for the write test */
 	private Runnable write(final SerialConnection connection) {
 		return new Runnable() {
 
 			public void run() {
 				try {
 					if (!connection.isClosed())
-						connection.write("Hello Wörld!".getBytes());
+						connection.write(("\"Hello World!\", was said for the " + (i++) + ". time.").getBytes());
 				}
 				catch (Exception e) {
 					e.printStackTrace();
-					new RuntimeException(e);
+					throw new RuntimeException(e);
 				}
 			}
 		};
 	}
 
-	public void stop() {
-
-	}
+	public void stop() {}
 }
