@@ -192,10 +192,11 @@ public class TestSerialPortFinderImpl {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is throw is <code>null</code> is passed.
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> 
+	 * is passed.
 	 */
 	@Test
-	public void get() {
+	public void get_withNull() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portName< must not be null!");
 

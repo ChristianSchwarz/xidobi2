@@ -40,12 +40,12 @@ public interface SerialPortFinder {
 	Set<SerialPort> getAll();
 
 	/**
-	 * Returns the serial port with the given {@code portName} if it exists, other wise
+	 * Returns the serial port with the given {@code portName} if it exists, otherwise
 	 * <code>null</code>.
 	 * 
 	 * @param portName
-	 *            the name of the port e.g. "COM1" or "tty0", must not be <code>null</code>
-	 * @return <code>null</code> if the port not exists
+	 *            the name of the port, e.g. "COM1" or "tty0", must not be <code>null</code>
+	 * @return the serial port or <code>null</code>, if the port not exists
 	 * 
 	 * @exception IllegalArgumentException
 	 *                if <code>portName==null</code>

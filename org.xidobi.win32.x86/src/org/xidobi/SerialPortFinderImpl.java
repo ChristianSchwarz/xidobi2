@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
@@ -84,6 +85,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	}
 
 	/** {@inheritDoc}*/
+	@Nullable
 	public SerialPort get(String portName) {
 		checkArgumentNotNull(portName, "portName");
 		for (SerialPort port: getAll())
