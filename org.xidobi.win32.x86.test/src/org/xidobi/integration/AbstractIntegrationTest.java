@@ -43,7 +43,7 @@ public abstract class AbstractIntegrationTest {
 
 	@Before
 	@SuppressWarnings("javadoc")
-	public final void before() {
+	public final void before() throws Exception {
 		Properties prop = new Properties();
 		try {
 			prop.load(this.getClass().getResourceAsStream(PROPERTIES_FILE));
@@ -60,7 +60,7 @@ public abstract class AbstractIntegrationTest {
 	/**
 	 * Here you can do the set up of your test.
 	 */
-	protected void setUp() {}
+	protected void setUp() throws Exception {}
 
 	/**
 	 * Returns a serial port that is available on the system. The available port can be configured

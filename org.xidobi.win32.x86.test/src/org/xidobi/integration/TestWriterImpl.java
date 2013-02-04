@@ -28,7 +28,6 @@ import static org.xidobi.WinApi.OPEN_EXISTING;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +45,7 @@ import org.xidobi.structs.DCB;
  * @author Christian Schwarz
  */
 @Ignore
-public class TestWriterImpl {
+public class TestWriterImpl extends AbstractIntegrationTest {
 
 	/** Settings for the serial port */
 	private static final SerialPortSettings PORT_SETTINGS = from9600_8N1().create();
@@ -63,19 +62,20 @@ public class TestWriterImpl {
 
 	private WriterImpl writer;
 
-	@Before
-	@SuppressWarnings("javadoc")
-	public void setUp() throws IOException {
+	@Override
+	protected void setUp() throws Exception {
 		initMocks(this);
 
-		handle = OS.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
+		String port = getAvailableSerialPort();
+
+		handle = OS.CreateFile("\\\\.\\" + port, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
 		if (handle == INVALID_HANDLE_VALUE)
 			throw new IOException("Invalid handle! " + OS.getPreservedError());
 
 		final DCB dcb = new DCB();
 
 		if (!OS.GetCommState(handle, dcb))
-			throw new IOException("Unable to retrieve the current control settings for port (COM1)!");
+			throw new IOException("Unable to retrieve the current control settings for port (" + port + ")!");
 
 		new DCBConfigurator().configureDCB(dcb, PORT_SETTINGS);
 		if (!OS.SetCommState(handle, dcb))
