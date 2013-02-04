@@ -15,13 +15,12 @@
  */
 package org.xidobi;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
@@ -30,6 +29,7 @@ import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 
 import java.io.IOException;
 
@@ -38,9 +38,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.xidobi.spi.NativeCodeException;
+import org.xidobi.structs.COMSTAT;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
+import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
@@ -193,6 +197,254 @@ public class TestReaderImpl {
 		reader.read();
 	}
 
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ClearCommError(...)</code>
+	 * returns <code>false</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ClearCommErrorFailed() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(10, false)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("ClearCommError failed unexpected!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ClearCommError(...)</code>
+	 * returns <code>true</code>, but signals that 0 bytes are available.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ClearCommErrorSignals0BytesAvailable() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(0, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("Arrival of data was signaled, but number of available bytes is 0!");
+
+		reader.read();
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFileSuccessfull() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
+		//@formatter:on
+
+		byte[] result = reader.read();
+
+		assertThat(result, is(DATA));
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code>
+	 * returns <code>false</code> and the last error code is not <code>ERROR_IO_PENDING</code> or
+	 * <code>ERROR_INVALID_HANDLE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFileFailsUnexpected() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("ReadFile failed unexpected!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when <code>ReadFile(...)</code> returns
+	 * <code>false</code> and the last error code is <code>ERROR_INVALID_HANDLE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFileFailsERROR_INVALID_HANDLE() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
+	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingReturnsWAIT_FAILED() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_FAILED);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
+	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_ABANDONED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingReturnsWAIT_ABANDONED() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_ABANDONED);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
+	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_TIMEOUT</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingReturnsWAIT_TIMEOUT() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_TIMEOUT);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("ReadFile timed out after 100 milliseconds!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when
+	 * <code>GetOverlappedResult(...)</code> fails.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_GetOverlappedResultFails() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		                                         DUMMY_ERROR_CODE);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("GetOverlappedResult failed unexpected!\r\nError-Code " + DUMMY_ERROR_CODE);
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when
+	 * <code>GetOverlappedResult(...)</code> returns <code>true</code>, but signals an unexpected
+	 * number of bytes.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingReturnsUnexpectedNumberOfBytes() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
+		                                                DATA.length - 2);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("GetOverlappedResult returned an unexpected number of read bytes! Read: " + (DATA.length - 2) + ", expected: " + DATA.length);
+
+		reader.read();
+	}
+
+	/**
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingSuccess() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
+		                                                DATA.length);
+			doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
+		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
+		// @formatter:on
+
+		byte[] result = reader.read();
+
+		assertThat(result, is(DATA));
+	}
+
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** matches any {@link OVERLAPPED} */
@@ -200,9 +452,30 @@ public class TestReaderImpl {
 		return any(OVERLAPPED.class);
 	}
 
-	/** matches any {@link INT} */
+	/** matches any {@link DWORD} */
 	private DWORD anyDWORD() {
 		return any(DWORD.class);
+	}
+
+	/** matches any {@link DWORD} */
+	private INT anyINT() {
+		return any(INT.class);
+	}
+
+	/** matches any {@link COMSTAT} */
+	private COMSTAT anyCOMSTAT() {
+		return any(COMSTAT.class);
+	}
+
+	private Answer<Boolean> withAvailableBytes(final int availableByte, final boolean returnValue) {
+		return new Answer<Boolean>() {
+			@Override
+			public Boolean answer(InvocationOnMock invocation) throws Throwable {
+				COMSTAT comstat = (COMSTAT) invocation.getArguments()[2];
+				comstat.cbInQue = availableByte;
+				return returnValue;
+			}
+		};
 	}
 
 }
