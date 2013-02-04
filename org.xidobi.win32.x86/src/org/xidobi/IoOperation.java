@@ -43,11 +43,13 @@ public abstract class IoOperation implements Closeable {
 	/** the native handle of the serial port */
 	protected final int handle;
 
+	/** Receives the number of bytes that are read or written. */
 	protected final DWORD numberOfBytesTransferred;
-
+	/** Overlapped */
 	protected final OVERLAPPED overlapped;
 
 	/**
+	 * Creates a new I/O operation.
 	 * 
 	 * @param port
 	 *            the serial port, must not be <code>null</code>
@@ -64,6 +66,7 @@ public abstract class IoOperation implements Closeable {
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
 
+		// initialize shared resources:
 		overlapped = newOverlapped(os);
 		numberOfBytesTransferred = new DWORD(os);
 	}

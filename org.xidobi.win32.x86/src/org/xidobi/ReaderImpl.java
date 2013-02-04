@@ -70,6 +70,7 @@ public class ReaderImpl extends IoOperation implements Reader {
 		eventMask = new DWORD(os);
 	}
 
+	/** {@inheritDoc} */
 	@Nonnull
 	public byte[] read() throws IOException {
 
@@ -144,7 +145,6 @@ public class ReaderImpl extends IoOperation implements Reader {
 	private byte[] readAvailableBytes(int numberOfBytesToRead) throws IOException {
 
 		NativeByteArray data = new NativeByteArray(os, numberOfBytesToRead);
-
 		try {
 
 			boolean readFileResult = os.ReadFile(handle, data, numberOfBytesToRead, numberOfBytesTransferred, overlapped);

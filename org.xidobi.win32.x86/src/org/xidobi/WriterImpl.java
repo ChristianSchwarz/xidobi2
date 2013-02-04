@@ -57,6 +57,7 @@ public class WriterImpl extends IoOperation implements Writer {
 		super(port, os, handle);
 	}
 
+	/** {@inheritDoc} */
 	public void write(@Nonnull byte[] data) throws IOException {
 		// we dont need this if we create the event handle with manualReset=false
 		os.ResetEvent(overlapped.hEvent);
