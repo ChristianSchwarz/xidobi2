@@ -146,9 +146,29 @@ public class TestWriterImpl {
 	@Test
 	public void write_succeedImmediatly() throws IOException {
 		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
 
 		writer.write(DATA);
 
+		verify(win, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WriteFile(...)</code> 
+	 * returns an unexpected number of transferred bytes.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WriteFileReturnsUnexpectedNumberOfBytes() throws IOException {
+		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
+		
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WriteFile returned an unexpected number of transferred bytes! Transferred: " + (DATA.length - 1) + ", expected: " + DATA.length);
+		
+		writer.write(DATA);
+		
 		verify(win, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 	}
 

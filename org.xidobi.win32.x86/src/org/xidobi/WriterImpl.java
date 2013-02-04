@@ -59,14 +59,18 @@ public class WriterImpl extends IoOperation implements Writer {
 
 	/** {@inheritDoc} */
 	public void write(@Nonnull byte[] data) throws IOException {
-		// we dont need this if we create the event handle with manualReset=false
+
 		os.ResetEvent(overlapped.hEvent);
 
 		// write data to serial port
 		boolean succeed = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
 
-		if (succeed)// the write operation succeeded immediatly
+		if (succeed) {
+			// the write operation succeeded immediatly
+			if (numberOfBytesTransferred.getValue() != data.length)
+				throw new NativeCodeException("WriteFile returned an unexpected number of transferred bytes! Transferred: " + numberOfBytesTransferred.getValue() + ", expected: " + data.length);
 			return;
+		}
 
 		int lastError = os.getPreservedError();
 		if (lastError == ERROR_INVALID_HANDLE)

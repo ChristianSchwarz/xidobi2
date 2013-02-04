@@ -29,7 +29,7 @@ import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
- * Interface for the native Windows API.
+ * Interface for the native operations of the Windows API.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
