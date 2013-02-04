@@ -15,6 +15,12 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.PURGE_RXABORT;
+import static org.xidobi.WinApi.PURGE_RXCLEAR;
+import static org.xidobi.WinApi.PURGE_TXABORT;
+import static org.xidobi.WinApi.PURGE_TXCLEAR;
+import static org.xidobi.utils.Throwables.newNativeCodeException;
+
 import javax.annotation.Nonnull;
 
 import org.xidobi.spi.BasicSerialConnection;
@@ -28,6 +34,11 @@ import org.xidobi.spi.BasicSerialConnection;
  */
 public class SerialConnectionImpl extends BasicSerialConnection {
 
+	/** the native Win32-API */
+	private WinApi os;
+	/** the native handle of the serial port */
+	private int handle;
+
 	/**
 	 * @param port
 	 *            the serial port, must not be <code>null</code>
@@ -40,6 +51,25 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 								@Nonnull WinApi os,
 								int handle) {
 		super(port, new ReaderImpl(port, os, handle), new WriterImpl(port, os, handle));
+
+		this.os = os;
+		this.handle = handle;
+	}
+
+	@Override
+	protected void closeInternal() {
+		try {
+			// terminate all pending read or write operations.
+			boolean purgeCommResult = os.PurgeComm(handle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
+			if (!purgeCommResult)
+				throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.getPreservedError());
+		}
+		finally {
+			// close the handle of the serial port.
+			boolean closeHandleResult = os.CloseHandle(handle);
+			if (!closeHandleResult)
+				throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.getPreservedError());
+		}
 	}
 
 }

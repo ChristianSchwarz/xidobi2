@@ -163,8 +163,14 @@ public class BasicSerialConnection implements SerialConnection {
 		finally {
 			writer.close();
 		}
+		closeInternal();
 		isClosed = true;
 	}
+
+	/**
+	 * 
+	 */
+	protected void closeInternal() {}
 
 	/** {@inheritDoc} */
 	public final boolean isClosed() {

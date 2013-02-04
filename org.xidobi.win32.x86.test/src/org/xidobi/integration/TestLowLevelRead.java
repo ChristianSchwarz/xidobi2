@@ -23,7 +23,6 @@ import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
 import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
-import static org.xidobi.WinApi.INFINITE;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.LANG_NEUTRAL;
 import static org.xidobi.WinApi.OPEN_EXISTING;
@@ -52,6 +51,7 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
+@Ignore
 public class TestLowLevelRead {
 
 	private static WinApi os = OS.OS;

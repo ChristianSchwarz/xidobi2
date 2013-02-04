@@ -94,6 +94,7 @@ public class TestSerialPortFinderImpl {
 	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>os == null</code> is
 	 * passed to the constructor.
 	 */
+	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNullOS() {
 		new SerialPortFinderImpl(null);

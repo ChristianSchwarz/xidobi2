@@ -189,9 +189,9 @@ public class TestReaderImpl {
 	@Test
 	public void read_WaitCommEventPendingReturnsWAIT_TIMEOUT() throws IOException {
 		//@formatter:off
-		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false, true);
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT, WAIT_OBJECT_0);
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
 			doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
@@ -268,27 +268,6 @@ public class TestReaderImpl {
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("ClearCommError failed unexpected!");
-
-		reader.read();
-	}
-
-	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ClearCommError(...)</code>
-	 * returns <code>true</code>, but signals that 0 bytes are available.
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-	public void read_ClearCommErrorSignals0BytesAvailable() throws IOException {
-		//@formatter:off
-		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(0, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
-		//@formatter:on
-
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("Arrival of data was signaled, but number of available bytes is 0!");
 
 		reader.read();
 	}
