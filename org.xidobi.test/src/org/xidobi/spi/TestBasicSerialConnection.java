@@ -15,15 +15,30 @@
  */
 package org.xidobi.spi;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.xidobi.SerialConnection;
+import org.xidobi.SerialPort;
+
 import static java.lang.Math.max;
 import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -31,32 +46,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
-import javax.annotation.Nonnull;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.xidobi.SerialConnection;
-import org.xidobi.SerialPort;
+import static org.junit.Assert.assertThat;
 
 /**
- * Tests the class {@link AbstractSerialConnection}
+ * Tests the class {@link BasicSerialConnection}
  * 
  * @author Christian Schwarz
  * 
  */
 @SuppressWarnings("javadoc")
-public class TestAbstractSerialConnection {
+public class TestBasicSerialConnection {
 
 	/** constant for better readability */
 	private static final IOException IO_EXCEPTION = new IOException();
@@ -64,13 +66,18 @@ public class TestAbstractSerialConnection {
 	private static final byte[] BYTES = {};
 
 	/** the class under test */
-	private AbstractSerialConnection port;
+	@InjectMocks
+	private BasicSerialConnection port;
 
 	@Mock
 	private SerialPort portHandle;
 
 	@Mock
-	private AbstractPart abstr;
+	private Reader reader;
+	
+	@Mock
+	private Writer writer;
+
 
 	/** needed to verify exceptions */
 	@Rule
@@ -80,8 +87,6 @@ public class TestAbstractSerialConnection {
 	public void setUp() {
 		initMocks(this);
 
-		port = new _AbstractSerialConnection(portHandle);
-
 		when(portHandle.getPortName()).thenReturn("COM1");
 	}
 
@@ -90,12 +95,12 @@ public class TestAbstractSerialConnection {
 	 * to the constructor.
 	 */
 	@Test
-	@SuppressWarnings({ "resource", "unused" })
+	@SuppressWarnings( "resource")
 	public void new_nullPortPortHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");
 
-		new _AbstractSerialConnection(null);
+		new BasicSerialConnection(null,reader,writer);
 	}
 
 	/**
@@ -108,7 +113,8 @@ public class TestAbstractSerialConnection {
 	@Test
 	public void close() throws IOException {
 		port.close();
-		verify(abstr).closeInternal();
+		verify(reader).close();
+		verify(writer).close();
 	}
 
 	/**
@@ -119,7 +125,8 @@ public class TestAbstractSerialConnection {
 	public void close_2x() throws Exception {
 		port.close();
 		port.close();
-		verify(abstr).closeInternal();
+		verify(reader).close();
+		verify(writer).close();
 	}
 
 	/**
@@ -131,7 +138,7 @@ public class TestAbstractSerialConnection {
 	public void close_IOException() throws Exception {
 		exception.expect(is(IO_EXCEPTION));
 
-		doThrow(IO_EXCEPTION).when(abstr).closeInternal();
+		doThrow(IO_EXCEPTION).when(reader).close();
 		port.close();
 	}
 
@@ -142,7 +149,7 @@ public class TestAbstractSerialConnection {
 	 */
 	@Test
 	public void close_2xIOException() throws Exception {
-		doThrow(IO_EXCEPTION).when(abstr).closeInternal();
+		doThrow(IO_EXCEPTION).when(reader).close();
 		try {
 			port.close();
 			fail("Expected an IOException");
@@ -154,7 +161,7 @@ public class TestAbstractSerialConnection {
 		}
 		catch (IOException ignored) {}
 
-		verify(abstr, times(2)).closeInternal();
+		verify(reader, times(2)).close();
 	}
 
 	/**
@@ -210,7 +217,7 @@ public class TestAbstractSerialConnection {
 	@Test
 	public void write_delegate() throws Exception {
 		port.write(BYTES);
-		verify(abstr).writeInternal(BYTES);
+		verify(writer).write(BYTES);
 	}
 
 	/**
@@ -222,7 +229,7 @@ public class TestAbstractSerialConnection {
 		final int THREADS = 10;
 
 		AtomicInteger maxNumberOfParallelThreads = new AtomicInteger();
-		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(abstr).writeInternal(BYTES);
+		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(writer).write(BYTES);
 		ExecutorService ex = newFixedThreadPool(THREADS);
 		for (int i = 0; i < THREADS; i++)
 			ex.execute(writeBytes());
@@ -239,13 +246,13 @@ public class TestAbstractSerialConnection {
 	 */
 	@Test
 	public void write_closePortOnIOException() throws Exception {
-		doThrow(IO_EXCEPTION).when(abstr).writeInternal(BYTES);
+		doThrow(IO_EXCEPTION).when(writer).write(BYTES);
 		try{
 			port.write(BYTES);
 			fail("expected an IOException");
 		}catch(IOException ignore) {
 		}
-		verify(abstr).closeInternal();
+		verify(writer).close();
 	}
 
 	/**
@@ -254,7 +261,6 @@ public class TestAbstractSerialConnection {
 	@Test
 	public void read_portIsClosed() throws Exception {
 		when(portHandle.getPortName()).thenReturn("COM1");
-		port = new _AbstractSerialConnection(portHandle);
 		port.close();
 
 		exception.expect(IOException.class);
@@ -273,7 +279,7 @@ public class TestAbstractSerialConnection {
 	public void read_delegate() throws IOException {
 		port.read();
 
-		verify(abstr).readInternal();
+		verify(reader).read();
 	}
 
 	/**
@@ -285,7 +291,7 @@ public class TestAbstractSerialConnection {
 		final int THREADS = 10;
 
 		AtomicInteger maxNumberOfParallelThreads = new AtomicInteger();
-		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(abstr).readInternal();
+		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(reader).read();
 		ExecutorService ex = newFixedThreadPool(THREADS);
 		for (int i = 0; i < THREADS; i++)
 			ex.execute(readBytes());
@@ -301,13 +307,14 @@ public class TestAbstractSerialConnection {
 	 */
 	@Test
 	public void read_closePortOnIOException() throws Exception {
-		doThrow(IO_EXCEPTION).when(abstr).readInternal();
+		doThrow(IO_EXCEPTION).when(reader).read();
 		try{
 			port.read();
 			fail("expected an IOException");
 		}catch(IOException ignore) {
 		}
-		verify(abstr).closeInternal();
+		verify(reader).close();
+		verify(writer).close();
 	}
 
 	/**
@@ -335,39 +342,7 @@ public class TestAbstractSerialConnection {
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
-	/** Delegates all abstract methods to the mocked {@link AbstractPart} */
-	public final class _AbstractSerialConnection extends AbstractSerialConnection {
-
-		public _AbstractSerialConnection(SerialPort portHandle) {
-			super(portHandle);
-		}
-
-		@Override
-		protected void closeInternal() throws IOException {
-			abstr.closeInternal();
-		}
-
-		@Override
-		@Nonnull
-		protected byte[] readInternal() throws IOException {
-			return abstr.readInternal();
-		}
-
-		@Override
-		protected void writeInternal(@Nonnull byte[] data) throws IOException {
-			abstr.writeInternal(data);
-		}
-	}
-
-	/** This class in used to mock the abstract methods of {@link AbstractSerialConnection} */
-	public interface AbstractPart {
-
-		void closeInternal() throws IOException;
-
-		byte[] readInternal() throws IOException;
-
-		void writeInternal(@Nonnull byte[] data) throws IOException;
-	}
+	
 
 	/**
 	 * Captures the max. number of Threads calling the method in parallel, during the given
