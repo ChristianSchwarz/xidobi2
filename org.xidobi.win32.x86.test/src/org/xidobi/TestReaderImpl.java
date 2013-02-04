@@ -179,8 +179,8 @@ public class TestReaderImpl {
 	}
 
 	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
-	 * is pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
+	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the
 	 * last error code is <code>ERROR_INVALID_HANDLE</code>.
 	 * 
 	 * @throws IOException
@@ -384,9 +384,9 @@ public class TestReaderImpl {
 	}
 
 	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
-	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the
-	 * last error is <code>ERROR_INVALID_HANDLE</code>.
+	 * Verifies that a {@link IOException} is thrown, when <code>ReadFile(...)</code> is pending and
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the last error is
+	 * <code>ERROR_INVALID_HANDLE</code>.
 	 * 
 	 * @throws IOException
 	 */
