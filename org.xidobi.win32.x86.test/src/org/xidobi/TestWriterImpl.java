@@ -46,7 +46,7 @@ import static org.xidobi.WinApi.WAIT_OBJECT_0;
 import static org.xidobi.WinApi.WAIT_TIMEOUT;
 
 /**
- * Tests the class {@link SerialPortImpl}
+ * Tests the class {@link WriterImpl}
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
@@ -82,8 +82,6 @@ public class TestWriterImpl {
 	private int ptrOverlapped = 1;
 	/** pointer to an {@link DWORD} */
 	private int ptrBytesTransferred = 2;
-
-
 
 	@Before
 	public void setUp() {
@@ -349,12 +347,12 @@ public class TestWriterImpl {
 	}
 
 	/**
-	 *  Verifies that a call to close() frees all resources. 
+	 * Verifies that a call to close() frees all resources.
 	 */
 	@Test
-	public void close(){
+	public void close() {
 		writer.close();
-		
+
 		verify(win).CloseHandle(eventHandle);
 		verify(win).free(ptrBytesTransferred);
 		verify(win).free(ptrOverlapped);
