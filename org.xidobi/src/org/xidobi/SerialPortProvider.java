@@ -18,6 +18,7 @@ package org.xidobi;
 import static java.lang.Thread.currentThread;
 
 /**
+ * Provides the serial port finder implementation.
  * 
  * @author Christian Schwarz
  */
@@ -28,9 +29,8 @@ public class SerialPortProvider {
 
 	static {
 		ClassLoader cl = currentThread().getContextClassLoader();
-		Class<?> finderClass;
 		try {
-			finderClass = cl.loadClass("org.xidobi.SerialPortFinderImpl");
+			Class<?> finderClass = cl.loadClass("org.xidobi.SerialPortFinderImpl");
 
 			if (!SerialPortFinder.class.isAssignableFrom(finderClass))
 				throw new ClassCastException(finderClass + " does not implement " + SerialPortFinder.class);

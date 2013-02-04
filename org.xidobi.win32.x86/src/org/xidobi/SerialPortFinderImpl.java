@@ -15,21 +15,21 @@
  */
 package org.xidobi;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.xidobi.structs.HKEY;
-import org.xidobi.structs.INT;
-
 import static java.lang.Integer.MAX_VALUE;
 import static org.xidobi.WinApi.ERROR_SUCCESS;
 import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
 import static org.xidobi.WinApi.KEY_READ;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import org.xidobi.structs.HKEY;
+import org.xidobi.structs.INT;
 
 /**
  * Implementation of the interface {@link SerialPortFinder}, that finds all serial ports that are
@@ -85,8 +85,8 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	}
 
 	/** {@inheritDoc}*/
-	@Nullable
-	public SerialPort get(String portName) {
+	@CheckForNull
+	public SerialPort get(@Nonnull String portName) {
 		checkArgumentNotNull(portName, "portName");
 		for (SerialPort port: getAll())
 			if (port.getPortName().equals(portName))

@@ -37,7 +37,7 @@ public class BasicSerialConnection implements SerialConnection {
 
 	/** The Handle of this port contains e.g. the name. */
 	@Nonnull
-	private final SerialPort portHandle;
+	private final SerialPort port;
 
 	/**
 	 * <ul>
@@ -47,9 +47,9 @@ public class BasicSerialConnection implements SerialConnection {
 	 */
 	private volatile boolean isClosed;
 
-	/** Ensures that {@link #writeInternal(byte[])} can only called by one thread at a time. */
+	/** Ensures that {@link #write(byte[])} can only called by one thread at a time. */
 	private final Lock writeLock = new ReentrantLock();
-	/** Ensures that {@link #readInternal()} can only called by one thread at a time. */
+	/** Ensures that {@link #read()} can only called by one thread at a time. */
 	private final Lock readLock = new ReentrantLock();
 
 	/** read operation, never <code>null</code> */
@@ -62,7 +62,7 @@ public class BasicSerialConnection implements SerialConnection {
 	/**
 	 * Creates a new instance with the {@link SerialPort}.
 	 * 
-	 * @param portHandle
+	 * @param port
 	 *            must not be <code>null</code>
 	 * @param reader
 	 *            read operation, must not be <code>null</code>
@@ -71,31 +71,14 @@ public class BasicSerialConnection implements SerialConnection {
 	 * @exception IllegalArgumentException
 	 *                if {@code portHandle==null}
 	 */
-	protected BasicSerialConnection(@Nonnull SerialPort portHandle,
+	protected BasicSerialConnection(@Nonnull SerialPort port,
 									@Nonnull Reader reader,
 									@Nonnull Writer writer) {
 
-		this.portHandle = checkArgumentNotNull(portHandle, "portHandle");
+		this.port = checkArgumentNotNull(port, "port");
 		this.reader = checkArgumentNotNull(reader, "reader");
 		this.writer = checkArgumentNotNull(writer, "writer");
 	}
-
-	/**
-	 * The implementation must write the given {@code byte[]} to the port.
-	 * <p>
-	 * This method will be called by {@link #write(byte[])}, if following conditions apply:
-	 * <ul>
-	 * <li>the port is open
-	 * <li>{@code data != null}.
-	 * </ul>
-	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
-	 * port is currently open and data is not <code>null</code>!
-	 * 
-	 * @param data
-	 *            never <code>null</code>
-	 * @throws IOException
-	 *             when the write operation timed out or the serial port is not open
-	 */
 
 	/** {@inheritDoc} */
 	public final void write(@Nonnull byte[] data) throws IOException {
@@ -146,7 +129,10 @@ public class BasicSerialConnection implements SerialConnection {
 	}
 
 	/**
-	 * 
+	 * Subclasses can overwrite this method in order to close their system resources, when the 
+	 * connection to the serial port is closed.
+	 * <p>
+	 * <b>IMPORTANT:</b> Don't call this method yourself!
 	 */
 	protected void closeInternal() {}
 
@@ -173,6 +159,8 @@ public class BasicSerialConnection implements SerialConnection {
 	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw
 	 * an {@link IOException} if the port is closed. Overriding it may have consequences to the
 	 * caller.
+	 * 
+	 * @return a new {@link IOException}, never <code>null</code>
 	 */
 	@Nonnull
 	protected IOException portClosedException() {
@@ -189,6 +177,7 @@ public class BasicSerialConnection implements SerialConnection {
 	 * 
 	 * @param message
 	 *            error description may be <code>null</code>
+	 * @return a new {@link IOException}, never <code>null</code>
 	 */
 	@Nonnull
 	protected IOException portClosedException(@Nullable String message) {
@@ -196,6 +185,6 @@ public class BasicSerialConnection implements SerialConnection {
 			message = "";
 		else
 			message = " " + message;
-		return new IOException("Port " + portHandle.getPortName() + " is closed!" + message);
+		return new IOException("Port " + port.getPortName() + " is closed!" + message);
 	}
 }

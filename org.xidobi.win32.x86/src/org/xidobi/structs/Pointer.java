@@ -21,7 +21,9 @@ import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import org.xidobi.WinApi;
 
 /**
- * A pointer to an allocated memory on the heap.
+ * A pointer to an allocated memory on the heap. 
+ * <p>
+ * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
  * 
  * @author Tobias Breﬂler
  */
