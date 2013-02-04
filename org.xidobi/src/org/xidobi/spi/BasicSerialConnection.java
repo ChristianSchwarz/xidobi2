@@ -30,13 +30,10 @@ public class BasicSerialConnection extends AbstractSerialConnection {
 	private Reader reader;
 	private Writer writer;
 
-	/**
-	 * @param portHandle
-	 */
-	protected BasicSerialConnection(SerialPort portHandle,
+	protected BasicSerialConnection(SerialPort port,
 									Reader reader,
 									Writer writer) {
-		super(portHandle);
+		super(port);
 		this.reader = reader;
 		this.writer = writer;
 	}

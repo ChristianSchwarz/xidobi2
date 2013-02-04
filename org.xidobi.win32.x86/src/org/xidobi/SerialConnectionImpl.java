@@ -15,308 +15,31 @@
  */
 package org.xidobi;
 
-import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
-import static org.xidobi.WinApi.ERROR_IO_PENDING;
-import static org.xidobi.WinApi.EV_RXCHAR;
-import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
-import static org.xidobi.WinApi.WAIT_ABANDONED;
-import static org.xidobi.WinApi.WAIT_FAILED;
-import static org.xidobi.WinApi.WAIT_OBJECT_0;
-import static org.xidobi.WinApi.WAIT_TIMEOUT;
-import static org.xidobi.spi.Preconditions.checkArgument;
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-import static org.xidobi.utils.Throwables.newNativeCodeException;
-
-import java.io.IOException;
-
 import javax.annotation.Nonnull;
 
-import org.xidobi.spi.AbstractSerialConnection;
-import org.xidobi.spi.NativeCodeException;
-import org.xidobi.structs.COMSTAT;
-import org.xidobi.structs.DWORD;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.NativeByteArray;
-import org.xidobi.structs.OVERLAPPED;
+import org.xidobi.spi.BasicSerialConnection;
 
 /**
- * {@link SerialConnection} implementation for Windows (32bit) x86 Platform.
+ * Implementation of interface {@link SerialConnection} for Windows (32-bit) on x86 platforms.
  * 
- * @author Christian Schwarz
  * @author Tobias Breﬂler
  * 
  * @see SerialConnection
  */
-public class SerialConnectionImpl extends AbstractSerialConnection {
-
-	/** A timeout for the ReadFile operation */
-	private final static int READ_FILE_TIMEOUT = 1000;
-
-	/** the native Win32-API, never <code>null</code> */
-	private final WinApi os;
-	/** The HANDLE of the opened port */
-	private final int handle;
-
-	/** Write timeout in milliseconds */
-	private int writeTimeout = 2000;
-	/** Read timeout in milliseconds */
-	private int readTimeout = 2000;
+public class SerialConnectionImpl extends BasicSerialConnection {
 
 	/**
-	 * Creates a new serial port.
-	 * 
-	 * @param portHandle
-	 *            a serial port handle, must not be <code>null</code>
+	 * @param port
+	 *            the serial port, must not be <code>null</code>
 	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param handle
 	 *            the native handle of the serial port
 	 */
-	public SerialConnectionImpl(@Nonnull SerialPort portHandle,
+	public SerialConnectionImpl(@Nonnull SerialPort port,
 								@Nonnull WinApi os,
 								int handle) {
-		super(portHandle);
-		this.os = checkArgumentNotNull(os, "os");
-		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
-		this.handle = handle;
-	}
-
-	@Override
-	protected void writeInternal(byte[] data) throws IOException {
-
-		DWORD numberOfBytesTransferred = new DWORD(os);
-		OVERLAPPED overlapped = new OVERLAPPED(os);
-
-		try {
-			// create event object
-			overlapped.hEvent = os.CreateEventA(0, true, false, null);
-			if (overlapped.hEvent == 0)
-				throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
-
-			// write data to serial port
-			boolean succeed = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
-
-			if (succeed)// the write operation succeeded immediatly
-				return;
-
-			int lastError = os.getPreservedError();
-			if (lastError == ERROR_INVALID_HANDLE)
-				throw portClosedException("Write operation failed, because the handle is invalid!");
-			if (lastError != ERROR_IO_PENDING)
-				throw newNativeCodeException(os, "WriteFile failed unexpected!", lastError);
-
-			// wait for pending I/O operation to complete
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, writeTimeout);
-			switch (waitResult) {
-				case WAIT_OBJECT_0: // IO operation has finished
-					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
-					if (!overlappedResult)
-						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
-
-					// verify that the number of transferred bytes is equal to the data length that
-					// was written:
-					int bytesWritten = numberOfBytesTransferred.getValue();
-					if (bytesWritten != data.length)
-						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + bytesWritten + ", expected: " + data.length);
-					return;
-				case WAIT_TIMEOUT:// IO operation has timed out
-
-					// TODO Maybe we should purge the serial port here, so all outstanding data will
-					// be cleared?
-
-					throw new IOException("Write operation timed out after " + writeTimeout + " milliseconds!");
-				case WAIT_ABANDONED:
-					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-				case WAIT_FAILED:
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
-			}
-			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
-		}
-		finally {
-			disposeAndCloseSafe(numberOfBytesTransferred, overlapped);
-		}
-	}
-
-	@Override
-	@Nonnull
-	protected byte[] readInternal() throws IOException {
-
-		DWORD numberOfBytesRead = new DWORD(os);
-		OVERLAPPED overlapped = new OVERLAPPED(os);
-
-		try {
-			// create event object
-			overlapped.hEvent = os.CreateEventA(0, true, false, null);
-			if (overlapped.hEvent == 0)
-				throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
-
-			// wait for some data to arrive
-			awaitArrivalOfData(overlapped);
-			int availableBytes = getAvailableBytes();
-			if (availableBytes == 0)
-				throw new NativeCodeException("Arrival of data was signaled, but number of available bytes is 0!");
-
-			// now we can read the available data
-			return readAvailableBytes(availableBytes, numberOfBytesRead, overlapped);
-		}
-		finally {
-			disposeAndCloseSafe(numberOfBytesRead, overlapped);
-		}
-	}
-
-	/** Blocks until data arrives or an {@link IOException} is thrown. */
-	private void awaitArrivalOfData(OVERLAPPED overlapped) throws IOException {
-
-		try {
-			final DWORD evtMask = new DWORD(os);
-			try {
-				boolean succeed = os.WaitCommEvent(handle, evtMask, overlapped);
-				if (succeed) {
-					// event was signaled immediatly, the input buffer contains data
-					checkEventMask(evtMask);
-					return;
-				}
-			}
-			finally {
-				evtMask.dispose();
-			}
-
-			int lastError = os.getPreservedError();
-			if (lastError == ERROR_INVALID_HANDLE)
-				throw portClosedException("Read operation failed, because the handle is invalid!");
-			if (lastError != ERROR_IO_PENDING)
-				throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
-
-			// wait for pending operation to complete
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
-			
-			
-			switch (waitResult) {
-				case WAIT_OBJECT_0:
-					// wait finished successfull
-					final DWORD bytesRead = new DWORD(os);
-					try {
-						boolean succeed = os.GetOverlappedResult(handle, overlapped, bytesRead, true);
-						if (!succeed)
-							throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
-					}
-					finally {
-						bytesRead.dispose();
-					}
-					return;
-				case WAIT_TIMEOUT:
-					// operation has timed out
-
-					// TODO What should happen, when a timeout occurs?
-
-					break;
-				case WAIT_ABANDONED:
-					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-				case WAIT_FAILED:
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
-			}
-			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
-		}
-		finally {
-			os.ResetEvent(overlapped.hEvent);
-		}
-	}
-
-	/** Returns the number of bytes that are available to read. */
-	private int getAvailableBytes() {
-		COMSTAT lpStat = new COMSTAT();
-		boolean succeed = os.ClearCommError(handle, new INT(0), lpStat);
-		if (!succeed)
-			throw newNativeCodeException(os, "ClearCommError failed unexpected!", os.getPreservedError());
-		return lpStat.cbInQue;
-	}
-
-	/** Reads and returns the data that is available in the read buffer. */
-	private byte[] readAvailableBytes(int availableBytes, DWORD numberOfBytesRead, OVERLAPPED overlapped) throws IOException {
-
-		NativeByteArray data = new NativeByteArray(os, availableBytes);
-
-		try {
-
-			boolean readFileResult = os.ReadFile(handle, data, availableBytes, numberOfBytesRead, overlapped);
-			if (readFileResult)
-				// the read operation succeeded immediatly
-				return data.getByteArray();
-
-			int lastError = os.getPreservedError();
-			if (lastError == ERROR_INVALID_HANDLE)
-				throw portClosedException("Read operation failed, because the handle is invalid!");
-			if (lastError != ERROR_IO_PENDING)
-				throw newNativeCodeException(os, "ReadFile failed unexpected!", lastError);
-
-			// wait for pending I/O operation to complete
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, READ_FILE_TIMEOUT);
-			switch (waitResult) {
-				case WAIT_OBJECT_0:
-					// I/O operation has finished
-					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
-					if (!overlappedResult)
-						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
-
-					// verify that the number of read bytes is equal to the number of available
-					// bytes:
-					int bytesRead = numberOfBytesRead.getValue();
-					if (bytesRead != availableBytes)
-						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead + ", expected: " + availableBytes);
-					return data.getByteArray();
-				case WAIT_TIMEOUT:
-					// ReadFile has timed out. This should not happen, because we determined that
-					// data is available
-					throw new NativeCodeException("ReadFile timed out after " + READ_FILE_TIMEOUT + " milliseconds!");
-				case WAIT_ABANDONED:
-					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-				case WAIT_FAILED:
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
-			}
-			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
-		}
-		finally {
-			data.dispose();
-		}
-	}
-
-	/**
-	 * Throws an {@link NativeCodeException} when the <code>EV_RXCHAR</code> flag in the given
-	 * <code>eventMask</code> is not set.
-	 */
-	private void checkEventMask(DWORD eventMask) {
-		int mask = eventMask.getValue();
-		if ((mask & EV_RXCHAR) != EV_RXCHAR)
-			throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: " + mask + ", expected: " + EV_RXCHAR);
-	}
-
-	/** Disposes the given resources. */
-	private void disposeAndCloseSafe(DWORD numberOfBytes, OVERLAPPED overlapped) {
-		try {
-			if (overlapped.hEvent != 0)
-				os.CloseHandle(overlapped.hEvent);
-		}
-		finally {
-			try {
-				overlapped.dispose();
-			}
-			finally {
-				numberOfBytes.dispose();
-			}
-		}
-	}
-
-	@Override
-	protected void closeInternal() throws IOException {
-		boolean success = os.CloseHandle(handle);
-		if (!success)
-			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.getPreservedError());
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-		close();
+		super(port, new ReaderImpl(port, os, handle), new WriterImpl(port, os, handle));
 	}
 
 }

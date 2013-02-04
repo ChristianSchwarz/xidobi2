@@ -27,12 +27,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.xidobi.SerialConnection;
-import org.xidobi.SerialConnectionImpl;
 import org.xidobi.SerialPortImpl;
 import org.xidobi.SerialPortSettings;
 
 /**
- * Integration test for classes {@link SerialConnectionImpl} and {@link SerialPortImpl}.
+ * Integration test.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler

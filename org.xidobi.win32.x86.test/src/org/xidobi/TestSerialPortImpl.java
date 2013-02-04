@@ -81,6 +81,9 @@ public class TestSerialPortImpl {
 		initMocks(this);
 
 		handle = new SerialPortImpl(win, "COM1", "description", configurator);
+		
+		when(win.sizeOf_OVERLAPPED()).thenReturn(5);
+		when(win.sizeOf_DWORD()).thenReturn(4);
 	}
 
 	/**
