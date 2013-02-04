@@ -51,7 +51,7 @@ public abstract class AbstractIntegrationTest {
 			assertThat(availableSerialPort, is(notNullValue()));
 		}
 		catch (IOException e) {
-			fail("Couldn't load file >setupTests.properties<!");
+			fail("Couldn't load file >" + PROPERTIES_FILE + "<!");
 		}
 
 		setUp();
