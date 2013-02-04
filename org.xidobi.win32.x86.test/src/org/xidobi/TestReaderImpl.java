@@ -54,16 +54,17 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public class TestReaderImpl {
 
+	/** dummy size of OVERLAPPED */
 	private static final int OVERLAPPED_SIZE = 1;
+	/** dummy size of DWORD */
 	private static final int DWORD_SIZE = 2;
-
+	/** a dummy error code */
 	private static final int DUMMY_ERROR_CODE = 12345;
-
+	/** a dummy handle to the event object */
 	private static final int eventHandle = 1;
-
 	/** a valid HANDLE value used in tests */
 	private static final int portHandle = 2;
-
+	/** the dummy data that is read */
 	private static final byte[] DATA = new byte[5];
 
 	/** check exceptions */
@@ -176,6 +177,32 @@ public class TestReaderImpl {
 	}
 
 	/**
+	 * Verifies that the available data is read. The first time when <code>WaitCommEvent(...)</code>
+	 * is called, the operation is pending and <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_TIMEOUT</code>. The second time it returns immediatly and the data can be read
+	 * successfull.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingReturnsWAIT_TIMEOUT() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false, true);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
+		                                                DATA.length);
+			doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
+		// @formatter:on
+
+		byte[] result = reader.read();
+
+		assertThat(result, is(DATA));
+	}
+
+	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
 	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code> and
 	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_ABANDONED</code>.
@@ -240,6 +267,9 @@ public class TestReaderImpl {
 	}
 
 	/**
+	 * Verifies that the available data is read, when <code>ReadFile(...)</code> returns successfull
+	 * immediatly.
+	 * 
 	 * @throws IOException
 	 */
 	@Test
@@ -423,6 +453,8 @@ public class TestReaderImpl {
 	}
 
 	/**
+	 * Verifies that the available data is read, when <code>ReadFile(...)</code> is pending and
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_OBJECT_0</code>.
 	 * 
 	 * @throws IOException
 	 */
@@ -467,6 +499,10 @@ public class TestReaderImpl {
 		return any(COMSTAT.class);
 	}
 
+	/**
+	 * Returns an {@link Answer} that sets the <code>availableBytes</code> on the
+	 * <code>COMSTAT</code> parameter and returns the given <code>returnValue</code>.
+	 */
 	private Answer<Boolean> withAvailableBytes(final int availableByte, final boolean returnValue) {
 		return new Answer<Boolean>() {
 			@Override
