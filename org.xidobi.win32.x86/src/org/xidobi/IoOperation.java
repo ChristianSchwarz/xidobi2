@@ -77,7 +77,7 @@ public abstract class IoOperation implements Closeable {
 			return overlapped;
 
 		overlapped.dispose();
-		throw newNativeCodeException(os, "CreateEventA illegally returned 0!", os.getPreservedError());
+		throw newNativeCodeException(os, "Create overlapped event failed!", os.getPreservedError());
 	}
 
 	/** {@inheritDoc} */
