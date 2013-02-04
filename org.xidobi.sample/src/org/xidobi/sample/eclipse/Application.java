@@ -49,7 +49,7 @@ public class Application implements IApplication {
 		SerialConnection connection = port.open(from9600_8N1().create());
 		ScheduledExecutorService ex = newScheduledThreadPool(2);
 		ex.scheduleAtFixedRate(write(connection), 0, 1, SECONDS);
-		ex.scheduleWithFixedDelay(read(connection), 0, 1, MILLISECONDS);
+		ex.scheduleWithFixedDelay(read(connection), 0, 1000, MILLISECONDS);
 		return ex;
 	}
 

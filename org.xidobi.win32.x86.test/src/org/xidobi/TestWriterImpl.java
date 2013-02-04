@@ -265,13 +265,33 @@ public class TestWriterImpl {
 	}
 
 	/**
+	 * Verifies that an {@link IOException} is thrown, when the
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the last error
+	 * code is <code>ERROR_INVALID_HANDLE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WaitForSingleObjectFailsWithERROR_INVALID_HANDLE() throws IOException {
+		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! Write operation failed, because the handle is invalid!");
+
+		writer.write(DATA);
+	}
+
+	/**
 	 * Verifies that an {@link NativeCodeException} is thrown, when the
 	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code>.
 	 * 
 	 * @throws IOException
 	 */
 	@Test
-	public void write_WaitForSingleObjectReturnsWAIT_FAILED() throws IOException {
+	public void write_WaitForSingleObjectFails() throws IOException {
 		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);

@@ -164,7 +164,7 @@ public class TestReaderImpl {
 	 * @throws IOException
 	 */
 	@Test
-	public void read_WaitCommEventPendingReturnsWAIT_FAILED() throws IOException {
+	public void read_WaitCommEventPendingWaitFails() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
@@ -174,6 +174,28 @@ public class TestReaderImpl {
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * is pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the
+	 * last error code is <code>ERROR_INVALID_HANDLE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingWaitFailsWithERROR_INVALID_HANDLE() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		                                         ERROR_INVALID_HANDLE);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
 
 		reader.read();
 	}
@@ -345,7 +367,7 @@ public class TestReaderImpl {
 	 * @throws IOException
 	 */
 	@Test
-	public void read_ReadFilePendingReturnsWAIT_FAILED() throws IOException {
+	public void read_ReadFilePendingWaitFails() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
@@ -357,6 +379,30 @@ public class TestReaderImpl {
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
+	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the
+	 * last error is <code>ERROR_INVALID_HANDLE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingWaitFailsWithERROR_INVALID_HANDLE() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_FAILED);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
 
 		reader.read();
 	}
