@@ -15,25 +15,6 @@
  */
 package org.xidobi;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.WinApi.ERROR_NO_MORE_ITEMS;
-import static org.xidobi.WinApi.ERROR_SUCCESS;
-import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
-import static org.xidobi.WinApi.KEY_READ;
-
 import java.util.Set;
 
 import org.hamcrest.CustomTypeSafeMatcher;
@@ -49,11 +30,36 @@ import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.WinApi.ERROR_NO_MORE_ITEMS;
+import static org.xidobi.WinApi.ERROR_SUCCESS;
+import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
+import static org.xidobi.WinApi.KEY_READ;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+
+import static org.junit.Assert.assertThat;
+
 /**
  * Tests the class {@link SerialPortFinderImpl}.
  * 
  * @author Tobias Breﬂler
  */
+@SuppressWarnings("unchecked")
 public class TestSerialPortFinderImpl {
 
 	/** Some unspecified error code */
@@ -88,7 +94,6 @@ public class TestSerialPortFinderImpl {
 	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>os == null</code> is
 	 * passed to the constructor.
 	 */
-	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNullOS() {
 		new SerialPortFinderImpl(null);
@@ -183,6 +188,55 @@ public class TestSerialPortFinderImpl {
 		assertThat(result, containsInAnyOrder(serialPortWith("COM1", "/Device/Serial1"), 
 		                                      serialPortWith("COM2", "/Device/Serial2")));
 		//@formatter:on
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is throw is <code>null</code> is passed.
+	 */
+	@Test
+	public void get() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Argument >portName< must not be null!");
+
+		finder.get(null);
+	}
+
+	/**
+	 * Verifies that <code>null</code> is returned if the given serial port does not exists
+	 */
+	@Test
+	public void get_portNotExists() {
+		//@formatter:off
+		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+			.thenReturn(ERROR_SUCCESS);
+		doAnswer(withValue("/Device/Serial1", "COM1 ", ERROR_SUCCESS))
+			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
+			.when(win).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+		//@formatter:on
+
+		SerialPort result = finder.get("COMxx");
+
+		assertThat(result, is(nullValue()));
+	}
+
+	/**
+	 * Verifies that <code>null</code> is returned if the given serial port does not exists
+	 */
+	@Test
+	public void get_portFound() {
+		//@formatter:off
+		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class)))
+			.thenReturn(ERROR_SUCCESS);
+		doAnswer(withValue("/Device/Serial1", "COM1 ", ERROR_SUCCESS))
+			.when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+		doAnswer(withValue("", "", ERROR_NO_MORE_ITEMS))
+			.when(win).RegEnumValueA(any(HKEY.class), eq(1), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+		//@formatter:on
+
+		SerialPort result = finder.get("COM1");
+
+		assertThat(result, is(notNullValue()));
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
