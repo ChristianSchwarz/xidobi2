@@ -48,10 +48,15 @@ public class BasicSerialConnection implements SerialConnection {
 	private volatile boolean isClosed;
 
 	/** Ensures that {@link #writeInternal(byte[])} can only called by one thread at a time. */
-	private final Lock writeLock = new ReentrantLock();;
+	private final Lock writeLock = new ReentrantLock();
 	/** Ensures that {@link #readInternal()} can only called by one thread at a time. */
-	private final Lock readLock = new ReentrantLock();;
+	private final Lock readLock = new ReentrantLock();
+
+	/** read operation, never <code>null</code> */
+	@Nonnull
 	private final Reader reader;
+	/** write operation, never <code>null</code> */
+	@Nonnull
 	private final Writer writer;
 
 	/**
@@ -59,22 +64,21 @@ public class BasicSerialConnection implements SerialConnection {
 	 * 
 	 * @param portHandle
 	 *            must not be <code>null</code>
-	 *            @param reader
-	 *            @param writer
+	 * @param reader
+	 *            read operation, must not be <code>null</code>
+	 * @param writer
+	 *            write operation, must not be <code>null</code>
 	 * @exception IllegalArgumentException
 	 *                if {@code portHandle==null}
 	 */
 	protected BasicSerialConnection(@Nonnull SerialPort portHandle,
-	                                   @Nonnull Reader reader,
-	                                   @Nonnull	Writer writer) {
-		
-		this.portHandle = checkArgumentNotNull(portHandle, "portHandle");
-		this.reader = checkArgumentNotNull(reader,"reader");
-		this.writer = checkArgumentNotNull(writer,"writer");
+									@Nonnull Reader reader,
+									@Nonnull Writer writer) {
 
+		this.portHandle = checkArgumentNotNull(portHandle, "portHandle");
+		this.reader = checkArgumentNotNull(reader, "reader");
+		this.writer = checkArgumentNotNull(writer, "writer");
 	}
-	
-	
 
 	/**
 	 * The implementation must write the given {@code byte[]} to the port.
@@ -93,7 +97,6 @@ public class BasicSerialConnection implements SerialConnection {
 	 *             when the write operation timed out or the serial port is not open
 	 */
 
-
 	/**
 	 * The implementation must block until at least one byte can be returned or and
 	 * {@link IOException} is thrown.
@@ -106,7 +109,6 @@ public class BasicSerialConnection implements SerialConnection {
 	 * @return the byte's read from the port, never <code>null</code>
 	 */
 
-
 	/**
 	 * The implementation must release all native resources.
 	 * <p>
@@ -116,7 +118,6 @@ public class BasicSerialConnection implements SerialConnection {
 	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
 	 * port is currently open!
 	 */
-
 
 	/** {@inheritDoc} */
 	public final void write(@Nonnull byte[] data) throws IOException {
@@ -156,9 +157,10 @@ public class BasicSerialConnection implements SerialConnection {
 	public final void close() throws IOException {
 		if (isClosed)
 			return;
-		try{
+		try {
 			reader.close();
-		}finally{
+		}
+		finally {
 			writer.close();
 		}
 		isClosed = true;
