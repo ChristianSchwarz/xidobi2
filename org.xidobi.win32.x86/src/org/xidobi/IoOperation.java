@@ -30,21 +30,31 @@ import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
+ * Abstract class for I/O operations.
+ * 
  * @author Christian Schwarz
  */
-public class IoOperation implements Closeable {
+public abstract class IoOperation implements Closeable {
 
-	protected final int handle;
-	protected final WinApi os;
-	protected final DWORD numberOfBytesTransferred;
+	/** the serial port, never <code>null</code> */
 	protected final SerialPort port;
+	/** the native Win32-API, never <code>null</code> */
+	protected final WinApi os;
+	/** the native handle of the serial port */
+	protected final int handle;
+	
+	protected final DWORD numberOfBytesTransferred;
+	
 	protected final OVERLAPPED overlapped;
 
 	/**
 	 * 
 	 * @param port
+	 *            the serial port, must not be <code>null</code>
 	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
 	 * @param handle
+	 *            the native handle of the serial port
 	 */
 	public IoOperation(	@Nonnull SerialPort port,
 						@Nonnull WinApi os,
@@ -53,14 +63,12 @@ public class IoOperation implements Closeable {
 		this.os = checkArgumentNotNull(os, "os");
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
+
 		overlapped = newOverlapped(os);
 		numberOfBytesTransferred = new DWORD(os);
 	}
 
-	/**
-	 * @param os
-	 * @return
-	 */
+	/** Creates a new overlapped with an event object. */
 	private OVERLAPPED newOverlapped(WinApi os) {
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 
@@ -77,9 +85,9 @@ public class IoOperation implements Closeable {
 		//@formatter:off
 		try {
 			numberOfBytesTransferred.dispose();
-		}finally{ try{
+		} finally { try {
 			os.CloseHandle(overlapped.hEvent);
-		}finally{
+		} finally {
 			overlapped.dispose();
 		}}
 		//@formatter:on

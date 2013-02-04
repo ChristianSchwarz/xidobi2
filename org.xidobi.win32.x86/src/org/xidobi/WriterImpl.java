@@ -31,18 +31,25 @@ import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Writer;
 
 /**
+ * Implementation for write operations.
+ * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
 public class WriterImpl extends IoOperation implements Writer {
 
+	/** Write timeout in milliseconds */
 	private int writeTimeout = 2000;
 
 	/**
+	 * Creates a new write I/O operation.
 	 * 
 	 * @param port
+	 *            the serial port, must not be <code>null</code>
 	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
 	 * @param handle
+	 *            the native handle of the serial port
 	 */
 	public WriterImpl(	@Nonnull SerialPort port,
 						@Nonnull WinApi os,

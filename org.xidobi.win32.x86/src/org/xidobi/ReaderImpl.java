@@ -37,19 +37,28 @@ import static org.xidobi.WinApi.WAIT_TIMEOUT;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 /**
+ * Implementation for read operations.
+ * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
 public class ReaderImpl extends IoOperation implements Reader {
 
-	private static final int READ_FILE_TIMEOUT = 0;
+	/** Timeout for native <code>ReadFile</code> operation. */
+	private static final int READ_FILE_TIMEOUT = 100;
 
+	/** Read timeout in milliseconds */
 	private int readTimeout = 2000;
 
 	/**
+	 * Creates a new read I/O operation.
+	 * 
 	 * @param port
+	 *            the serial port, must not be <code>null</code>
 	 * @param os
+	 *            the native Win32-API, must not be <code>null</code>
 	 * @param handle
+	 *            the native handle of the serial port
 	 */
 	public ReaderImpl(	SerialPort port,
 						WinApi os,
@@ -59,6 +68,9 @@ public class ReaderImpl extends IoOperation implements Reader {
 
 	@Nonnull
 	public byte[] read() throws IOException {
+		// we dont need this if we create the event handle with manualReset=false
+		os.ResetEvent(overlapped.hEvent);
+
 		// wait for some data to arrive
 		awaitArrivalOfData(overlapped);
 		int availableBytes = getAvailableBytes();
