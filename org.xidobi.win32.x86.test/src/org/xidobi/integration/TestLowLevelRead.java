@@ -29,6 +29,7 @@ import static org.xidobi.WinApi.LANG_NEUTRAL;
 import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
 
 import java.io.IOException;
 
@@ -51,7 +52,6 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-@Ignore
 public class TestLowLevelRead {
 
 	private static WinApi os = OS.OS;
@@ -112,7 +112,9 @@ public class TestLowLevelRead {
 					throw new IOException("WaitCommEvent failed! " + getNativeErrorMessage(lastError));
 
 				println("WaitForSingleObject");
-				int waitForSingleObject = os.WaitForSingleObject(ov.hEvent, INFINITE);
+				int waitForSingleObject = os.WaitForSingleObject(ov.hEvent, 2000);
+				if (waitForSingleObject == WAIT_TIMEOUT)
+					continue;
 				DWORD evtResult = new DWORD(os);
 				println("GetOverlappedResult");
 				os.GetOverlappedResult(portHandle, ov, evtResult, true);

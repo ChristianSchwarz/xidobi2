@@ -42,9 +42,9 @@ public abstract class IoOperation implements Closeable {
 	protected final WinApi os;
 	/** the native handle of the serial port */
 	protected final int handle;
-	
+
 	protected final DWORD numberOfBytesTransferred;
-	
+
 	protected final OVERLAPPED overlapped;
 
 	/**

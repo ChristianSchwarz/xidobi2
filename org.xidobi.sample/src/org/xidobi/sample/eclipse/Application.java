@@ -65,7 +65,7 @@ public class Application implements IApplication {
 					byte[] bytes = connection.read();
 					System.out.println(new String(bytes));
 				}
-				catch (IOException e) {
+				catch (Exception e) {
 					e.printStackTrace();
 					new RuntimeException(e);
 				}
@@ -84,7 +84,7 @@ public class Application implements IApplication {
 				try {
 					connection.write("Hello Wörld!".getBytes());
 				}
-				catch (IOException e) {
+				catch (Exception e) {
 					e.printStackTrace();
 					new RuntimeException(e);
 				}

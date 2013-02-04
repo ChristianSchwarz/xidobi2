@@ -34,7 +34,6 @@ import org.xidobi.structs.COMSTAT;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
-import org.xidobi.structs.OVERLAPPED;
 
 /**
  * Implementation for read operations.
@@ -74,61 +73,58 @@ public class ReaderImpl extends IoOperation implements Reader {
 	@Nonnull
 	public byte[] read() throws IOException {
 
-		// we dont need this if we create the event handle with manualReset=false
 		os.ResetEvent(overlapped.hEvent);
 
-		// wait for some data to arrive
-		awaitArrivalOfData(overlapped);
-		int availableBytes = getAvailableBytes();
-		if (availableBytes == 0)
-			throw new NativeCodeException("Arrival of data was signaled, but number of available bytes is 0!");
-
-		// now we can read the available data
-		return readAvailableBytes(availableBytes, numberOfBytesTransferred, overlapped);
+		// Repeat until data is available:
+		while (true) {
+			// wait for some data to arrive
+			awaitArrivalOfData();
+			// how many bytes are available for read?
+			int availableBytes = getAvailableBytes();
+			if (availableBytes == 0)
+				// there is no data available for read
+				continue;
+			// now we can read the available data
+			return readAvailableBytes(availableBytes);
+		}
 	}
 
 	/** Blocks until data arrives or an {@link IOException} is thrown. */
-	private void awaitArrivalOfData(OVERLAPPED overlapped) throws IOException {
+	private void awaitArrivalOfData() throws IOException {
 
-		// Repeat until some data arrived or an exception occured:
+		boolean succeed = os.WaitCommEvent(handle, eventMask, overlapped);
+		if (succeed) {
+			// event was signaled immediatly, the input buffer contains data
+			checkEventMask(eventMask);
+			return;
+		}
+
+		int lastError = os.getPreservedError();
+		if (lastError == ERROR_INVALID_HANDLE)
+			throw portClosedException("Read operation failed, because the handle is invalid!");
+		if (lastError != ERROR_IO_PENDING)
+			throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
+
+		// Repeat until some data arrived:
 		while (true) {
 
-			try {
-				boolean succeed = os.WaitCommEvent(handle, eventMask, overlapped);
-				if (succeed) {
-					// event was signaled immediatly, the input buffer contains data
+			// wait for pending operation to complete
+			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
+
+			switch (waitResult) {
+				case WAIT_OBJECT_0:
+					// wait finished successfull
 					checkEventMask(eventMask);
 					return;
-				}
-
-				int lastError = os.getPreservedError();
-				if (lastError == ERROR_INVALID_HANDLE)
-					throw portClosedException("Read operation failed, because the handle is invalid!");
-				if (lastError != ERROR_IO_PENDING)
-					throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
-
-				// wait for pending operation to complete
-				int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
-
-				switch (waitResult) {
-					case WAIT_OBJECT_0:
-						// wait finished successfull
-						checkEventMask(eventMask);
-						return;
-					case WAIT_TIMEOUT:
-						// operation has timed out
-						continue;
-					case WAIT_ABANDONED:
-						throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-					case WAIT_FAILED:
-						throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
-				}
-				throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+				case WAIT_TIMEOUT:
+					// operation has timed out
+					continue;
+				case WAIT_ABANDONED:
+					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+				case WAIT_FAILED:
+					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
 			}
-			finally {
-				os.ResetEvent(overlapped.hEvent);
-			}
-
+			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
 	}
 
@@ -142,13 +138,13 @@ public class ReaderImpl extends IoOperation implements Reader {
 	}
 
 	/** Reads and returns the data that is available in the read buffer. */
-	private byte[] readAvailableBytes(int numberOfBytesToRead, DWORD numberOfBytesRead, OVERLAPPED overlapped) throws IOException {
+	private byte[] readAvailableBytes(int numberOfBytesToRead) throws IOException {
 
 		NativeByteArray data = new NativeByteArray(os, numberOfBytesToRead);
 
 		try {
 
-			boolean readFileResult = os.ReadFile(handle, data, numberOfBytesToRead, numberOfBytesRead, overlapped);
+			boolean readFileResult = os.ReadFile(handle, data, numberOfBytesToRead, numberOfBytesTransferred, overlapped);
 			if (readFileResult)
 				// the read operation succeeded immediatly
 				return data.getByteArray();
@@ -164,13 +160,13 @@ public class ReaderImpl extends IoOperation implements Reader {
 			switch (waitResult) {
 				case WAIT_OBJECT_0:
 					// I/O operation has finished
-					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesRead, true);
+					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
 					if (!overlappedResult)
 						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
 
 					// verify that the number of read bytes is equal to the number of available
 					// bytes:
-					int bytesRead = numberOfBytesRead.getValue();
+					int bytesRead = numberOfBytesTransferred.getValue();
 					if (bytesRead != numberOfBytesToRead)
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead + ", expected: " + numberOfBytesToRead);
 					return data.getByteArray();
