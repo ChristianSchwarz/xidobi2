@@ -50,6 +50,7 @@ public class ReaderImpl extends IoOperation implements Reader {
 	/** Read timeout in milliseconds */
 	private int readTimeout = 2000;
 
+	/** Receives the flags for the communication event */
 	private final DWORD eventMask;
 
 	/**

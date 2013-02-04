@@ -21,6 +21,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
@@ -84,6 +85,7 @@ public class TestReaderImpl {
 	private int ptrOverlapped = 1;
 	/** pointer to an {@link DWORD} */
 	private int ptrBytesTransferred = 2;
+	private int ptrEvtMask = 3;
 
 	@Before
 	@SuppressWarnings("javadoc")
@@ -94,7 +96,7 @@ public class TestReaderImpl {
 		when(win.malloc(OVERLAPPED_SIZE)).thenReturn(ptrOverlapped);
 
 		when(win.sizeOf_DWORD()).thenReturn(DWORD_SIZE);
-		when(win.malloc(DWORD_SIZE)).thenReturn(ptrBytesTransferred);
+		when(win.malloc(DWORD_SIZE)).thenReturn(ptrBytesTransferred, ptrEvtMask);
 
 		when(port.getPortName()).thenReturn("COM1");
 		when(win.CloseHandle(anyInt())).thenReturn(true);
@@ -193,6 +195,31 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
 			doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
+		// @formatter:on
+
+		byte[] result = reader.read();
+
+		assertThat(result, is(DATA));
+	}
+
+	/**
+	 * Verifies that the available data is read, when <code>WaitCommEvent(...)</code> is called, the
+	 * operation is pending and <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_OBJECT_0</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingReturnsWAIT_OBJECT_0() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
+		                                                DATA.length);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		// @formatter:on
@@ -475,6 +502,21 @@ public class TestReaderImpl {
 		byte[] result = reader.read();
 
 		assertThat(result, is(DATA));
+	}
+
+	/**
+	 * Verifies that all resources are disposed, when the reader is closed.
+	 */
+	@Test
+	public void close() {
+
+		reader.close();
+
+		verify(win).free(ptrBytesTransferred);
+		verify(win).free(ptrEvtMask);
+		verify(win).free(ptrOverlapped);
+		verify(win).CloseHandle(eventHandle);
+
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
