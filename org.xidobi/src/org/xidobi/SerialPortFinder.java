@@ -17,6 +17,7 @@ package org.xidobi;
 
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
@@ -25,7 +26,7 @@ import javax.annotation.Nonnull;
  * 
  * @author Tobias Breﬂler
  * 
- * @see SerialPortInfo
+ * @see SerialPort
  */
 public interface SerialPortFinder {
 
@@ -37,5 +38,19 @@ public interface SerialPortFinder {
 	 */
 	@Nonnull
 	Set<SerialPort> getAll();
+
+	/**
+	 * Returns the serial port with the given {@code portName} if it exists, other wise
+	 * <code>null</code>.
+	 * 
+	 * @param portName
+	 *            the name of the port e.g. "COM1" or "tty0", must not be <code>null</code>
+	 * @return <code>null</code> if the port not exists
+	 * 
+	 * @exception IllegalArgumentException
+	 *                if <code>portName==null</code>
+	 */
+	@CheckForNull
+	SerialPort get(@Nonnull String portName);
 
 }
