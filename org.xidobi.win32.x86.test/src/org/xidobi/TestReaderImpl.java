@@ -316,6 +316,30 @@ public class TestReaderImpl {
 	}
 
 	/**
+	 * Verifies that the available data is read, when <code>ClearCommError(...)</code> indicates
+	 * that 0 bytes available at the first invocation. Only at the second call it indicates a number
+	 * of bytes greater than 0.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_withNoDataAvailable() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		when(win.ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT())).
+			then(withAvailableBytes(0, true)).
+			then(withAvailableBytes(DATA.length, true));
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
+		//@formatter:on
+
+		byte[] result = reader.read();
+
+		assertThat(result, is(DATA));
+	}
+
+	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code>
 	 * returns <code>false</code> and the last error code is not <code>ERROR_IO_PENDING</code> or
 	 * <code>ERROR_INVALID_HANDLE</code>.
