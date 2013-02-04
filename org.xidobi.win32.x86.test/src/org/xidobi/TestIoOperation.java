@@ -11,7 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
@@ -47,8 +46,6 @@ public class TestIoOperation {
 
 	private final int eventHandle = 1;
 
-	/** a valid HANDLE value used in tests */
-	private final int portHandle = 2;
 
 	/** needed to verifiy exception */
 	@Rule
@@ -82,6 +79,7 @@ public class TestIoOperation {
 	 * <code>null</code>
 	 */
 	@Test
+	@SuppressWarnings("resource")
 	public void new_nullPort() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 
@@ -96,6 +94,7 @@ public class TestIoOperation {
 	 * <code>null</code>.
 	 */
 	@Test
+	@SuppressWarnings("resource")
 	public void new_nullOs() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 
@@ -109,6 +108,7 @@ public class TestIoOperation {
 	 * Verifies that an {@link IllegalArgumentException} is thrown if an invalid handle is passed.
 	 */
 	@Test
+	@SuppressWarnings("resource")
 	public void new_InvalidHandle() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 
@@ -123,7 +123,7 @@ public class TestIoOperation {
 	 * fails.
 	 */
 	@Test
-	public void new_createEvent_fails() throws Exception {
+	public void new_createEvent_fails() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(CREATE_EVENT_ERROR);
 
 		exception.expect(NativeCodeException.class);
@@ -141,7 +141,7 @@ public class TestIoOperation {
 	 * Verifies that all resource are freed that were allocated in the construction
 	 */
 	@Test
-	public void close() throws Exception {
+	public void close()  {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
@@ -209,8 +209,13 @@ public class TestIoOperation {
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * @author Christian Schwarz
+	 *
+	 */
 	public static class _IoOperation extends IoOperation {
 
+		
 		public _IoOperation(SerialPort port,
 							WinApi os,
 							int handle) {
