@@ -50,8 +50,10 @@ public class ReaderImpl extends IoOperation implements Reader {
 	/** Read timeout in milliseconds */
 	private int readTimeout = 2000;
 
+	private final DWORD eventMask;
+
 	/**
-	 * Creates a new read I/O operation.
+	 * Creates a new read operation.
 	 * 
 	 * @param port
 	 *            the serial port, must not be <code>null</code>
@@ -64,10 +66,13 @@ public class ReaderImpl extends IoOperation implements Reader {
 						WinApi os,
 						int handle) {
 		super(port, os, handle);
+
+		eventMask = new DWORD(os);
 	}
 
 	@Nonnull
 	public byte[] read() throws IOException {
+
 		// we dont need this if we create the event handle with manualReset=false
 		os.ResetEvent(overlapped.hEvent);
 
@@ -84,53 +89,45 @@ public class ReaderImpl extends IoOperation implements Reader {
 	/** Blocks until data arrives or an {@link IOException} is thrown. */
 	private void awaitArrivalOfData(OVERLAPPED overlapped) throws IOException {
 
-		final DWORD evtMask = new DWORD(os);
+		// Repeat until some data arrived or an exception occured:
+		while (true) {
 
-		try {
-			boolean succeed = os.WaitCommEvent(handle, evtMask, overlapped);
-			if (succeed) {
-				// event was signaled immediatly, the input buffer contains data
-				checkEventMask(evtMask);
-				return;
-			}
-
-			int lastError = os.getPreservedError();
-			if (lastError == ERROR_INVALID_HANDLE)
-				throw portClosedException("Read operation failed, because the handle is invalid!");
-			if (lastError != ERROR_IO_PENDING)
-				throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
-
-			// wait for pending operation to complete
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
-
-			switch (waitResult) {
-				case WAIT_OBJECT_0:
-					// wait finished successfull
-
-					// TODO Do we need the overlapped result?
-
-					checkEventMask(evtMask);
-					return;
-				case WAIT_TIMEOUT:
-					// operation has timed out
-
-					// TODO What should happen, when a timeout occurs?
-
-					break;
-				case WAIT_ABANDONED:
-					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-				case WAIT_FAILED:
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
-			}
-			throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
-		}
-		finally {
 			try {
-				os.ResetEvent(overlapped.hEvent);
+				boolean succeed = os.WaitCommEvent(handle, eventMask, overlapped);
+				if (succeed) {
+					// event was signaled immediatly, the input buffer contains data
+					checkEventMask(eventMask);
+					return;
+				}
+
+				int lastError = os.getPreservedError();
+				if (lastError == ERROR_INVALID_HANDLE)
+					throw portClosedException("Read operation failed, because the handle is invalid!");
+				if (lastError != ERROR_IO_PENDING)
+					throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
+
+				// wait for pending operation to complete
+				int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
+
+				switch (waitResult) {
+					case WAIT_OBJECT_0:
+						// wait finished successfull
+						checkEventMask(eventMask);
+						return;
+					case WAIT_TIMEOUT:
+						// operation has timed out
+						continue;
+					case WAIT_ABANDONED:
+						throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+					case WAIT_FAILED:
+						throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+				}
+				throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 			}
 			finally {
-				evtMask.dispose();
+				os.ResetEvent(overlapped.hEvent);
 			}
+
 		}
 	}
 
@@ -189,6 +186,16 @@ public class ReaderImpl extends IoOperation implements Reader {
 		}
 		finally {
 			data.dispose();
+		}
+	}
+
+	@Override
+	public void close() {
+		try {
+			eventMask.dispose();
+		}
+		finally {
+			super.close();
 		}
 	}
 

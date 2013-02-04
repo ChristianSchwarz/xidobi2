@@ -42,7 +42,7 @@ public class WriterImpl extends IoOperation implements Writer {
 	private int writeTimeout = 2000;
 
 	/**
-	 * Creates a new write I/O operation.
+	 * Creates a new write operation.
 	 * 
 	 * @param port
 	 *            the serial port, must not be <code>null</code>

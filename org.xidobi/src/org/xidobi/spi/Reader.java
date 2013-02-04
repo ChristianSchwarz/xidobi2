@@ -21,7 +21,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 /**
- * This interface is implemented by service provider to read to a serial port.
+ * This interface is implemented by service provider to read from a serial port.
  * 
  * @author Christian Schwarz
  */
@@ -38,5 +38,5 @@ public interface Reader extends Closeable {
 	 */
 	@Nonnull
 	byte[] read() throws IOException;
-	
+
 }
