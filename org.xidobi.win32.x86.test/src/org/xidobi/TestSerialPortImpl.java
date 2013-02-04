@@ -81,7 +81,7 @@ public class TestSerialPortImpl {
 		initMocks(this);
 
 		handle = new SerialPortImpl(win, "COM1", "description", configurator);
-		
+
 		when(win.sizeOf_OVERLAPPED()).thenReturn(5);
 		when(win.sizeOf_DWORD()).thenReturn(4);
 	}
@@ -117,8 +117,8 @@ public class TestSerialPortImpl {
 	}
 
 	/**
-	 * Verifies that {@link SerialPortImpl#getPortName()} returns the port name that was
-	 * passed to the constructor.
+	 * Verifies that {@link SerialPortImpl#getPortName()} returns the port name that was passed to
+	 * the constructor.
 	 */
 	@Test
 	public void getPortName() {
@@ -168,7 +168,7 @@ public class TestSerialPortImpl {
 		when(win.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(PORT_HANDLE);
 		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
-		when(win.PurgeComm(PORT_HANDLE,PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
@@ -206,11 +206,11 @@ public class TestSerialPortImpl {
 			verify(win).CloseHandle(PORT_HANDLE);
 		}
 	}
-	
+
 	/**
 	 * Verifies that an {@link NativeCodeException} is thrown, when the call to
-	 * {@link WinApi#PurgeComm(int, int)} returns <code>false</code>. In this
-	 * case the {@link NativeCodeException} must contain the error code that is returned by
+	 * {@link WinApi#PurgeComm(int, int)} returns <code>false</code>. In this case the
+	 * {@link NativeCodeException} must contain the error code that is returned by
 	 * {@link WinApi#GetLastError()} .
 	 * 
 	 * @throws Exception
@@ -220,7 +220,7 @@ public class TestSerialPortImpl {
 		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
 		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
 		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.PurgeComm(PORT_HANDLE,PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(false);
+		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(false);
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
@@ -233,10 +233,11 @@ public class TestSerialPortImpl {
 			verify(win).CloseHandle(PORT_HANDLE);
 		}
 	}
+
 	/**
 	 * Verifies that an {@link NativeCodeException} is thrown, when the call to
-	 * {@link WinApi#SetCommMask(int, int)} returns <code>false</code>. In this
-	 * case the {@link NativeCodeException} must contain the error code that is returned by
+	 * {@link WinApi#SetCommMask(int, int)} returns <code>false</code>. In this case the
+	 * {@link NativeCodeException} must contain the error code that is returned by
 	 * {@link WinApi#GetLastError()} .
 	 * 
 	 * @throws Exception
@@ -246,14 +247,14 @@ public class TestSerialPortImpl {
 		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
 		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
 		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.PurgeComm(PORT_HANDLE,PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
 		when(win.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(false);
-		
+
 		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
-		
+
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("SetCommMask failed!\r\nError-Code " + DUMMY_ERROR_CODE);
-		
+
 		try {
 			handle.open(settings);
 		}
@@ -263,8 +264,8 @@ public class TestSerialPortImpl {
 	}
 
 	/**
-	 * Verifies that a non <code>null</code> {@link SerialConnection} is returned, when the native methods
-	 * are successful.
+	 * Verifies that a non <code>null</code> {@link SerialConnection} is returned, when the native
+	 * methods are successful.
 	 * 
 	 * @throws Exception
 	 */
@@ -273,9 +274,10 @@ public class TestSerialPortImpl {
 		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
 		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
 		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.PurgeComm(PORT_HANDLE,PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
 		when(win.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(true);
-		
+		when(win.CreateEventA(0, true, false, null)).thenReturn(1);
+
 		SerialConnection result = handle.open(settings);
 
 		verify(win).CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
@@ -283,16 +285,14 @@ public class TestSerialPortImpl {
 		verify(configurator).configureDCB(anyDCB(), eq(settings));
 		verify(win).SetCommState(eq(PORT_HANDLE), anyDCB());
 		verify(win).PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR);
-		
+
 		verify(win, never()).CloseHandle(PORT_HANDLE);
 		assertThat(result, is(notNullValue()));
 	}
 
-	
-
 	/**
-	 * Verifies that {@link SerialPort#getDescription()} returns the <code>description</code>
-	 * that was given ton the constructor.
+	 * Verifies that {@link SerialPort#getDescription()} returns the <code>description</code> that
+	 * was given ton the constructor.
 	 */
 	@Test
 	public void getDescription() {
@@ -309,8 +309,8 @@ public class TestSerialPortImpl {
 		SerialPort info = new SerialPortImpl(win, "portName", null);
 		assertThat(info.getDescription(), is(nullValue()));
 	}
-	
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Matcher for {@link DCB}
 	 */

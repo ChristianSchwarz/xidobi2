@@ -18,7 +18,6 @@ package org.xidobi;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -136,29 +135,6 @@ public class TestWriterImpl {
 		exception.expectMessage("Argument >handle< is invalid! Invalid handle value");
 
 		new WriterImpl(port, win, INVALID_HANDLE_VALUE);
-	}
-
-	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>CreateEventA(...)</code>
-	 * fails. In this case the method returns 0.
-	 * 
-	 * @throws IOException
-	 */
-	@SuppressWarnings("unused")
-	@Test
-	public void new_CreateEventAReturns0() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(0);
-
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("CreateEventA illegally returned 0!");
-
-		try {
-			new WriterImpl(port, win, portHandle);
-		}
-		finally {
-			verify(win, never()).CloseHandle(portHandle);
-			verify(win).free(ptrOverlapped);
-		}
 	}
 
 	/**
