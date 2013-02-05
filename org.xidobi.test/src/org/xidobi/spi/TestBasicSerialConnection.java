@@ -93,7 +93,7 @@ public class TestBasicSerialConnection {
 	@SuppressWarnings({ "resource", "unused" })
 	public void new_nullPortPortHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("Argument >portHandle< must not be null!");
+		exception.expectMessage("Argument >port< must not be null!");
 
 		new BasicSerialConnection(null, reader, writer);
 	}
