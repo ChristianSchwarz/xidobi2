@@ -22,9 +22,9 @@
 #include "OS.h"
 
 /*
- * Sets the value of GetLastError() to the given jobject.
+ * Sets the value of GetLastError() to the given >lastError< of the java type INT.
  */
-void setLastNativeError(JNIEnv *env, jobject lastError) {
+void preserveLastError(JNIEnv *env, jobject lastError) {
 	DWORD err = GetLastError();
 	setINT(env, lastError, &err);
 }
@@ -55,7 +55,7 @@ Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
 								dwFlagsAndAttributes,
 								(HANDLE) hTemplateFile);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	(*env)->ReleaseStringUTFChars(env, lpFileName, fileName);
 
@@ -74,7 +74,7 @@ Java_org_xidobi_OS_CloseHandle(JNIEnv *env, jobject this,
 
 	BOOL result = CloseHandle((HANDLE) handle);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (!result)
 		return JNI_FALSE;
@@ -97,7 +97,7 @@ Java_org_xidobi_OS_GetCommState(JNIEnv *env, jobject this,
 
 	BOOL result = GetCommState((HANDLE) handle, &dcb);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (!result)
 		return JNI_FALSE;
@@ -123,7 +123,7 @@ Java_org_xidobi_OS_SetCommState(JNIEnv *env, jobject this,
 
 	BOOL result = SetCommState((HANDLE) handle, &dcb);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (!result)
 		return JNI_FALSE;
@@ -150,12 +150,12 @@ Java_org_xidobi_OS_CreateEventA(JNIEnv *env, jobject this,
 	else
 		name = (*env)->GetStringUTFChars(env, lpName, NULL);
 
-	HANDLE handle = CreateEventA(	NULL,
+	HANDLE handle = CreateEvent(	NULL,
 									bManualReset,
 									bInitialState,
 									name);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (name != NULL)
 		(*env)->ReleaseStringUTFChars(env, lpName, name);
@@ -188,7 +188,7 @@ Java_org_xidobi_OS_WriteFile(JNIEnv *env, jobject this,
 							 bytesWritten,
 							 overlapped);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	(*env)->ReleaseByteArrayElements(env, lpBuffer, jBuffer, 0);
 
@@ -222,7 +222,7 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 							 bytesRead,
 							 overlapped);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;
@@ -279,7 +279,7 @@ Java_org_xidobi_OS_FormatMessageA(JNIEnv *env, jobject this,
 								  (DWORD) nSize,
 								  NULL); // ignored
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	(*env)->SetByteArrayRegion(env, lpBuffer, 0, size, jBuffer);
 
@@ -307,7 +307,7 @@ Java_org_xidobi_OS_GetOverlappedResult(JNIEnv * env, jobject this,
 									  bytesTransferred,
 									  (BOOL) bWait);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;
@@ -328,7 +328,7 @@ Java_org_xidobi_OS_WaitForSingleObject(JNIEnv *env, jobject this,
 	DWORD result = WaitForSingleObject(	(HANDLE) hhandle,
 										(DWORD) dwMilliseconds);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	return (jint) result;
 }
@@ -445,7 +445,7 @@ Java_org_xidobi_OS_SetCommMask(JNIEnv *env, jobject this,
 	BOOL result = SetCommMask((HANDLE) hFile,
 							  (DWORD) dwEvtMask);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;
@@ -471,7 +471,7 @@ Java_org_xidobi_OS_WaitCommEvent(JNIEnv *env, jobject this,
 							    evtMask,
 							    overlapped);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;
@@ -492,7 +492,7 @@ Java_org_xidobi_OS_PurgeComm(JNIEnv *env, jobject this,
 	BOOL result = PurgeComm((HANDLE) hFile,
 							dwFlags);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;
@@ -521,7 +521,7 @@ Java_org_xidobi_OS_ClearCommError(JNIEnv *env, jobject this,
 								 &errors,
 								 &comstat);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	setINT(env, lpErrors, &errors);
 	setCOMSTATFields(env, lpStat, &comstat);
@@ -543,7 +543,7 @@ Java_org_xidobi_OS_ResetEvent(JNIEnv *env, jobject this,
 
 	BOOL result = ResetEvent((HANDLE) hEvent);
 
-	setLastNativeError(env, lastError);
+	preserveLastError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;
