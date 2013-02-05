@@ -51,6 +51,8 @@ public class BasicSerialConnection implements SerialConnection {
 	private final Lock writeLock = new ReentrantLock();
 	/** Ensures that {@link #read()} can only called by one thread at a time. */
 	private final Lock readLock = new ReentrantLock();
+	/** Ensures that {@link #close()} can only called by one thread at a time. */
+	private final Lock closeLock = new ReentrantLock();
 
 	/** read operation, never <code>null</code> */
 	@Nonnull
@@ -116,22 +118,28 @@ public class BasicSerialConnection implements SerialConnection {
 
 	/** {@inheritDoc} */
 	public final void close() throws IOException {
-		if (isClosed)
-			return;
-		//@formatter:off
+		closeLock.lock();
 		try {
-			// close system dependent resources
-			closeInternal();
+			if (isClosed)
+				return;
+			//@formatter:off
+			try {
+				// close system dependent resources
+				closeInternal();
+			}
+			finally { try {
+				// close the reader
+				reader.close();
+			} finally {
+				// close the writer
+				writer.close();
+			}}
+			// @formatter:on
+			isClosed = true;
 		}
-		finally { try {
-			// close the reader
-			reader.close();
-		} finally {
-			// close the writer
-			writer.close();
-		}}
-		// @formatter:on
-		isClosed = true;
+		finally {
+			closeLock.unlock();
+		}
 	}
 
 	/**
