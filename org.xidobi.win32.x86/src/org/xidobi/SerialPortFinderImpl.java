@@ -50,6 +50,9 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	/**
 	 * Creates a new instance, that finds all serial ports that are available in the Windows
 	 * Registry.
+	 * <p>
+	 * <b>IMPORTANT:</b> Please do not remove this constructor. It is invoced per reflection by the
+	 * {@link SerialPortProvider}.
 	 */
 	public SerialPortFinderImpl() {
 		this(OS.OS);
