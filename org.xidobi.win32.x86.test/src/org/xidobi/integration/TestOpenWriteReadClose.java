@@ -17,6 +17,7 @@ package org.xidobi.integration;
 
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xidobi.OS;
 import org.xidobi.SerialConnection;
@@ -72,6 +73,7 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 	 * @throws Exception
 	 */
 	@Test(timeout = 1500)
+	@Ignore
 	public void read() throws Exception {
 		SerialPortFinderImpl finder = new SerialPortFinderImpl(os);
 
