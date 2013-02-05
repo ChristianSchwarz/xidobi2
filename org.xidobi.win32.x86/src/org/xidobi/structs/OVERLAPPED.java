@@ -80,25 +80,22 @@ public class OVERLAPPED extends Pointer {
 	 * <p>
 	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public OVERLAPPED(WinApi win) {
-		super(win, sizeOfOVERLAPPED(win));
+	public OVERLAPPED(WinApi os) {
+		super(os, sizeOfOVERLAPPED(os));
 	}
 
 	/** Returns the size of an OVERLAPPED struct. */
-	private static int sizeOfOVERLAPPED(WinApi win) {
-		checkArgumentNotNull(win, "win");
-		return win.sizeOf_OVERLAPPED();
+	private static int sizeOfOVERLAPPED(WinApi os) {
+		checkArgumentNotNull(os, "os");
+		return os.sizeOf_OVERLAPPED();
 	}
 
 	@Override
 	public String toString() {
 		return "OVERLAPPED [hEvent=" + hEvent + "]";
-		// return "OVERLAPPED [Internal=" + Internal + ", InternalHigh=" + InternalHigh +
-		// ", Offset=" + Offset + ", OffsetHigh=" + OffsetHigh + ", Pointer=" + Pointer +
-		// ", hEvent=" + hEvent + "]";
 	}
 
 }

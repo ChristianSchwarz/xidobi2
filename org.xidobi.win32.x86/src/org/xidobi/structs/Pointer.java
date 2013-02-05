@@ -22,7 +22,7 @@ import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import org.xidobi.WinApi;
 
 /**
- * A pointer to an allocated memory on the heap. 
+ * A pointer to an allocated memory on the heap.
  * <p>
  * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
  * 
@@ -31,7 +31,7 @@ import org.xidobi.WinApi;
 public class Pointer {
 
 	/** the native Win32-API, never <code>null</code> */
-	private final WinApi win;
+	private final WinApi os;
 
 	/** The pointer to the allocated memory */
 	private final int cPointer;
@@ -47,23 +47,23 @@ public class Pointer {
 	 * <p>
 	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param size
 	 *            the size of the memory, must be greater than 0
 	 */
-	public Pointer(	WinApi win,
+	public Pointer(	WinApi os,
 					int size) {
-		this.win = checkArgumentNotNull(win, "win");
+		this.os = checkArgumentNotNull(os, "os");
 		checkArgument(size > 0, "size", "Expected a value greater than 0");
 		this.size = size;
 
 		// allocate memory
-		cPointer = win.malloc(size());
-		if (cPointer==NULL)
-			throw new OutOfMemoryError("Unable to allocate "+size+"bytes of memory for type: "+getClass().getSimpleName());
+		cPointer = os.malloc(size());
+		if (cPointer == NULL)
+			throw new OutOfMemoryError("Unable to allocate " + size + " bytes of memory for type: " + getClass().getSimpleName());
 		// set all bytes to zero
-		win.memset(cPointer, 0, size());
+		os.memset(cPointer, 0, size());
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class Pointer {
 	 */
 	public void dispose() {
 		checkIfDisposed();
-		win.free(cPointer);
+		os.free(cPointer);
 		isDisposed = true;
 	}
 
@@ -109,7 +109,7 @@ public class Pointer {
 	 * @return Win32-API, never <code>null</code>
 	 */
 	protected WinApi getWinApi() {
-		return win;
+		return os;
 	}
 
 	@Override

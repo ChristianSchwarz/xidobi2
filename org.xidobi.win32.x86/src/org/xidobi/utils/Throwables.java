@@ -42,7 +42,7 @@ public final class Throwables {
 	 * Creates and returns a new {@link NativeCodeException} with the given message, the given
 	 * error-code and a message to the error-code, if available.
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param message
 	 *            the message, must not be <code>null</code>
@@ -51,15 +51,15 @@ public final class Throwables {
 	 * @return a new {@link NativeCodeException}, never <code>null</code>
 	 */
 	@Nonnull
-	public static final NativeCodeException newNativeCodeException(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
-		return new NativeCodeException(getErrorMessage(win, message, errorCode));
+	public static final NativeCodeException newNativeCodeException(@Nonnull WinApi os, @Nonnull String message, int errorCode) {
+		return new NativeCodeException(getErrorMessage(os, message, errorCode));
 	}
 
 	/**
 	 * Creates and returns a new {@link IOException} with the given message, the given error-code
 	 * and a message to the error-code, if available.
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param message
 	 *            the message, must not be <code>null</code>
@@ -68,23 +68,23 @@ public final class Throwables {
 	 * @return a new {@link IOException}, never <code>null</code>
 	 */
 	@Nonnull
-	public static final IOException newIOException(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
-		return new IOException(getErrorMessage(win, message, errorCode));
+	public static final IOException newIOException(@Nonnull WinApi os, @Nonnull String message, int errorCode) {
+		return new IOException(getErrorMessage(os, message, errorCode));
 	}
 
 	/**
 	 * Returns an error message with the given message, the given error-code and a message to the
 	 * error-code, if available.
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param errorCode
 	 *            the native error code
 	 * @return error message, never <code>null</code>
 	 */
 	@Nonnull
-	public static final String getErrorMessage(@Nonnull WinApi win, int errorCode) {
-		String nativeErrorMessage = getNativeErrorMessage(win, errorCode);
+	public static final String getErrorMessage(@Nonnull WinApi os, int errorCode) {
+		String nativeErrorMessage = getNativeErrorMessage(os, errorCode);
 		return "Error-Code " + errorCode + ": " + nativeErrorMessage;
 	}
 
@@ -92,7 +92,7 @@ public final class Throwables {
 	 * Returns an error message with the given message, the given error-code and a message to the
 	 * error-code, if available.
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param message
 	 *            the message, must not be <code>null</code>
@@ -101,22 +101,22 @@ public final class Throwables {
 	 * @return error message, never <code>null</code>
 	 */
 	@Nonnull
-	public static final String getErrorMessage(@Nonnull WinApi win, @Nonnull String message, int errorCode) {
+	public static final String getErrorMessage(@Nonnull WinApi os, @Nonnull String message, int errorCode) {
 		checkArgumentNotNull(message, "message");
-		return message + "\r\n" + getErrorMessage(win, errorCode);
+		return message + "\r\n" + getErrorMessage(os, errorCode);
 	}
 
 	/**
 	 * Returns an error message for the given error code. If no message can be found, then
 	 * "No error message available" is returned.
 	 */
-	private static String getNativeErrorMessage(WinApi win, int errorCode) {
-		checkArgumentNotNull(win, "win");
+	private static String getNativeErrorMessage(WinApi os, int errorCode) {
+		checkArgumentNotNull(os, "win");
 
 		byte[] lpMsgBuf = new byte[255];
 		//@formatter:off
-		int result = win.FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
-		                                null, errorCode, win.MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), lpMsgBuf, 255, null);
+		int result = os.FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+		                                null, errorCode, os.MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), lpMsgBuf, 255, null);
 		//@formatter:on
 		if (result == 0)
 			return "No error description available.";

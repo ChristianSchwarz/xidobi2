@@ -45,7 +45,7 @@ public class TestDWORD {
 	private DWORD dword;
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 
 	/** expected exceptions */
 	@Rule
@@ -56,8 +56,8 @@ public class TestDWORD {
 	public void setUp() {
 		initMocks(this);
 
-		when(win.sizeOf_DWORD()).thenReturn(SIZE);
-		when(win.malloc(SIZE)).thenReturn(POINTER);
+		when(os.sizeOf_DWORD()).thenReturn(SIZE);
+		when(os.malloc(SIZE)).thenReturn(POINTER);
 	}
 
 	/**
@@ -75,9 +75,9 @@ public class TestDWORD {
 	 */
 	@Test
 	public void new_allocatesByteArray() {
-		dword = new DWORD(win);
+		dword = new DWORD(os);
 
-		verify(win, times(1)).malloc(SIZE);
+		verify(os, times(1)).malloc(SIZE);
 	}
 
 	/**
@@ -86,11 +86,11 @@ public class TestDWORD {
 	 */
 	@Test
 	public void dispose_freesOVERLAPPEDstruct() {
-		dword = new DWORD(win);
+		dword = new DWORD(os);
 		dword.dispose();
 
 		assertThat(dword.isDisposed(), is(true));
-		verify(win).free(POINTER);
+		verify(os).free(POINTER);
 	}
 
 	/**
@@ -99,8 +99,8 @@ public class TestDWORD {
 	 */
 	@Test
 	public void getValue() {
-		dword = new DWORD(win);
-		when(win.getValue_DWORD(dword)).thenReturn(200);
+		dword = new DWORD(os);
+		when(os.getValue_DWORD(dword)).thenReturn(200);
 
 		assertThat(dword.getValue(), is(200));
 	}
@@ -111,7 +111,7 @@ public class TestDWORD {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void getValue_whenDisposed() {
-		dword = new DWORD(win);
+		dword = new DWORD(os);
 		dword.dispose();
 
 		dword.getValue();
@@ -123,11 +123,11 @@ public class TestDWORD {
 	 */
 	@Test
 	public void setValue() {
-		dword = new DWORD(win);
+		dword = new DWORD(os);
 
 		dword.setValue(200);
 
-		verify(win, times(1)).setValue_DWORD(dword, 200);
+		verify(os, times(1)).setValue_DWORD(dword, 200);
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class TestDWORD {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void setValue_whenDisposed() {
-		dword = new DWORD(win);
+		dword = new DWORD(os);
 		dword.dispose();
 
 		dword.setValue(200);

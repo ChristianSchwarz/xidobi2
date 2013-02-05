@@ -35,12 +35,12 @@ import org.xidobi.structs.Pointer;
  */
 public class TestStructs {
 
-	private WinApi win;
+	private WinApi os;
 
 	@Before
 	@SuppressWarnings("javadoc")
 	public void setUp() {
-		win = OS.OS;
+		os = OS.OS;
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class TestStructs {
 	@Test(timeout = 1500)
 	public void allocatePointerAndDisposeLoop() {
 		for (int i = 0; i < 100_000; i++) {
-			Pointer pointer = new Pointer(win, 5000);
+			Pointer pointer = new Pointer(os, 5000);
 			pointer.dispose();
 		}
 	}
@@ -63,7 +63,7 @@ public class TestStructs {
 		Pointer[] pointers = new Pointer[100_000];
 
 		for (int i = 0; i < 100_000; i++)
-			pointers[i] = new Pointer(win, 1024);
+			pointers[i] = new Pointer(os, 1024);
 
 		for (int i = 0; i < 100_000; i++)
 			pointers[i].dispose();
@@ -76,7 +76,7 @@ public class TestStructs {
 	@Test(timeout = 1500)
 	public void allocateNativeByteArrayAndDisposeLoop() {
 		for (int i = 0; i < 100_000; i++) {
-			NativeByteArray byteArray = new NativeByteArray(win, 1024);
+			NativeByteArray byteArray = new NativeByteArray(os, 1024);
 
 			byte[] result = byteArray.getByteArray();
 			assertThat(result, is(notNullValue()));
@@ -93,7 +93,7 @@ public class TestStructs {
 	@Test(timeout = 1500)
 	public void allocateDWORDAndSetAndGetValueLoop() {
 		for (int i = 0; i < 100_000; i++) {
-			DWORD dword = new DWORD(win);
+			DWORD dword = new DWORD(os);
 			assertThat(dword.getValue(), is(0));
 			dword.setValue(100);
 			assertThat(dword.getValue(), is(100));

@@ -31,17 +31,17 @@ public class DWORD extends Pointer {
 	 * <p>
 	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public DWORD(WinApi win) {
-		super(win, sizeOfDWORD(win));
+	public DWORD(WinApi os) {
+		super(os, sizeOfDWORD(os));
 	}
 
 	/** Returns the size of a DWORD. */
-	private static int sizeOfDWORD(WinApi win) {
-		checkArgumentNotNull(win, "win");
-		return win.sizeOf_DWORD();
+	private static int sizeOfDWORD(WinApi os) {
+		checkArgumentNotNull(os, "os");
+		return os.sizeOf_DWORD();
 	}
 
 	/**

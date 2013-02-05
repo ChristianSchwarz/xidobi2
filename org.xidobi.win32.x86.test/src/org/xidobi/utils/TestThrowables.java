@@ -50,7 +50,7 @@ public class TestThrowables {
 	private static int ERROR_CODE = 1;
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 
 	@Before
 	@SuppressWarnings("javadoc")
@@ -73,7 +73,7 @@ public class TestThrowables {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void newNativeCodeException_withNullMessage() {
-		Throwables.newNativeCodeException(win, null, ERROR_CODE);
+		Throwables.newNativeCodeException(os, null, ERROR_CODE);
 	}
 
 	/**
@@ -84,11 +84,11 @@ public class TestThrowables {
 	@Test
 	public void newNativeCodeException_noNativeErrorMessage() {
 		//@formatter:off
-		when(win.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
+		when(os.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
 			.thenReturn(0);
 		//@formatter:on
 
-		NativeCodeException result = Throwables.newNativeCodeException(win, MESSAGE, ERROR_CODE);
+		NativeCodeException result = Throwables.newNativeCodeException(os, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is(nativeCodeException("An error message!\r\nError-Code 1: No error description available")));
 	}
@@ -101,10 +101,10 @@ public class TestThrowables {
 	public void newNativeCodeException_withNativeErrorMessage() {
 		//@formatter:off
 		doAnswer(withNativeErrorMessage("This is a native error\n\n")).
-			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
+			when(os).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
 		//@formatter:on
 
-		NativeCodeException result = Throwables.newNativeCodeException(win, MESSAGE, ERROR_CODE);
+		NativeCodeException result = Throwables.newNativeCodeException(os, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is(nativeCodeException("An error message!\r\nError-Code 1: This is a native error")));
 	}
@@ -124,7 +124,7 @@ public class TestThrowables {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void newIOException_withNullMessage() {
-		Throwables.newIOException(win, null, ERROR_CODE);
+		Throwables.newIOException(os, null, ERROR_CODE);
 	}
 
 	/**
@@ -135,11 +135,11 @@ public class TestThrowables {
 	@Test
 	public void newIOException_noNativeErrorMessage() {
 		//@formatter:off
-		when(win.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
+		when(os.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
 			.thenReturn(0);
 		//@formatter:on
 
-		IOException result = Throwables.newIOException(win, MESSAGE, ERROR_CODE);
+		IOException result = Throwables.newIOException(os, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is(ioException("An error message!\r\nError-Code 1: No error description available")));
 	}
@@ -152,10 +152,10 @@ public class TestThrowables {
 	public void newIOException_withNativeErrorMessage() {
 		//@formatter:off
 		doAnswer(withNativeErrorMessage("This is a native error\n\n")).
-			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
+			when(os).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
 		//@formatter:on
 
-		IOException result = Throwables.newIOException(win, MESSAGE, ERROR_CODE);
+		IOException result = Throwables.newIOException(os, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is(ioException("An error message!\r\nError-Code 1: This is a native error")));
 	}
@@ -166,7 +166,7 @@ public class TestThrowables {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void getErrorMessage_withNullWinApi() {
-		Throwables.getErrorMessage(win, null, ERROR_CODE);
+		Throwables.getErrorMessage(os, null, ERROR_CODE);
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class TestThrowables {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void getErrorMessage_withNullMessage() {
-		Throwables.getErrorMessage(win, null, ERROR_CODE);
+		Throwables.getErrorMessage(os, null, ERROR_CODE);
 	}
 
 	/**
@@ -186,11 +186,11 @@ public class TestThrowables {
 	@Test
 	public void getErrorMessage_noNativeErrorMessage() {
 		//@formatter:off
-		when(win.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
+		when(os.FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null)))
 			.thenReturn(0);
 		//@formatter:on
 
-		String result = Throwables.getErrorMessage(win, MESSAGE, ERROR_CODE);
+		String result = Throwables.getErrorMessage(os, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is(("An error message!\r\nError-Code 1: No error description available.")));
 	}
@@ -203,10 +203,10 @@ public class TestThrowables {
 	public void getErrorMessage_withNativeErrorMessage() {
 		//@formatter:off
 		doAnswer(withNativeErrorMessage("This is a native error\n\n")).
-			when(win).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
+			when(os).FormatMessageA(eq(FORMAT), eq((Void) null), eq(ERROR_CODE), anyInt(), any(byte[].class), eq(255), eq((Void) null));
 		//@formatter:on
 
-		String result = Throwables.getErrorMessage(win, MESSAGE, ERROR_CODE);
+		String result = Throwables.getErrorMessage(os, MESSAGE, ERROR_CODE);
 
 		assertThat(result, is("An error message!\r\nError-Code 1: This is a native error"));
 	}

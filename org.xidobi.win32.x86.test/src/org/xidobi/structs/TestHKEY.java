@@ -45,7 +45,7 @@ public class TestHKEY {
 	private HKEY hkey;
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 
 	/** expected exceptions */
 	@Rule
@@ -71,13 +71,13 @@ public class TestHKEY {
 	 */
 	@Test
 	public void new_allocatesHKEYstruct() {
-		when(win.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(win.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
+		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
+		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
 
-		hkey = new HKEY(win);
+		hkey = new HKEY(os);
 
-		verify(win, times(1)).sizeOf_HKEY();
-		verify(win, times(1)).malloc(SIZEOF_HKEY);
+		verify(os, times(1)).sizeOf_HKEY();
+		verify(os, times(1)).malloc(SIZEOF_HKEY);
 	}
 
 	/**
@@ -86,14 +86,14 @@ public class TestHKEY {
 	 */
 	@Test
 	public void dispose_freesHKEYstruct() {
-		when(win.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
-		when(win.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
+		when(os.sizeOf_HKEY()).thenReturn(SIZEOF_HKEY);
+		when(os.malloc(SIZEOF_HKEY)).thenReturn(A_HKEY_POINTER);
 
-		hkey = new HKEY(win);
+		hkey = new HKEY(os);
 		hkey.dispose();
 
 		assertThat(hkey.isDisposed(), is(true));
-		verify(win).free(A_HKEY_POINTER);
+		verify(os).free(A_HKEY_POINTER);
 	}
 
 }

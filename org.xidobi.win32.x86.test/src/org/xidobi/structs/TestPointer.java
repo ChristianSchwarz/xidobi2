@@ -46,7 +46,7 @@ public class TestPointer {
 	private Pointer pointer;
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 
 	/** expected exceptions */
 	@Rule
@@ -56,7 +56,7 @@ public class TestPointer {
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
-		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
+		when(os.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class TestPointer {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withLength0() {
-		new Pointer(win, 0);
+		new Pointer(os, 0);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class TestPointer {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNegativeLength() {
-		new Pointer(win, -1);
+		new Pointer(os, -1);
 	}
 
 	/**
@@ -93,21 +93,21 @@ public class TestPointer {
 	@Test
 	public void new_allocatesMemory() {
 
-		pointer = new Pointer(win, DUMMY_SIZE);
+		pointer = new Pointer(os, DUMMY_SIZE);
 
-		verify(win, times(1)).malloc(DUMMY_SIZE);
+		verify(os, times(1)).malloc(DUMMY_SIZE);
 	}
 	/**
 	 * Verifies that an {@link OutOfMemoryError} is thrown if {@link WinApi#malloc(int)} returns {@link WinApi#NULL}.
 	 */
 	@Test
 	public void new_outOfMemory() {
-		when(win.malloc(DUMMY_SIZE)).thenReturn(NULL);
+		when(os.malloc(DUMMY_SIZE)).thenReturn(NULL);
 		exception.expect(OutOfMemoryError.class);
-		exception.expectMessage("Unable to allocate "+DUMMY_SIZE+"bytes of memory for type: "+Pointer.class.getSimpleName());
+		exception.expectMessage("Unable to allocate "+DUMMY_SIZE+" bytes of memory for type: "+Pointer.class.getSimpleName());
 
 
-		pointer = new Pointer(win, DUMMY_SIZE);
+		pointer = new Pointer(os, DUMMY_SIZE);
 	}
 
 	/**
@@ -116,11 +116,11 @@ public class TestPointer {
 	@Test
 	public void dispose_freesMemory() {
 
-		pointer = new Pointer(win, DUMMY_SIZE);
+		pointer = new Pointer(os, DUMMY_SIZE);
 		pointer.dispose();
 
 		assertThat(pointer.isDisposed(), is(true));
-		verify(win).free(DUMMY_POINTER);
+		verify(os).free(DUMMY_POINTER);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class TestPointer {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void dispose_whenAlreadyDisposed() {
-		pointer = new Pointer(win, DUMMY_SIZE);
+		pointer = new Pointer(os, DUMMY_SIZE);
 		pointer.dispose();
 
 		pointer.dispose();
@@ -140,7 +140,7 @@ public class TestPointer {
 	 */
 	@Test
 	public void size() {
-		pointer = new Pointer(win, DUMMY_SIZE);
+		pointer = new Pointer(os, DUMMY_SIZE);
 
 		assertThat(pointer.size(), is(DUMMY_SIZE));
 	}
@@ -151,7 +151,7 @@ public class TestPointer {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void size_whenDisposed() {
-		pointer = new Pointer(win, DUMMY_SIZE);
+		pointer = new Pointer(os, DUMMY_SIZE);
 
 		pointer.dispose();
 

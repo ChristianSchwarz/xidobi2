@@ -49,7 +49,7 @@ public class TestNativeByteArray {
 	private NativeByteArray byteArray;
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 
 	/** expected exceptions */
 	@Rule
@@ -60,7 +60,7 @@ public class TestNativeByteArray {
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
-		when(win.malloc(LENGTH)).thenReturn(DUMMY_POINTER);
+		when(os.malloc(LENGTH)).thenReturn(DUMMY_POINTER);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class TestNativeByteArray {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withLength0() {
-		new NativeByteArray(win, 0);
+		new NativeByteArray(os, 0);
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class TestNativeByteArray {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNegativeLength() {
-		new NativeByteArray(win, -1);
+		new NativeByteArray(os, -1);
 	}
 
 	/**
@@ -97,11 +97,11 @@ public class TestNativeByteArray {
 	 */
 	@Test
 	public void new_allocatesByteArray() {
-		when(win.malloc(LENGTH)).thenReturn(POINTER);
+		when(os.malloc(LENGTH)).thenReturn(POINTER);
 
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 
-		verify(win, times(1)).malloc(LENGTH);
+		verify(os, times(1)).malloc(LENGTH);
 	}
 
 	/**
@@ -110,13 +110,13 @@ public class TestNativeByteArray {
 	 */
 	@Test
 	public void dispose_freesOVERLAPPEDstruct() {
-		when(win.malloc(LENGTH)).thenReturn(POINTER);
+		when(os.malloc(LENGTH)).thenReturn(POINTER);
 
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		byteArray.dispose();
 
 		assertThat(byteArray.isDisposed(), is(true));
-		verify(win).free(POINTER);
+		verify(os).free(POINTER);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class TestNativeByteArray {
 	 */
 	@Test
 	public void size() {
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		assertThat(byteArray.size(), is(LENGTH));
 	}
 
@@ -135,7 +135,7 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void length_whenDisposed() {
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		byteArray.dispose();
 
 		byteArray.size();
@@ -147,9 +147,9 @@ public class TestNativeByteArray {
 	 */
 	@Test
 	public void getByteArray() {
-		when(win.getByteArray(any(NativeByteArray.class), eq(LENGTH))).thenReturn(DATA);
+		when(os.getByteArray(any(NativeByteArray.class), eq(LENGTH))).thenReturn(DATA);
 
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 
 		assertThat(byteArray.getByteArray(), is(DATA));
 	}
@@ -160,7 +160,7 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void getByteArray_whenDisposed() {
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		byteArray.dispose();
 
 		byteArray.getByteArray();
@@ -174,9 +174,9 @@ public class TestNativeByteArray {
 	public void getByteArray_withSize() {
 		byte[] data = new byte[2];
 
-		when(win.getByteArray(any(NativeByteArray.class), eq(2))).thenReturn(data);
+		when(os.getByteArray(any(NativeByteArray.class), eq(2))).thenReturn(data);
 
-		byteArray = new NativeByteArray(win, 5);
+		byteArray = new NativeByteArray(os, 5);
 
 		assertThat(byteArray.getByteArray(2), is(data));
 	}
@@ -187,7 +187,7 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void getByteArray_withTooHighSize() {
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		byteArray.getByteArray(LENGTH + 2);
 	}
 
@@ -197,7 +197,7 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void getByteArray_withSize0() {
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		byteArray.getByteArray(0);
 	}
 
@@ -207,7 +207,7 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void getByteArray_withNegativeSize() {
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		byteArray.getByteArray(-1);
 	}
 
@@ -217,7 +217,7 @@ public class TestNativeByteArray {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void getByteArray_withSizeWhenDisposed() {
-		byteArray = new NativeByteArray(win, LENGTH);
+		byteArray = new NativeByteArray(os, LENGTH);
 		byteArray.dispose();
 
 		byteArray.getByteArray(LENGTH);

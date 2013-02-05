@@ -67,7 +67,7 @@ public class TestWriterImpl {
 	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 
 	@Mock
 	private SerialPort port;
@@ -85,16 +85,16 @@ public class TestWriterImpl {
 	public void setUp() {
 		initMocks(this);
 
-		when(win.sizeOf_OVERLAPPED()).thenReturn(OVERLAPPED_SIZE);
-		when(win.malloc(OVERLAPPED_SIZE)).thenReturn(ptrOverlapped);
+		when(os.sizeOf_OVERLAPPED()).thenReturn(OVERLAPPED_SIZE);
+		when(os.malloc(OVERLAPPED_SIZE)).thenReturn(ptrOverlapped);
 
-		when(win.sizeOf_DWORD()).thenReturn(DWORD_SIZE);
-		when(win.malloc(DWORD_SIZE)).thenReturn(ptrBytesTransferred);
+		when(os.sizeOf_DWORD()).thenReturn(DWORD_SIZE);
+		when(os.malloc(DWORD_SIZE)).thenReturn(ptrBytesTransferred);
 
 		when(port.getPortName()).thenReturn("COM1");
-		when(win.CloseHandle(anyInt())).thenReturn(true);
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		writer = new WriterImpl(port, win, portHandle);
+		when(os.CloseHandle(anyInt())).thenReturn(true);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		writer = new WriterImpl(port, os, portHandle);
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class TestWriterImpl {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >port< must not be null!");
 
-		new WriterImpl(null, win, portHandle);
+		new WriterImpl(null, os, portHandle);
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class TestWriterImpl {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >handle< is invalid! Invalid handle value");
 
-		new WriterImpl(port, win, INVALID_HANDLE_VALUE);
+		new WriterImpl(port, os, INVALID_HANDLE_VALUE);
 	}
 
 	/**
@@ -145,12 +145,12 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_succeedImmediatly() throws IOException {
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
 
 		writer.write(DATA);
 
-		verify(win, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
+		verify(os, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 	}
 
 	/**
@@ -161,15 +161,15 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileReturnsUnexpectedNumberOfBytes() throws IOException {
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
 		
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WriteFile returned an unexpected number of transferred bytes! Transferred: " + (DATA.length - 1) + ", expected: " + DATA.length);
 		
 		writer.write(DATA);
 		
-		verify(win, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
+		verify(os, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 	}
 
 	/**
@@ -180,8 +180,8 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! Write operation failed, because the handle is invalid!");
@@ -197,9 +197,9 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFails() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WriteFile failed unexpected!");
@@ -215,10 +215,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectReturnsUndefinedValue() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned unexpected value! Got: " + DUMMY_ERROR_CODE);
@@ -234,12 +234,12 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_successfull() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
-		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
 
 		writer.write(DATA);
 	}
@@ -252,12 +252,12 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_lessBytesWritten() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
-		when(win.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + (DATA.length - 1) + ", expected: " + DATA.length);
@@ -273,10 +273,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectReturnsWAIT_TIMEOUT() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Write operation timed out after 2000 milliseconds!");
@@ -293,10 +293,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! Write operation failed, because the handle is invalid!");
@@ -312,10 +312,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFails() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
@@ -331,10 +331,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectReturnsWAIT_ABANDONED() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
@@ -350,11 +350,11 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFails() throws IOException {
-		when(win.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(win.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult failed unexpected!");
@@ -369,9 +369,9 @@ public class TestWriterImpl {
 	public void close() {
 		writer.close();
 
-		verify(win).CloseHandle(eventHandle);
-		verify(win).free(ptrBytesTransferred);
-		verify(win).free(ptrOverlapped);
+		verify(os).CloseHandle(eventHandle);
+		verify(os).free(ptrBytesTransferred);
+		verify(os).free(ptrOverlapped);
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

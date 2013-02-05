@@ -34,14 +34,14 @@ public class NativeByteArray extends Pointer {
 	 * <p>
 	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param size
 	 *            the size of the native byte array, must be greater than 0
 	 */
-	public NativeByteArray(	@Nonnull WinApi win,
+	public NativeByteArray(	@Nonnull WinApi os,
 							@Nonnegative int size) {
-		super(win, size);
+		super(os, size);
 	}
 
 	/**

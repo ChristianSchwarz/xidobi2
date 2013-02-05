@@ -50,7 +50,7 @@ public class SerialPortImpl implements SerialPort {
 
 	/** the native Win32-API, never <code>null</code> */
 	@Nonnull
-	private final WinApi win;
+	private final WinApi os;
 
 	/** the name of this port, eg. "COM1", never <code>null</code> */
 	@Nonnull
@@ -86,7 +86,7 @@ public class SerialPortImpl implements SerialPort {
 	/**
 	 * Creates a new handle using the native Win32-API provided by the {@link WinApi}.
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 * @param portName
 	 *            the name of this port, must not be <code>null</code>
@@ -96,12 +96,12 @@ public class SerialPortImpl implements SerialPort {
 	 *            configures the native DCB "struct" with the values from the serial port settings,
 	 *            must not be <code>null</code>
 	 */
-	public SerialPortImpl(	@Nonnull WinApi win,
+	public SerialPortImpl(	@Nonnull WinApi os,
 							@Nonnull String portName,
 							@Nullable String description,
 							@Nonnull DCBConfigurator configurator) {
 		this.portName = checkArgumentNotNull(portName, "portName");
-		this.win = checkArgumentNotNull(win, "win");
+		this.os = checkArgumentNotNull(os, "os");
 		this.configurator = checkArgumentNotNull(configurator, "configurator");
 		this.description = description;
 	}
@@ -118,15 +118,15 @@ public class SerialPortImpl implements SerialPort {
 			registerRxEvent(handle);
 		}
 		catch (IOException e) {
-			win.CloseHandle(handle);
+			os.CloseHandle(handle);
 			throw e;
 		}
 		catch (NativeCodeException e) {
-			win.CloseHandle(handle);
+			os.CloseHandle(handle);
 			throw e;
 		}
 
-		return new SerialConnectionImpl(this, win, handle);
+		return new SerialConnectionImpl(this, os, handle);
 	}
 
 	/**
@@ -137,12 +137,12 @@ public class SerialPortImpl implements SerialPort {
 	 *                if the port is already open or does not exist
 	 */
 	private int tryOpen(final String portName) throws IOException {
-		int handle = win.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
 
-		int err = win.GetLastError();
+		int err = os.GetLastError();
 
 		switch (err) {
 			case ERROR_ACCESS_DENIED:
@@ -162,12 +162,12 @@ public class SerialPortImpl implements SerialPort {
 	private void applySettings(final int handle, final SerialPortSettings settings) throws IOException {
 		final DCB dcb = new DCB();
 
-		if (!win.GetCommState(handle, dcb))
+		if (!os.GetCommState(handle, dcb))
 			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!");
 
 		configurator.configureDCB(dcb, settings);
 
-		if (!win.SetCommState(handle, dcb))
+		if (!os.SetCommState(handle, dcb))
 			throw lastError("Unable to set the control settings (" + portName + ")!");
 	}
 
@@ -179,9 +179,9 @@ public class SerialPortImpl implements SerialPort {
 	 *            the handle of the port to clear
 	 */
 	private void clearIOBuffers(final int handle) {
-		if (win.PurgeComm(handle, PURGE_RXCLEAR | PURGE_TXCLEAR))
+		if (os.PurgeComm(handle, PURGE_RXCLEAR | PURGE_TXCLEAR))
 			return;
-		throw Throwables.newNativeCodeException(win, "PurgeComm failed!", win.GetLastError());
+		throw Throwables.newNativeCodeException(os, "PurgeComm failed!", os.GetLastError());
 	}
 
 	/**
@@ -190,10 +190,10 @@ public class SerialPortImpl implements SerialPort {
 	 * @param portHandle
 	 */
 	private void registerRxEvent(int portHandle) {
-		if (win.SetCommMask(portHandle, EV_RXCHAR))
+		if (os.SetCommMask(portHandle, EV_RXCHAR))
 			return;
 
-		throw newNativeCodeException(win, "SetCommMask failed!", win.GetLastError());
+		throw newNativeCodeException(os, "SetCommMask failed!", os.GetLastError());
 	}
 
 	/**
@@ -201,7 +201,7 @@ public class SerialPortImpl implements SerialPort {
 	 * returned by {@link WinApi#GetLastError()}.
 	 */
 	private IOException lastError(String message) {
-		return newIOException(win, message, win.GetLastError());
+		return newIOException(os, message, os.GetLastError());
 	}
 
 	/** {@inheritDoc} */

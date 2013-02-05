@@ -77,7 +77,7 @@ public class TestSerialPortImpl {
 	private SerialPortImpl port;
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 	@Mock
 	private SerialPortSettings settings;
 	@Mock
@@ -92,12 +92,12 @@ public class TestSerialPortImpl {
 	public void setUp() {
 		initMocks(this);
 
-		port = new SerialPortImpl(win, "COM1", "description", configurator);
+		port = new SerialPortImpl(os, "COM1", "description", configurator);
 
-		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZE_OVERLAPPED);
-		when(win.malloc(SIZE_OVERLAPPED)).thenReturn(OVERALAPPED_PTR);
-		when(win.sizeOf_DWORD()).thenReturn(SIZE_DWORD);
-		when(win.malloc(SIZE_DWORD)).thenReturn(DWORD_PTR);
+		when(os.sizeOf_OVERLAPPED()).thenReturn(SIZE_OVERLAPPED);
+		when(os.malloc(SIZE_OVERLAPPED)).thenReturn(OVERALAPPED_PTR);
+		when(os.sizeOf_DWORD()).thenReturn(SIZE_DWORD);
+		when(os.malloc(SIZE_DWORD)).thenReturn(DWORD_PTR);
 		
 	}
 
@@ -118,7 +118,7 @@ public class TestSerialPortImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullPortName() {
-		new SerialPortImpl(win, null, "description", configurator);
+		new SerialPortImpl(os, null, "description", configurator);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class TestSerialPortImpl {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullConfigurator() {
-		new SerialPortImpl(win, "COM1", null, null);
+		new SerialPortImpl(os, "COM1", null, null);
 	}
 
 	/**
@@ -161,8 +161,8 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_fail_CreateFileReturnsInvalidHandle() throws Exception {
-		when(win.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE_VALUE);
-		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE_VALUE);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to open port (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
@@ -180,10 +180,10 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_fail_GetCommStateReturnsFalse() throws Exception {
-		when(win.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(PORT_HANDLE);
-		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
-		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(os.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(PORT_HANDLE);
+		when(os.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
@@ -192,7 +192,7 @@ public class TestSerialPortImpl {
 			port.open(settings);
 		}
 		finally {
-			verify(win).CloseHandle(PORT_HANDLE);
+			verify(os).CloseHandle(PORT_HANDLE);
 		}
 	}
 
@@ -206,10 +206,10 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_fail_SetCommStateReturnsFalse() throws Exception {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
-		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(false);
-		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
+		when(os.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(os.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to set the control settings (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
@@ -218,7 +218,7 @@ public class TestSerialPortImpl {
 			port.open(settings);
 		}
 		finally {
-			verify(win).CloseHandle(PORT_HANDLE);
+			verify(os).CloseHandle(PORT_HANDLE);
 		}
 	}
 
@@ -232,11 +232,11 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_fail_PurgeCommReturnsFalse() throws Exception {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
-		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(false);
-		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
+		when(os.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(os.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(os.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(false);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("PurgeComm failed!\r\nError-Code " + DUMMY_ERROR_CODE);
@@ -245,7 +245,7 @@ public class TestSerialPortImpl {
 			port.open(settings);
 		}
 		finally {
-			verify(win).CloseHandle(PORT_HANDLE);
+			verify(os).CloseHandle(PORT_HANDLE);
 		}
 	}
 
@@ -259,13 +259,13 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_fail_SetCommMaskReturnsFalse() throws Exception {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
-		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
-		when(win.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(false);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
+		when(os.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(os.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(os.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(os.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(false);
 
-		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("SetCommMask failed!\r\nError-Code " + DUMMY_ERROR_CODE);
@@ -274,7 +274,7 @@ public class TestSerialPortImpl {
 			port.open(settings);
 		}
 		finally {
-			verify(win).CloseHandle(PORT_HANDLE);
+			verify(os).CloseHandle(PORT_HANDLE);
 		}
 	}
 
@@ -286,22 +286,22 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_succeed() throws Exception {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
-		when(win.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
-		when(win.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
-		when(win.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(true);
-		when(win.CreateEventA(0, true, false, null)).thenReturn(1);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(PORT_HANDLE);
+		when(os.GetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(os.SetCommState(eq(PORT_HANDLE), anyDCB())).thenReturn(true);
+		when(os.PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR)).thenReturn(true);
+		when(os.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(true);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(1);
 
 		SerialConnection result = port.open(settings);
 
-		verify(win).CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
-		verify(win).GetCommState(eq(PORT_HANDLE), anyDCB());
+		verify(os).CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		verify(os).GetCommState(eq(PORT_HANDLE), anyDCB());
 		verify(configurator).configureDCB(anyDCB(), eq(settings));
-		verify(win).SetCommState(eq(PORT_HANDLE), anyDCB());
-		verify(win).PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR);
+		verify(os).SetCommState(eq(PORT_HANDLE), anyDCB());
+		verify(os).PurgeComm(PORT_HANDLE, PURGE_RXCLEAR | PURGE_TXCLEAR);
 
-		verify(win, never()).CloseHandle(PORT_HANDLE);
+		verify(os, never()).CloseHandle(PORT_HANDLE);
 		assertThat(result, is(notNullValue()));
 	}
 
@@ -313,8 +313,8 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_invalidHandleAndERROR_ACCESS_DENIED() throws IOException {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE_VALUE);
-		when(win.GetLastError()).thenReturn(ERROR_ACCESS_DENIED);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE_VALUE);
+		when(os.GetLastError()).thenReturn(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port in use (COM1)!");
@@ -330,8 +330,8 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_invalidHandleAndERROR_FILE_NOT_FOUND() throws IOException {
-		when(win.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE_VALUE);
-		when(win.GetLastError()).thenReturn(ERROR_FILE_NOT_FOUND);
+		when(os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0)).thenReturn(INVALID_HANDLE_VALUE);
+		when(os.GetLastError()).thenReturn(ERROR_FILE_NOT_FOUND);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port not found (COM1)!");
@@ -345,7 +345,7 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void getDescription() {
-		SerialPort port = new SerialPortImpl(win, "portName", "description");
+		SerialPort port = new SerialPortImpl(os, "portName", "description");
 		assertThat(port.getDescription(), is("description"));
 	}
 
@@ -355,7 +355,7 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void getDescription_isNull() {
-		SerialPort port = new SerialPortImpl(win, "portName", null);
+		SerialPort port = new SerialPortImpl(os, "portName", null);
 		assertThat(port.getDescription(), is(nullValue()));
 	}
 
@@ -365,7 +365,7 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void testToString() {
-		SerialPort port = new SerialPortImpl(win, "COM1", "/device/serial0");
+		SerialPort port = new SerialPortImpl(os, "COM1", "/device/serial0");
 		assertThat(port.toString(), is("SerialPortImpl [portName=COM1, description=/device/serial0]"));
 	}
 

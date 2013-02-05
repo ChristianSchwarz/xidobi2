@@ -24,17 +24,17 @@ public class HKEY extends Pointer {
 	 * <p>
 	 * <b>Note:</b> The instance must be disposed, when it isn't used anymore!
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public HKEY(WinApi win) {
-		super(win, sizeOfHKEY(win));
+	public HKEY(WinApi os) {
+		super(os, sizeOfHKEY(os));
 	}
 
 	/** Returns the size of an HKEY struct. */
-	private static int sizeOfHKEY(WinApi win) {
-		checkArgumentNotNull(win, "win");
-		return win.sizeOf_HKEY();
+	private static int sizeOfHKEY(WinApi os) {
+		checkArgumentNotNull(os, "os");
+		return os.sizeOf_HKEY();
 	}
 
 }

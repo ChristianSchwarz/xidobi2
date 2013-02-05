@@ -45,7 +45,7 @@ public class TestOVERLAPPED {
 	private OVERLAPPED overlapped;
 
 	@Mock
-	private WinApi win;
+	private WinApi os;
 
 	/** expected exceptions */
 	@Rule
@@ -56,8 +56,8 @@ public class TestOVERLAPPED {
 	public void setUp() {
 		initMocks(this);
 
-		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
-		when(win.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
+		when(os.sizeOf_OVERLAPPED()).thenReturn(SIZEOF_OVERLAPPED);
+		when(os.malloc(SIZEOF_OVERLAPPED)).thenReturn(A_OVERLAPPED_POINTER);
 	}
 
 	/**
@@ -75,10 +75,10 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void new_allocatesOVERLAPPEDstruct() {
-		overlapped = new OVERLAPPED(win);
+		overlapped = new OVERLAPPED(os);
 
-		verify(win, times(1)).sizeOf_OVERLAPPED();
-		verify(win, times(1)).malloc(SIZEOF_OVERLAPPED);
+		verify(os, times(1)).sizeOf_OVERLAPPED();
+		verify(os, times(1)).malloc(SIZEOF_OVERLAPPED);
 	}
 
 	/**
@@ -87,11 +87,11 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void dispose_freesOVERLAPPEDstruct() {
-		overlapped = new OVERLAPPED(win);
+		overlapped = new OVERLAPPED(os);
 		overlapped.dispose();
 
 		assertThat(overlapped.isDisposed(), is(true));
-		verify(win).free(A_OVERLAPPED_POINTER);
+		verify(os).free(A_OVERLAPPED_POINTER);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void toString_withoutHEvent() {
-		overlapped = new OVERLAPPED(win);
+		overlapped = new OVERLAPPED(os);
 		assertThat(overlapped.toString(), is("OVERLAPPED [hEvent=0]"));
 	}
 
@@ -110,7 +110,7 @@ public class TestOVERLAPPED {
 	 */
 	@Test
 	public void toString_withHEvent() {
-		overlapped = new OVERLAPPED(win);
+		overlapped = new OVERLAPPED(os);
 		overlapped.hEvent = 100;
 		assertThat(overlapped.toString(), is("OVERLAPPED [hEvent=100]"));
 	}

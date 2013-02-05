@@ -36,8 +36,8 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public interface WinApi {
 
-	/** 0*/
-	int NULL =0;
+	/** 0 */
+	int NULL = 0;
 	/** Used for timeout durations. */
 	int INFINITE = -1;
 
