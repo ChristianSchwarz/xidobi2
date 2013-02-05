@@ -212,11 +212,10 @@ public class TestIoOperation {
 
 	}
 
-	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
 	@SuppressWarnings("javadoc")
 	public static class _IoOperation extends IoOperation {
-
 		public _IoOperation(SerialPort port,
 							WinApi os,
 							int handle) {

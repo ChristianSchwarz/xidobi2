@@ -54,7 +54,7 @@ public class TestFindPorts extends AbstractIntegrationTest {
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
 	/** Returns a Matcher that verifies the portName of a {@link SerialPortInfo}. */
 	private TypeSafeMatcher<SerialPort> serialPortWith(final String portName) {

@@ -369,7 +369,6 @@ public class TestBasicSerialConnection {
 	/** Returns a new {@link Runnable} that writes the {@link #BYTES} to the {@link #port}. */
 	private Runnable writeBytes() {
 		return new Runnable() {
-
 			@Override
 			public void run() {
 				try {
@@ -385,7 +384,6 @@ public class TestBasicSerialConnection {
 	/** Returns a new {@link Runnable} that read from the {@link #port}. */
 	private Runnable readBytes() {
 		return new Runnable() {
-
 			@Override
 			public void run() {
 				try {

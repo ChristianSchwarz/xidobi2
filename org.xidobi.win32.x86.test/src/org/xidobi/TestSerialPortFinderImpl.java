@@ -256,7 +256,7 @@ public class TestSerialPortFinderImpl {
 		assertThat(result, is(notNullValue()));
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
 	/** Returns an answer that mocks the behaviour of the native method RegEnumValueA(). */
 	private Answer<Integer> withValue(final String lpValueName, final String lpData, final int status) {

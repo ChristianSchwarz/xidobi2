@@ -520,11 +520,9 @@ public class TestDCBConfigurator {
 		assertThat(dcb.fDtrControl, is(0));
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////////////
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
-	/**
-	 * Mocks the values of a {@link SerialPortSettings}.
-	 */
+	/** Mocks the values of a {@link SerialPortSettings}. */
 	private void mockSerialPortSettings(int bauds, DataBits dataBits, StopBits stopBits, Parity parity, FlowControl flowControl, boolean rts, boolean dtr) {
 		when(settings.getBauds()).thenReturn(bauds);
 		when(settings.getParity()).thenReturn(parity);

@@ -368,10 +368,9 @@ public class TestSerialPortImpl {
 		assertThat(port.toString(), is("SerialPortImpl [portName=COM1, description=/device/serial0]"));
 	}
 
-	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Matcher for {@link DCB}
-	 */
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
+
+	/** Matcher for {@link DCB} */
 	private DCB anyDCB() {
 		return any(DCB.class);
 	}

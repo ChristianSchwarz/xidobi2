@@ -211,7 +211,7 @@ public class TestThrowables {
 		assertThat(result, is("An error message!\r\nError-Code 1: This is a native error"));
 	}
 
-	// ///////////////////////////////////////////////////////////////////////////////////////////////
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
 	/** Matcher for {@link NativeCodeException} starting with the message. */
 	private TypeSafeMatcher<NativeCodeException> nativeCodeException(final String message) {
