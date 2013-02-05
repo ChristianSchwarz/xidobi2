@@ -21,6 +21,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -274,6 +275,27 @@ public class TestReaderImpl {
 	}
 
 	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * is pending and <code>WaitForSingleObject(...)</code> returns an unexpected value.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingReturnsUnexpectedValue() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		                                         DUMMY_ERROR_CODE);
+		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(123);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned unexpected value! Got: 123");
+
+		reader.read();
+	}
+
+	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ClearCommError(...)</code>
 	 * returns <code>false</code>.
 	 * 
@@ -456,6 +478,29 @@ public class TestReaderImpl {
 
 	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
+	 * pending and <code>WaitForSingleObject(...)</code> returns an unexpected value.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingReturnsUnexpectedValue() throws IOException {
+		//@formatter:off
+		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(123);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned unexpected value! Got: 123");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
 	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_TIMEOUT</code>.
 	 * 
 	 * @throws IOException
@@ -565,6 +610,29 @@ public class TestReaderImpl {
 		verify(win).free(ptrEvtMask);
 		verify(win).free(ptrOverlapped);
 		verify(win).CloseHandle(eventHandle);
+	}
+
+	/**
+	 * Verifies that all resources are disposed, when the disposing of the eventMask raises an
+	 * {@link RuntimeException}.
+	 */
+	@Test
+	public void close_whenEvtMaskDisposeThrowsException() {
+
+		doThrow(new RuntimeException()).when(win).free(ptrEvtMask);
+
+		exception.expect(RuntimeException.class);
+
+		try {
+			reader.close();
+		}
+		finally {
+			verify(win).free(ptrEvtMask); // raises the RuntimeException
+
+			verify(win).free(ptrBytesTransferred);
+			verify(win).free(ptrOverlapped);
+			verify(win).CloseHandle(eventHandle);
+		}
 
 	}
 

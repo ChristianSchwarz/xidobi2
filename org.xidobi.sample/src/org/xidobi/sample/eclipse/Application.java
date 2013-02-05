@@ -49,7 +49,7 @@ public class Application implements IApplication {
 		Set<SerialPort> ports = finder.getAll();
 		for (SerialPort port : ports) {
 			out.println(port);
-			if ("COM75".equals(port.getPortName()))
+			if ("COM2".equals(port.getPortName()))
 				connect(port).awaitTermination(MAX_VALUE, DAYS);
 		}
 

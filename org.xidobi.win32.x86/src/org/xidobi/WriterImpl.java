@@ -106,6 +106,5 @@ public class WriterImpl extends IoOperation implements Writer {
 			default:
 				throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
 		}
-
 	}
 }
