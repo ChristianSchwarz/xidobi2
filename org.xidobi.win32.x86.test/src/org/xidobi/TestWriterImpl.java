@@ -154,7 +154,7 @@ public class TestWriterImpl {
 	}
 
 	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WriteFile(...)</code> 
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WriteFile(...)</code>
 	 * returns an unexpected number of transferred bytes.
 	 * 
 	 * @throws IOException
@@ -163,12 +163,12 @@ public class TestWriterImpl {
 	public void write_WriteFileReturnsUnexpectedNumberOfBytes() throws IOException {
 		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
-		
+
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WriteFile returned an unexpected number of transferred bytes! Transferred: " + (DATA.length - 1) + ", expected: " + DATA.length);
-		
+
 		writer.write(DATA);
-		
+
 		verify(os, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 	}
 

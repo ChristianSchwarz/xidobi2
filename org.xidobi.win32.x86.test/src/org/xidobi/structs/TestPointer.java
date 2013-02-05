@@ -97,15 +97,16 @@ public class TestPointer {
 
 		verify(os, times(1)).malloc(DUMMY_SIZE);
 	}
+
 	/**
-	 * Verifies that an {@link OutOfMemoryError} is thrown if {@link WinApi#malloc(int)} returns {@link WinApi#NULL}.
+	 * Verifies that an {@link OutOfMemoryError} is thrown if {@link WinApi#malloc(int)} returns
+	 * {@link WinApi#NULL}.
 	 */
 	@Test
 	public void new_outOfMemory() {
 		when(os.malloc(DUMMY_SIZE)).thenReturn(NULL);
 		exception.expect(OutOfMemoryError.class);
-		exception.expectMessage("Unable to allocate "+DUMMY_SIZE+" bytes of memory for type: "+Pointer.class.getSimpleName());
-
+		exception.expectMessage("Unable to allocate " + DUMMY_SIZE + " bytes of memory for type: " + Pointer.class.getSimpleName());
 
 		pointer = new Pointer(os, DUMMY_SIZE);
 	}

@@ -935,7 +935,8 @@ public interface WinApi {
 	 * @param size
 	 *            the size of the memory
 	 * @return On success, a pointer to the memory block allocated by the function. If the function
-	 *         failed to allocate the requested block of memory, {@link #NULL}  (a null pointer) is returned.
+	 *         failed to allocate the requested block of memory, {@link #NULL} (a null pointer) is
+	 *         returned.
 	 */
 	int malloc(@Nonnegative int size);
 

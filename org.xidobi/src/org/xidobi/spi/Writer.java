@@ -32,7 +32,8 @@ public interface Writer extends Closeable {
 	/**
 	 * The implementation must write the given {@code byte[]} to the port.
 	 * <p>
-	 * This method will be called by {@link BasicSerialConnection#write(byte[])}, if following conditions apply:
+	 * This method will be called by {@link BasicSerialConnection#write(byte[])}, if following
+	 * conditions apply:
 	 * <ul>
 	 * <li>the port is open
 	 * <li>{@code data != null}.
@@ -47,11 +48,11 @@ public interface Writer extends Closeable {
 	 */
 	void write(@Nonnull byte[] data) throws IOException;
 
-	
 	/**
 	 * The implementation must release all native resources.
 	 * <p>
-	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not closed.
+	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
+	 * closed.
 	 * <p>
 	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
 	 * port is currently open!

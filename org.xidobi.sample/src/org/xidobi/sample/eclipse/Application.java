@@ -40,7 +40,7 @@ import org.xidobi.SerialPortProvider;
  * @author Tobias Breﬂler
  */
 public class Application implements IApplication {
-	
+
 	/** {@inheritDoc} */
 	public Object start(IApplicationContext context) throws Exception {
 
@@ -103,7 +103,7 @@ public class Application implements IApplication {
 			}
 		};
 	}
-	
+
 	/** {@inheritDoc} */
 	public void stop() {}
 }

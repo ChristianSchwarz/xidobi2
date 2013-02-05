@@ -41,8 +41,8 @@ import org.xidobi.SerialPortFinderImpl;
 public class TestFindPorts extends AbstractIntegrationTest {
 
 	/**
-	 * Verifies that {@link SerialPortFinderImpl#getAll()} never returns a <code>null</code> value and
-	 * never throws an exception.
+	 * Verifies that {@link SerialPortFinderImpl#getAll()} never returns a <code>null</code> value
+	 * and never throws an exception.
 	 */
 	@Test(timeout = 1500)
 	public void findSerialPortsLoop() {

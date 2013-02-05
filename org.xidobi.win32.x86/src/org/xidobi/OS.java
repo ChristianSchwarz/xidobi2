@@ -159,7 +159,6 @@ public class OS implements WinApi {
 		return lastNativeErrorCodes.get(currentThread());
 	}
 
-
 	/** {@inheritDoc} */
 	public native int MAKELANGID(short usPrimaryLanguage, short usSubLanguage);
 

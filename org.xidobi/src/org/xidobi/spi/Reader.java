@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
  */
 public interface Reader extends Closeable {
 
-
 	/**
 	 * The implementation must block until at least one byte can be returned or an
 	 * {@link IOException} is thrown.
@@ -40,15 +39,17 @@ public interface Reader extends Closeable {
 	 * port is currently open!
 	 * 
 	 * @return the byte's read from the port, never <code>null</code>
-	 * @throws IOException if the port was closed during the operation
+	 * @throws IOException
+	 *             if the port was closed during the operation
 	 */
 	@Nonnull
 	byte[] read() throws IOException;
-	
+
 	/**
 	 * The implementation must release all native resources.
 	 * <p>
-	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not closed.
+	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
+	 * closed.
 	 * <p>
 	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
 	 * port is currently open!

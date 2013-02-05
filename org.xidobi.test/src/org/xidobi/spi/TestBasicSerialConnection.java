@@ -70,10 +70,9 @@ public class TestBasicSerialConnection {
 
 	@Mock
 	private Reader reader;
-	
+
 	@Mock
 	private Writer writer;
-
 
 	/** needed to verify exceptions */
 	@Rule
@@ -91,12 +90,12 @@ public class TestBasicSerialConnection {
 	 * to the constructor.
 	 */
 	@Test
-	@SuppressWarnings( { "resource", "unused" })
+	@SuppressWarnings({ "resource", "unused" })
 	public void new_nullPortPortHandle() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >portHandle< must not be null!");
 
-		new BasicSerialConnection(null,reader,writer);
+		new BasicSerialConnection(null, reader, writer);
 	}
 
 	/**
@@ -243,11 +242,11 @@ public class TestBasicSerialConnection {
 	@Test
 	public void write_closePortOnIOException() throws Exception {
 		doThrow(IO_EXCEPTION).when(writer).write(BYTES);
-		try{
+		try {
 			port.write(BYTES);
 			fail("expected an IOException");
-		}catch(IOException ignore) {
 		}
+		catch (IOException ignore) {}
 		verify(writer).close();
 	}
 
@@ -304,11 +303,11 @@ public class TestBasicSerialConnection {
 	@Test
 	public void read_closePortOnIOException() throws Exception {
 		doThrow(IO_EXCEPTION).when(reader).read();
-		try{
+		try {
 			port.read();
 			fail("expected an IOException");
-		}catch(IOException ignore) {
 		}
+		catch (IOException ignore) {}
 		verify(reader).close();
 		verify(writer).close();
 	}
@@ -338,7 +337,6 @@ public class TestBasicSerialConnection {
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
-	
 
 	/**
 	 * Captures the max. number of Threads calling the method in parallel, during the given

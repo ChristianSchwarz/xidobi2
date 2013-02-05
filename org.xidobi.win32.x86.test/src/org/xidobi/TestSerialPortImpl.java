@@ -58,20 +58,19 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public class TestSerialPortImpl {
 
-	/** Dummy size of a {@link DWORD}	 */
+	/** Dummy size of a {@link DWORD} */
 	private static final int SIZE_DWORD = 1;
-	/** Dummy Pointer to an allocated {@link DWORD}*/
+	/** Dummy Pointer to an allocated {@link DWORD} */
 	private static final int DWORD_PTR = 2;
-	/** Dummy size of a {@link OVERLAPPED}	 */
+	/** Dummy size of a {@link OVERLAPPED} */
 	private static final int SIZE_OVERLAPPED = 3;
-	/** Dummy Pointer to an allocated {@link OVERLAPPED}*/
+	/** Dummy Pointer to an allocated {@link OVERLAPPED} */
 	private static final int OVERALAPPED_PTR = 4;
-	
+
 	/** some value for an unspecific win32 error code */
 	private static final int DUMMY_ERROR_CODE = 125;
 	/** some value for an unspecific handle */
 	private static final int PORT_HANDLE = 6;
-
 
 	/** Class under test */
 	private SerialPortImpl port;
@@ -98,7 +97,7 @@ public class TestSerialPortImpl {
 		when(os.malloc(SIZE_OVERLAPPED)).thenReturn(OVERALAPPED_PTR);
 		when(os.sizeOf_DWORD()).thenReturn(SIZE_DWORD);
 		when(os.malloc(SIZE_DWORD)).thenReturn(DWORD_PTR);
-		
+
 	}
 
 	/**

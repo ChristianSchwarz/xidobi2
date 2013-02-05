@@ -33,7 +33,7 @@ import org.xidobi.structs.Pointer;
  * 
  * @author Tobias Breﬂler
  */
-public class TestStructs {
+public class TestPointers {
 
 	private WinApi os;
 

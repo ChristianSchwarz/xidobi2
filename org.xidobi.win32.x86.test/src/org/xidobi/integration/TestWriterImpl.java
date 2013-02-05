@@ -58,6 +58,7 @@ public class TestWriterImpl extends AbstractIntegrationTest {
 	@Mock
 	private SerialPort portHandle;
 
+	/** system handle of the serial port */
 	private int handle;
 
 	@Override
