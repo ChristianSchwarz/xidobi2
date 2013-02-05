@@ -105,10 +105,11 @@ public abstract class IoOperation implements Closeable {
 		} finally { try {
 			disposeLock.lock();
 			numberOfBytesTransferred.dispose();
+		} finally { try {
+			overlapped.dispose();
 		} finally {
 			disposeLock.unlock();
-			overlapped.dispose();
-		}}
+		}}}
 		//@formatter:on
 	}
 
