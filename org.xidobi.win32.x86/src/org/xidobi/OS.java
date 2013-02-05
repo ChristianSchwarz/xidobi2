@@ -73,7 +73,7 @@ public class OS implements WinApi {
 	}
 
 	/** Stores the last error code. */
-	private void storeLastNativeError(INT lastError) {
+	private void preserveLastError(INT lastError) {
 		lastNativeErrorCodes.put(currentThread(), lastError.value);
 	}
 
@@ -82,7 +82,7 @@ public class OS implements WinApi {
 	public int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile) {
 		INT lastError = new INT(0);
 		int result = CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -93,7 +93,7 @@ public class OS implements WinApi {
 	public boolean CloseHandle(int handle) {
 		INT lastError = new INT(0);
 		boolean result = CloseHandle(handle, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -104,7 +104,7 @@ public class OS implements WinApi {
 	public boolean GetCommState(int handle, DCB dcb) {
 		INT lastError = new INT(0);
 		boolean result = GetCommState(handle, dcb, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -115,7 +115,7 @@ public class OS implements WinApi {
 	public boolean SetCommState(int handle, DCB dcb) {
 		INT lastError = new INT(0);
 		boolean result = SetCommState(handle, dcb, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -126,7 +126,7 @@ public class OS implements WinApi {
 	public int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, @Nullable String lpName) {
 		INT lastError = new INT(0);
 		int result = CreateEventA(lpEventAttributes, bManualReset, bInitialState, lpName, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -137,7 +137,7 @@ public class OS implements WinApi {
 	public boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable DWORD lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = WriteFile(handle, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -148,19 +148,17 @@ public class OS implements WinApi {
 	public boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable DWORD lpNumberOfBytesRead, OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = ReadFile(handle, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
 	private native boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable DWORD lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
-	public int getPreservedError() {
+	public int GetLastError() {
 		return lastNativeErrorCodes.get(currentThread());
 	}
 
-	/** {@inheritDoc} */
-	public native int GetLastError();
 
 	/** {@inheritDoc} */
 	public native int MAKELANGID(short usPrimaryLanguage, short usSubLanguage);
@@ -169,7 +167,7 @@ public class OS implements WinApi {
 	public int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments) {
 		INT lastError = new INT(0);
 		int result = FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, arguments, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -179,7 +177,7 @@ public class OS implements WinApi {
 	public boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, DWORD lpNumberOfBytesTransferred, boolean bWait) {
 		INT lastError = new INT(0);
 		boolean result = GetOverlappedResult(handle, lpOverlapped, lpNumberOfBytesTransferred, bWait, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -189,7 +187,7 @@ public class OS implements WinApi {
 	public int WaitForSingleObject(int hHandle, int dwMilliseconds) {
 		INT lastError = new INT(0);
 		int result = WaitForSingleObject(hHandle, dwMilliseconds, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -208,7 +206,7 @@ public class OS implements WinApi {
 	public boolean SetCommMask(int hFile, int dwEvtMask) {
 		INT lastError = new INT(0);
 		boolean result = SetCommMask(hFile, dwEvtMask, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -218,7 +216,7 @@ public class OS implements WinApi {
 	public boolean WaitCommEvent(int hFile, DWORD lpEvtMask, OVERLAPPED lpOverlapped) {
 		INT lastError = new INT(0);
 		boolean result = WaitCommEvent(hFile, lpEvtMask, lpOverlapped, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -228,7 +226,7 @@ public class OS implements WinApi {
 	public boolean PurgeComm(int hFile, int dwFlags) {
 		INT lastError = new INT(0);
 		boolean result = PurgeComm(hFile, dwFlags, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -238,7 +236,7 @@ public class OS implements WinApi {
 	public boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat) {
 		INT lastError = new INT(0);
 		boolean result = ClearCommError(hFile, lpErrors, lpStat, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 
@@ -248,7 +246,7 @@ public class OS implements WinApi {
 	public boolean ResetEvent(int hEvent) {
 		INT lastError = new INT(0);
 		boolean result = ResetEvent(hEvent, lastError);
-		storeLastNativeError(lastError);
+		preserveLastError(lastError);
 		return result;
 	}
 

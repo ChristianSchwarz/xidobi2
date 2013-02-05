@@ -99,11 +99,11 @@ public class ReaderImpl extends IoOperation implements Reader {
 				return;
 			}
 
-			int lastError = os.getPreservedError();
+			int lastError = os.GetLastError();
 			if (lastError == ERROR_INVALID_HANDLE)
 				throw portClosedException("Read operation failed, because the handle is invalid!");
 			if (lastError != ERROR_IO_PENDING)
-				throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
+				throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.GetLastError());
 
 			// Repeat until some data arrived:
 			while (true) {
@@ -122,12 +122,12 @@ public class ReaderImpl extends IoOperation implements Reader {
 					case WAIT_ABANDONED:
 						throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 					case WAIT_FAILED:
-						lastError = os.getPreservedError();
+						lastError = os.GetLastError();
 						if (lastError == ERROR_INVALID_HANDLE)
 							throw portClosedException("Read operation failed, because the handle is invalid!");
 						throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", lastError);
 					default:
-						throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+						throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
 				}
 			}
 		}
@@ -141,7 +141,7 @@ public class ReaderImpl extends IoOperation implements Reader {
 		COMSTAT lpStat = new COMSTAT();
 		boolean succeed = os.ClearCommError(handle, new INT(0), lpStat);
 		if (!succeed)
-			throw newNativeCodeException(os, "ClearCommError failed unexpected!", os.getPreservedError());
+			throw newNativeCodeException(os, "ClearCommError failed unexpected!", os.GetLastError());
 		return lpStat.cbInQue;
 	}
 
@@ -156,7 +156,7 @@ public class ReaderImpl extends IoOperation implements Reader {
 				// the read operation succeeded immediatly
 				return data.getByteArray();
 
-			int lastError = os.getPreservedError();
+			int lastError = os.GetLastError();
 			if (lastError == ERROR_INVALID_HANDLE)
 				throw portClosedException("Read operation failed, because the handle is invalid!");
 			if (lastError != ERROR_IO_PENDING)
@@ -169,7 +169,7 @@ public class ReaderImpl extends IoOperation implements Reader {
 					// I/O operation has finished
 					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
 					if (!overlappedResult)
-						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
+						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.GetLastError());
 
 					// verify that the number of read bytes is equal to the number of available
 					// bytes:
@@ -184,12 +184,12 @@ public class ReaderImpl extends IoOperation implements Reader {
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 				case WAIT_FAILED:
-					lastError = os.getPreservedError();
+					lastError = os.GetLastError();
 					if (lastError == ERROR_INVALID_HANDLE)
 						throw portClosedException("Read operation failed, because the handle is invalid!");
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.GetLastError());
 				default:
-					throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+					throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
 			}
 		}
 		finally {

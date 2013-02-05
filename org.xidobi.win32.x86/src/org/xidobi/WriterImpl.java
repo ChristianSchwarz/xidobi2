@@ -72,7 +72,7 @@ public class WriterImpl extends IoOperation implements Writer {
 			return;
 		}
 
-		int lastError = os.getPreservedError();
+		int lastError = os.GetLastError();
 		if (lastError == ERROR_INVALID_HANDLE)
 			throw portClosedException("Write operation failed, because the handle is invalid!");
 		if (lastError != ERROR_IO_PENDING)
@@ -83,7 +83,7 @@ public class WriterImpl extends IoOperation implements Writer {
 		switch (waitResult) {
 			case WAIT_OBJECT_0: // IO operation has finished
 				if (!os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true))
-					throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.getPreservedError());
+					throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.GetLastError());
 
 				// verify that the number of transferred bytes is equal to the data length that
 				// was written:
@@ -99,12 +99,12 @@ public class WriterImpl extends IoOperation implements Writer {
 			case WAIT_ABANDONED:
 				throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 			case WAIT_FAILED:
-				lastError = os.getPreservedError();
+				lastError = os.GetLastError();
 				if (lastError == ERROR_INVALID_HANDLE)
 					throw portClosedException("Write operation failed, because the handle is invalid!");
-				throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.getPreservedError());
+				throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.GetLastError());
 			default:
-				throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+				throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
 		}
 	}
 }

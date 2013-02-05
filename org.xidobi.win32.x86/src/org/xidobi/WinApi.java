@@ -505,7 +505,19 @@ public interface WinApi {
 	 * @see #GetLastError()
 	 * @return the last error code
 	 */
-	int getPreservedError();
+	
+	/**
+	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
+	 * per-thread basis. Multiple threads do not overwrite each other's last-error code.
+	 * <p>
+	 * A list of all Windows error codes can be found <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx"
+	 * >here</a>.
+	 * 
+	 * @return {@code DWORD} - The return value is the calling thread's last-error code.
+	 */
+	int GetLastError();
+
 
 	/**
 	 * Retrieves the results of an overlapped operation on the specified file, named pipe, or
@@ -691,18 +703,6 @@ public interface WinApi {
 	 */
 	@CheckReturnValue
 	int RegEnumValueA(HKEY hKey, int dwIndex, byte[] lpValueName, INT lpcchValueName, int lpReserved, INT lpType, byte[] lpData, INT lpcbData);
-
-	/**
-	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
-	 * per-thread basis. Multiple threads do not overwrite each other's last-error code.
-	 * <p>
-	 * A list of all Windows error codes can be found <a
-	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx"
-	 * >here</a>.
-	 * 
-	 * @return {@code DWORD} - The return value is the calling thread's last-error code.
-	 */
-	int GetLastError();
 
 	/**
 	 * Creates a <a

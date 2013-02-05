@@ -67,13 +67,13 @@ public class TestLowLevelRead {
 
 		portHandle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 		if (portHandle == INVALID_HANDLE_VALUE)
-			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.getPreservedError()));
+			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.GetLastError()));
 
 		os.PurgeComm(portHandle, PURGE_RXCLEAR);
 
 		boolean setCommMaskResult = os.SetCommMask(portHandle, EV_RXCHAR);
 		if (!setCommMaskResult)
-			throw new IOException("SetCommMask failed: " + getNativeErrorMessage(os.getPreservedError()));
+			throw new IOException("SetCommMask failed: " + getNativeErrorMessage(os.GetLastError()));
 
 		final DCB dcb = new DCB();
 
@@ -100,13 +100,13 @@ public class TestLowLevelRead {
 
 			try {
 				if (ov.hEvent == 0) {
-					lastError = os.getPreservedError();
+					lastError = os.GetLastError();
 					throw new IOException("CreateEventA failed! " + getNativeErrorMessage(lastError));
 				}
 
 				println("WaitCommEvent");
 				boolean waitCommEvent = os.WaitCommEvent(portHandle, dword, ov);
-				lastError = os.getPreservedError();
+				lastError = os.GetLastError();
 
 				if (!waitCommEvent && lastError != ERROR_IO_PENDING)
 					throw new IOException("WaitCommEvent failed! " + getNativeErrorMessage(lastError));

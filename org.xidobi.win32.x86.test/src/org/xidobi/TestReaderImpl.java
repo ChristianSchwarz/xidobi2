@@ -115,7 +115,7 @@ public class TestReaderImpl {
 	@Test
 	public void read_WaitCommEventFailsWithERROR_INVALID_HANDLE() throws IOException {
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
+		when(win.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
@@ -132,7 +132,7 @@ public class TestReaderImpl {
 	@Test
 	public void read_WaitCommEventFailsWithUnexpectedErrorCode() throws IOException {
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitCommEvent failed unexpected!");
@@ -168,7 +168,7 @@ public class TestReaderImpl {
 	public void read_WaitCommEventPendingWaitFails() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING, 
 		                                         DUMMY_ERROR_CODE);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 		//@formatter:on
@@ -190,7 +190,7 @@ public class TestReaderImpl {
 	public void read_WaitCommEventPendingWaitFailsWithERROR_INVALID_HANDLE() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING, 
 		                                         ERROR_INVALID_HANDLE);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 		//@formatter:on
@@ -213,7 +213,7 @@ public class TestReaderImpl {
 	public void read_WaitCommEventPendingReturnsWAIT_TIMEOUT() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT, WAIT_OBJECT_0);
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
@@ -238,7 +238,7 @@ public class TestReaderImpl {
 	public void read_WaitCommEventPendingReturnsWAIT_OBJECT_0() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
@@ -263,7 +263,7 @@ public class TestReaderImpl {
 	public void read_WaitCommEventPendingReturnsWAIT_ABANDONED() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING, 
 		                                         DUMMY_ERROR_CODE);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
 		//@formatter:on
@@ -284,7 +284,7 @@ public class TestReaderImpl {
 	public void read_WaitCommEventPendingReturnsUnexpectedValue() throws IOException {
 		//@formatter:off
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING, 
 		                                         DUMMY_ERROR_CODE);
 		when(win.WaitForSingleObject(eventHandle, 2000)).thenReturn(123);
 		//@formatter:on
@@ -307,7 +307,7 @@ public class TestReaderImpl {
 		when(win.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(10, false)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -375,7 +375,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(DUMMY_ERROR_CODE);
+		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -397,7 +397,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_INVALID_HANDLE);
+		when(win.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 		//@formatter:on
 
 		exception.expect(IOException.class);
@@ -419,7 +419,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_FAILED);
 		//@formatter:on
 
@@ -443,7 +443,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_FAILED);
 		//@formatter:on
 
@@ -466,7 +466,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_ABANDONED);
 		//@formatter:on
 
@@ -489,7 +489,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(123);
 		//@formatter:on
 
@@ -512,7 +512,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_TIMEOUT);
 		//@formatter:on
 
@@ -535,7 +535,7 @@ public class TestReaderImpl {
 		when(win.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING, 
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING, 
 		                                         DUMMY_ERROR_CODE);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
 		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
@@ -562,7 +562,7 @@ public class TestReaderImpl {
 		                                                DATA.length - 2);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
 		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
 		// @formatter:on
@@ -587,7 +587,7 @@ public class TestReaderImpl {
 		                                                DATA.length);
 			doAnswer(withAvailableBytes(DATA.length, true)).when(win).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
 		when(win.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(win.getPreservedError()).thenReturn(ERROR_IO_PENDING);
+		when(win.GetLastError()).thenReturn(ERROR_IO_PENDING);
 		when(win.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
 		when(win.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
 		when(win.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);

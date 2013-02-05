@@ -142,7 +142,7 @@ public class SerialPortImpl implements SerialPort {
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
 
-		int err = win.getPreservedError();
+		int err = win.GetLastError();
 
 		switch (err) {
 			case ERROR_ACCESS_DENIED:
@@ -181,7 +181,7 @@ public class SerialPortImpl implements SerialPort {
 	private void clearIOBuffers(final int handle) {
 		if (win.PurgeComm(handle, PURGE_RXCLEAR | PURGE_TXCLEAR))
 			return;
-		throw Throwables.newNativeCodeException(win, "PurgeComm failed!", win.getPreservedError());
+		throw Throwables.newNativeCodeException(win, "PurgeComm failed!", win.GetLastError());
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class SerialPortImpl implements SerialPort {
 		if (win.SetCommMask(portHandle, EV_RXCHAR))
 			return;
 
-		throw newNativeCodeException(win, "SetCommMask failed!", win.getPreservedError());
+		throw newNativeCodeException(win, "SetCommMask failed!", win.GetLastError());
 	}
 
 	/**
@@ -201,7 +201,7 @@ public class SerialPortImpl implements SerialPort {
 	 * returned by {@link WinApi#GetLastError()}.
 	 */
 	private IOException lastError(String message) {
-		return newIOException(win, message, win.getPreservedError());
+		return newIOException(win, message, win.GetLastError());
 	}
 
 	/** {@inheritDoc} */

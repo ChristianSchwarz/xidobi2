@@ -65,13 +65,13 @@ public class TestLowLevelWrite {
 
 		portHandle = os.CreateFile("\\\\.\\COM75", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
 		if (portHandle == INVALID_HANDLE_VALUE)
-			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.getPreservedError()));
+			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.GetLastError()));
 
 		os.PurgeComm(portHandle, PURGE_RXCLEAR);
 
 		boolean setCommMaskResult = os.SetCommMask(portHandle, EV_RXCHAR);
 		if (!setCommMaskResult)
-			throw new IOException("SetCommMask failed: " + getNativeErrorMessage(os.getPreservedError()));
+			throw new IOException("SetCommMask failed: " + getNativeErrorMessage(os.GetLastError()));
 
 		final DCB dcb = new DCB();
 
@@ -98,14 +98,14 @@ public class TestLowLevelWrite {
 
 			try {
 				if (ov.hEvent == 0) {
-					lastError = os.getPreservedError();
+					lastError = os.GetLastError();
 					throw new IOException("CreateEventA failed! " + getNativeErrorMessage(lastError));
 				}
 
 				byte[] lpBuffer = "Dies ist ein bisschen Text!".getBytes();
 				boolean readFile = os.WriteFile(portHandle, lpBuffer, lpBuffer.length, lpNumberOfBytesRead, ov);
 				if (!readFile) {
-					lastError = os.getPreservedError();
+					lastError = os.GetLastError();
 					if (lastError == WinApi.ERROR_IO_PENDING) {
 						for (int i = 0; i < 5; i++) {
 							println("WaitForSingleObject");

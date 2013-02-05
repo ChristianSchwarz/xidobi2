@@ -70,7 +70,7 @@ public class TestWriterImpl extends AbstractIntegrationTest {
 
 		handle = OS.CreateFile("\\\\.\\" + port, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
 		if (handle == INVALID_HANDLE_VALUE)
-			throw new IOException("Invalid handle! " + OS.getPreservedError());
+			throw new IOException("Invalid handle! " + OS.GetLastError());
 
 		final DCB dcb = new DCB();
 

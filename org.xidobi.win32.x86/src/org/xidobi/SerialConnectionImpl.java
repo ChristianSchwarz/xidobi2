@@ -62,13 +62,13 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 			// terminate all pending read or write operations.
 			boolean purgeCommResult = os.PurgeComm(handle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 			if (!purgeCommResult)
-				throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.getPreservedError());
+				throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.GetLastError());
 		}
 		finally {
 			// close the handle of the serial port.
 			boolean closeHandleResult = os.CloseHandle(handle);
 			if (!closeHandleResult)
-				throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.getPreservedError());
+				throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
 		}
 	}
 
