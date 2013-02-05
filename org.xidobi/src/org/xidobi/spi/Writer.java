@@ -30,13 +30,31 @@ import javax.annotation.Nonnull;
 public interface Writer extends Closeable {
 
 	/**
-	 * Writes the given byte[]. All bytes of the array were written.
+	 * The implementation must write the given {@code byte[]} to the port.
+	 * <p>
+	 * This method will be called by {@link BasicSerialConnection#write(byte[])}, if following conditions apply:
+	 * <ul>
+	 * <li>the port is open
+	 * <li>{@code data != null}.
+	 * </ul>
+	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
+	 * port is currently open and data is not <code>null</code>!
 	 * 
 	 * @param data
-	 *            must not be <code>null</code>
+	 *            never <code>null</code>
 	 * @throws IOException
-	 *             if this port was closed or an unexpected I/O error occurs.
+	 *             when the write operation timed out or the serial port is not open
 	 */
 	void write(@Nonnull byte[] data) throws IOException;
 
+	
+	/**
+	 * The implementation must release all native resources.
+	 * <p>
+	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not closed.
+	 * <p>
+	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
+	 * port is currently open!
+	 */
+	void close() throws IOException;
 }
