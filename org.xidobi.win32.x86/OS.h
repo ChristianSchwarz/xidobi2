@@ -66,14 +66,6 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ReadFile
 
 /*
  * Class:     org_xidobi_OS
- * Method:    GetLastError
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_xidobi_OS_GetLastError
-  (JNIEnv *, jobject);
-
-/*
- * Class:     org_xidobi_OS
  * Method:    MAKELANGID
  * Signature: (SS)I
  */

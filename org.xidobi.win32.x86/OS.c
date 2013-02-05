@@ -231,16 +231,6 @@ Java_org_xidobi_OS_ReadFile(JNIEnv *env, jobject this,
 
 /*
  * Class:     org_xidobi_OS
- * Method:    GetLastError
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_GetLastError(JNIEnv *env, jobject this) {
-	return (jint) GetLastError();
-}
-
-/*
- * Class:     org_xidobi_OS
  * Method:    MAKELANGID
  * Signature: (SS)I
  */
