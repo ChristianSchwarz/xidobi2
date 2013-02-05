@@ -160,7 +160,7 @@ public class TestIoOperation {
 	 * Verifies that all resource are freed
 	 */
 	@Test()
-	public void close_closeHandle_fails() {
+	public void close_CloseHandleFails() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
@@ -172,7 +172,6 @@ public class TestIoOperation {
 		verify(os).CloseHandle(eventHandle);
 		verify(os).free(ptrOverlapped);
 		verify(os).free(ptrBytesTransferred);
-
 	}
 
 	/**

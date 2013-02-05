@@ -26,6 +26,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -187,8 +188,27 @@ public class TestSerialPortFinderImpl {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> 
-	 * is passed.
+	 * Verifies that <code>RegCloseKey(...)</code> is invoked, when <code>RegEnumValueA(...)</code>
+	 * throws an exception.
+	 */
+	@Test
+	public void getAll_throwsException() {
+		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(ERROR_SUCCESS);
+		doThrow(new RuntimeException()).when(win).RegEnumValueA(any(HKEY.class), eq(0), any(byte[].class), argThat(isINT(255)), eq(0), any(INT.class), any(byte[].class), argThat(isINT(255)));
+
+		exception.expect(RuntimeException.class);
+
+		try {
+			finder.getAll();
+		}
+		finally {
+			verify(win.RegCloseKey(any(HKEY.class)));
+		}
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when <code>null</code> is
+	 * passed.
 	 */
 	@Test
 	public void get_withNull() {

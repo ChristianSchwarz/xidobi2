@@ -36,6 +36,10 @@ import org.xidobi.structs.OVERLAPPED;
  * Abstract class for I/O operations.
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
+ * 
+ * @see WriterImpl
+ * @see ReaderImpl
  */
 public abstract class IoOperation implements Closeable {
 
@@ -55,7 +59,7 @@ public abstract class IoOperation implements Closeable {
 	 * Ensures that the shared resources can only be disposed, when no read or write operations are
 	 * in progress.
 	 */
-	protected Lock disposeLock = new ReentrantLock(true);
+	protected final Lock disposeLock = new ReentrantLock(true);
 
 	/**
 	 * Creates a new I/O operation.
@@ -117,7 +121,7 @@ public abstract class IoOperation implements Closeable {
 	 * caller.
 	 * 
 	 * @param message
-	 *            error description may be <code>null</code>
+	 *            error description, may be <code>null</code>
 	 */
 	@Nonnull
 	protected IOException portClosedException(@Nullable String message) {

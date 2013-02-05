@@ -45,38 +45,30 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private static final String HARDWARE_DEVICEMAP_SERIALCOMM = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
 
 	/** the native Win32-API, never <code>null</code> */
-	private WinApi win;
-
-	/**
-	 * Creates a new instance, that finds all serial ports that are available in the Windows
-	 * Registry.
-	 */
-	public SerialPortFinderImpl() {
-		this(OS.OS);
-	}
+	private WinApi os;
 
 	/**
 	 * Creates a new instance, that finds all serial ports that are available in the Windows
 	 * Registry.
 	 * 
-	 * @param win
+	 * @param os
 	 *            the native Win32-API, must not be <code>null</code>
 	 */
-	public SerialPortFinderImpl(@Nonnull WinApi win) {
-		this.win = checkArgumentNotNull(win, "win");
+	public SerialPortFinderImpl(@Nonnull WinApi os) {
+		this.os = checkArgumentNotNull(os, "os");
 	}
 
 	/** {@inheritDoc} */
 	@Nonnull
 	public Set<SerialPort> getAll() {
-		HKEY keyHandle = new HKEY(win);
+		HKEY keyHandle = new HKEY(os);
 		try {
 			openRegistry(keyHandle);
 			try {
 				return getPortsFromRegistry(keyHandle);
 			}
 			finally {
-				win.RegCloseKey(keyHandle);
+				os.RegCloseKey(keyHandle);
 			}
 		}
 		finally {
@@ -84,11 +76,11 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		}
 	}
 
-	/** {@inheritDoc}*/
+	/** {@inheritDoc} */
 	@CheckForNull
 	public SerialPort get(@Nonnull String portName) {
 		checkArgumentNotNull(portName, "portName");
-		for (SerialPort port: getAll())
+		for (SerialPort port : getAll())
 			if (port.getPortName().equals(portName))
 				return port;
 		return null;
@@ -98,9 +90,9 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	 * Opens the Windows Registry for subkey {@value #HARDWARE_DEVICEMAP_SERIALCOMM}.
 	 */
 	private void openRegistry(HKEY phkResult) {
-		int status = win.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
+		int status = os.RegOpenKeyExA(HKEY_LOCAL_MACHINE, HARDWARE_DEVICEMAP_SERIALCOMM, 0, KEY_READ, phkResult);
 		if (status != ERROR_SUCCESS)
-			throw newNativeCodeException(win, "Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<!", status);
+			throw newNativeCodeException(os, "Couldn't open Windows Registry for subkey >" + HARDWARE_DEVICEMAP_SERIALCOMM + "<!", status);
 	}
 
 	/**
@@ -121,7 +113,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 			sizeOfKey.value = 255;
 			sizeOfValue.value = 255;
 
-			int status = win.RegEnumValueA(phkResult, index, registryKey, sizeOfKey, 0, new INT(), registryValue, sizeOfValue);
+			int status = os.RegEnumValueA(phkResult, index, registryKey, sizeOfKey, 0, new INT(), registryValue, sizeOfValue);
 			if (status != ERROR_SUCCESS)
 				// ... no more values, stop iteration
 				break;
@@ -129,7 +121,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 			// add serial port values to set:
 			String portName = new String(registryValue, 0, sizeOfValue.value - 1);
 			String description = new String(registryKey, 0, sizeOfKey.value);
-			SerialPort serialPort = new SerialPortImpl(win, portName, description);
+			SerialPort serialPort = new SerialPortImpl(os, portName, description);
 			ports.add(serialPort);
 		}
 

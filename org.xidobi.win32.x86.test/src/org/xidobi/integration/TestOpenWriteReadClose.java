@@ -17,7 +17,6 @@ package org.xidobi.integration;
 
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xidobi.OS;
 import org.xidobi.SerialConnection;
