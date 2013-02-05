@@ -160,6 +160,23 @@ public class TestReaderImpl {
 	}
 
 	/**
+	 * Verifies that an {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
+	 * successfull, but the event mask is <code>0</code> (error event).
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventForErrorEvent() throws IOException {
+		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(0);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Read operation failed, because an communication error event was received!");
+
+		reader.read();
+	}
+
+	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
 	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code> and
 	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code>.

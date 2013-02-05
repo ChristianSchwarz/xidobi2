@@ -208,8 +208,10 @@ public class ReaderImpl extends IoOperation implements Reader {
 	 * Throws an {@link NativeCodeException}, when the <code>EV_RXCHAR</code> flag in the given
 	 * <code>eventMask</code> is not set.
 	 */
-	private void checkEventMask(DWORD eventMask) {
+	private void checkEventMask(DWORD eventMask) throws IOException {
 		int mask = eventMask.getValue();
+		if (mask == 0)
+			throw new IOException("Read operation failed, because an communication error event was received!");
 		if ((mask & EV_RXCHAR) != EV_RXCHAR)
 			throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: " + mask + ", expected: " + EV_RXCHAR);
 	}
