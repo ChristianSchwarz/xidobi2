@@ -118,18 +118,24 @@ public class BasicSerialConnection implements SerialConnection {
 	public final void close() throws IOException {
 		if (isClosed)
 			return;
+		//@formatter:off
 		try {
+			// close system dependent resources
+			closeInternal();
+		}
+		finally { try {
+			// close the reader
 			reader.close();
-		}
-		finally {
+		} finally {
+			// close the writer
 			writer.close();
-		}
-		closeInternal();
+		}}
+		// @formatter:on
 		isClosed = true;
 	}
 
 	/**
-	 * Subclasses can overwrite this method in order to close their system resources, when the 
+	 * Subclasses can overwrite this method in order to close their system resources, when the
 	 * connection to the serial port is closed.
 	 * <p>
 	 * <b>IMPORTANT:</b> Don't call this method yourself!
