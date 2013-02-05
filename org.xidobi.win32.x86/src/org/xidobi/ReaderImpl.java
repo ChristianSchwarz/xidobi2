@@ -205,8 +205,9 @@ public class ReaderImpl extends IoOperation implements Reader {
 	}
 
 	/**
-	 * Throws an {@link NativeCodeException}, when the <code>EV_RXCHAR</code> flag in the given
-	 * <code>eventMask</code> is not set.
+	 * Throws a {@link NativeCodeException}, when the <code>EV_RXCHAR</code> flag in the given
+	 * <code>eventMask</code> is not set or an {@link IOException} when the <code>eventMask</code>
+	 * is 0.
 	 */
 	private void checkEventMask(DWORD eventMask) throws IOException {
 		int mask = eventMask.getValue();
