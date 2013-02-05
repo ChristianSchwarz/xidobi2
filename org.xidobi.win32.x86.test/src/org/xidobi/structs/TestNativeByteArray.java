@@ -54,11 +54,13 @@ public class TestNativeByteArray {
 	/** expected exceptions */
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
+	private final static int DUMMY_POINTER = 1;
 
 	@Before
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
+		when(win.malloc(LENGTH)).thenReturn(DUMMY_POINTER);
 	}
 
 	/**

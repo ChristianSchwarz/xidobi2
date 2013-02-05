@@ -15,6 +15,7 @@
  */
 package org.xidobi.structs;
 
+import static org.xidobi.WinApi.NULL;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
@@ -58,7 +59,9 @@ public class Pointer {
 		this.size = size;
 
 		// allocate memory
-		cPointer = win.malloc(size);
+		cPointer = win.malloc(size());
+		if (cPointer==NULL)
+			throw new OutOfMemoryError("Unable to allocate "+size+"bytes of memory for type: "+getClass().getSimpleName());
 		// set all bytes to zero
 		win.memset(cPointer, 0, size());
 	}

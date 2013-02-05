@@ -36,6 +36,8 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public interface WinApi {
 
+	/** 0*/
+	int NULL =0;
 	/** Used for timeout durations. */
 	int INFINITE = -1;
 
@@ -505,7 +507,7 @@ public interface WinApi {
 	 * @see #GetLastError()
 	 * @return the last error code
 	 */
-	
+
 	/**
 	 * Retrieves the calling thread's last-error code value. The last-error code is maintained on a
 	 * per-thread basis. Multiple threads do not overwrite each other's last-error code.
@@ -517,7 +519,6 @@ public interface WinApi {
 	 * @return {@code DWORD} - The return value is the calling thread's last-error code.
 	 */
 	int GetLastError();
-
 
 	/**
 	 * Retrieves the results of an overlapped operation on the specified file, named pipe, or
@@ -919,11 +920,22 @@ public interface WinApi {
 	boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat);
 
 	/**
-	 * Allocates memory of the given size and returns a pointer to that memory.
+	 * Allocates a block of {@code size} bytes of memory, returning a pointer to the beginning of
+	 * the block.
+	 * <p>
+	 * The content of the newly allocated block of memory is not initialized, remaining with
+	 * indeterminate values.
+	 * <p>
+	 * If size is zero, the return value depends on the particular library implementation (it may or
+	 * may not be a null pointer), but the returned pointer shall not be used to dereference an
+	 * object in any case.
+	 * <p>
+	 * 
 	 * 
 	 * @param size
 	 *            the size of the memory
-	 * @return pointer to the allocated memory
+	 * @return On success, a pointer to the memory block allocated by the function. If the function
+	 *         failed to allocate the requested block of memory, {@link #NULL}  (a null pointer) is returned.
 	 */
 	int malloc(@Nonnegative int size);
 

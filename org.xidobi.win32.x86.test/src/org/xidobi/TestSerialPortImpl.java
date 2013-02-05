@@ -47,6 +47,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DCB;
+import org.xidobi.structs.DWORD;
+import org.xidobi.structs.OVERLAPPED;
 
 /**
  * Tests the class {@link SerialPortImpl}
@@ -56,13 +58,20 @@ import org.xidobi.structs.DCB;
  */
 public class TestSerialPortImpl {
 
+	/** Dummy size of a {@link DWORD}	 */
+	private static final int SIZE_DWORD = 1;
+	/** Dummy Pointer to an allocated {@link DWORD}*/
+	private static final int DWORD_PTR = 2;
+	/** Dummy size of a {@link OVERLAPPED}	 */
+	private static final int SIZE_OVERLAPPED = 3;
+	/** Dummy Pointer to an allocated {@link OVERLAPPED}*/
+	private static final int OVERALAPPED_PTR = 4;
+	
 	/** some value for an unspecific win32 error code */
-	private static final int DUMMY_ERROR_CODE = 1;
+	private static final int DUMMY_ERROR_CODE = 5;
 	/** some value for an unspecific handle */
-	private static final int PORT_HANDLE = 1;
+	private static final int PORT_HANDLE = 6;
 
-	/** constant for an invalid handle */
-	private static final int INVALID_HANDLE = -1;
 
 	/** Class under test */
 	private SerialPortImpl port;
@@ -85,8 +94,11 @@ public class TestSerialPortImpl {
 
 		port = new SerialPortImpl(win, "COM1", "description", configurator);
 
-		when(win.sizeOf_OVERLAPPED()).thenReturn(5);
-		when(win.sizeOf_DWORD()).thenReturn(4);
+		when(win.sizeOf_OVERLAPPED()).thenReturn(SIZE_OVERLAPPED);
+		when(win.malloc(SIZE_OVERLAPPED)).thenReturn(OVERALAPPED_PTR);
+		when(win.sizeOf_DWORD()).thenReturn(SIZE_DWORD);
+		when(win.malloc(SIZE_DWORD)).thenReturn(DWORD_PTR);
+		
 	}
 
 	/**
@@ -149,7 +161,7 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void open_fail_CreateFileReturnsInvalidHandle() throws Exception {
-		when(win.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE);
+		when(win.CreateFile(anyString(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(INVALID_HANDLE_VALUE);
 		when(win.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(IOException.class);

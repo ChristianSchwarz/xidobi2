@@ -83,7 +83,8 @@ public class TestSerialPortFinderImpl {
 		initMocks(this);
 		finder = new SerialPortFinderImpl(win);
 
-		when(win.sizeOf_HKEY()).thenReturn(1);
+		when(win.sizeOf_HKEY()).thenReturn(SIZE_OF_HKEY);
+		when(win.malloc(SIZE_OF_HKEY)).thenReturn(HKEY_POINTER);
 	}
 
 	/**
@@ -103,8 +104,6 @@ public class TestSerialPortFinderImpl {
 	 */
 	@Test
 	public void getAll_whenRegOpenKeyExANotSuccessful() {
-		when(win.sizeOf_HKEY()).thenReturn(SIZE_OF_HKEY);
-		when(win.malloc(SIZE_OF_HKEY)).thenReturn(HKEY_POINTER);
 		when(win.RegOpenKeyExA(eq(HKEY_LOCAL_MACHINE), eq(HARDWARE_DEVICEMAP_SERIALCOMM), eq(0), eq(KEY_READ), any(HKEY.class))).thenReturn(AN_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);

@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.NULL;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,6 +56,7 @@ public class TestPointer {
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
+		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
 	}
 
 	/**
@@ -90,11 +92,22 @@ public class TestPointer {
 	 */
 	@Test
 	public void new_allocatesMemory() {
-		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
 
 		pointer = new Pointer(win, DUMMY_SIZE);
 
 		verify(win, times(1)).malloc(DUMMY_SIZE);
+	}
+	/**
+	 * Verifies that an {@link OutOfMemoryError} is thrown if {@link WinApi#malloc(int)} returns {@link WinApi#NULL}.
+	 */
+	@Test
+	public void new_outOfMemory() {
+		when(win.malloc(DUMMY_SIZE)).thenReturn(NULL);
+		exception.expect(OutOfMemoryError.class);
+		exception.expectMessage("Unable to allocate "+DUMMY_SIZE+"bytes of memory for type: "+Pointer.class.getSimpleName());
+
+
+		pointer = new Pointer(win, DUMMY_SIZE);
 	}
 
 	/**
@@ -102,7 +115,6 @@ public class TestPointer {
 	 */
 	@Test
 	public void dispose_freesMemory() {
-		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
 
 		pointer = new Pointer(win, DUMMY_SIZE);
 		pointer.dispose();
@@ -117,7 +129,6 @@ public class TestPointer {
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void dispose_whenAlreadyDisposed() {
-		when(win.malloc(DUMMY_SIZE)).thenReturn(DUMMY_POINTER);
 		pointer = new Pointer(win, DUMMY_SIZE);
 		pointer.dispose();
 
