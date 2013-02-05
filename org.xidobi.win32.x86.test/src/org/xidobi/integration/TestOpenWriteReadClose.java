@@ -25,14 +25,20 @@ import org.xidobi.SerialPortFinderImpl;
 import org.xidobi.WinApi;
 
 /**
- * Integration test.
+ * Integration test for class {@link OS}.
  * 
  * @author Tobias Breﬂler
  */
 public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 
+	/** Class under test */
 	private WinApi os = OS.OS;
 
+	/**
+	 * Test for open and close of a serial port.
+	 * 
+	 * @throws Exception
+	 */
 	@Test(timeout = 1500)
 	public void openAndClose() throws Exception {
 
@@ -44,6 +50,11 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 		connection.close();
 	}
 
+	/**
+	 * Test for open, write and close of a serial port.
+	 * 
+	 * @throws Exception
+	 */
 	@Test(timeout = 1500)
 	public void write() throws Exception {
 		SerialPortFinderImpl finder = new SerialPortFinderImpl(os);
