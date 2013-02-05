@@ -495,11 +495,11 @@ public interface WinApi {
 	 * <li> {@link #CreateEventA(int, boolean, boolean, String)}
 	 * <li> {@link #CreateFile(String, int, int, int, int, int, int)}
 	 * <li> {@link #GetCommState(int, DCB)}
-	 * <li> {@link #GetOverlappedResult(int, OVERLAPPED, INT, boolean)}
-	 * <li> {@link #ReadFile(int, byte[], int, INT, OVERLAPPED)}
+	 * <li> {@link #GetOverlappedResult(int, OVERLAPPED, DWORD, boolean)}
+	 * <li> {@link #ReadFile(int, NativeByteArray, int, DWORD, OVERLAPPED)}
 	 * <li> {@link #SetCommState(int, DCB)}
 	 * <li> {@link #WaitForSingleObject(int, int)}
-	 * <li> {@link #WriteFile(int, byte[], int, INT, OVERLAPPED)}
+	 * <li> {@link #WriteFile(int, byte[], int, DWORD, OVERLAPPED)}
 	 * </ul>
 	 * 
 	 * @see #GetLastError()

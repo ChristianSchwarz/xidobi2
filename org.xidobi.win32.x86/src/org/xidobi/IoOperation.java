@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
@@ -84,6 +85,7 @@ public abstract class IoOperation implements Closeable {
 	}
 
 	/** {@inheritDoc} */
+	@OverridingMethodsMustInvokeSuper
 	public void close() {
 		//@formatter:off
 		try {
