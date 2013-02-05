@@ -49,9 +49,6 @@ public class ReaderImpl extends IoOperation implements Reader {
 	/** Read timeout in milliseconds */
 	private int readTimeout = 2000;
 
-	/** Receives the flags for the communication event */
-	private final DWORD eventMask;
-
 	/**
 	 * Creates a new read operation.
 	 * 
@@ -67,7 +64,6 @@ public class ReaderImpl extends IoOperation implements Reader {
 						int handle) {
 		super(port, os, handle);
 
-		eventMask = new DWORD(os);
 	}
 
 	/** {@inheritDoc} */
@@ -93,43 +89,50 @@ public class ReaderImpl extends IoOperation implements Reader {
 	/** Blocks until data arrives or an {@link IOException} is thrown. */
 	private void awaitArrivalOfData() throws IOException {
 
-		boolean succeed = os.WaitCommEvent(handle, eventMask, overlapped);
-		if (succeed) {
-			// event was signaled immediatly, the input buffer contains data
-			checkEventMask(eventMask);
-			return;
-		}
+		DWORD eventMask = new DWORD(os);
 
-		int lastError = os.getPreservedError();
-		if (lastError == ERROR_INVALID_HANDLE)
-			throw portClosedException("Read operation failed, because the handle is invalid!");
-		if (lastError != ERROR_IO_PENDING)
-			throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
-
-		// Repeat until some data arrived:
-		while (true) {
-
-			// wait for pending operation to complete
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
-
-			switch (waitResult) {
-				case WAIT_OBJECT_0:
-					// wait finished successfull
-					checkEventMask(eventMask);
-					return;
-				case WAIT_TIMEOUT:
-					// operation has timed out
-					continue;
-				case WAIT_ABANDONED:
-					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-				case WAIT_FAILED:
-					lastError = os.getPreservedError();
-					if (lastError == ERROR_INVALID_HANDLE)
-						throw portClosedException("Read operation failed, because the handle is invalid!");
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", lastError);
-				default:
-					throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+		try {
+			boolean succeed = os.WaitCommEvent(handle, eventMask, overlapped);
+			if (succeed) {
+				// event was signaled immediatly, the input buffer contains data
+				checkEventMask(eventMask);
+				return;
 			}
+
+			int lastError = os.getPreservedError();
+			if (lastError == ERROR_INVALID_HANDLE)
+				throw portClosedException("Read operation failed, because the handle is invalid!");
+			if (lastError != ERROR_IO_PENDING)
+				throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.getPreservedError());
+
+			// Repeat until some data arrived:
+			while (true) {
+
+				// wait for pending operation to complete
+				int waitResult = os.WaitForSingleObject(overlapped.hEvent, readTimeout);
+
+				switch (waitResult) {
+					case WAIT_OBJECT_0:
+						// wait finished successfull
+						checkEventMask(eventMask);
+						return;
+					case WAIT_TIMEOUT:
+						// operation has timed out
+						continue;
+					case WAIT_ABANDONED:
+						throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+					case WAIT_FAILED:
+						lastError = os.getPreservedError();
+						if (lastError == ERROR_INVALID_HANDLE)
+							throw portClosedException("Read operation failed, because the handle is invalid!");
+						throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", lastError);
+					default:
+						throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.getPreservedError());
+				}
+			}
+		}
+		finally {
+			eventMask.dispose();
 		}
 	}
 
@@ -191,16 +194,6 @@ public class ReaderImpl extends IoOperation implements Reader {
 		}
 		finally {
 			data.dispose();
-		}
-	}
-
-	@Override
-	public void close() {
-		try {
-			eventMask.dispose();
-		}
-		finally {
-			super.close();
 		}
 	}
 

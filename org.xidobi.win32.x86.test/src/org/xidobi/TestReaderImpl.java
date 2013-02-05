@@ -607,33 +607,8 @@ public class TestReaderImpl {
 		reader.close();
 
 		verify(win).free(ptrBytesTransferred);
-		verify(win).free(ptrEvtMask);
 		verify(win).free(ptrOverlapped);
 		verify(win).CloseHandle(eventHandle);
-	}
-
-	/**
-	 * Verifies that all resources are disposed, when the disposing of the eventMask raises an
-	 * {@link RuntimeException}.
-	 */
-	@Test
-	public void close_whenEvtMaskDisposeThrowsException() {
-
-		doThrow(new RuntimeException()).when(win).free(ptrEvtMask);
-
-		exception.expect(RuntimeException.class);
-
-		try {
-			reader.close();
-		}
-		finally {
-			verify(win).free(ptrEvtMask); // raises the RuntimeException
-
-			verify(win).free(ptrBytesTransferred);
-			verify(win).free(ptrOverlapped);
-			verify(win).CloseHandle(eventHandle);
-		}
-
 	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
