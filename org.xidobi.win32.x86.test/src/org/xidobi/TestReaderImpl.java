@@ -86,11 +86,14 @@ public class TestReaderImpl {
 	/** pointer to an {@link DWORD} */
 	private int ptrBytesTransferred = 2;
 	private int ptrEvtMask = 3;
+	private static final int ptrNativeByteArray = 23;
 
 	@Before
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
+
+		when(win.malloc(DATA.length)).thenReturn(ptrNativeByteArray);
 
 		when(win.sizeOf_OVERLAPPED()).thenReturn(OVERLAPPED_SIZE);
 		when(win.malloc(OVERLAPPED_SIZE)).thenReturn(ptrOverlapped);

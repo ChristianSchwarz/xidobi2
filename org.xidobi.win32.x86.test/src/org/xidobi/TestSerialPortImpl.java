@@ -68,7 +68,7 @@ public class TestSerialPortImpl {
 	private static final int OVERALAPPED_PTR = 4;
 	
 	/** some value for an unspecific win32 error code */
-	private static final int DUMMY_ERROR_CODE = 5;
+	private static final int DUMMY_ERROR_CODE = 125;
 	/** some value for an unspecific handle */
 	private static final int PORT_HANDLE = 6;
 
