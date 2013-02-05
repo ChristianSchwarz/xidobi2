@@ -65,7 +65,7 @@ public class TestSerialPortImpl {
 	private static final int INVALID_HANDLE = -1;
 
 	/** Class under test */
-	private SerialPortImpl handle;
+	private SerialPortImpl port;
 
 	@Mock
 	private WinApi win;
@@ -83,7 +83,7 @@ public class TestSerialPortImpl {
 	public void setUp() {
 		initMocks(this);
 
-		handle = new SerialPortImpl(win, "COM1", "description", configurator);
+		port = new SerialPortImpl(win, "COM1", "description", configurator);
 
 		when(win.sizeOf_OVERLAPPED()).thenReturn(5);
 		when(win.sizeOf_DWORD()).thenReturn(4);
@@ -125,7 +125,7 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void getPortName() {
-		assertThat(handle.getPortName(), is("COM1"));
+		assertThat(port.getPortName(), is("COM1"));
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class TestSerialPortImpl {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void open_withNullSettings() throws Exception {
-		handle.open(null);
+		port.open(null);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class TestSerialPortImpl {
 		exception.expect(IOException.class);
 		exception.expectMessage("Unable to open port (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
 
-		handle.open(settings);
+		port.open(settings);
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class TestSerialPortImpl {
 		exception.expectMessage("Unable to retrieve the current control settings for port (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		try {
-			handle.open(settings);
+			port.open(settings);
 		}
 		finally {
 			verify(win).CloseHandle(PORT_HANDLE);
@@ -203,7 +203,7 @@ public class TestSerialPortImpl {
 		exception.expectMessage("Unable to set the control settings (COM1)!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		try {
-			handle.open(settings);
+			port.open(settings);
 		}
 		finally {
 			verify(win).CloseHandle(PORT_HANDLE);
@@ -230,7 +230,7 @@ public class TestSerialPortImpl {
 		exception.expectMessage("PurgeComm failed!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		try {
-			handle.open(settings);
+			port.open(settings);
 		}
 		finally {
 			verify(win).CloseHandle(PORT_HANDLE);
@@ -259,7 +259,7 @@ public class TestSerialPortImpl {
 		exception.expectMessage("SetCommMask failed!\r\nError-Code " + DUMMY_ERROR_CODE);
 
 		try {
-			handle.open(settings);
+			port.open(settings);
 		}
 		finally {
 			verify(win).CloseHandle(PORT_HANDLE);
@@ -281,7 +281,7 @@ public class TestSerialPortImpl {
 		when(win.SetCommMask(PORT_HANDLE, EV_RXCHAR)).thenReturn(true);
 		when(win.CreateEventA(0, true, false, null)).thenReturn(1);
 
-		SerialConnection result = handle.open(settings);
+		SerialConnection result = port.open(settings);
 
 		verify(win).CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 		verify(win).GetCommState(eq(PORT_HANDLE), anyDCB());
@@ -307,7 +307,7 @@ public class TestSerialPortImpl {
 		exception.expect(IOException.class);
 		exception.expectMessage("Port in use (COM1)!");
 
-		handle.open(settings);
+		port.open(settings);
 	}
 
 	/**
@@ -324,7 +324,7 @@ public class TestSerialPortImpl {
 		exception.expect(IOException.class);
 		exception.expectMessage("Port not found (COM1)!");
 
-		handle.open(settings);
+		port.open(settings);
 	}
 
 	/**
@@ -333,8 +333,8 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void getDescription() {
-		SerialPort info = new SerialPortImpl(win, "portName", "description");
-		assertThat(info.getDescription(), is("description"));
+		SerialPort port = new SerialPortImpl(win, "portName", "description");
+		assertThat(port.getDescription(), is("description"));
 	}
 
 	/**
@@ -343,8 +343,18 @@ public class TestSerialPortImpl {
 	 */
 	@Test
 	public void getDescription_isNull() {
-		SerialPort info = new SerialPortImpl(win, "portName", null);
-		assertThat(info.getDescription(), is(nullValue()));
+		SerialPort port = new SerialPortImpl(win, "portName", null);
+		assertThat(port.getDescription(), is(nullValue()));
+	}
+
+	/**
+	 * Verifies that {@link SerialPort#toString()} returns the name of the class, the port name and
+	 * the description as {@link String}.
+	 */
+	@Test
+	public void testToString() {
+		SerialPort port = new SerialPortImpl(win, "COM1", "/device/serial0");
+		assertThat(port.toString(), is("SerialPortImpl [portName=COM1, description=/device/serial0]"));
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////

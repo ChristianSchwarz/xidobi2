@@ -178,4 +178,49 @@ public class TestSerialConnectionImpl {
 			verify(os).CloseHandle(handle);
 		}
 	}
+
+	/**
+	 * Verifies that all resources are disposed, when <code>PurgeComm(...)</code> throws a
+	 * {@link RuntimeException}.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void close_PurgeCommThrowsException() throws Exception {
+		when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR)).thenThrow(new RuntimeException());
+		when(os.CloseHandle(handle)).thenReturn(true);
+
+		exception.expect(RuntimeException.class);
+
+		try {
+			serialConnectionImpl.close();
+		}
+		finally {
+			verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
+			verify(os).CloseHandle(handle);
+		}
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>PurgeComm(...)</code>
+	 * throws a {@link RuntimeException} and <code>CloseHandle(...)</code> fails.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void close_PurgeCommThrowsExceptionAndCloseHandleFails() throws Exception {
+		when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR)).thenThrow(new RuntimeException());
+		when(os.CloseHandle(handle)).thenReturn(false);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("CloseHandle failed unexpected!");
+
+		try {
+			serialConnectionImpl.close();
+		}
+		finally {
+			verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
+			verify(os).CloseHandle(handle);
+		}
+	}
 }
