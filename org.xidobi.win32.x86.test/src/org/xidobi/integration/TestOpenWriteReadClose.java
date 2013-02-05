@@ -66,31 +66,32 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 		connection.close();
 	}
 
-	/**
-	 * Test for open, read and close of a serial port.
-	 * 
-	 * @throws Exception
-	 */
-	@Test(timeout = 1500)
-	public void read() throws Exception {
-		SerialPortFinderImpl finder = new SerialPortFinderImpl(os);
-
-		SerialPort serialPort = finder.get(getAvailableSerialPort());
-
-		final SerialConnection connection = serialPort.open(from9600_8N1().create());
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					connection.read();
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-		connection.close();
-	}
+//	/**
+//	 * Test for open, read and close of a serial port.
+//	 * 
+//	 * @throws Exception
+//	 */
+//	@Test(timeout = 1500)
+//	public void read() throws Exception {
+//		SerialPortFinderImpl finder = new SerialPortFinderImpl(os);
+//
+//		SerialPort serialPort = finder.get(getAvailableSerialPort());
+//
+//		final SerialConnection connection = serialPort.open(from9600_8N1().create());
+//		new Thread(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				try {
+//					connection.read();
+//				}
+//				catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}).start();
+//		Thread.sleep(500);
+//		connection.close();
+//	}
 
 }
