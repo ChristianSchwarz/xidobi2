@@ -28,7 +28,6 @@ import static org.xidobi.WinApi.OPEN_EXISTING;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,7 +43,6 @@ import org.xidobi.structs.DCB;
  * 
  * @author Christian Schwarz
  */
-@Ignore
 public class TestWriterImpl extends AbstractIntegrationTest {
 
 	/** Settings for the serial port */
@@ -55,12 +53,12 @@ public class TestWriterImpl extends AbstractIntegrationTest {
 	public ExpectedException exception = ExpectedException.none();
 
 	/** class under test */
+	private WriterImpl writer;
+
 	@Mock
 	private SerialPort portHandle;
 
 	private int handle;
-
-	private WriterImpl writer;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -88,16 +86,17 @@ public class TestWriterImpl extends AbstractIntegrationTest {
 	@SuppressWarnings("javadoc")
 	public void tearDown() throws Exception {
 		writer.close();
+		OS.CloseHandle(handle);
 	}
 
 	/**
-	 * Verifies open and close of a serial port.
+	 * Tests the write operation.
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void write() throws Exception {
-		for (int i = 0; i < 20000; i++) {
+		for (int i = 0; i < 20; i++) {
 			writer.write("Hello".getBytes());
 			writer.write("World".getBytes());
 		}
