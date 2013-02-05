@@ -73,7 +73,6 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 	 * @throws Exception
 	 */
 	@Test(timeout = 1500)
-	@Ignore
 	public void read() throws Exception {
 		SerialPortFinderImpl finder = new SerialPortFinderImpl(os);
 
@@ -92,7 +91,7 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 				}
 			}
 		}).start();
-		Thread.sleep(500);
+		Thread.sleep(100);
 		connection.close();
 	}
 

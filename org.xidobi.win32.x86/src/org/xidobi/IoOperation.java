@@ -22,6 +22,8 @@ import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,6 +50,12 @@ public abstract class IoOperation implements Closeable {
 	protected final DWORD numberOfBytesTransferred;
 	/** Overlapped */
 	protected final OVERLAPPED overlapped;
+
+	/**
+	 * Ensures that the shared resources can only be disposed, when no read or write operations are
+	 * in progress.
+	 */
+	protected Lock disposeLock = new ReentrantLock(true);
 
 	/**
 	 * Creates a new I/O operation.
@@ -89,10 +97,12 @@ public abstract class IoOperation implements Closeable {
 	public void close() {
 		//@formatter:off
 		try {
-			numberOfBytesTransferred.dispose();
-		} finally { try {
 			os.CloseHandle(overlapped.hEvent);
+		} finally { try {
+			disposeLock.lock();
+			numberOfBytesTransferred.dispose();
 		} finally {
+			disposeLock.unlock();
 			overlapped.dispose();
 		}}
 		//@formatter:on

@@ -70,19 +70,26 @@ public class ReaderImpl extends IoOperation implements Reader {
 	@Nonnull
 	public byte[] read() throws IOException {
 
-		os.ResetEvent(overlapped.hEvent);
+		disposeLock.lock();
+		try {
 
-		// Repeat until data is available:
-		while (true) {
-			// wait for some data to arrive
-			awaitArrivalOfData();
-			// how many bytes are available for read?
-			int availableBytes = getAvailableBytes();
-			if (availableBytes == 0)
-				// there is no data available for read
-				continue;
-			// now we can read the available data
-			return readAvailableBytes(availableBytes);
+			os.ResetEvent(overlapped.hEvent);
+
+			// Repeat until data is available:
+			while (true) {
+				// wait for some data to arrive
+				awaitArrivalOfData();
+				// how many bytes are available for read?
+				int availableBytes = getAvailableBytes();
+				if (availableBytes == 0)
+					// there is no data available for read
+					continue;
+				// now we can read the available data
+				return readAvailableBytes(availableBytes);
+			}
+		}
+		finally {
+			disposeLock.unlock();
 		}
 	}
 
