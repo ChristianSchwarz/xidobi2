@@ -83,7 +83,7 @@ public class Application implements IApplication {
 
 		ex.scheduleAtFixedRate(write(connection, ex), 0, 1, SECONDS);
 		ex.scheduleWithFixedDelay(read(connection, ex), 0, 1, SECONDS);
-		// ex.schedule(close(connection, ex), 0, SECONDS);
+		ex.scheduleAtFixedRate(close(connection, ex), 15, 15, SECONDS);
 
 		return ex;
 	}
@@ -125,7 +125,7 @@ public class Application implements IApplication {
 					ex.shutdownNow();
 					throw new RuntimeException(e);
 				}
-			}
+			}	
 		};
 	}
 
@@ -134,9 +134,6 @@ public class Application implements IApplication {
 		return new Runnable() {
 			public void run() {
 				try {
-					BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-					System.err.println("Press RETURN to close the serial connection!");
-					reader.readLine();
 					System.err.println("Closing port...");
 					connection.close();
 					System.out.println("Port closed!");
