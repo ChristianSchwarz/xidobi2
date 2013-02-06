@@ -64,10 +64,14 @@ public class Application implements IApplication {
 		while (true) {
 			try {
 				connect(port).awaitTermination(MAX_VALUE, DAYS);
-				System.out.println("Restarting connection...");
+				System.out.println("\nRestarting connection...");
+				Thread.sleep(100);
+			}
+			catch (IOException e) {
+				// ignore
 			}
 			catch (Exception e) {
-				// Do nothing!
+				e.printStackTrace();
 			}
 		}
 	}
@@ -77,13 +81,13 @@ public class Application implements IApplication {
 
 		SerialConnection connection = port.open(from9600_8N1().create());
 
-		System.out.println("Connected to " + port.getPortName() + ".");
+		System.out.println("\nConnected to " + port.getPortName() + ".");
 
 		ScheduledExecutorService ex = newScheduledThreadPool(3);
 
 		ex.scheduleAtFixedRate(write(connection, ex), 0, 1, SECONDS);
 		ex.scheduleWithFixedDelay(read(connection, ex), 0, 1, SECONDS);
-		ex.scheduleAtFixedRate(close(connection, ex), 15, 15, SECONDS);
+		ex.scheduleAtFixedRate(close(connection, ex), 5, 5, SECONDS);
 
 		return ex;
 	}
@@ -95,7 +99,8 @@ public class Application implements IApplication {
 				try {
 					if (!connection.isClosed()) {
 						byte[] read = connection.read();
-						System.out.println("Read: " + new String(read));
+						// System.out.println("Read: " + new String(read));
+						System.out.print("R");
 					}
 				}
 				catch (Exception e) {
@@ -117,7 +122,8 @@ public class Application implements IApplication {
 					if (!connection.isClosed()) {
 						String string = "\"Hello World!\", was said for the " + (i++) + ". time.";
 						connection.write(string.getBytes());
-						System.out.println("Written: " + string);
+						// System.out.println("Written: " + string);
+						System.out.print("W");
 					}
 				}
 				catch (Exception e) {
@@ -125,7 +131,7 @@ public class Application implements IApplication {
 					ex.shutdownNow();
 					throw new RuntimeException(e);
 				}
-			}	
+			}
 		};
 	}
 
@@ -134,10 +140,12 @@ public class Application implements IApplication {
 		return new Runnable() {
 			public void run() {
 				try {
-					System.err.println("Closing port...");
-					connection.close();
-					System.out.println("Port closed!");
-					ex.shutdownNow();
+					if (!connection.isClosed()) {
+						System.out.print("C");
+						connection.close();
+						System.out.print("!");
+						ex.shutdownNow();
+					}
 				}
 				catch (Exception e) {
 					e.printStackTrace();
