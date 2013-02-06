@@ -15,14 +15,15 @@
  */
 package org.xidobi.sample.eclipse;
 
-import static java.lang.Long.MAX_VALUE;
-import static java.lang.System.out;
+import static java.lang.Integer.MAX_VALUE;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -46,39 +47,60 @@ public class Application implements IApplication {
 
 		SerialPortFinder finder = SerialPortProvider.getSerialPortFinder();
 
+		System.out.println("Available serial ports:");
+
 		Set<SerialPort> ports = finder.getAll();
 		for (SerialPort port : ports) {
-			out.println(port);
-			if ("COM2".equals(port.getPortName()))
-				connect(port).awaitTermination(MAX_VALUE, DAYS);
+			System.out.println(" " + port.getPortName() + " (" + port.getDescription() + ")");
 		}
 
-		return EXIT_OK;
+		System.out.print("Please enter the name of the port you want to test: ");
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		String portName = reader.readLine();
+
+		SerialPort port = finder.get(portName);
+
+		while (true) {
+			try {
+				connect(port).awaitTermination(MAX_VALUE, DAYS);
+				System.out.println("Restarting connection...");
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/** Connects the serial port an starts write and read tests. */
 	private ScheduledExecutorService connect(SerialPort port) throws IOException {
 
+		System.out.println("Connecting " + port.getPortName() + "...");
+
 		SerialConnection connection = port.open(from9600_8N1().create());
-		ScheduledExecutorService ex = newScheduledThreadPool(2);
-		ex.scheduleAtFixedRate(write(connection), 0, 1, SECONDS);
-		ex.scheduleWithFixedDelay(read(connection), 0, 1, SECONDS);
+
+		ScheduledExecutorService ex = newScheduledThreadPool(3);
+
+		ex.scheduleAtFixedRate(write(connection, ex), 0, 1, SECONDS);
+		ex.scheduleWithFixedDelay(read(connection, ex), 0, 1, SECONDS);
+		ex.schedule(close(connection, ex), 0, SECONDS);
+
 		return ex;
 	}
 
 	/** Returns the runnable for the read test */
-	private Runnable read(final SerialConnection connection) {
+	private Runnable read(final SerialConnection connection, final ScheduledExecutorService ex) {
 		return new Runnable() {
-
 			public void run() {
 				try {
 					if (!connection.isClosed()) {
-						byte[] bytes = connection.read();
-						System.out.println(new String(bytes));
+						byte[] read = connection.read();
+						System.out.println("Read: " + new String(read));
 					}
 				}
 				catch (Exception e) {
 					e.printStackTrace();
+					ex.shutdownNow();
 					throw new RuntimeException(e);
 				}
 			}
@@ -88,13 +110,36 @@ public class Application implements IApplication {
 	private int i = 0;
 
 	/** Returns the runnable for the write test */
-	private Runnable write(final SerialConnection connection) {
+	private Runnable write(final SerialConnection connection, final ScheduledExecutorService ex) {
 		return new Runnable() {
-
 			public void run() {
 				try {
-					if (!connection.isClosed())
-						connection.write(("\"Hello World!\", was said for the " + (i++) + ". time.").getBytes());
+					if (!connection.isClosed()) {
+						String string = "\"Hello World!\", was said for the " + (i++) + ". time.";
+						connection.write(string.getBytes());
+						System.out.println("Written: " + string);
+					}
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					ex.shutdownNow();
+					throw new RuntimeException(e);
+				}
+			}
+		};
+	}
+
+	private Runnable close(final SerialConnection connection, final ScheduledExecutorService ex) {
+		return new Runnable() {
+			public void run() {
+				try {
+					BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+					System.err.println("Press RETURN to close the serial connection!");
+					reader.readLine();
+					System.err.println("Closing port...");
+					connection.close();
+					System.out.println("Port closed!");
+					ex.shutdownNow();
 				}
 				catch (Exception e) {
 					e.printStackTrace();
