@@ -67,7 +67,7 @@ public class Application implements IApplication {
 				System.out.println("Restarting connection...");
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				// Do nothing!
 			}
 		}
 	}
@@ -75,15 +75,15 @@ public class Application implements IApplication {
 	/** Connects the serial port an starts write and read tests. */
 	private ScheduledExecutorService connect(SerialPort port) throws IOException {
 
-		System.out.println("Connecting " + port.getPortName() + "...");
-
 		SerialConnection connection = port.open(from9600_8N1().create());
+
+		System.out.println("Connected to " + port.getPortName() + ".");
 
 		ScheduledExecutorService ex = newScheduledThreadPool(3);
 
 		ex.scheduleAtFixedRate(write(connection, ex), 0, 1, SECONDS);
 		ex.scheduleWithFixedDelay(read(connection, ex), 0, 1, SECONDS);
-		ex.schedule(close(connection, ex), 0, SECONDS);
+		// ex.schedule(close(connection, ex), 0, SECONDS);
 
 		return ex;
 	}
@@ -129,6 +129,7 @@ public class Application implements IApplication {
 		};
 	}
 
+	/** Returns the runnable that closes the connection when RETURN is pressed. */
 	private Runnable close(final SerialConnection connection, final ScheduledExecutorService ex) {
 		return new Runnable() {
 			public void run() {

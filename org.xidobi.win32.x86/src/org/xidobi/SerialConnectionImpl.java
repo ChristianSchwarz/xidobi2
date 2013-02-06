@@ -15,10 +15,6 @@
  */
 package org.xidobi;
 
-import static org.xidobi.WinApi.PURGE_RXABORT;
-import static org.xidobi.WinApi.PURGE_RXCLEAR;
-import static org.xidobi.WinApi.PURGE_TXABORT;
-import static org.xidobi.WinApi.PURGE_TXCLEAR;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import javax.annotation.Nonnull;
@@ -59,10 +55,13 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	@Override
 	protected void closeInternal() {
 		try {
-			// terminate all pending read or write operations.
-			boolean purgeCommResult = os.PurgeComm(handle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
-			if (!purgeCommResult)
-				throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.GetLastError());
+			// FIXME terminate all pending read or write operations. PurgeComm blocks in some cases,
+			// so we can't use it!
+			//
+			// boolean purgeCommResult = os.PurgeComm(handle, PURGE_TXABORT | PURGE_RXABORT |
+			// PURGE_TXCLEAR | PURGE_RXCLEAR);
+			// if (!purgeCommResult)
+			// throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.GetLastError());
 		}
 		finally {
 			// close the handle of the serial port.
