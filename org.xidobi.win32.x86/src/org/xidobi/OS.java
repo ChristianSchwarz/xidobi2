@@ -280,6 +280,16 @@ public class OS implements WinApi {
 	}
 
 	private native boolean CancelIo(int hFile, INT lastError);
+	
+	/** {@inheritDoc} */
+	public boolean SetEvent(int hEvent) {
+		INT lastError = new INT(0);
+		boolean result = SetEvent(hEvent, lastError);
+		preserveLastError(lastError);
+		return result;
+	}
+	
+	private native boolean SetEvent(int hEvent, INT lastError);
 
 	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);

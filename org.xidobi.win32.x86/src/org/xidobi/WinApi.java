@@ -929,6 +929,7 @@ public interface WinApi {
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
+	 * @deprecated Not used!
 	 */
 	boolean SetCommBreak(int hFile);
 
@@ -946,6 +947,7 @@ public interface WinApi {
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
+	 * @deprecated Not used!
 	 */
 	boolean ClearCommBreak(int hFile);
 
@@ -964,8 +966,28 @@ public interface WinApi {
 	 *         reuse the OVERLAPPED structure associated with the canceled I/O operations until they
 	 *         have completed. The thread can use the GetOverlappedResult function to determine when
 	 *         the I/O operations themselves have been completed.
+	 * @deprecated Not used!
 	 */
+	@Deprecated
 	boolean CancelIo(int hFile);
+	
+	/**
+	 * Sets the specified event object to the signaled state.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms686211(v=vs.85).aspx">
+	 * SetEvent (MSDN)</a> for more details.</i>
+	 * 
+	 * @param hEvent {@code _In_ HANDLE} - A handle to the event object. The CreateEvent or OpenEvent 
+	 * 				 function returns this handle. The handle must have the EVENT_MODIFY_STATE access 
+	 *               right. For more information, see <a 
+	 *               href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms686670(v=vs.85).aspx">
+	 *               Synchronization Object Security and Access Rights</a>.
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()}.
+	 */
+	boolean SetEvent(int hEvent);
 
 	/**
 	 * Allocates a block of {@code size} bytes of memory, returning a pointer to the beginning of
