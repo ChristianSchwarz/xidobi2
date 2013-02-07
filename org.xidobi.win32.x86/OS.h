@@ -154,6 +154,22 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ClearCommError
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    SetCommBreak
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_SetCommBreak
+  (JNIEnv *, jobject, jint, jobject);
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    ClearCommBreak
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ClearCommBreak
+  (JNIEnv *, jobject, jint, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    ResetEvent
  * Signature: (ILorg/xidobi/structs/INT;)Z
  */
