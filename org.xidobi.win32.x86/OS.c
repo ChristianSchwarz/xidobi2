@@ -599,6 +599,25 @@ Java_org_xidobi_OS_ResetEvent(JNIEnv *env, jobject this,
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    SetEvent
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_SetEvent(JNIEnv *env, jobject this,
+		jint hEvent,
+		jobject lastError) {
+
+	BOOL result = SetEvent((HANDLE) hEvent);
+
+	preserveLastError(env, lastError);
+
+	if (result)
+		return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */

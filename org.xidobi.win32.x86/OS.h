@@ -186,6 +186,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ResetEvent
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    SetEvent
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_SetEvent
+  (JNIEnv *, jobject, jint, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    malloc
  * Signature: (I)I
  */
