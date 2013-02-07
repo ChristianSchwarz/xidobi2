@@ -920,6 +920,36 @@ public interface WinApi {
 	boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat);
 
 	/**
+	 * Suspends character transmission for a specified communications device and places the
+	 * transmission line in a break state until the ClearCommBreak function is called.
+	 * 
+	 * @param hFile
+	 *            {@code _In_ HANDLE} - A handle to the communications device. The CreateFile
+	 *            function returns this handle.
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()}.
+	 */
+	boolean SetCommBreak(int hFile);
+
+	/**
+	 * Restores character transmission for a specified communications device and places the
+	 * transmission line in a nonbreak state.
+	 * <p>
+	 * A communications device is placed in a break state by the SetCommBreak or EscapeCommFunction
+	 * function. Character transmission is then suspended until the break state is cleared by
+	 * calling ClearCommBreak.
+	 * 
+	 * @param hFile
+	 *            {@code _In_ HANDLE} - A handle to the communications device. The CreateFile
+	 *            function returns this handle.
+	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
+	 *         fails, the return value is zero. To get extended error information, call
+	 *         {@link #GetLastError()}.
+	 */
+	boolean ClearCommBreak(int hFile);
+
+	/**
 	 * Allocates a block of {@code size} bytes of memory, returning a pointer to the beginning of
 	 * the block.
 	 * <p>

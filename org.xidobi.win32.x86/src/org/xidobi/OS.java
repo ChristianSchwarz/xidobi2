@@ -252,6 +252,26 @@ public class OS implements WinApi {
 	private native boolean ResetEvent(int hEvent, INT lastError);
 
 	/** {@inheritDoc} */
+	public boolean SetCommBreak(int hFile) {
+		INT lastError = new INT(0);
+		boolean result = SetCommBreak(hFile, lastError);
+		preserveLastError(lastError);
+		return result;
+	}
+
+	private native boolean SetCommBreak(int hFile, INT lastError);
+
+	/** {@inheritDoc} */
+	public boolean ClearCommBreak(int hFile) {
+		INT lastError = new INT(0);
+		boolean result = ClearCommBreak(hFile, lastError);
+		preserveLastError(lastError);
+		return result;
+	}
+
+	private native boolean ClearCommBreak(int hFile, INT lastError);
+
+	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);
 
 	/** {@inheritDoc} */
