@@ -272,6 +272,16 @@ public class OS implements WinApi {
 	private native boolean ClearCommBreak(int hFile, INT lastError);
 
 	/** {@inheritDoc} */
+	public boolean CancelIoEx(int hFile, OVERLAPPED lpOverlapped) {
+		INT lastError = new INT(0);
+		boolean result = CancelIoEx(hFile, lpOverlapped, lastError);
+		preserveLastError(lastError);
+		return result;
+	}
+
+	private native boolean CancelIoEx(int hFile, OVERLAPPED lpOverlapped, INT lastError);
+
+	/** {@inheritDoc} */
 	public native int malloc(@Nonnegative int size);
 
 	/** {@inheritDoc} */

@@ -57,9 +57,8 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 		try {
 			// FIXME terminate all pending read or write operations. PurgeComm blocks in some cases,
 			// so we can't use it!
-			//
-			// boolean purgeCommResult = os.PurgeComm(handle, PURGE_TXABORT | PURGE_RXABORT |
-			// PURGE_TXCLEAR | PURGE_RXCLEAR);
+			// boolean purgeCommResult = os.PurgeComm(handle, WinApi.PURGE_TXABORT |
+			// WinApi.PURGE_RXABORT | WinApi.PURGE_TXCLEAR | WinApi.PURGE_RXCLEAR);
 			// if (!purgeCommResult)
 			// throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.GetLastError());
 		}

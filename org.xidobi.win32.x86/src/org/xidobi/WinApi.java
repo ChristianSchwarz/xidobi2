@@ -950,6 +950,24 @@ public interface WinApi {
 	boolean ClearCommBreak(int hFile);
 
 	/**
+	 * Marks any outstanding I/O operations for the specified file handle. The function only cancels
+	 * I/O operations in the current process, regardless of which thread created the I/O operation.
+	 * 
+	 * @param hFile
+	 *            {@code _In_ HANDLE} - A handle to the file.
+	 * @param lpOverlapped
+	 *            {@code _In_opt_  LPOVERLAPPED} - A pointer to an OVERLAPPED data structure that
+	 *            contains the data used for asynchronous I/O.
+	 * @return {@code BOOL} - f the function succeeds, the return value is nonzero. The cancel
+	 *         operation for all pending I/O operations issued by the calling process for the
+	 *         specified file handle was successfully requested. The application must not free or
+	 *         reuse the OVERLAPPED structure associated with the canceled I/O operations until they
+	 *         have completed. The thread can use the GetOverlappedResult function to determine when
+	 *         the I/O operations themselves have been completed.
+	 */
+	boolean CancelIoEx(int hFile, OVERLAPPED lpOverlapped);
+
+	/**
 	 * Allocates a block of {@code size} bytes of memory, returning a pointer to the beginning of
 	 * the block.
 	 * <p>

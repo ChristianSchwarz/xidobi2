@@ -47,7 +47,7 @@ public class ReaderImpl extends IoOperation implements Reader {
 	private static final int READ_FILE_TIMEOUT = 100;
 
 	/** Read timeout in milliseconds */
-	private int readTimeout = 2000;
+	private int readTimeout = 100;
 
 	/**
 	 * Creates a new read operation.
@@ -77,13 +77,16 @@ public class ReaderImpl extends IoOperation implements Reader {
 
 			// Repeat until data is available:
 			while (true) {
+				
 				// wait for some data to arrive
 				awaitArrivalOfData();
+				
 				// how many bytes are available for read?
 				int availableBytes = getAvailableBytes();
 				if (availableBytes == 0)
 					// there is no data available for read
 					continue;
+				
 				// now we can read the available data
 				return readAvailableBytes(availableBytes);
 			}

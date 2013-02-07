@@ -126,8 +126,7 @@ public class BasicSerialConnection implements SerialConnection {
 			try {
 				// close system dependent resources
 				closeInternal();
-			}
-			finally { try {
+			} finally { try {
 				// close the reader
 				reader.close();
 			} finally {
