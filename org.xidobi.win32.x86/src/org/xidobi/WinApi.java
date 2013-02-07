@@ -965,7 +965,7 @@ public interface WinApi {
 	 *         have completed. The thread can use the GetOverlappedResult function to determine when
 	 *         the I/O operations themselves have been completed.
 	 */
-	boolean CancelIoEx(int hFile, OVERLAPPED lpOverlapped);
+	boolean CancelIo(int hFile);
 
 	/**
 	 * Allocates a block of {@code size} bytes of memory, returning a pointer to the beginning of
