@@ -170,6 +170,14 @@ JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_ClearCommBreak
 
 /*
  * Class:     org_xidobi_OS
+ * Method:    CancelIo
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xidobi_OS_CancelIo
+  (JNIEnv *, jobject, jint, jobject);
+
+/*
+ * Class:     org_xidobi_OS
  * Method:    ResetEvent
  * Signature: (ILorg/xidobi/structs/INT;)Z
  */

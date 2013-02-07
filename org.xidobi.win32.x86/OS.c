@@ -533,6 +533,8 @@ Java_org_xidobi_OS_SetCommBreak(JNIEnv *env, jobject this,
 
 	BOOL result = SetCommBreak((HANDLE) hFile);
 
+	preserveLastError(env, lastError);
+
 	if (result)
 		return JNI_TRUE;
 	return JNI_FALSE;
@@ -549,6 +551,27 @@ Java_org_xidobi_OS_ClearCommBreak(JNIEnv *env, jobject this,
 		jobject lastError) {
 
 	BOOL result = ClearCommBreak((HANDLE) hFile);
+
+	preserveLastError(env, lastError);
+
+	if (result)
+		return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+/*
+ * Class:     org_xidobi_OS
+ * Method:    CancelIo
+ * Signature: (ILorg/xidobi/structs/INT;)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_xidobi_OS_CancelIo(JNIEnv *env, jobject this,
+		jint hFile,
+		jobject lastError) {
+
+	BOOL result = CancelIo((HANDLE) hFile);
+
+	preserveLastError(env, lastError);
 
 	if (result)
 		return JNI_TRUE;
