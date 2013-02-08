@@ -124,14 +124,14 @@ public class BasicSerialConnection implements SerialConnection {
 				return;
 			//@formatter:off
 			try {
-				// close system dependent resources
-				closeInternal();
-			} finally { try {
 				// close the reader
 				reader.close();
-			} finally {
+			} finally { try {
 				// close the writer
 				writer.close();
+			} finally {
+				// close system dependent resources
+				closeInternal();
 			}}
 			// @formatter:on
 			isClosed = true;
