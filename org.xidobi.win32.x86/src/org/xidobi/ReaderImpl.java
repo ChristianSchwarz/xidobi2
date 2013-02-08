@@ -77,16 +77,16 @@ public class ReaderImpl extends IoOperation implements Reader {
 
 			// Repeat until data is available:
 			while (true) {
-				
+
 				// wait for some data to arrive
 				awaitArrivalOfData();
-				
+
 				// how many bytes are available for read?
 				int availableBytes = getAvailableBytes();
 				if (availableBytes == 0)
 					// there is no data available for read
 					continue;
-				
+
 				// now we can read the available data
 				return readAvailableBytes(availableBytes);
 			}
@@ -142,8 +142,22 @@ public class ReaderImpl extends IoOperation implements Reader {
 			}
 		}
 		finally {
-			eventMask.dispose();
+			try {
+				releaseWaitCommEvent();
+			}
+			finally {
+				eventMask.dispose();
+			}
 		}
+	}
+
+	/**
+	 * Releases the <code>WaitCommEvent</code> fucntion. This is necessary, because the asynchronous
+	 * <code>WaitCommEvent</code>, doesn't return immediatly on <code>WAIT_FAILED</code>. It can
+	 * cause a memory access violation error, because the resources are disposed too early.
+	 */
+	private void releaseWaitCommEvent() {
+		os.SetCommMask(handle, EV_RXCHAR);
 	}
 
 	/** Returns the number of bytes that are available to read. */
