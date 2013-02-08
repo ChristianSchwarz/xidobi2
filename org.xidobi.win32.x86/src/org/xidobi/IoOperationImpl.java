@@ -125,17 +125,15 @@ public abstract class IoOperationImpl implements IoOperation {
 
 	@OverridingMethodsMustInvokeSuper
 	public void dispose() {
+		//@formatter:off
 		disposeLock.lock();
-		try {
-			try {
-				numberOfBytesTransferred.dispose();
-			}
-			finally {
-				overlapped.dispose();
-			}
-		}
-		finally {
+		try { try {
+			numberOfBytesTransferred.dispose();
+		} finally {
+			overlapped.dispose();
+		}} finally {
 			disposeLock.unlock();
 		}
+		// @formatter:on
 	}
 }
