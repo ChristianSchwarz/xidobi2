@@ -280,7 +280,7 @@ public class OS implements WinApi {
 	}
 
 	private native boolean CancelIo(int hFile, INT lastError);
-	
+
 	/** {@inheritDoc} */
 	public boolean SetEvent(int hEvent) {
 		INT lastError = new INT(0);
@@ -288,7 +288,7 @@ public class OS implements WinApi {
 		preserveLastError(lastError);
 		return result;
 	}
-	
+
 	private native boolean SetEvent(int hEvent, INT lastError);
 
 	/** {@inheritDoc} */

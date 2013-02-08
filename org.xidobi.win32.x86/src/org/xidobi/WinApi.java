@@ -970,7 +970,7 @@ public interface WinApi {
 	 */
 	@Deprecated
 	boolean CancelIo(int hFile);
-	
+
 	/**
 	 * Sets the specified event object to the signaled state.
 	 * <p>
@@ -978,11 +978,12 @@ public interface WinApi {
 	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms686211(v=vs.85).aspx">
 	 * SetEvent (MSDN)</a> for more details.</i>
 	 * 
-	 * @param hEvent {@code _In_ HANDLE} - A handle to the event object. The CreateEvent or OpenEvent 
-	 * 				 function returns this handle. The handle must have the EVENT_MODIFY_STATE access 
-	 *               right. For more information, see <a 
-	 *               href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms686670(v=vs.85).aspx">
-	 *               Synchronization Object Security and Access Rights</a>.
+	 * @param hEvent
+	 *            {@code _In_ HANDLE} - A handle to the event object. The CreateEvent or OpenEvent
+	 *            function returns this handle. The handle must have the EVENT_MODIFY_STATE access
+	 *            right. For more information, see <a
+	 *            href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms686670(v=vs.85).aspx"
+	 *            > Synchronization Object Security and Access Rights</a>.
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
