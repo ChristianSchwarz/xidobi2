@@ -966,9 +966,7 @@ public interface WinApi {
 	 *         reuse the OVERLAPPED structure associated with the canceled I/O operations until they
 	 *         have completed. The thread can use the GetOverlappedResult function to determine when
 	 *         the I/O operations themselves have been completed.
-	 * @deprecated Not used!
 	 */
-	@Deprecated
 	boolean CancelIo(int hFile);
 
 	/**
