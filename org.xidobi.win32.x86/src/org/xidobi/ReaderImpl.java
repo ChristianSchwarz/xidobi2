@@ -142,22 +142,8 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 			}
 		}
 		finally {
-			try {
-				releaseWaitCommEvent();
-			}
-			finally {
-				eventMask.dispose();
-			}
+			eventMask.dispose();
 		}
-	}
-
-	/**
-	 * Releases the <code>WaitCommEvent</code> fucntion. This is necessary, because the asynchronous
-	 * <code>WaitCommEvent</code>, doesn't return immediatly on <code>WAIT_FAILED</code>. It can
-	 * cause a memory access violation error, because the resources are disposed too early.
-	 */
-	private void releaseWaitCommEvent() {
-		os.SetCommMask(handle, EV_RXCHAR);
 	}
 
 	/** Returns the number of bytes that are available to read. */

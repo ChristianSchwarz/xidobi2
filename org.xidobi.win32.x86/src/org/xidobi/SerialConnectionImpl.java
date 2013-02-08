@@ -55,12 +55,13 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	@Override
 	protected void closeInternal() {
 		try {
-			// FIXME terminate all pending read or write operations. PurgeComm blocks in some cases,
-			// so we can't use it!
-			// boolean purgeCommResult = os.PurgeComm(handle, WinApi.PURGE_TXABORT |
-			// WinApi.PURGE_RXABORT | WinApi.PURGE_TXCLEAR | WinApi.PURGE_RXCLEAR);
-			// if (!purgeCommResult)
-			// throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.GetLastError());
+			// IMPORTANT: SetCommMask releases the WaitCommEvent function. This is necessary,
+			// because the asynchronous WaitCommEvent, doesn't return immediatly on WAIT_FAILED. It
+			// can cause a memory access violation error, because the resources are disposed too
+			// early.
+			boolean setCommMaskResult = os.SetCommMask(handle, 0);
+			if (!setCommMaskResult)
+				throw newNativeCodeException(os, "SetCommMask failed unexpected!", os.GetLastError());
 		}
 		finally {
 			// close the handle of the serial port.
@@ -69,5 +70,4 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 				throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
 		}
 	}
-
 }

@@ -100,7 +100,9 @@ public abstract class IoOperationImpl implements IoOperation {
 	/** {@inheritDoc} */
 	@OverridingMethodsMustInvokeSuper
 	public void close() {
-		os.CloseHandle(overlapped.hEvent);
+		boolean closeHandleResult = os.CloseHandle(overlapped.hEvent);
+		if (!closeHandleResult)
+			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
 	}
 
 	/**
