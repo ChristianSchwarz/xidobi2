@@ -36,7 +36,7 @@ import org.xidobi.spi.Writer;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-public class WriterImpl extends IoOperation implements Writer {
+public class WriterImpl extends IoOperationImpl implements Writer {
 
 	/** Write timeout in milliseconds */
 	private int writeTimeout = 2000;

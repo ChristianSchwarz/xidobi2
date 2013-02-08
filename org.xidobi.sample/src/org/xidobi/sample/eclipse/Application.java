@@ -18,6 +18,7 @@ package org.xidobi.sample.eclipse;
 import static java.lang.Integer.MAX_VALUE;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.xidobi.SerialPortSettings.from9600_8N1;
 
@@ -85,9 +86,9 @@ public class Application implements IApplication {
 
 		ScheduledExecutorService ex = newScheduledThreadPool(3);
 
-		ex.scheduleAtFixedRate(write(connection, ex), 0, 1, SECONDS);
-		ex.scheduleWithFixedDelay(read(connection, ex), 0, 1, SECONDS);
-		ex.scheduleAtFixedRate(close(connection, ex), 5, 5, SECONDS);
+		// ex.scheduleAtFixedRate(write(connection, ex), 0, 100, MILLISECONDS);
+		ex.scheduleWithFixedDelay(read(connection, ex), 0, 100, MILLISECONDS);
+		ex.scheduleAtFixedRate(close(connection, ex), 1, 1, SECONDS);
 
 		return ex;
 	}

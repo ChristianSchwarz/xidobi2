@@ -15,33 +15,30 @@
  */
 package org.xidobi.spi;
 
+import java.io.Closeable;
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
-
 /**
- * This interface is implemented by service provider to read from a serial port.
  * 
- * @author Christian Schwarz
  * 
- * @see BasicSerialConnection
+ * @author Tobias Breﬂler
  */
-public interface Reader extends IoOperation {
+public interface IoOperation extends Closeable {
 
 	/**
-	 * The implementation must block until at least one byte can be returned or an
-	 * {@link IOException} is thrown.
+	 * The implementation must release all native resources.
 	 * <p>
-	 * This method will be called by {@link BasicSerialConnection#read()} only if the port is open.
+	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
+	 * closed.
 	 * <p>
 	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
 	 * port is currently open!
-	 * 
-	 * @return the byte's read from the port, never <code>null</code>
-	 * @throws IOException
-	 *             if the port was closed during the operation
 	 */
-	@Nonnull
-	byte[] read() throws IOException;
+	void close() throws IOException;
+
+	/**
+	 * Disposes all resources that was allocated by this I/O operation.
+	 */
+	void dispose();
 
 }

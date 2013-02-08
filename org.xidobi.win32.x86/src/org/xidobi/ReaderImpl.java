@@ -41,7 +41,7 @@ import org.xidobi.structs.NativeByteArray;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  */
-public class ReaderImpl extends IoOperation implements Reader {
+public class ReaderImpl extends IoOperationImpl implements Reader {
 
 	/** Timeout for native <code>ReadFile</code> operation. */
 	private static final int READ_FILE_TIMEOUT = 100;

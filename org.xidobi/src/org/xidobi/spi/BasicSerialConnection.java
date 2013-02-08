@@ -124,14 +124,14 @@ public class BasicSerialConnection implements SerialConnection {
 				return;
 			//@formatter:off
 			try {
-				// close the reader
-				reader.close();
+				// close the reader and writer
+				closeReaderAndWriter();
 			} finally { try {
-				// close the writer
-				writer.close();
-			} finally {
 				// close system dependent resources
 				closeInternal();
+			} finally {
+				// dispose the allocated resources of the reader and writer
+				disposeReaderAndWriter();
 			}}
 			// @formatter:on
 			isClosed = true;
@@ -139,6 +139,26 @@ public class BasicSerialConnection implements SerialConnection {
 		finally {
 			closeLock.unlock();
 		}
+	}
+
+	private void closeReaderAndWriter() throws IOException {
+		//@formatter:off
+		try {
+			reader.close();
+		} finally {
+			writer.close();
+		}
+		//@formatter:on
+	}
+
+	private void disposeReaderAndWriter() {
+		//@formatter:off
+		try {
+			reader.dispose();
+		} finally {
+			writer.dispose();
+		}
+		//@formatter:on
 	}
 
 	/**

@@ -31,11 +31,11 @@ import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
 
 /**
- * Test for {@link IoOperation}
+ * Test for {@link IoOperationImpl}
  * 
  * @author Christian Schwarz
  */
-public class TestIoOperation {
+public class TestIoOperationImpl {
 
 	private static final int CREATE_EVENT_ERROR = 0;
 
@@ -56,7 +56,7 @@ public class TestIoOperation {
 
 	/** class under test */
 
-	private IoOperation operation;
+	private IoOperationImpl operation;
 
 	@Mock
 	private SerialPort port;
@@ -215,7 +215,7 @@ public class TestIoOperation {
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
 	@SuppressWarnings("javadoc")
-	public static class _IoOperation extends IoOperation {
+	public static class _IoOperation extends IoOperationImpl {
 		public _IoOperation(SerialPort port,
 							WinApi os,
 							int handle) {

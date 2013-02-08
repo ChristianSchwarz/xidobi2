@@ -15,7 +15,6 @@
  */
 package org.xidobi.spi;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
@@ -27,7 +26,7 @@ import javax.annotation.Nonnull;
  * 
  * @see BasicSerialConnection
  */
-public interface Writer extends Closeable {
+public interface Writer extends IoOperation {
 
 	/**
 	 * The implementation must write the given {@code byte[]} to the port.
@@ -48,14 +47,4 @@ public interface Writer extends Closeable {
 	 */
 	void write(@Nonnull byte[] data) throws IOException;
 
-	/**
-	 * The implementation must release all native resources.
-	 * <p>
-	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
-	 * closed.
-	 * <p>
-	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
-	 * port is currently open!
-	 */
-	void close() throws IOException;
 }

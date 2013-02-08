@@ -20,7 +20,6 @@ import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,6 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
+import org.xidobi.spi.IoOperation;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
 
@@ -38,10 +38,11 @@ import org.xidobi.structs.OVERLAPPED;
  * @author Christian Schwarz
  * @author Tobias Breﬂler
  * 
+ * @see IoOperation
  * @see WriterImpl
  * @see ReaderImpl
  */
-public abstract class IoOperation implements Closeable {
+public abstract class IoOperationImpl implements IoOperation {
 
 	/** the serial port, never <code>null</code> */
 	protected final SerialPort port;
@@ -71,9 +72,9 @@ public abstract class IoOperation implements Closeable {
 	 * @param handle
 	 *            the native handle of the serial port
 	 */
-	public IoOperation(	@Nonnull SerialPort port,
-						@Nonnull WinApi os,
-						int handle) {
+	public IoOperationImpl(	@Nonnull SerialPort port,
+							@Nonnull WinApi os,
+							int handle) {
 		this.port = checkArgumentNotNull(port, "port");
 		this.os = checkArgumentNotNull(os, "os");
 		checkArgument(handle != INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
@@ -99,18 +100,7 @@ public abstract class IoOperation implements Closeable {
 	/** {@inheritDoc} */
 	@OverridingMethodsMustInvokeSuper
 	public void close() {
-		//@formatter:off
-		try {
-			os.CloseHandle(overlapped.hEvent);
-		} finally { try {
-			disposeLock.lock();
-			numberOfBytesTransferred.dispose();
-		} finally { try {
-			overlapped.dispose();
-		} finally {
-			disposeLock.unlock();
-		}}}
-		//@formatter:on
+		os.CloseHandle(overlapped.hEvent);
 	}
 
 	/**
@@ -133,4 +123,19 @@ public abstract class IoOperation implements Closeable {
 		return new IOException("Port " + port.getPortName() + " is closed!" + message);
 	}
 
+	@OverridingMethodsMustInvokeSuper
+	public void dispose() {
+		disposeLock.lock();
+		try {
+			try {
+				numberOfBytesTransferred.dispose();
+			}
+			finally {
+				overlapped.dispose();
+			}
+		}
+		finally {
+			disposeLock.unlock();
+		}
+	}
 }
