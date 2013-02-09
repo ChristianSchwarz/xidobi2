@@ -19,7 +19,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * 
+ * Interface for I/O operations.
  * 
  * @author Tobias Breﬂler
  */

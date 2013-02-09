@@ -141,6 +141,7 @@ public class BasicSerialConnection implements SerialConnection {
 		}
 	}
 
+	/** Closes the read and write operations. */
 	private void closeReaderAndWriter() throws IOException {
 		//@formatter:off
 		try {
@@ -151,6 +152,7 @@ public class BasicSerialConnection implements SerialConnection {
 		//@formatter:on
 	}
 
+	/** Disposes the resources of the read and write operations. */
 	private void disposeReaderAndWriter() {
 		//@formatter:off
 		try {

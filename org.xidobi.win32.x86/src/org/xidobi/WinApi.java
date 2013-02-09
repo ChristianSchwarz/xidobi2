@@ -929,7 +929,6 @@ public interface WinApi {
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
-	 * @deprecated Not used!
 	 */
 	boolean SetCommBreak(int hFile);
 
@@ -947,7 +946,6 @@ public interface WinApi {
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
-	 * @deprecated Not used!
 	 */
 	boolean ClearCommBreak(int hFile);
 
