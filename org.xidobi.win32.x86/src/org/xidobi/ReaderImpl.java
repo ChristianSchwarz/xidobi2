@@ -49,6 +49,9 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	/** Read timeout in milliseconds */
 	private int readTimeout = 100;
 
+	/** Buffer for read data */
+	private NativeByteArray readBuffer;
+
 	/**
 	 * Creates a new read operation.
 	 * 
@@ -158,53 +161,55 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	/** Reads and returns the data that is available in the read buffer. */
 	private byte[] readAvailableBytes(int numberOfBytesToRead) throws IOException {
 
-		NativeByteArray data = new NativeByteArray(os, numberOfBytesToRead);
-		try {
+		newReadBuffer(numberOfBytesToRead);
 
-			boolean readFileResult = os.ReadFile(handle, data, numberOfBytesToRead, numberOfBytesTransferred, overlapped);
-			if (readFileResult)
-				// the read operation succeeded immediatly
-				return data.getByteArray();
+		boolean readFileResult = os.ReadFile(handle, readBuffer, numberOfBytesToRead, numberOfBytesTransferred, overlapped);
+		if (readFileResult)
+			// the read operation succeeded immediatly
+			return readBuffer.getByteArray();
 
-			int lastError = os.GetLastError();
-			if (lastError == ERROR_INVALID_HANDLE)
-				throw portClosedException("Read operation failed, because the handle is invalid!");
-			if (lastError != ERROR_IO_PENDING)
-				throw newNativeCodeException(os, "ReadFile failed unexpected!", lastError);
+		int lastError = os.GetLastError();
+		if (lastError == ERROR_INVALID_HANDLE)
+			throw portClosedException("Read operation failed, because the handle is invalid!");
+		if (lastError != ERROR_IO_PENDING)
+			throw newNativeCodeException(os, "ReadFile failed unexpected!", lastError);
 
-			// wait for pending I/O operation to complete
-			int waitResult = os.WaitForSingleObject(overlapped.hEvent, READ_FILE_TIMEOUT);
-			switch (waitResult) {
-				case WAIT_OBJECT_0:
-					// I/O operation has finished
-					boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
-					if (!overlappedResult)
-						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.GetLastError());
+		// wait for pending I/O operation to complete
+		int waitResult = os.WaitForSingleObject(overlapped.hEvent, READ_FILE_TIMEOUT);
+		switch (waitResult) {
+			case WAIT_OBJECT_0:
+				// I/O operation has finished
+				boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
+				if (!overlappedResult)
+					throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.GetLastError());
 
-					// verify that the number of read bytes is equal to the number of available
-					// bytes:
-					int bytesRead = numberOfBytesTransferred.getValue();
-					if (bytesRead != numberOfBytesToRead)
-						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead + ", expected: " + numberOfBytesToRead);
-					return data.getByteArray();
-				case WAIT_TIMEOUT:
-					// ReadFile has timed out. This should not happen, because we determined that
-					// data is available
-					throw new NativeCodeException("ReadFile timed out after " + READ_FILE_TIMEOUT + " milliseconds!");
-				case WAIT_ABANDONED:
-					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-				case WAIT_FAILED:
-					lastError = os.GetLastError();
-					if (lastError == ERROR_INVALID_HANDLE)
-						throw portClosedException("Read operation failed, because the handle is invalid!");
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.GetLastError());
-				default:
-					throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
-			}
+				// verify that the number of read bytes is equal to the number of available
+				// bytes:
+				int bytesRead = numberOfBytesTransferred.getValue();
+				if (bytesRead != numberOfBytesToRead)
+					throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead + ", expected: " + numberOfBytesToRead);
+				return readBuffer.getByteArray();
+			case WAIT_TIMEOUT:
+				// ReadFile has timed out. This should not happen, because we determined that
+				// data is available
+				throw new NativeCodeException("ReadFile timed out after " + READ_FILE_TIMEOUT + " milliseconds!");
+			case WAIT_ABANDONED:
+				throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+			case WAIT_FAILED:
+				lastError = os.GetLastError();
+				if (lastError == ERROR_INVALID_HANDLE)
+					throw portClosedException("Read operation failed, because the handle is invalid!");
+				throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.GetLastError());
+			default:
+				throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
 		}
-		finally {
-			data.dispose();
-		}
+	}
+
+	/** Disposes the current buffer and creates a new one. */
+	private void newReadBuffer(int numberOfBytesToRead) {
+		if (readBuffer != null)
+			readBuffer.dispose();
+		readBuffer = new NativeByteArray(os, numberOfBytesToRead);
 	}
 
 	/**
@@ -218,5 +223,11 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 			throw new IOException("Read operation failed, because an communication error event was received!");
 		if ((mask & EV_RXCHAR) != EV_RXCHAR)
 			throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: " + mask + ", expected: " + EV_RXCHAR);
+	}
+
+	@Override
+	protected void disposeInternal() {
+		if (readBuffer != null)
+			readBuffer.dispose();
 	}
 }
