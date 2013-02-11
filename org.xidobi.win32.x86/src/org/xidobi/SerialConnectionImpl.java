@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import javax.annotation.Nonnull;
@@ -70,7 +71,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	 * are disposed too early.
 	 */
 	private void releaseWaitCommEvent() {
-		boolean setCommMaskResult = os.SetCommMask(handle, 0);
+		boolean setCommMaskResult = os.SetCommMask(handle, EV_RXCHAR);
 		if (!setCommMaskResult)
 			throw newNativeCodeException(os, "SetCommMask failed unexpected!", os.GetLastError());
 	}
