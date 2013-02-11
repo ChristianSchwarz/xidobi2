@@ -16,6 +16,10 @@
 package org.xidobi;
 
 import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.PURGE_RXABORT;
+import static org.xidobi.WinApi.PURGE_RXCLEAR;
+import static org.xidobi.WinApi.PURGE_TXABORT;
+import static org.xidobi.WinApi.PURGE_TXCLEAR;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import javax.annotation.Nonnull;
@@ -56,12 +60,24 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	@Override
 	protected void closeInternal() {
 		//@formatter:off
-		try {
-			releaseWaitCommEvent();
+		try { try {
+			purgeComm();
 		} finally {
+			releaseWaitCommEvent();
+		}} finally {
 			closePortHandle();
 		}
 		// @formatter:on
+	}
+
+	/**
+	 * Discards all characters from the output or input buffer of a specified communications
+	 * resource and terminates pending read or write operations.
+	 */
+	private void purgeComm() {
+		boolean purgeCommResult = os.PurgeComm(handle, PURGE_RXABORT | PURGE_TXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
+		if (!purgeCommResult)
+			throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.GetLastError());
 	}
 
 	/**

@@ -47,6 +47,10 @@ public class BasicSerialConnection implements SerialConnection {
 	 */
 	private volatile boolean isClosed;
 
+	/** Ensures that {@link #write(byte[])} can only called by one thread at a time. */
+	private final Lock writeLock = new ReentrantLock();
+	/** Ensures that {@link #read()} can only called by one thread at a time. */
+	private final Lock readLock = new ReentrantLock();
 	/** Ensures that {@link #close()} can only called by one thread at a time. */
 	private final Lock closeLock = new ReentrantLock();
 
@@ -82,6 +86,7 @@ public class BasicSerialConnection implements SerialConnection {
 	public final void write(@Nonnull byte[] data) throws IOException {
 		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
+		writeLock.lock();
 		try {
 			writer.write(data);
 		}
@@ -89,18 +94,25 @@ public class BasicSerialConnection implements SerialConnection {
 			close();
 			throw e;
 		}
+		finally {
+			writeLock.unlock();
+		}
 	}
 
 	/** {@inheritDoc} */
 	@Nonnull
 	public final byte[] read() throws IOException {
 		ensurePortIsOpen();
+		readLock.lock();
 		try {
 			return reader.read();
 		}
 		catch (IOException e) {
 			close();
 			throw e;
+		}
+		finally {
+			readLock.unlock();
 		}
 	}
 
