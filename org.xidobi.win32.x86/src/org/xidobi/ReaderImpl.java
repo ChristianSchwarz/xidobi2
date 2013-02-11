@@ -230,11 +230,9 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	protected void disposeInternal() {
 		//@formatter:off
 		try {
-			System.err.println("eventMask.dispose()");
 			eventMask.dispose();
 		} finally {
 			if (readBuffer != null) {
-				System.err.println("readBuffer.dispose()");
 				readBuffer.dispose();
 			}
 		}

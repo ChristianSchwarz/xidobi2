@@ -177,10 +177,8 @@ public abstract class IoOperationImpl implements IoOperation {
 		try { 
 			checkIfDisposed();
 		try {
-			System.err.println("numberOfBytesTransferred.dispose()");
 			numberOfBytesTransferred.dispose();
 		} finally {	try {
-			System.err.println("overlapped.dispose()");
 			overlapped.dispose();
 		} finally {
 			disposeInternal();
