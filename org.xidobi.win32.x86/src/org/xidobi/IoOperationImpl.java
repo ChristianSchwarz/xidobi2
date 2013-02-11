@@ -63,6 +63,22 @@ public abstract class IoOperationImpl implements IoOperation {
 	protected final Lock disposeLock = new ReentrantLock(true);
 
 	/**
+	 * <ul>
+	 * <li> <code>true</code> if this instance is disposed
+	 * <li> <code>false</code> if this instance is not disposed
+	 * </ul>
+	 */
+	private boolean isDisposed;
+
+	/**
+	 * <ul>
+	 * <li> <code>true</code> if this I/O operation is closed
+	 * <li> <code>false</code> if this I/O operation is not closed
+	 * </ul>
+	 */
+	private boolean isClosed;
+
+	/**
 	 * Creates a new I/O operation.
 	 * 
 	 * @param port
@@ -99,10 +115,39 @@ public abstract class IoOperationImpl implements IoOperation {
 
 	/** {@inheritDoc} */
 	@OverridingMethodsMustInvokeSuper
-	public void close() {
+	public void close() throws IOException {
+		checkIfClosedOrDisposed();
 		boolean closeHandleResult = os.CloseHandle(overlapped.hEvent);
 		if (!closeHandleResult)
 			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
+		isClosed = true;
+	}
+
+	/**
+	 * Returns <code>true</code> if this I/O operation is closed.
+	 * 
+	 * @return <ul>
+	 *         <li> <code>true</code> if this I/O operation is closed
+	 *         <li> <code>false</code> if this I/O operation is not closed
+	 *         </ul>
+	 */
+	protected boolean isClosed() {
+		return isClosed;
+	}
+
+	/**
+	 * Throws an {@link IOException} if this I/O operation was already closed or an
+	 * {@link IllegalStateException} if this instance was already disposed.
+	 * 
+	 * @throws IOException
+	 *             when this I/O operation was already closed
+	 * @throws IllegalStateException
+	 *             when this instance was already disposed
+	 */
+	protected void checkIfClosedOrDisposed() throws IOException {
+		if (isClosed())
+			throw portClosedException(null);
+		checkIfDisposed();
 	}
 
 	/**
@@ -129,13 +174,18 @@ public abstract class IoOperationImpl implements IoOperation {
 	public final void dispose() {
 		//@formatter:off
 		disposeLock.lock();
-		try { try {
+		try { 
+			checkIfDisposed();
+		try {
+			System.err.println("numberOfBytesTransferred.dispose()");
 			numberOfBytesTransferred.dispose();
 		} finally {	try {
+			System.err.println("overlapped.dispose()");
 			overlapped.dispose();
 		} finally {
 			disposeInternal();
 		}}} finally {
+			isDisposed = true;
 			disposeLock.unlock();
 		}
 		// @formatter:on
@@ -143,5 +193,28 @@ public abstract class IoOperationImpl implements IoOperation {
 
 	/** Subclasses can overwrite this method in order to dispose their resources. */
 	protected void disposeInternal() {}
-	
+
+	/**
+	 * Returns <code>true</code> if this instance is disposed.
+	 * 
+	 * @return <ul>
+	 *         <li> <code>true</code> if this instance is disposed
+	 *         <li> <code>false</code> if this instance is not disposed
+	 *         </ul>
+	 */
+	protected boolean isDisposed() {
+		return isDisposed;
+	}
+
+	/**
+	 * Throws an {@link IllegalStateException} if this instance was already disposed.
+	 * 
+	 * @throws IllegalStateException
+	 *             when this instance was already disposed
+	 */
+	protected void checkIfDisposed() {
+		if (isDisposed())
+			throw new IllegalStateException("The instance of " + getClass().getName() + " was already disposed!");
+	}
+
 }

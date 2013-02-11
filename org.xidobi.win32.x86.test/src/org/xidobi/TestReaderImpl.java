@@ -619,9 +619,11 @@ public class TestReaderImpl {
 
 	/**
 	 * Verifies that all resources are disposed, when the reader is closed.
+	 * 
+	 * @throws Exception
 	 */
 	@Test
-	public void close() {
+	public void close() throws Exception {
 
 		reader.close();
 

@@ -144,9 +144,11 @@ public class TestIoOperationImpl {
 
 	/**
 	 * Verifies that all resource are freed that were allocated in the construction
+	 * 
+	 * @throws Exception
 	 */
 	@Test
-	public void close() {
+	public void close() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
@@ -158,9 +160,11 @@ public class TestIoOperationImpl {
 
 	/**
 	 * Verifies that all resource are freed
+	 * 
+	 * @throws Exception
 	 */
 	@Test()
-	public void close_CloseHandleFails() {
+	public void close_CloseHandleFails() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
@@ -176,9 +180,11 @@ public class TestIoOperationImpl {
 
 	/**
 	 * Verifies that all resource are freed
+	 * 
+	 * @throws Exception
 	 */
 	@Test()
-	public void close_free_Overlapped() {
+	public void close_free_Overlapped() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
@@ -195,9 +201,11 @@ public class TestIoOperationImpl {
 
 	/**
 	 * Verifies that all resource are freed
+	 * 
+	 * @throws Exception
 	 */
 	@Test()
-	public void close_free_bytesTransferred() {
+	public void close_free_bytesTransferred() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 

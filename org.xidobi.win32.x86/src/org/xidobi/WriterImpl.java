@@ -62,6 +62,8 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 
 		disposeLock.lock();
 		try {
+			checkIfClosedOrDisposed();
+
 			os.ResetEvent(overlapped.hEvent);
 
 			// write data to serial port

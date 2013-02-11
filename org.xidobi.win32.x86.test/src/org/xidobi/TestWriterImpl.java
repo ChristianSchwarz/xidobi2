@@ -364,9 +364,11 @@ public class TestWriterImpl {
 
 	/**
 	 * Verifies that a call to close() frees all resources.
+	 * 
+	 * @throws Exception
 	 */
 	@Test
-	public void close() {
+	public void close() throws Exception {
 		writer.close();
 
 		verify(os).CloseHandle(eventHandle);
