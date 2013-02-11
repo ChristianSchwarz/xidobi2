@@ -54,20 +54,32 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 
 	@Override
 	protected void closeInternal() {
+		//@formatter:off
 		try {
-			// IMPORTANT: SetCommMask releases the WaitCommEvent function. This is necessary,
-			// because the asynchronous WaitCommEvent, doesn't return immediatly on WAIT_FAILED. It
-			// can cause a memory access violation error, because the resources are disposed too
-			// early.
-			boolean setCommMaskResult = os.SetCommMask(handle, 0);
-			if (!setCommMaskResult)
-				throw newNativeCodeException(os, "SetCommMask failed unexpected!", os.GetLastError());
+			releaseWaitCommEvent();
+		} finally {
+			closePortHandle();
 		}
-		finally {
-			// close the handle of the serial port.
-			boolean closeHandleResult = os.CloseHandle(handle);
-			if (!closeHandleResult)
-				throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
-		}
+		// @formatter:on
+	}
+
+	/**
+	 * <b>IMPORTANT:</b> Releases the <code>WaitCommEvent</code> function. This is necessary,
+	 * because the asynchronous <code>WaitCommEvent</code>, doesn't return immediatly on
+	 * <code>WAIT_FAILED</code>. It can cause a memory access violation error, because the resources
+	 * are disposed too early.
+	 */
+	private void releaseWaitCommEvent() {
+		boolean setCommMaskResult = os.SetCommMask(handle, 0);
+		if (!setCommMaskResult)
+			throw newNativeCodeException(os, "SetCommMask failed unexpected!", os.GetLastError());
+	}
+
+	/** Closes the handle of the serial port. */
+	private void closePortHandle() {
+		// close the handle of the serial port.
+		boolean closeHandleResult = os.CloseHandle(handle);
+		if (!closeHandleResult)
+			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
 	}
 }
