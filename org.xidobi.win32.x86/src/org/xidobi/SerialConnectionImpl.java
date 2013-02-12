@@ -16,6 +16,10 @@
 package org.xidobi;
 
 import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.PURGE_RXABORT;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.PURGE_TXABORT;
@@ -34,6 +38,9 @@ import org.xidobi.spi.BasicSerialConnection;
  * @see SerialConnection
  */
 public class SerialConnectionImpl extends BasicSerialConnection {
+
+	/** TODO Polling interval */
+	private static final int TERMINATION_POLL_INTERVAL = 200;
 
 	/** the native Win32-API */
 	private WinApi os;
@@ -66,15 +73,15 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 			purgeComm();
 		} finally {
 			releaseWaitCommEvent();
-		}}} finally {
-			closePortHandle();
-		}
+		}}} finally { try {
+			closePortHandle(handle);
+		} finally {
+			awaitCloseTermination();
+		}}
 		// @formatter:on
 	}
 
-	/**
-	 * 
-	 */
+	/** Cancels all pending I/O operations. */
 	private void cancelIO() {
 		boolean cancelIoResult = os.CancelIo(handle);
 		if (!cancelIoResult) {
@@ -106,10 +113,39 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	}
 
 	/** Closes the handle of the serial port. */
-	private void closePortHandle() {
+	private void closePortHandle(int handle) {
 		// close the handle of the serial port.
 		boolean closeHandleResult = os.CloseHandle(handle);
 		if (!closeHandleResult)
 			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
+	}
+
+	/** Waits for the asynchronous termination of the close operation. */
+	private void awaitCloseTermination() {
+
+		String portName = getPort().getPortName();
+
+		// TODO NOTICE: This is a workaround.
+		int i = 0;
+		while (true) {
+			i++;
+			int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+			if (handle != INVALID_HANDLE_VALUE) {
+				closePortHandle(handle);
+				System.out.println("[[" + i + "]]");
+				return;
+			}
+			sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
+		}
+	}
+
+	/** Invokes <code>Thread.sleep(int)</code> uninterruptibly. */
+	private void sleepUninterruptibly(int duration) {
+		try {
+			Thread.sleep(duration);
+		}
+		catch (InterruptedException e) {
+			// ignore InterruptedException.
+		}
 	}
 }

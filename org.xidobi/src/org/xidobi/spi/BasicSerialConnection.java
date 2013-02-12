@@ -82,6 +82,13 @@ public class BasicSerialConnection implements SerialConnection {
 		this.writer = checkArgumentNotNull(writer, "writer");
 	}
 
+	/**
+	 * @return the port
+	 */
+	public SerialPort getPort() {
+		return port;
+	}
+	
 	/** {@inheritDoc} */
 	public final void write(@Nonnull byte[] data) throws IOException {
 		checkArgumentNotNull(data, "data");
