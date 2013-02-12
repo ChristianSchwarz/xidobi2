@@ -99,9 +99,10 @@ public class Application implements IApplication {
 			public void run() {
 				try {
 					if (!connection.isClosed()) {
+						System.out.print("<R");
 						byte[] read = connection.read();
 						// System.out.println("Read: " + new String(read));
-						System.out.print("R");
+						System.out.print("[" + read.length + "]R>");
 					}
 				}
 				catch (Exception e) {
@@ -121,10 +122,11 @@ public class Application implements IApplication {
 			public void run() {
 				try {
 					if (!connection.isClosed()) {
+						System.out.print("<W");
 						String string = "\"Hello World!\", was said for the " + (i++) + ". time.";
 						connection.write(string.getBytes());
 						// System.out.println("Written: " + string);
-						System.out.print("W");
+						System.out.print("W>");
 					}
 				}
 				catch (Exception e) {
@@ -142,9 +144,9 @@ public class Application implements IApplication {
 			public void run() {
 				try {
 					if (!connection.isClosed()) {
-						System.out.print("C");
+						System.out.print("<C");
 						connection.close();
-						System.out.print("!");
+						System.out.print("C>");
 						ex.shutdownNow();
 					}
 				}
