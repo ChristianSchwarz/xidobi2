@@ -87,10 +87,8 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	/** Cancels all pending I/O operations. */
 	private void cancelIO() {
 		boolean cancelIoResult = os.CancelIo(handle);
-		if (!cancelIoResult) {
-			System.out.print("CancelIo failed! " + os.GetLastError());
+		if (!cancelIoResult)
 			throw newNativeCodeException(os, "CancelIo failed unexpected!", os.GetLastError());
-		}
 	}
 
 	/**
