@@ -126,8 +126,12 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 		String portName = getPort().getPortName();
 
 		// IMPORTANT: We need this workaround, because when the close operation returns, the pending
-		// I/O operations are not canceled immediatly. We must wait until all I/O operations are
-		// finished. Only then we can dispose all allocated resources in the next step.
+		// I/O operations in the background are not canceled immediatly. We must wait until all I/O
+		// operations are finished. Only then we can dispose all allocated resources in the next
+		// step. The only way to find out that all pending I/O operations are finished and the
+		// port is really closed, is to re-open the port. If it is successfull, all pending
+		// operations should be terminated.
+
 		while (true) {
 			int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 			if (handle != INVALID_HANDLE_VALUE) {
