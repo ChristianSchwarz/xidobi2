@@ -97,10 +97,11 @@ public class OVERLAPPED extends Pointer {
 	public String toString() {
 		return "OVERLAPPED [hEvent=" + hEvent + "]";
 	}
-	
+
+	// -- FOR DEBUGGING ONLY: -----------------
 	@Override
 	public void dispose() {
 		super.dispose();
 	}
-
+	// ----------------------------------------
 }

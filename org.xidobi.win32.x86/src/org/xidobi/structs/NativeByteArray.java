@@ -73,9 +73,11 @@ public class NativeByteArray extends Pointer {
 		return getWinApi().getByteArray(this, length);
 	}
 
+	// -- FOR DEBUGGING ONLY: -----------------
 	@Override
 	public void dispose() {
 		super.dispose();
 	}
+	// ----------------------------------------
 
 }

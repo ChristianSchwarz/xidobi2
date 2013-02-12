@@ -26,7 +26,6 @@ import static org.xidobi.utils.Throwables.newNativeCodeException;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Writer;
@@ -60,7 +59,6 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 
 	/** {@inheritDoc} */
 	public void write(@Nonnull byte[] data) throws IOException {
-
 		disposeLock.lock();
 		try {
 			checkIfClosedOrDisposed();
@@ -114,9 +112,10 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 		}
 	}
 
+	// -- FOR DEBUGGING ONLY: -----------------
 	@Override
-	@OverridingMethodsMustInvokeSuper
 	public void dispose() {
 		super.dispose();
 	}
+	// ----------------------------------------
 }

@@ -152,7 +152,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 			Thread.sleep(duration);
 		}
 		catch (InterruptedException e) {
-			// ignore InterruptedException.
+			// TODO Do we really wan't to ignore this exception?
 		}
 	}
 }
