@@ -65,4 +65,9 @@ public class DWORD extends Pointer {
 		getWinApi().setValue_DWORD(this, value);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+	}
+	
 }

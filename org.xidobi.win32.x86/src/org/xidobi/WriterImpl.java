@@ -26,6 +26,7 @@ import static org.xidobi.utils.Throwables.newNativeCodeException;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Writer;
@@ -94,11 +95,8 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 					if (numberOfBytesTransferred.getValue() != data.length)
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + numberOfBytesTransferred.getValue() + ", expected: " + data.length);
 					return;
-				case WAIT_TIMEOUT:// IO operation has timed out
-
-					// TODO Maybe we should purge the serial port here, so all outstanding data will
-					// be cleared?
-
+				case WAIT_TIMEOUT:
+					// IO operation has timed out
 					throw new IOException("Write operation timed out after " + writeTimeout + " milliseconds!");
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
@@ -114,5 +112,11 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 		finally {
 			disposeLock.unlock();
 		}
+	}
+
+	@Override
+	@OverridingMethodsMustInvokeSuper
+	public void dispose() {
+		super.dispose();
 	}
 }

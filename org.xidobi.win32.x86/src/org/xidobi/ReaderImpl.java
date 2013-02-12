@@ -27,6 +27,7 @@ import static org.xidobi.utils.Throwables.newNativeCodeException;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Reader;
@@ -75,7 +76,6 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	/** {@inheritDoc} */
 	@Nonnull
 	public byte[] read() throws IOException {
-
 		disposeLock.lock();
 		try {
 			checkIfClosedOrDisposed();
@@ -237,5 +237,11 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 			}
 		}
 		//@formatter:on
+	}
+
+	@Override
+	@OverridingMethodsMustInvokeSuper
+	public void dispose() {
+		super.dispose();
 	}
 }

@@ -171,7 +171,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	}
 
 	@OverridingMethodsMustInvokeSuper
-	public final void dispose() {
+	public/* final */void dispose() {
 		//@formatter:off
 		disposeLock.lock();
 		try { 
