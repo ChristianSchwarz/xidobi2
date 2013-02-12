@@ -60,14 +60,27 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	@Override
 	protected void closeInternal() {
 		//@formatter:off
-		try { try {
+		try { try { 
+			cancelIO();
+		} finally {	try {
 			purgeComm();
 		} finally {
 			releaseWaitCommEvent();
-		}} finally {
+		}}} finally {
 			closePortHandle();
 		}
 		// @formatter:on
+	}
+
+	/**
+	 * 
+	 */
+	private void cancelIO() {
+		boolean cancelIoResult = os.CancelIo(handle);
+		if (!cancelIoResult) {
+			System.out.print("CancelIo failed! " + os.GetLastError());
+			throw newNativeCodeException(os, "CancelIo failed unexpected!", os.GetLastError());
+		}
 	}
 
 	/**
