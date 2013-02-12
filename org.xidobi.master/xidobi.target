@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="Restored Target" sequenceNumber="6">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="xidobi.dependencies.feature.feature.group" version="1.0.0.201302121431"/>
+<repository location="http://dependencies.xidobi.googlecode.com/git/repository/"/>
+</location>
+</locations>
+<environment>
+<os>win32</os>
+<ws>win32</ws>
+<arch>x86</arch>
+<nl>de_DE</nl>
+</environment>
+</target>
