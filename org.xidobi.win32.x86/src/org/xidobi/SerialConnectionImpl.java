@@ -120,21 +120,23 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
 	}
 
-	/** Waits for the asynchronous termination of the close operation. */
+	/** Awaits the termination of all pending I/O operations. */
 	private void awaitCloseTermination() {
 
 		String portName = getPort().getPortName();
 
-		// TODO NOTICE: This is a workaround.
-		int i = 0;
+		// IMPORTANT: We need this workaround, because when the close operation returns, the pending
+		// I/O operations are not canceled immediatly. We must wait until all I/O operations are
+		// finished. Only then we can dispose all allocated resources in the next step.
 		while (true) {
-			i++;
 			int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 			if (handle != INVALID_HANDLE_VALUE) {
 				closePortHandle(handle);
-				System.out.println("[[" + i + "]]");
 				return;
 			}
+
+			// TODO Maybe we need a maximum number of retries. How long should we wait, until the
+			// port is actualy closed!
 			sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
 		}
 	}
