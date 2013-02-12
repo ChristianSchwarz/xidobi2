@@ -39,7 +39,10 @@ import org.xidobi.spi.BasicSerialConnection;
  */
 public class SerialConnectionImpl extends BasicSerialConnection {
 
-	/** TODO Polling interval */
+	/**
+	 * Specifies how often the port should be re-open in order to determine if the port is actualy
+	 * closed.
+	 */
 	private static final int TERMINATION_POLL_INTERVAL = 200;
 
 	/** the native Win32-API */
