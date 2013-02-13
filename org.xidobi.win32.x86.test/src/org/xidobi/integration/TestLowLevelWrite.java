@@ -63,7 +63,7 @@ public class TestLowLevelWrite {
 	@Before
 	public void setUp() throws Exception {
 
-		portHandle = os.CreateFile("\\\\.\\COM75", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
+		portHandle = os.CreateFileA("\\\\.\\COM75", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, 0);
 		if (portHandle == INVALID_HANDLE_VALUE)
 			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.GetLastError()));
 

@@ -65,7 +65,7 @@ public class TestLowLevelRead {
 	@Before
 	public void setUp() throws Exception {
 
-		portHandle = os.CreateFile("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+		portHandle = os.CreateFileA("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 		if (portHandle == INVALID_HANDLE_VALUE)
 			throw new IOException("Invalid handle! " + getNativeErrorMessage(os.GetLastError()));
 

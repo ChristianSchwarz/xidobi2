@@ -136,7 +136,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 		// operations should be terminated.
 
 		while (true) {
-			int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+			int handle = os.CreateFileA("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 			if (handle != INVALID_HANDLE_VALUE) {
 				// port was closed successful
 				closePortHandle(handle);
@@ -149,7 +149,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 					sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
 					continue;
 				case ERROR_FILE_NOT_FOUND:
-					// the port couldn't been found, maybe the port device was disconnected
+					// the port couldn't been found, maybe the hardware was removed
 					return;
 			}
 			throw newNativeCodeException(os, "Couldn't wait for close termination! CreateFile failed unexpected!", lastError);

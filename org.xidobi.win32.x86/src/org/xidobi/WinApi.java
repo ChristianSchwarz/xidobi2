@@ -297,7 +297,7 @@ public interface WinApi {
 	 *         {@link #GetLastError()}.
 	 */
 	@CheckReturnValue
-	int CreateFile(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
+	int CreateFileA(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile);
 
 	/**
 	 * Closes an open object handle.
