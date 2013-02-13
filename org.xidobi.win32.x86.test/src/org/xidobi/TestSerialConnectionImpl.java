@@ -18,7 +18,11 @@ package org.xidobi;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.OPEN_EXISTING;
 import static org.xidobi.WinApi.PURGE_RXABORT;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.PURGE_TXABORT;
@@ -29,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
 
@@ -66,6 +69,7 @@ public class TestSerialConnectionImpl {
 	private WinApi os;
 
 	private int handle = 1534;
+	private int terminationHandle = 13423;
 
 	@Before
 	@SuppressWarnings("javadoc")
@@ -114,55 +118,6 @@ public class TestSerialConnectionImpl {
 		new SerialConnectionImpl(port, os, INVALID_HANDLE_VALUE);
 	}
 
-	// /**
-	// * Verifies that a {@link NativeCodeException} is thrown, when <code>PurgeComm(...)</code>
-	// * fails.
-	// *
-	// * @throws Exception
-	// */
-	// @Test
-	// public void close_PurgeCommFailsUnexpected() throws Exception {
-	// when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT |
-	// PURGE_TXCLEAR)).thenReturn(false);
-	// when(os.CloseHandle(handle)).thenReturn(true);
-	//
-	// exception.expect(NativeCodeException.class);
-	// exception.expectMessage("PurgeComm failed unexpected!");
-	//
-	// try {
-	// serialConnectionImpl.close();
-	// }
-	// finally {
-	// // verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT |
-	// PURGE_TXCLEAR);
-	// verify(os).CloseHandle(handle);
-	// }
-	// }
-
-	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>CloseHandle(...)</code>
-	 * fails.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void close_CloseHandleFailsUnexpected() throws Exception {
-		when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR)).thenReturn(true);
-		when(os.CloseHandle(handle)).thenReturn(false);
-
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("CloseHandle failed unexpected!");
-
-		try {
-			serialConnectionImpl.close();
-		}
-		finally {
-			// verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT |
-			// PURGE_TXCLEAR);
-			verify(os).CloseHandle(handle);
-		}
-	}
-
 	/**
 	 * Verifies that all resources are disposed, when the serial connection is closed.
 	 * 
@@ -170,64 +125,24 @@ public class TestSerialConnectionImpl {
 	 */
 	@Test
 	public void close_successfull() throws Exception {
+		when(os.CancelIo(handle)).thenReturn(true);
 		when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR)).thenReturn(true);
+		when(os.SetCommMask(handle, EV_RXCHAR)).thenReturn(true);
+		when(os.CloseHandle(eventHandle)).thenReturn(true);
 		when(os.CloseHandle(handle)).thenReturn(true);
+		when(os.CreateFileA("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0)).thenReturn(terminationHandle);
+		when(os.CloseHandle(terminationHandle)).thenReturn(true);
 
 		try {
 			serialConnectionImpl.close();
 		}
 		finally {
-			// verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT |
-			// PURGE_TXCLEAR);
+			verify(os).CancelIo(handle);
+			verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
+			verify(os).SetCommMask(handle, EV_RXCHAR);
 			verify(os).CloseHandle(handle);
+			verify(os).CreateFileA("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+			verify(os).CloseHandle(terminationHandle);
 		}
 	}
-
-	// /**
-	// * Verifies that all resources are disposed, when <code>PurgeComm(...)</code> throws a
-	// * {@link RuntimeException}.
-	// *
-	// * @throws Exception
-	// */
-	// @Test
-	// public void close_PurgeCommThrowsException() throws Exception {
-	// when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT |
-	// PURGE_TXCLEAR)).thenThrow(new RuntimeException());
-	// when(os.CloseHandle(handle)).thenReturn(true);
-	//
-	// exception.expect(RuntimeException.class);
-	//
-	// try {
-	// serialConnectionImpl.close();
-	// }
-	// finally {
-	// // verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT |
-	// PURGE_TXCLEAR);
-	// verify(os).CloseHandle(handle);
-	// }
-	// }
-
-	// /**
-	// * Verifies that a {@link NativeCodeException} is thrown, when <code>PurgeComm(...)</code>
-	// * throws a {@link RuntimeException} and <code>CloseHandle(...)</code> fails.
-	// *
-	// * @throws Exception
-	// */
-	// @Test
-	// public void close_PurgeCommThrowsExceptionAndCloseHandleFails() throws Exception {
-	// when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT |
-	// PURGE_TXCLEAR)).thenThrow(new RuntimeException());
-	// when(os.CloseHandle(handle)).thenReturn(false);
-	//
-	// exception.expect(NativeCodeException.class);
-	// exception.expectMessage("CloseHandle failed unexpected!");
-	//
-	// try {
-	// serialConnectionImpl.close();
-	// }
-	// finally {
-	// verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
-	// verify(os).CloseHandle(handle);
-	// }
-	// }
 }

@@ -160,67 +160,6 @@ public class TestReaderImpl {
 	}
 
 	/**
-	 * Verifies that an {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
-	 * successfull, but the event mask is <code>0</code> (error event).
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-	public void read_WaitCommEventForErrorEvent() throws IOException {
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(0);
-
-		exception.expect(IOException.class);
-		exception.expectMessage("Read operation failed, because an communication error event was received!");
-
-		reader.read();
-	}
-
-	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
-	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code> and
-	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code>.
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-	public void read_WaitCommEventPendingWaitFails() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, 
-		                                         DUMMY_ERROR_CODE);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
-		//@formatter:on
-
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
-
-		reader.read();
-	}
-
-	/**
-	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
-	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the
-	 * last error code is <code>ERROR_INVALID_HANDLE</code>.
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-	public void read_WaitCommEventPendingWaitFailsWithERROR_INVALID_HANDLE() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, 
-		                                         ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
-		//@formatter:on
-
-		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
-
-		reader.read();
-	}
-
-	/**
 	 * Verifies that the available data is read. The first time when <code>WaitCommEvent(...)</code>
 	 * is called, the operation is pending and <code>WaitForSingleObject(...)</code> returns
 	 * <code>WAIT_TIMEOUT</code>. The second time it returns immediatly and the data can be read
@@ -269,49 +208,6 @@ public class TestReaderImpl {
 		byte[] result = reader.read();
 
 		assertThat(result, is(DATA));
-	}
-
-	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
-	 * returns <code>false</code>, the last error is <code>ERROR_IO_PENDING</code> and
-	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_ABANDONED</code>.
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-	public void read_WaitCommEventPendingReturnsWAIT_ABANDONED() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, 
-		                                         DUMMY_ERROR_CODE);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
-		//@formatter:on
-
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
-
-		reader.read();
-	}
-
-	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
-	 * is pending and <code>WaitForSingleObject(...)</code> returns an unexpected value.
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-	public void read_WaitCommEventPendingReturnsUnexpectedValue() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, 
-		                                         DUMMY_ERROR_CODE);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(123);
-		//@formatter:on
-
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject returned unexpected value! Got: 123");
-
-		reader.read();
 	}
 
 	/**
@@ -618,7 +514,7 @@ public class TestReaderImpl {
 	}
 
 	/**
-	 * Verifies that all resources are disposed, when the reader is closed.
+	 * Verifies that all handles are disposed, when the reader is closed.
 	 * 
 	 * @throws Exception
 	 */
@@ -627,9 +523,22 @@ public class TestReaderImpl {
 
 		reader.close();
 
+		verify(os).CloseHandle(eventHandle);
+	}
+
+	/**
+	 * Verifies that all resources are disposed, when the reader is disposed.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void dispose() throws Exception {
+
+		reader.dispose();
+
 		verify(os).free(ptrBytesTransferred);
 		verify(os).free(ptrOverlapped);
-		verify(os).CloseHandle(eventHandle);
+		verify(os).free(ptrEvtMask);
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////

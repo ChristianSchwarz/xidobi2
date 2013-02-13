@@ -363,7 +363,7 @@ public class TestWriterImpl {
 	}
 
 	/**
-	 * Verifies that a call to close() frees all resources.
+	 * Verifies that a call to close() frees all handles.
 	 * 
 	 * @throws Exception
 	 */
@@ -372,6 +372,17 @@ public class TestWriterImpl {
 		writer.close();
 
 		verify(os).CloseHandle(eventHandle);
+	}
+
+	/**
+	 * Verifies that a call to dispose() frees all resources.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void dispose() {
+		writer.dispose();
+
 		verify(os).free(ptrBytesTransferred);
 		verify(os).free(ptrOverlapped);
 	}

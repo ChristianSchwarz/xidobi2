@@ -15,7 +15,6 @@
  */
 package org.xidobi;
 
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -38,6 +37,7 @@ import org.xidobi.structs.OVERLAPPED;
 public class TestIoOperationImpl {
 
 	private static final int CREATE_EVENT_ERROR = 0;
+	private static final int DUMMY_ERROR_CODE = 214;
 
 	private static final int PORT_HANDLE = 123;
 
@@ -150,74 +150,47 @@ public class TestIoOperationImpl {
 	@Test
 	public void close() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.CloseHandle(eventHandle)).thenReturn(true);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
 		operation.close();
+
 		verify(os).CloseHandle(eventHandle);
-		verify(os).free(ptrOverlapped);
-		verify(os).free(ptrBytesTransferred);
 	}
 
 	/**
-	 * Verifies that all resource are freed
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>CloseHandle</code> returns
+	 * <code>false</code>.
 	 * 
 	 * @throws Exception
 	 */
-	@Test()
-	public void close_CloseHandleFails() throws Exception {
+	@Test
+	public void close_CloseHandleFailsUnexpected() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.CloseHandle(eventHandle)).thenReturn(false);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
-		when(os.CloseHandle(eventHandle)).thenThrow(new RuntimeException());
-		try {
-			operation.close();
-		}
-		catch (RuntimeException ignore) {}
-		verify(os).CloseHandle(eventHandle);
-		verify(os).free(ptrOverlapped);
-		verify(os).free(ptrBytesTransferred);
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("CloseHandle failed unexpected!");
+
+		operation.close();
 	}
 
 	/**
-	 * Verifies that all resource are freed
+	 * Verifies that all resource are freed that were allocated in the construction
 	 * 
 	 * @throws Exception
 	 */
-	@Test()
-	public void close_free_Overlapped() throws Exception {
+	@Test
+	public void dispose() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
-		doThrow(new RuntimeException()).when(os).free(ptrOverlapped);
-		try {
-			operation.close();
-		}
-		catch (RuntimeException ignore) {}
-		verify(os).CloseHandle(eventHandle);
+		operation.dispose();
+
 		verify(os).free(ptrOverlapped);
 		verify(os).free(ptrBytesTransferred);
-
-	}
-
-	/**
-	 * Verifies that all resource are freed
-	 * 
-	 * @throws Exception
-	 */
-	@Test()
-	public void close_free_bytesTransferred() throws Exception {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		operation = new _IoOperation(port, os, PORT_HANDLE);
-
-		doThrow(new RuntimeException()).when(os).free(ptrBytesTransferred);
-		try {
-			operation.close();
-		}
-		catch (RuntimeException ignore) {}
-		verify(os).CloseHandle(eventHandle);
-		verify(os).free(ptrOverlapped);
-		verify(os).free(ptrBytesTransferred);
-
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
