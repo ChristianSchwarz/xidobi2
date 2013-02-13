@@ -3,12 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
+	
 	<parent>
 		<groupId>org.xidobi</groupId>
 		<artifactId>xidobi</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../org.xidobi.master/pom.xml</relativePath>
 	</parent>
+	
 	<groupId>org.xidobi</groupId>
 	<artifactId>org.xidobi.native.win32.x86</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -16,8 +18,6 @@
 
 	<build>
 		<plugins>
-
-
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>native-maven-plugin</artifactId>
@@ -25,9 +25,15 @@
 				<extensions>true</extensions>
 				<configuration>
            	
+           			<!-- Compiler options -->
 					<compilerStartOptions>
 						<compilerStartOption>-D_JNI_IMPLEMENTATION_ -O3 -Wall -c -fmessage-length=0</compilerStartOption>
 					</compilerStartOptions>
+
+					<!-- Linker options -->
+					<linkerStartOptions>
+						<linkerStartOption>-Wl,--kill-at -shared</linkerStartOption>
+					</linkerStartOptions>
 
 					<sources>
 						<source>
@@ -37,20 +43,10 @@
 								<fileName>OS.c</fileName>
 							</fileNames>
 						</source>
-						<source>
-							<directory>.</directory>
-						</source>
 					</sources>
 
-					<linkerStartOptions>
-						<linkerStartOption>-Wl,--kill-at -shared</linkerStartOption>
-					</linkerStartOptions>
-					<outputDirectory>target/</outputDirectory>
-					<outputFileName>xidobi</outputFileName>
 				</configuration>
-
 			</plugin>
 		</plugins>
-
 	</build>
 </project>
