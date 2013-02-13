@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
@@ -136,13 +137,16 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 		while (true) {
 			int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 			if (handle != INVALID_HANDLE_VALUE) {
+				// port was closed successful
 				closePortHandle(handle);
 				return;
 			}
-
-			// TODO Maybe we need a maximum number of retries. How long should we wait, until the
-			// port is actualy closed!
-			sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
+			int lastError = os.GetLastError();
+			if (lastError == ERROR_ACCESS_DENIED) {
+				// the port is currently busy, we must wait until the port is not busy
+				sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
+				continue;
+			}
 		}
 	}
 
