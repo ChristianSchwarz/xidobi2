@@ -31,11 +31,11 @@ void preserveLastError(JNIEnv *env, jobject lastError) {
 
 /*
  * Class:     org_xidobi_OS
- * Method:    CreateFile
+ * Method:    CreateFileA
  * Signature: (Ljava/lang/String;IIIIIILorg/xidobi/structs/INT;)I
  */
 JNIEXPORT jint JNICALL
-Java_org_xidobi_OS_CreateFile(JNIEnv *env, jobject this,
+Java_org_xidobi_OS_CreateFileA(JNIEnv *env, jobject this,
 		jstring lpFileName,
 		jint dwDesiredAccess,
 		jint dwShareMode,

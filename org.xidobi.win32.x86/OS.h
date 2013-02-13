@@ -10,10 +10,10 @@ extern "C" {
 
 /*
  * Class:     org_xidobi_OS
- * Method:    CreateFile
+ * Method:    CreateFileA
  * Signature: (Ljava/lang/String;IIIIIILorg/xidobi/structs/INT;)I
  */
-JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateFile
+JNIEXPORT jint JNICALL Java_org_xidobi_OS_CreateFileA
   (JNIEnv *, jobject, jstring, jint, jint, jint, jint, jint, jint, jobject);
 
 /*
