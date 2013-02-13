@@ -16,6 +16,7 @@
 package org.xidobi;
 
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
+import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
@@ -142,11 +143,16 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 				return;
 			}
 			int lastError = os.GetLastError();
-			if (lastError == ERROR_ACCESS_DENIED) {
-				// the port is currently busy, we must wait and poll again
-				sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
-				continue;
+			switch (lastError) {
+				case ERROR_ACCESS_DENIED:
+					// the port is currently busy, we must wait and poll again
+					sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
+					continue;
+				case ERROR_FILE_NOT_FOUND:
+					// the port couldn't been found, maybe the port device was disconnected
+					return;
 			}
+			throw newNativeCodeException(os, "Couldn't wait for close termination! CreateFile failed unexpected!", lastError);
 		}
 	}
 
