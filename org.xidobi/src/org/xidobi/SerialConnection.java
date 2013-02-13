@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public interface SerialConnection extends Closeable {
 
 	/**
-	 * Writes the given byte[]. All bytes of the array were written.
+	 * Writes the given <code>byte[]</code>. All bytes of the array were written.
 	 * 
 	 * @param data
 	 *            must not be <code>null</code>
@@ -44,7 +44,7 @@ public interface SerialConnection extends Closeable {
 	 * the port was closed or an other I/O error occurs. This method blocks until at least one byte
 	 * can be returned or an {@link IOException} is thrown.
 	 * 
-	 * @return the received byte[], never <code>null</code>
+	 * @return the received <code>byte[]</code>, never <code>null</code>
 	 * @throws IOException
 	 *             if this port was closed or an unexpected I/O error occurs.
 	 */
@@ -52,7 +52,7 @@ public interface SerialConnection extends Closeable {
 	byte[] read() throws IOException;
 
 	/**
-	 * Returns <code>true</code> if the serial port is closed.
+	 * Returns <code>true</code>, if the serial port is closed.
 	 * 
 	 * @return <ul>
 	 *         <li> <code>true</code> if the serial port is closed

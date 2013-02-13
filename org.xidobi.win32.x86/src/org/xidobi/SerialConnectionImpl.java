@@ -39,7 +39,10 @@ import org.xidobi.spi.BasicSerialConnection;
  */
 public class SerialConnectionImpl extends BasicSerialConnection {
 
-	/** TODO Polling interval */
+	/**
+	 * Specifies how often the port should be re-open in order to determine if the port is actualy
+	 * closed.
+	 */
 	private static final int TERMINATION_POLL_INTERVAL = 200;
 
 	/** the native Win32-API */
@@ -84,10 +87,8 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	/** Cancels all pending I/O operations. */
 	private void cancelIO() {
 		boolean cancelIoResult = os.CancelIo(handle);
-		if (!cancelIoResult) {
-			System.out.print("CancelIo failed! " + os.GetLastError());
+		if (!cancelIoResult)
 			throw newNativeCodeException(os, "CancelIo failed unexpected!", os.GetLastError());
-		}
 	}
 
 	/**
@@ -151,7 +152,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 			Thread.sleep(duration);
 		}
 		catch (InterruptedException e) {
-			// ignore InterruptedException.
+			// TODO Do we really wan't to ignore this exception?
 		}
 	}
 }

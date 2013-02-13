@@ -37,7 +37,6 @@ public interface SerialPort {
 	 * 
 	 * @param settings
 	 *            the control settings for the port, must not be <code>null</code>
-	 * 
 	 * @return a connected serial port, never <code>null</code>
 	 * @throws IOException
 	 *             if the port cannot be opened

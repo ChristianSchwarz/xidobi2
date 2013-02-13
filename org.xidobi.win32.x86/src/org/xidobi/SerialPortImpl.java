@@ -130,11 +130,11 @@ public class SerialPortImpl implements SerialPort {
 	}
 
 	/**
-	 * Tries to open the port.
+	 * Tries to open the port and returns the handle of the port.
 	 * 
-	 * @return the HANDLE of the port on success
-	 * @exception IOException
-	 *                if the port is already open or does not exist
+	 * @return the handle of the port on success
+	 * @throws IOException
+	 *             if the port is already open or does not exist
 	 */
 	private int tryOpen(final String portName) throws IOException {
 		int handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);

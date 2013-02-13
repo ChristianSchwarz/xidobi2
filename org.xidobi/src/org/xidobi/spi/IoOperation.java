@@ -38,6 +38,12 @@ public interface IoOperation extends Closeable {
 
 	/**
 	 * Disposes all resources that was allocated by this I/O operation.
+	 * <p>
+	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
+	 * closed.
+	 * <p>
+	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
+	 * port is currently open!
 	 */
 	void dispose();
 

@@ -105,10 +105,12 @@ public abstract class IoOperationImpl implements IoOperation {
 	private OVERLAPPED newOverlapped(WinApi os) {
 		OVERLAPPED overlapped = new OVERLAPPED(os);
 
+		// Create an event for the overlapped struct
 		overlapped.hEvent = os.CreateEventA(0, true, false, null);
 		if (overlapped.hEvent != 0)
 			return overlapped;
 
+		// If the event couldn't been created, we don't need the overlapped
 		overlapped.dispose();
 		throw newNativeCodeException(os, "Create overlapped event failed!", os.GetLastError());
 	}
@@ -117,9 +119,12 @@ public abstract class IoOperationImpl implements IoOperation {
 	@OverridingMethodsMustInvokeSuper
 	public void close() throws IOException {
 		checkIfClosedOrDisposed();
+
+		// Close handle for overlapped event
 		boolean closeHandleResult = os.CloseHandle(overlapped.hEvent);
 		if (!closeHandleResult)
 			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
+
 		isClosed = true;
 	}
 
@@ -170,7 +175,6 @@ public abstract class IoOperationImpl implements IoOperation {
 		return new IOException("Port " + port.getPortName() + " is closed!" + message);
 	}
 
-	@OverridingMethodsMustInvokeSuper
 	public/* final */void dispose() {
 		//@formatter:off
 		disposeLock.lock();
@@ -189,7 +193,11 @@ public abstract class IoOperationImpl implements IoOperation {
 		// @formatter:on
 	}
 
-	/** Subclasses can overwrite this method in order to dispose their resources. */
+	/**
+	 * Subclasses can overwrite this method in order to dispose their resources.
+	 * <p>
+	 * <b>IMPORTANT:</b> Don't call this method yourself!
+	 */
 	protected void disposeInternal() {}
 
 	/**

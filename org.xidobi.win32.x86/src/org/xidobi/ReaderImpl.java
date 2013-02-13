@@ -27,7 +27,6 @@ import static org.xidobi.utils.Throwables.newNativeCodeException;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Reader;
@@ -162,6 +161,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	/** Reads and returns the data that is available in the read buffer. */
 	private byte[] readAvailableBytes(int numberOfBytesToRead) throws IOException {
 
+		// create a new read buffer
 		newReadBuffer(numberOfBytesToRead);
 
 		boolean readFileResult = os.ReadFile(handle, readBuffer, numberOfBytesToRead, numberOfBytesTransferred, overlapped);
@@ -239,9 +239,10 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		//@formatter:on
 	}
 
+	// -- FOR DEBUGGING ONLY: -----------------
 	@Override
-	@OverridingMethodsMustInvokeSuper
 	public void dispose() {
 		super.dispose();
 	}
+	// ----------------------------------------
 }

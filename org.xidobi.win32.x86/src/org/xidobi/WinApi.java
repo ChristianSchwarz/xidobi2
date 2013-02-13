@@ -929,7 +929,11 @@ public interface WinApi {
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
+	 * 
+	 * @deprecated We don't need this method at the moment. Maybe we can remove it!
 	 */
+	@Deprecated
+	@CheckReturnValue
 	boolean SetCommBreak(int hFile);
 
 	/**
@@ -946,7 +950,11 @@ public interface WinApi {
 	 * @return {@code BOOL} - If the function succeeds, the return value is nonzero. If the function
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
+	 * 
+	 * @deprecated We don't need this method at the moment. Maybe we can remove it!
 	 */
+	@Deprecated
+	@CheckReturnValue
 	boolean ClearCommBreak(int hFile);
 
 	/**
@@ -965,6 +973,7 @@ public interface WinApi {
 	 *         have completed. The thread can use the GetOverlappedResult function to determine when
 	 *         the I/O operations themselves have been completed.
 	 */
+	@CheckReturnValue
 	boolean CancelIo(int hFile);
 
 	/**
@@ -984,6 +993,7 @@ public interface WinApi {
 	 *         fails, the return value is zero. To get extended error information, call
 	 *         {@link #GetLastError()}.
 	 */
+	@CheckReturnValue
 	boolean SetEvent(int hEvent);
 
 	/**
@@ -996,8 +1006,6 @@ public interface WinApi {
 	 * If size is zero, the return value depends on the particular library implementation (it may or
 	 * may not be a null pointer), but the returned pointer shall not be used to dereference an
 	 * object in any case.
-	 * <p>
-	 * 
 	 * 
 	 * @param size
 	 *            the size of the memory

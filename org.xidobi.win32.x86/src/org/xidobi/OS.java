@@ -48,8 +48,8 @@ public class OS implements WinApi {
 	/**
 	 * Stores the last native error codes. Contains:
 	 * <ul>
-	 * <li><b>key:</b> the thread
-	 * <li><b>value:</b> the last native error code
+	 * <li><b>key:</b> the thread that caused the error
+	 * <li><b>value:</b> the last native error code of the thread
 	 * </ul>
 	 */
 	private final Map<Thread, Integer> lastNativeErrorCodes = new WeakHashMap<Thread, Integer>();
