@@ -15,16 +15,10 @@
  */
 package org.xidobi.spi;
 
-import static java.lang.Math.max;
-import static java.lang.Thread.currentThread;
-import static java.lang.Thread.sleep;
-import static java.util.concurrent.Executors.newFixedThreadPool;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,10 +26,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,8 +33,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 
@@ -216,27 +204,6 @@ public class TestBasicSerialConnection {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialConnection#writeInternal(byte[])} will not be call
-	 * concurrent.
-	 */
-	@Test
-	public void write_concurrentCalls() throws Exception {
-		final int THREADS = 10;
-
-		AtomicInteger maxNumberOfParallelThreads = new AtomicInteger();
-		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(writer).write(BYTES);
-		ExecutorService ex = newFixedThreadPool(THREADS);
-		for (int i = 0; i < THREADS; i++)
-			ex.execute(writeBytes());
-
-		ex.shutdown();
-		assertThat(ex.awaitTermination(2, SECONDS), is(true));
-
-		assertThat("Only one Thread at a time is allowed to call writeInternal(byte[])", maxNumberOfParallelThreads.get(), is(1));
-
-	}
-
-	/**
 	 * Verifies that in case of an {@link IOException} the port will be closed
 	 */
 	@Test
@@ -278,26 +245,6 @@ public class TestBasicSerialConnection {
 	}
 
 	/**
-	 * Verifies that {@link AbstractSerialConnection#readInternal(byte[])} will not be call
-	 * concurrent.
-	 */
-	@Test
-	public void read_concurrentCalls() throws Exception {
-		final int THREADS = 10;
-
-		AtomicInteger maxNumberOfParallelThreads = new AtomicInteger();
-		doAnswer(captureConcurrentThreads(maxNumberOfParallelThreads, THREADS)).when(reader).read();
-		ExecutorService ex = newFixedThreadPool(THREADS);
-		for (int i = 0; i < THREADS; i++)
-			ex.execute(readBytes());
-
-		ex.shutdown();
-		assertThat(ex.awaitTermination(2, SECONDS), is(true));
-
-		assertThat("Only one Thread at a time is allowed to call readInternal()", maxNumberOfParallelThreads.get(), is(1));
-	}
-
-	/**
 	 * Verifies that in case of an {@link IOException} the port will be closed
 	 */
 	@Test
@@ -336,63 +283,4 @@ public class TestBasicSerialConnection {
 		assertThat(result.getMessage(), is("Port COM1 is closed! Additional message."));
 	}
 
-	// Utilities for this Testclass ///////////////////////////////////////////////////////////
-
-	/**
-	 * Captures the max. number of Threads calling the method in parallel, during the given
-	 * {@code captureDurationMs} Timespan.
-	 * 
-	 * @param maxConcurrentInvocations
-	 *            used to set the the max. number of parallel invocations, the initial value must be
-	 *            0
-	 * @param captureDurationMs
-	 *            milliseconds to capture
-	 * @return <code>null</code>
-	 */
-	private Answer<Void> captureConcurrentThreads(final AtomicInteger maxConcurrentInvocations, final long captureDurationMs) {
-		return new Answer<Void>() {
-			private final Set<Thread> currentThreads = new HashSet<>();
-
-			@Override
-			public Void answer(InvocationOnMock invocation) throws Throwable {
-				currentThreads.add(currentThread());
-				int concurrentThreads = currentThreads.size();
-				int lastMax = maxConcurrentInvocations.get();
-				maxConcurrentInvocations.set(max(lastMax, concurrentThreads));
-				sleep(captureDurationMs);
-				currentThreads.remove(currentThread());
-				return null;
-			}
-		};
-	}
-
-	/** Returns a new {@link Runnable} that writes the {@link #BYTES} to the {@link #port}. */
-	private Runnable writeBytes() {
-		return new Runnable() {
-			@Override
-			public void run() {
-				try {
-					port.write(BYTES);
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-	}
-
-	/** Returns a new {@link Runnable} that read from the {@link #port}. */
-	private Runnable readBytes() {
-		return new Runnable() {
-			@Override
-			public void run() {
-				try {
-					port.read();
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-	}
 }
