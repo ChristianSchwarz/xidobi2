@@ -152,7 +152,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 					// the port couldn't been found, maybe the hardware was removed
 					return;
 			}
-			throw newNativeCodeException(os, "Couldn't wait for close termination! CreateFile failed unexpected!", lastError);
+			throw newNativeCodeException(os, "Couldn't wait for close termination! CreateFileA failed unexpected!", lastError);
 		}
 	}
 
