@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.xidobi</groupId>
+	<artifactId>xidobi</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<issueManagement>
+		<url>https://code.google.com/p/xidobi/issues/list</url>
+	</issueManagement>
+	<name>Xidobi</name>
+	<url>https://code.google.com/p/xidobi/</url>
+	<description>xidobi is a library for serial communication in Java 1.5+. It's released under the Apache 2.0 License, so it can be used and modified in open source and commercial projects. </description>
+
+	<properties>
+		<tycho.version>0.16.0</tycho.version>
+		<tycho.group>org.eclipse.tycho</tycho.group>
+		<eclipse.repository>http://download.eclipse.org/releases/juno/</eclipse.repository>
+	</properties>
+
+	<modules>
+		<module>../org.xidobi</module>
+		<module>../org.xidobi.test</module>
+		<module>../org.xidobi.win32.x86</module>
+		<module>../org.xidobi.win32.x86.test</module>
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>eclipse repository</id>
+			<layout>p2</layout>
+			<url>${eclipse.repository}</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<!-- Activate Tycho -->
+			<plugin>
+				<groupId>${tycho.group}</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<!-- Use the targetplatform defined in the targetdefinition file to get 
+				third party libraries. -->
+			<plugin>
+				<groupId>${tycho.group}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>org.xidobi</groupId>
+							<artifactId>xidobi</artifactId>
+							<version>0.0.1-SNAPSHOT</version>
+							<classifier>xidobi</classifier>
+						</artifact>
+					</target>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+
+			</plugin>
+
+			<!-- Activate Tests -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>0.16.0</version>
+				<configuration>
+					<showEclipseLog>true</showEclipseLog>
+					<failIfNoTests>false</failIfNoTests>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>
