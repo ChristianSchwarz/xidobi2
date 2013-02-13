@@ -32,10 +32,11 @@ import org.xidobi.SerialPort;
  * behaviour when the port is closed.
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
  */
 public class BasicSerialConnection implements SerialConnection {
 
-	/** The Handle of this port contains e.g. the name. */
+	/** The handle of this port contains e.g. the name. */
 	@Nonnull
 	private final SerialPort port;
 
@@ -47,10 +48,6 @@ public class BasicSerialConnection implements SerialConnection {
 	 */
 	private volatile boolean isClosed;
 
-	// /** Ensures that {@link #write(byte[])} can only called by one thread at a time. */
-	// private final Lock writeLock = new ReentrantLock();
-	// /** Ensures that {@link #read()} can only called by one thread at a time. */
-	// private final Lock readLock = new ReentrantLock();
 	/** Ensures that {@link #close()} can only called by one thread at a time. */
 	private final Lock closeLock = new ReentrantLock();
 
@@ -83,17 +80,19 @@ public class BasicSerialConnection implements SerialConnection {
 	}
 
 	/**
-	 * @return the port
+	 * Returns the underlying serial port for this serial connection.
+	 * 
+	 * @return the serial port, never <code>null</code>
 	 */
+	@Nonnull
 	public SerialPort getPort() {
 		return port;
 	}
-	
+
 	/** {@inheritDoc} */
 	public final void write(@Nonnull byte[] data) throws IOException {
 		checkArgumentNotNull(data, "data");
 		ensurePortIsOpen();
-		// writeLock.lock();
 		try {
 			writer.write(data);
 		}
@@ -101,25 +100,18 @@ public class BasicSerialConnection implements SerialConnection {
 			close();
 			throw e;
 		}
-		finally {
-			// writeLock.unlock();
-		}
 	}
 
 	/** {@inheritDoc} */
 	@Nonnull
 	public final byte[] read() throws IOException {
 		ensurePortIsOpen();
-		// readLock.lock();
 		try {
 			return reader.read();
 		}
 		catch (IOException e) {
 			close();
 			throw e;
-		}
-		finally {
-			// readLock.unlock();
 		}
 	}
 
@@ -150,24 +142,22 @@ public class BasicSerialConnection implements SerialConnection {
 
 	/** Closes the read and write operations. */
 	private void closeReaderAndWriter() throws IOException {
-		//@formatter:off
 		try {
 			reader.close();
-		} finally {
+		}
+		finally {
 			writer.close();
 		}
-		//@formatter:on
 	}
 
 	/** Disposes the resources of the read and write operations. */
 	private void disposeReaderAndWriter() {
-		//@formatter:off
 		try {
 			reader.dispose();
-		} finally {
+		}
+		finally {
 			writer.dispose();
 		}
-		//@formatter:on
 	}
 
 	/**
