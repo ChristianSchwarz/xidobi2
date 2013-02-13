@@ -960,6 +960,10 @@ public interface WinApi {
 	/**
 	 * Marks any outstanding I/O operations for the specified file handle. The function only cancels
 	 * I/O operations in the current process, regardless of which thread created the I/O operation.
+	 * <p>
+	 * <i>Please see <a
+	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa363791(v=vs.85).aspx">
+	 * CancelIo (MSDN)</a> for more details.</i>
 	 * 
 	 * @param hFile
 	 *            {@code _In_ HANDLE} - A handle to the file.

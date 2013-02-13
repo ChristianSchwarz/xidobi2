@@ -32,11 +32,12 @@ import javax.annotation.Nonnull;
 import org.xidobi.spi.BasicSerialConnection;
 
 /**
- * Implementation of interface {@link SerialConnection} for Windows (32-bit) on x86 platforms.
+ * Implementation of the interface {@link SerialConnection} for Windows (32-bit) on x86 platforms.
  * 
  * @author Tobias Breﬂler
  * 
  * @see SerialConnection
+ * @see BasicSerialConnection
  */
 public class SerialConnectionImpl extends BasicSerialConnection {
 
@@ -116,7 +117,6 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 
 	/** Closes the handle of the serial port. */
 	private void closePortHandle(int handle) {
-		// close the handle of the serial port.
 		boolean closeHandleResult = os.CloseHandle(handle);
 		if (!closeHandleResult)
 			throw newNativeCodeException(os, "CloseHandle failed unexpected!", os.GetLastError());
@@ -143,7 +143,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 			}
 			int lastError = os.GetLastError();
 			if (lastError == ERROR_ACCESS_DENIED) {
-				// the port is currently busy, we must wait until the port is not busy
+				// the port is currently busy, we must wait and poll again
 				sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
 				continue;
 			}

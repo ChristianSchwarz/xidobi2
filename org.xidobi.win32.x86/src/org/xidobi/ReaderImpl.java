@@ -52,6 +52,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	/** Buffer for read data */
 	private NativeByteArray readBuffer;
 
+	/** Receives the flags of a communication event */
 	private DWORD eventMask;
 
 	/**
