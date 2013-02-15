@@ -19,14 +19,21 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * Interface for I/O operations.
+ * Interface for I/O operations, which are used by {@link BasicSerialConnection}.
+ * <p>
+ * For read and write operations please use the corresponding interfaces {@link Reader} and
+ * {@link Writer}.
  * 
  * @author Tobias Breﬂler
+ * 
+ * @see BasicSerialConnection
+ * @see Reader
+ * @see Writer
  */
 public interface IoOperation extends Closeable {
 
 	/**
-	 * The implementation must release all native resources.
+	 * The implementation must close native resources, for example handles and connections.
 	 * <p>
 	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
 	 * closed.
@@ -37,7 +44,7 @@ public interface IoOperation extends Closeable {
 	void close() throws IOException;
 
 	/**
-	 * Disposes all resources that was allocated by this I/O operation.
+	 * The implementation must dispose all resources that was allocated by this I/O operation.
 	 * <p>
 	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
 	 * closed.
