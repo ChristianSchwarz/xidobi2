@@ -40,7 +40,7 @@ public interface SerialConnection extends Closeable {
 	void write(@Nonnull byte[] data) throws IOException;
 
 	/**
-	 * Reads from this Serialport and returns the read byte's or throws an {@link IOException} when
+	 * Reads from this serial port and returns the read byte's or throws an {@link IOException} when
 	 * the port was closed or an other I/O error occurs. This method blocks until at least one byte
 	 * can be returned or an {@link IOException} is thrown.
 	 * 

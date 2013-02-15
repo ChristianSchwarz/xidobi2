@@ -21,8 +21,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Interface for classes which can find informations of all serial ports that are installed on the
- * system.
+ * Interface for classes which can find serial ports that are installed on the system.
  * 
  * @author Tobias Breﬂler
  * 
@@ -44,7 +43,7 @@ public interface SerialPortFinder {
 	 * <code>null</code>.
 	 * 
 	 * @param portName
-	 *            the name of the port, e.g. "COM1" or "tty0", must not be <code>null</code>
+	 *            the name of the serial port (e.g. "COM1" or "tty0"), must not be <code>null</code>
 	 * @return the serial port or <code>null</code>, if the port not exists
 	 * 
 	 * @exception IllegalArgumentException

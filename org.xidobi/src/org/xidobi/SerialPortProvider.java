@@ -18,7 +18,7 @@ package org.xidobi;
 import static java.lang.Thread.currentThread;
 
 /**
- * Provides the serial port finder implementation.
+ * Provides the serial port finder implementation for the system it is running on.
  * 
  * @author Christian Schwarz
  */

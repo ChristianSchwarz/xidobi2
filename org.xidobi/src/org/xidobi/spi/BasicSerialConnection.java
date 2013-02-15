@@ -36,19 +36,20 @@ import org.xidobi.SerialPort;
  */
 public class BasicSerialConnection implements SerialConnection {
 
-	/** The handle of this port contains e.g. the name. */
+	/** The handle of this port, contains e.g. the name. */
 	@Nonnull
 	private final SerialPort port;
 
 	/**
 	 * <ul>
-	 * <li> <code>true</code> if this port is closed, {@link #close()} was called
+	 * <li> <code>true</code> if this port is closed ({@link #close()} was called)
 	 * <li> <code>false</code> if this port is open
 	 * </ul>
 	 */
 	private volatile boolean isClosed;
 
 	/** Ensures that {@link #close()} can only called by one thread at a time. */
+	@Nonnull
 	private final Lock closeLock = new ReentrantLock();
 
 	/** read operation, never <code>null</code> */
@@ -59,14 +60,15 @@ public class BasicSerialConnection implements SerialConnection {
 	private final Writer writer;
 
 	/**
-	 * Creates a new instance with the {@link SerialPort}.
+	 * Creates a new serial connection instance for the given serial port.
 	 * 
 	 * @param port
-	 *            must not be <code>null</code>
+	 *            the serial port, must not be <code>null</code>
 	 * @param reader
 	 *            read operation, must not be <code>null</code>
 	 * @param writer
 	 *            write operation, must not be <code>null</code>
+	 * 
 	 * @exception IllegalArgumentException
 	 *                if {@code portHandle==null}
 	 */
@@ -208,7 +210,7 @@ public class BasicSerialConnection implements SerialConnection {
 	 * caller.
 	 * 
 	 * @param message
-	 *            error description may be <code>null</code>
+	 *            error description, may be <code>null</code>
 	 * @return a new {@link IOException}, never <code>null</code>
 	 */
 	@Nonnull
