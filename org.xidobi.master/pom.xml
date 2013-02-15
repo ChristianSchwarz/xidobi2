@@ -29,6 +29,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+	<!-- project information -->
 	<issueManagement>
 		<url>https://code.google.com/p/xidobi/issues/list</url>
 	</issueManagement>
@@ -36,12 +37,19 @@
 	<url>https://code.google.com/p/xidobi/</url>
 	<description>xidobi is a library for serial communication in Java 1.5+. It's released under the Apache 2.0 License, so it can be used and modified in open source and commercial projects. </description>
 
+	<!--
+		build variables
+		* tycho.version - which tycho version should used for the build
+		* tycho.group	- where to find the choosen tycho version
+		* eclipse.repository - which eclipse repository should used for solving dependencies (ex. junit-test/surfire) 
+	 -->
 	<properties>
 		<tycho.version>0.16.0</tycho.version>
 		<tycho.group>org.eclipse.tycho</tycho.group>
 		<eclipse.repository>http://download.eclipse.org/releases/juno/</eclipse.repository>
 	</properties>
 
+	<!-- module list -->
 	<modules>
 		<module>../org.xidobi.native.win32.x86</module>
 		<module>../org.xidobi</module>
@@ -50,6 +58,10 @@
 		<module>../org.xidobi.win32.x86.test</module>
 	</modules>
 
+	<!--
+		repository list - 
+		urls should be defined in the properties 
+	-->
 	<repositories>
 		<repository>
 			<id>eclipse repository</id>
@@ -58,7 +70,12 @@
 		</repository>
 	</repositories>
 
+	
 	<profiles>
+		<!-- 
+			profile: codeCoverage
+			activates the jacoco plugin for code coverage 
+		-->
 		<profile>
 			<id>codeCoverage</id>
 			<properties>
@@ -90,7 +107,7 @@
 	</profiles>
 	<build>
 		<plugins>
-			<!-- Activate Tycho -->
+			<!-- activate Tycho -->
 			<plugin>
 				<groupId>${tycho.group}</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
@@ -124,7 +141,7 @@
 
 			</plugin>
 
-			<!-- Activate Tests -->
+			<!-- activate tests -->
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
