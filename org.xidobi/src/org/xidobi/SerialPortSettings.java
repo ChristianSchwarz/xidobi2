@@ -236,8 +236,8 @@ public class SerialPortSettings {
 	}
 
 	/**
-	 * Creates a builder for the serial port settings with the given baud rate. The initial values
-	 * of the port settings are 8/N/1 with 9600 bauds:
+	 * Creates a builder for the serial port settings. The initial values of the port settings are
+	 * 8/N/1 with 9600 bauds:
 	 * <ul>
 	 * <li>bauds = 9600</li>
 	 * <li>data bits = 8</li>

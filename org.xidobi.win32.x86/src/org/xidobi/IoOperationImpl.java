@@ -129,11 +129,11 @@ public abstract class IoOperationImpl implements IoOperation {
 	}
 
 	/**
-	 * Returns <code>true</code> if this I/O operation is closed.
+	 * Returns <code>true</code>, if this I/O operation is closed.
 	 * 
 	 * @return <ul>
-	 *         <li> <code>true</code> if this I/O operation is closed
-	 *         <li> <code>false</code> if this I/O operation is not closed
+	 *         <li> <code>true</code> if closed
+	 *         <li> <code>false</code> if not closed
 	 *         </ul>
 	 */
 	protected boolean isClosed() {

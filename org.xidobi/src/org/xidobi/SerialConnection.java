@@ -21,7 +21,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 /**
- * Repesents a connected Serial-Port. Clients must call {@link #close()} to free this serial port
+ * Repesents a connected serial port. Clients must call {@link #close()} to free this serial port
  * after usage!
  * 
  * @author Christian Schwarz
@@ -33,7 +33,7 @@ public interface SerialConnection extends Closeable {
 	 * Writes the given <code>byte[]</code>. All bytes of the array were written.
 	 * 
 	 * @param data
-	 *            must not be <code>null</code>
+	 *            the data to write, must not be <code>null</code>
 	 * @throws IOException
 	 *             if this port was closed or an unexpected I/O error occurs.
 	 */

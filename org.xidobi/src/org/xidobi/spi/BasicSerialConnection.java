@@ -30,6 +30,8 @@ import org.xidobi.SerialPort;
 /**
  * A basic implementation of the {@link SerialConnection} to provide synchonisation and proper
  * behaviour when the port is closed.
+ * <p>
+ * The class uses a {@link Reader} and {@link Writer}, which implement the different I/O operations.
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
