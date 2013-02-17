@@ -46,6 +46,7 @@ public class TestBasicSerialConnection {
 
 	/** constant for better readability */
 	private static final IOException IO_EXCEPTION = new IOException();
+	private static final NativeCodeException NATIVE_CODE_EXCEPTION = new NativeCodeException("exception");
 
 	private static final byte[] BYTES = {};
 
@@ -218,6 +219,20 @@ public class TestBasicSerialConnection {
 	}
 
 	/**
+	 * Verifies that in case of an {@link NativeCodeException} the port will be closed
+	 */
+	@Test
+	public void write_closePortOnNativeCodeException() throws Exception {
+		doThrow(NATIVE_CODE_EXCEPTION).when(writer).write(BYTES);
+		try {
+			port.write(BYTES);
+			fail("expected an NativeCodeException");
+		}
+		catch (NativeCodeException ignore) {}
+		verify(writer).close();
+	}
+
+	/**
 	 * Verifies that an {@link IOException} is thrown when the port is closed.
 	 */
 	@Test
@@ -255,6 +270,21 @@ public class TestBasicSerialConnection {
 			fail("expected an IOException");
 		}
 		catch (IOException ignore) {}
+		verify(reader).close();
+		verify(writer).close();
+	}
+
+	/**
+	 * Verifies that in case of an {@link NativeCodeException} the port will be closed
+	 */
+	@Test
+	public void read_closePortOnNativeCloseException() throws Exception {
+		doThrow(NATIVE_CODE_EXCEPTION).when(reader).read();
+		try {
+			port.read();
+			fail("expected an NativeCodeException");
+		}
+		catch (NativeCodeException ignore) {}
 		verify(reader).close();
 		verify(writer).close();
 	}
