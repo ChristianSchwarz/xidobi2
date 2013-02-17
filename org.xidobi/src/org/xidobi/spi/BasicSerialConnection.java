@@ -98,6 +98,12 @@ public class BasicSerialConnection implements SerialConnection {
 		try {
 			writer.write(data);
 		}
+		catch (NativeCodeException e) {
+			// NOTE: If a NativeCodeException is thrown, the port must be closed in order to dispose
+			// all resources.
+			close();
+			throw e;
+		}
 		catch (IOException e) {
 			close();
 			throw e;
@@ -110,6 +116,12 @@ public class BasicSerialConnection implements SerialConnection {
 		ensurePortIsOpen();
 		try {
 			return reader.read();
+		}
+		catch (NativeCodeException e) {
+			// NOTE: If a NativeCodeException is thrown, the port must be closed in order to dispose
+			// all resources.
+			close();
+			throw e;
 		}
 		catch (IOException e) {
 			close();
