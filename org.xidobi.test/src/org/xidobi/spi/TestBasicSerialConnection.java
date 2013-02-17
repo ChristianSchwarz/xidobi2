@@ -96,9 +96,12 @@ public class TestBasicSerialConnection {
 
 	@Test
 	public void close() throws IOException {
+
 		port.close();
+
 		verify(reader).close();
 		verify(writer).close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
@@ -108,9 +111,12 @@ public class TestBasicSerialConnection {
 	@Test
 	public void close_2x() throws Exception {
 		port.close();
+
 		port.close();
+
 		verify(reader).close();
 		verify(writer).close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
@@ -124,28 +130,8 @@ public class TestBasicSerialConnection {
 
 		doThrow(IO_EXCEPTION).when(reader).close();
 		port.close();
-	}
 
-	/**
-	 * Verifies that all calls to {@link SerialConnection#close()} will be delegate to
-	 * {@link SerialConnection#close()} when all previous calls thrown an IOException and thus the
-	 * port was not closed.
-	 */
-	@Test
-	public void close_2xIOException() throws Exception {
-		doThrow(IO_EXCEPTION).when(reader).close();
-		try {
-			port.close();
-			fail("Expected an IOException");
-		}
-		catch (IOException ignored) {}
-		try {
-			port.close();
-			fail("Expected an IOException");
-		}
-		catch (IOException ignored) {}
-
-		verify(reader, times(2)).close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
@@ -173,7 +159,6 @@ public class TestBasicSerialConnection {
 	@Test
 	public void write_toClosedPort() throws Exception {
 		when(portHandle.getPortName()).thenReturn("COM1");
-
 		port.close();
 
 		exception.expect(IOException.class);
@@ -210,12 +195,15 @@ public class TestBasicSerialConnection {
 	@Test
 	public void write_closePortOnIOException() throws Exception {
 		doThrow(IO_EXCEPTION).when(writer).write(BYTES);
+
 		try {
 			port.write(BYTES);
 			fail("expected an IOException");
 		}
 		catch (IOException ignore) {}
+
 		verify(writer).close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
@@ -224,12 +212,15 @@ public class TestBasicSerialConnection {
 	@Test
 	public void write_closePortOnNativeCodeException() throws Exception {
 		doThrow(NATIVE_CODE_EXCEPTION).when(writer).write(BYTES);
+
 		try {
 			port.write(BYTES);
 			fail("expected an NativeCodeException");
 		}
 		catch (NativeCodeException ignore) {}
+
 		verify(writer).close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
@@ -265,13 +256,16 @@ public class TestBasicSerialConnection {
 	@Test
 	public void read_closePortOnIOException() throws Exception {
 		doThrow(IO_EXCEPTION).when(reader).read();
+
 		try {
 			port.read();
 			fail("expected an IOException");
 		}
 		catch (IOException ignore) {}
+
 		verify(reader).close();
 		verify(writer).close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
@@ -280,13 +274,16 @@ public class TestBasicSerialConnection {
 	@Test
 	public void read_closePortOnNativeCloseException() throws Exception {
 		doThrow(NATIVE_CODE_EXCEPTION).when(reader).read();
+
 		try {
 			port.read();
 			fail("expected an NativeCodeException");
 		}
 		catch (NativeCodeException ignore) {}
+
 		verify(reader).close();
 		verify(writer).close();
+		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
