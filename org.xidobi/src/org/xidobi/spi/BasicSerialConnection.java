@@ -107,6 +107,8 @@ public class BasicSerialConnection implements SerialConnection {
 			throw e;
 		}
 		catch (IOException e) {
+			// NOTE: If a IOException is thrown, the port must be closed in order to dispose
+			// all resources.
 			close();
 			throw e;
 		}
@@ -126,6 +128,8 @@ public class BasicSerialConnection implements SerialConnection {
 			throw e;
 		}
 		catch (IOException e) {
+			// NOTE: If a IOException is thrown, the port must be closed in order to dispose
+			// all resources.
 			close();
 			throw e;
 		}
