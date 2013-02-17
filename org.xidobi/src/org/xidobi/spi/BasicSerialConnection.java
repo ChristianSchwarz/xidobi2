@@ -149,9 +149,9 @@ public class BasicSerialConnection implements SerialConnection {
 				disposeReaderAndWriter();
 			}}
 			// @formatter:on
-			isClosed = true;
 		}
 		finally {
+			isClosed = true;
 			closeLock.unlock();
 		}
 	}
