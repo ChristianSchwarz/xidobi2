@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static java.lang.Thread.sleep;
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
 import static org.xidobi.WinApi.EV_RXCHAR;
@@ -159,7 +160,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	/** Invokes <code>Thread.sleep(int)</code> uninterruptibly. */
 	private void sleepUninterruptibly(int duration) {
 		try {
-			Thread.sleep(duration);
+			sleep(duration);
 		}
 		catch (InterruptedException e) {
 			// TODO Do we really wan't to ignore this exception?
