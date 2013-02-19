@@ -15,7 +15,6 @@
  */
 package org.xidobi;
 
-import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
@@ -63,7 +62,7 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 		try {
 			checkIfClosedOrDisposed();
 
-			os.ResetEvent(overlapped.hEvent);
+			resetOverlappedEventHandle();
 
 			// write data to serial port
 			boolean succeed = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
@@ -76,17 +75,15 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 			}
 
 			int lastError = os.GetLastError();
-			if (lastError == ERROR_INVALID_HANDLE)
-				throw portClosedException("Write operation failed, because the handle is invalid!");
 			if (lastError != ERROR_IO_PENDING)
-				throw newNativeCodeException(os, "WriteFile failed unexpected!", lastError);
+				handleNativeError("WriteFile", lastError);
 
 			// wait for pending I/O operation to complete
 			int waitResult = os.WaitForSingleObject(overlapped.hEvent, writeTimeout);
 			switch (waitResult) {
 				case WAIT_OBJECT_0: // IO operation has finished
 					if (!os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true))
-						throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.GetLastError());
+						handleNativeError("GetOverlappedResult", os.GetLastError());
 
 					// verify that the number of transferred bytes is equal to the data length that
 					// was written:
@@ -94,15 +91,12 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + numberOfBytesTransferred.getValue() + ", expected: " + data.length);
 					return;
 				case WAIT_TIMEOUT:
-					// IO operation has timed out
+					// I/O operation has timed out
 					throw new IOException("Write operation timed out after " + writeTimeout + " milliseconds!");
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 				case WAIT_FAILED:
-					lastError = os.GetLastError();
-					if (lastError == ERROR_INVALID_HANDLE)
-						throw portClosedException("Write operation failed, because the handle is invalid!");
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.GetLastError());
+					handleNativeError("WaitForSingleObject", os.GetLastError());
 				default:
 					throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
 			}
