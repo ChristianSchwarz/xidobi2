@@ -74,18 +74,18 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	@Override
 	protected void closeInternal() {
 		//@formatter:off
-		try { try { 
+		try {
 			cancelIO();
 		} finally {	try {
 			purgeComm();
-		} finally {
+		} finally {	try {
 			releaseWaitCommEvent();
-		}}} finally { try {
+		} finally {	try {
 			closePortHandle(handle);
 		} finally {
 			awaitCloseTermination();
-		}}
-		// @formatter:on
+		}}}}
+		//@formatter:on
 	}
 
 	/** Cancels all pending I/O operations. */

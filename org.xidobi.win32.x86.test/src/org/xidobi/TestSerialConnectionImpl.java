@@ -297,6 +297,36 @@ public class TestSerialConnectionImpl {
 	}
 
 	/**
+	 * Verifies that all resources are closed and disposed, when the serial connection is closed and
+	 * all invocations fail.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void close_allInvocationsFail() throws Exception {
+		// @formatter:off
+		when(os.CancelIo(handle)).thenReturn(false); /* fails! */
+		when(os.PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR)).thenReturn(false); /* fails! */
+		when(os.SetCommMask(handle, EV_RXCHAR)).thenReturn(false); /* fails! */
+		when(os.CloseHandle(eventHandle)).thenReturn(false); /* fails! */
+		when(os.CloseHandle(handle)).thenReturn(false); /* fails! */
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		
+		when(os.CreateFileA("\\\\.\\COM1", GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0)).thenReturn(terminationHandle);
+		when(os.CloseHandle(terminationHandle)).thenReturn(true);
+		//@formatter:on
+
+		exception.expect(NativeCodeException.class);
+
+		try {
+			serialConnectionImpl.close();
+		}
+		finally {
+			verifyClosePort();
+		}
+	}
+
+	/**
 	 * Verifies that {@link SerialConnectionImpl#close()} awaits the termination of serial
 	 * connection, when the port is busy.
 	 * 
@@ -385,8 +415,9 @@ public class TestSerialConnectionImpl {
 		}
 	}
 
-	// //////////////////////
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
+	/** Verifies that all native resources are closed or disposed. */
 	private void verifyClosePort() {
 		verify(os).CancelIo(handle);
 		verify(os).PurgeComm(handle, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
