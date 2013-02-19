@@ -222,7 +222,7 @@ public abstract class IoOperationImpl implements IoOperation {
 		return new IOException("Port " + port.getPortName() + " is closed!" + message);
 	}
 
-	public/* final */void dispose() {
+	public final void dispose() {
 		//@formatter:off
 		disposeLock.lock();
 		try { 

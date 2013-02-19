@@ -106,10 +106,4 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 		}
 	}
 
-	// -- FOR DEBUGGING ONLY: -----------------
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-	// ----------------------------------------
 }

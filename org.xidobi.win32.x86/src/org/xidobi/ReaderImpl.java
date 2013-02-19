@@ -229,10 +229,4 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		//@formatter:on
 	}
 
-	// -- FOR DEBUGGING ONLY: -----------------
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-	// ----------------------------------------
 }
