@@ -119,7 +119,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	}
 
 	/** Resets the overlapped event handle */
-	protected void resetOverlappedEventHandle() {
+	protected final void resetOverlappedEventHandle() {
 		boolean resetEventResult = os.ResetEvent(overlapped.hEvent);
 		if (!resetEventResult)
 			throw newNativeCodeException(os, "ResetEvent failed unexpected!", os.GetLastError());
@@ -149,7 +149,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 * @exception NativeCodeException
 	 *                for all unexpected error codes
 	 */
-	protected void handleNativeError(@Nonnull String nativeMethodName, int errorCode) throws IOException {
+	protected final void handleNativeError(@Nonnull String nativeMethodName, int errorCode) throws IOException {
 		checkArgumentNotNull(nativeMethodName, "nativeMethodName");
 
 		switch (errorCode) {
@@ -183,7 +183,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 *         <li> <code>false</code> if not closed
 	 *         </ul>
 	 */
-	protected boolean isClosed() {
+	protected final boolean isClosed() {
 		return isClosed;
 	}
 
@@ -196,7 +196,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 * @throws IllegalStateException
 	 *             when this instance was already disposed
 	 */
-	protected void checkIfClosedOrDisposed() throws IOException {
+	protected final void checkIfClosedOrDisposed() throws IOException {
 		if (isClosed())
 			throw portClosedException(null);
 		checkIfDisposed();
@@ -214,7 +214,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 *            error description, may be <code>null</code>
 	 */
 	@Nonnull
-	protected IOException portClosedException(@Nullable String message) {
+	protected final IOException portClosedException(@Nullable String message) {
 		if (message == null)
 			message = "";
 		else
@@ -255,7 +255,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 *         <li> <code>false</code> if this instance is not disposed
 	 *         </ul>
 	 */
-	protected boolean isDisposed() {
+	protected final boolean isDisposed() {
 		return isDisposed;
 	}
 
@@ -265,7 +265,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 * @throws IllegalStateException
 	 *             when this instance was already disposed
 	 */
-	protected void checkIfDisposed() {
+	protected final void checkIfDisposed() {
 		if (isDisposed())
 			throw new IllegalStateException("The instance of " + getClass().getName() + " was already disposed!");
 	}
