@@ -104,6 +104,7 @@ public class TestReaderImpl {
 		when(port.getPortName()).thenReturn("COM1");
 		when(os.CloseHandle(anyInt())).thenReturn(true);
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.ResetEvent(eventHandle)).thenReturn(true);
 
 		reader = new ReaderImpl(port, os, portHandle);
 	}
@@ -120,7 +121,7 @@ public class TestReaderImpl {
 		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
 
 		reader.read();
 	}
@@ -316,7 +317,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
 
 		reader.read();
 	}
@@ -339,7 +340,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
+		exception.expectMessage("WaitForSingleObject failed unexpected!");
 
 		reader.read();
 	}
@@ -363,7 +364,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Read operation failed, because the handle is invalid!");
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
 
 		reader.read();
 	}

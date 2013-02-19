@@ -15,7 +15,6 @@
  */
 package org.xidobi;
 
-import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
@@ -80,7 +79,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		try {
 			checkIfClosedOrDisposed();
 
-			os.ResetEvent(overlapped.hEvent);
+			resetOverlappedEventHandle();
 
 			// Repeat until data is available:
 			while (true) {
@@ -117,10 +116,8 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		}
 
 		int lastError = os.GetLastError();
-		if (lastError == ERROR_INVALID_HANDLE)
-			throw portClosedException("Read operation failed, because the handle is invalid!");
 		if (lastError != ERROR_IO_PENDING)
-			throw newNativeCodeException(os, "WaitCommEvent failed unexpected!", os.GetLastError());
+			handleNativeError("WaitCommEvent", lastError);
 
 		// Repeat until some data arrived:
 		while (true) {
@@ -139,10 +136,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 				case WAIT_ABANDONED:
 					throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 				case WAIT_FAILED:
-					lastError = os.GetLastError();
-					if (lastError == ERROR_INVALID_HANDLE)
-						throw portClosedException("Read operation failed, because the handle is invalid!");
-					throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", lastError);
+					handleNativeError("WaitForSingleObject", os.GetLastError());
 				default:
 					throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
 			}
@@ -150,12 +144,12 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	}
 
 	/** Returns the number of bytes that are available to read. */
-	private int getAvailableBytes() {
+	private int getAvailableBytes() throws IOException {
 		COMSTAT lpStat = new COMSTAT();
 		INT lpErrors = new INT(0);
 		boolean succeed = os.ClearCommError(handle, lpErrors, lpStat);
 		if (!succeed)
-			throw newNativeCodeException(os, "ClearCommError failed unexpected!", os.GetLastError());
+			handleNativeError("ClearCommError", os.GetLastError());
 		return lpStat.cbInQue;
 	}
 
@@ -171,10 +165,8 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 			return readBuffer.getByteArray();
 
 		int lastError = os.GetLastError();
-		if (lastError == ERROR_INVALID_HANDLE)
-			throw portClosedException("Read operation failed, because the handle is invalid!");
 		if (lastError != ERROR_IO_PENDING)
-			throw newNativeCodeException(os, "ReadFile failed unexpected!", lastError);
+			handleNativeError("ReadFile", lastError);
 
 		// wait for pending I/O operation to complete
 		int waitResult = os.WaitForSingleObject(overlapped.hEvent, READ_FILE_TIMEOUT);
@@ -183,7 +175,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 				// I/O operation has finished
 				boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
 				if (!overlappedResult)
-					throw newNativeCodeException(os, "GetOverlappedResult failed unexpected!", os.GetLastError());
+					handleNativeError("GetOverlappedResult", os.GetLastError());
 
 				// verify that the number of read bytes is equal to the number of available
 				// bytes:
@@ -198,10 +190,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 			case WAIT_ABANDONED:
 				throw new NativeCodeException("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
 			case WAIT_FAILED:
-				lastError = os.GetLastError();
-				if (lastError == ERROR_INVALID_HANDLE)
-					throw portClosedException("Read operation failed, because the handle is invalid!");
-				throw newNativeCodeException(os, "WaitForSingleObject returned an unexpected value: WAIT_FAILED!", os.GetLastError());
+				handleNativeError("WaitForSingleObject", os.GetLastError());
 			default:
 				throw newNativeCodeException(os, "WaitForSingleObject returned unexpected value! Got: " + waitResult, os.GetLastError());
 		}
@@ -222,7 +211,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	private void checkEventMask(DWORD eventMask) throws IOException {
 		int mask = eventMask.getValue();
 		if (mask == 0)
-			throw new IOException("Read operation failed, because a communication error event was signaled!");
+			throw portClosedException("Read operation failed, because a communication error event was signaled!");
 		if ((mask & EV_RXCHAR) != EV_RXCHAR)
 			throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: " + mask + ", expected: " + EV_RXCHAR);
 	}
@@ -240,10 +229,4 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		//@formatter:on
 	}
 
-	// -- FOR DEBUGGING ONLY: -----------------
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-	// ----------------------------------------
 }

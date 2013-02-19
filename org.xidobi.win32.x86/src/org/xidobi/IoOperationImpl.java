@@ -15,6 +15,8 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
+import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
@@ -29,6 +31,7 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import org.xidobi.spi.IoOperation;
+import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
 
@@ -115,6 +118,50 @@ public abstract class IoOperationImpl implements IoOperation {
 		throw newNativeCodeException(os, "Create overlapped event failed!", os.GetLastError());
 	}
 
+	/** Resets the overlapped event handle */
+	protected final void resetOverlappedEventHandle() {
+		boolean resetEventResult = os.ResetEvent(overlapped.hEvent);
+		if (!resetEventResult)
+			throw newNativeCodeException(os, "ResetEvent failed unexpected!", os.GetLastError());
+	}
+
+	/**
+	 * Handles the native error.
+	 * <p>
+	 * This method throws an {@link IOException}, if the given error code is one of the following:
+	 * <ul>
+	 * <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE}
+	 * <li>{@link WinApi#ERROR_OPERATION_ABORTED ERROR_OPERATION_ABORTED}
+	 * </ul>
+	 * Otherwise it throws a {@link NativeCodeException} with the error code and the given name of
+	 * the native method.
+	 * 
+	 * @param nativeMethodName
+	 *            the name of the native method, must not be <code>null</code>
+	 * @param errorCode
+	 *            the last error code
+	 * @throws IOException
+	 *             if the error code is one of the following:
+	 *             <ul>
+	 *             <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE} <li>
+	 *             {@link WinApi#ERROR_OPERATION_ABORTED ERROR_OPERATION_ABORTED}
+	 *             </ul>
+	 * @exception NativeCodeException
+	 *                for all unexpected error codes
+	 */
+	protected final void handleNativeError(@Nonnull String nativeMethodName, int errorCode) throws IOException {
+		checkArgumentNotNull(nativeMethodName, "nativeMethodName");
+
+		switch (errorCode) {
+			case ERROR_INVALID_HANDLE:
+				throw portClosedException("I/O operation failed, because the handle is invalid.");
+			case ERROR_OPERATION_ABORTED:
+				throw portClosedException("I/O operation has been aborted.");
+			default:
+				throw newNativeCodeException(os, nativeMethodName + " failed unexpected!", errorCode);
+		}
+	}
+
 	/** {@inheritDoc} */
 	@OverridingMethodsMustInvokeSuper
 	public void close() throws IOException {
@@ -136,7 +183,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 *         <li> <code>false</code> if not closed
 	 *         </ul>
 	 */
-	protected boolean isClosed() {
+	protected final boolean isClosed() {
 		return isClosed;
 	}
 
@@ -149,7 +196,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 * @throws IllegalStateException
 	 *             when this instance was already disposed
 	 */
-	protected void checkIfClosedOrDisposed() throws IOException {
+	protected final void checkIfClosedOrDisposed() throws IOException {
 		if (isClosed())
 			throw portClosedException(null);
 		checkIfDisposed();
@@ -167,7 +214,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 *            error description, may be <code>null</code>
 	 */
 	@Nonnull
-	protected IOException portClosedException(@Nullable String message) {
+	protected final IOException portClosedException(@Nullable String message) {
 		if (message == null)
 			message = "";
 		else
@@ -175,7 +222,7 @@ public abstract class IoOperationImpl implements IoOperation {
 		return new IOException("Port " + port.getPortName() + " is closed!" + message);
 	}
 
-	public/* final */void dispose() {
+	public final void dispose() {
 		//@formatter:off
 		disposeLock.lock();
 		try { 
@@ -208,7 +255,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 *         <li> <code>false</code> if this instance is not disposed
 	 *         </ul>
 	 */
-	protected boolean isDisposed() {
+	protected final boolean isDisposed() {
 		return isDisposed;
 	}
 
@@ -218,7 +265,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 * @throws IllegalStateException
 	 *             when this instance was already disposed
 	 */
-	protected void checkIfDisposed() {
+	protected final void checkIfDisposed() {
 		if (isDisposed())
 			throw new IllegalStateException("The instance of " + getClass().getName() + " was already disposed!");
 	}

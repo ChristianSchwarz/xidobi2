@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -33,6 +34,7 @@ import org.xidobi.structs.OVERLAPPED;
  * Test for {@link IoOperationImpl}
  * 
  * @author Christian Schwarz
+ * @author Tobias Breﬂler
  */
 public class TestIoOperationImpl {
 
@@ -55,7 +57,6 @@ public class TestIoOperationImpl {
 	public ExpectedException exception = ExpectedException.none();
 
 	/** class under test */
-
 	private IoOperationImpl operation;
 
 	@Mock
@@ -84,7 +85,7 @@ public class TestIoOperationImpl {
 	 */
 	@Test
 	@SuppressWarnings({ "resource", "unused" })
-	public void new_nullPort() {
+	public void new_withNullPort() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 
 		exception.expect(IllegalArgumentException.class);
@@ -99,7 +100,7 @@ public class TestIoOperationImpl {
 	 */
 	@Test
 	@SuppressWarnings({ "resource", "unused" })
-	public void new_nullOs() {
+	public void new_withNullOS() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 
 		exception.expect(IllegalArgumentException.class);
@@ -113,7 +114,7 @@ public class TestIoOperationImpl {
 	 */
 	@Test
 	@SuppressWarnings({ "resource", "unused" })
-	public void new_InvalidHandle() {
+	public void new_withInvalidHandle() {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 
 		exception.expect(IllegalArgumentException.class);
@@ -191,6 +192,29 @@ public class TestIoOperationImpl {
 
 		verify(os).free(ptrOverlapped);
 		verify(os).free(ptrBytesTransferred);
+	}
+
+	/**
+	 * Verifies that an {@link IllegalStateException} is thrown, when the I/O operation is disposed
+	 * for the second time.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void dispose_2x() throws Exception {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		operation = new _IoOperation(port, os, PORT_HANDLE);
+		operation.dispose();
+
+		exception.expect(IllegalStateException.class);
+
+		try {
+			operation.dispose();
+		}
+		finally {
+			verify(os, times(1)).free(ptrOverlapped);
+			verify(os, times(1)).free(ptrBytesTransferred);
+		}
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////

@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -31,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
@@ -51,8 +49,10 @@ public class TestBasicSerialConnection {
 	private static final byte[] BYTES = {};
 
 	/** the class under test */
-	@InjectMocks
 	private BasicSerialConnection port;
+
+	@Mock
+	private BasicSerialConnection portInternal;
 
 	@Mock
 	private SerialPort portHandle;
@@ -72,6 +72,8 @@ public class TestBasicSerialConnection {
 		initMocks(this);
 
 		when(portHandle.getPortName()).thenReturn("COM1");
+
+		port = new _BasicSerialConnection(portHandle, reader, writer);
 	}
 
 	/**
@@ -88,8 +90,18 @@ public class TestBasicSerialConnection {
 	}
 
 	/**
-	 * Verifies that a call to {@link SerialConnection#close()} will be deleagted to
-	 * {@link AbstractSerialConnection#closeInternal()}.
+	 * Verifies that {@link BasicSerialConnection#getPort()} returns the {@link SerialPort} that was
+	 * passed to the constructor.
+	 */
+	@Test
+	public void getPort() {
+		SerialPort result = port.getPort();
+		assertThat(result, is(portHandle));
+	}
+
+	/**
+	 * Verifies that the read and write operation are closed and disposed, when the connection is
+	 * closed.
 	 * 
 	 * @throws IOException
 	 */
@@ -101,12 +113,15 @@ public class TestBasicSerialConnection {
 
 		verify(reader).close();
 		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
 		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
-	 * Verifies that only the first call to {@link SerialConnection#close()} will be deleagted to
-	 * {@link AbstractSerialConnection#closeInternal()}.
+	 * Verifies that only the first call to {@link SerialConnection#close()} will close and dispose
+	 * the I/O operations read and write.
 	 */
 	@Test
 	public void close_2x() throws Exception {
@@ -116,21 +131,104 @@ public class TestBasicSerialConnection {
 
 		verify(reader).close();
 		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
 		assertThat(port.isClosed(), is(true));
 	}
 
 	/**
-	 * Verifies that the same {@link IOException} thrown by
-	 * {@link AbstractSerialConnection#closeInternal()} is forwarded to the caller of
-	 * {@link SerialConnection#close()} without modification.
+	 * Verifies that all I/O operations will be closed and disposed, when a {@link IOException} is
+	 * thrown during close of the reader operation.
 	 */
 	@Test
-	public void close_IOException() throws Exception {
+	public void close_closeOfReaderThrowsIOException() throws Exception {
 		exception.expect(is(IO_EXCEPTION));
 
 		doThrow(IO_EXCEPTION).when(reader).close();
 		port.close();
 
+		verify(reader).close();
+		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
+		assertThat(port.isClosed(), is(true));
+	}
+
+	/**
+	 * Verifies that all I/O operations will be closed and disposed, when a
+	 * {@link NativeCodeException} is thrown during dispose of the reader operation.
+	 */
+	@Test
+	public void close_disposeOfReaderThrowsNativeCodeException() throws Exception {
+		exception.expect(is(NATIVE_CODE_EXCEPTION));
+
+		doThrow(NATIVE_CODE_EXCEPTION).when(reader).dispose();
+		port.close();
+
+		verify(reader).close();
+		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
+		assertThat(port.isClosed(), is(true));
+	}
+
+	/**
+	 * Verifies that all I/O operations will be closed and disposed, when a {@link IOException} is
+	 * thrown during close of the writer operation.
+	 */
+	@Test
+	public void close_closeOfWriterThrowsIOException() throws Exception {
+		exception.expect(is(IO_EXCEPTION));
+
+		doThrow(IO_EXCEPTION).when(writer).close();
+		port.close();
+
+		verify(reader).close();
+		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
+		assertThat(port.isClosed(), is(true));
+	}
+
+	/**
+	 * Verifies that all I/O operations will be closed and disposed, when a
+	 * {@link NativeCodeException} is thrown during dispose of the writer operation.
+	 */
+	@Test
+	public void close_disposeOfWriterThrowsNativeCodeException() throws Exception {
+		exception.expect(is(NATIVE_CODE_EXCEPTION));
+
+		doThrow(NATIVE_CODE_EXCEPTION).when(writer).dispose();
+		port.close();
+
+		verify(reader).close();
+		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
+		assertThat(port.isClosed(), is(true));
+	}
+
+	/**
+	 * Verifies that all I/O operations will be closed and disposed, when
+	 * <code>#closeInternal()</code> throws a {@link NativeCodeException}.
+	 */
+	@Test
+	public void close_closeInternalThrowsNativeCodeException() throws Exception {
+		exception.expect(is(NATIVE_CODE_EXCEPTION));
+
+		doThrow(NATIVE_CODE_EXCEPTION).when(portInternal).closeInternal();
+		port.close();
+
+		verify(reader).close();
+		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -202,7 +300,11 @@ public class TestBasicSerialConnection {
 		}
 		catch (IOException ignore) {}
 
+		verify(reader).close();
 		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -219,7 +321,11 @@ public class TestBasicSerialConnection {
 		}
 		catch (NativeCodeException ignore) {}
 
+		verify(reader).close();
 		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -265,6 +371,9 @@ public class TestBasicSerialConnection {
 
 		verify(reader).close();
 		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -283,6 +392,9 @@ public class TestBasicSerialConnection {
 
 		verify(reader).close();
 		verify(writer).close();
+		verify(portInternal).closeInternal();
+		verify(reader).dispose();
+		verify(writer).dispose();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -310,4 +422,19 @@ public class TestBasicSerialConnection {
 		assertThat(result.getMessage(), is("Port COM1 is closed! Additional message."));
 	}
 
+	// Utilities for this Testclass ///////////////////////////////////////////////////////////
+
+	public class _BasicSerialConnection extends BasicSerialConnection {
+
+		public _BasicSerialConnection(	SerialPort port,
+										Reader reader,
+										Writer writer) {
+			super(port, reader, writer);
+		}
+
+		@Override
+		protected void closeInternal() {
+			portInternal.closeInternal();
+		}
+	}
 }
