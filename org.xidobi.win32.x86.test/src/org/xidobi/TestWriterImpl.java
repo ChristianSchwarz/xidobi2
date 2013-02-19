@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
@@ -174,8 +175,8 @@ public class TestWriterImpl {
 	}
 
 	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WriteFile(...)</code>
-	 * returns <code>false</code> and the last error code is not <code>ERROR_IO_PENDING</code>.
+	 * Verifies that a {@link IOException} is thrown, when <code>WriteFile(...)</code> returns
+	 * <code>false</code> and the last error code is not <code>ERROR_IO_PENDING</code>.
 	 * 
 	 * @throws IOException
 	 */
@@ -186,6 +187,40 @@ public class TestWriterImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+
+		writer.write(DATA);
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WriteFile(...)</code> returns
+	 * <code>false</code> and the last error code is <code>ERROR_OPERATION_ABORTED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WriteFileFailsWithERROR_OPERATION_ABORTED() throws IOException {
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_OPERATION_ABORTED);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+
+		writer.write(DATA);
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WriteFile(...)</code>
+	 * returns <code>false</code> and the last error code is <code>ERROR_OPERATION_ABORTED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WriteFileFailsUnexpected() throws IOException {
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WriteFile failed unexpected!");
 
 		writer.write(DATA);
 	}
