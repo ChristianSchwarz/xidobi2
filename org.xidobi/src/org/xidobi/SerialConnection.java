@@ -61,4 +61,12 @@ public interface SerialConnection extends Closeable {
 	 */
 	boolean isClosed();
 
+	/**
+	 * Returns the underlying serial port for this serial connection.
+	 * 
+	 * @return the serial port, never <code>null</code>
+	 */
+	@Nonnull
+	SerialPort getPort();
+
 }
