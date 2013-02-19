@@ -94,6 +94,7 @@ public class TestWriterImpl {
 		when(port.getPortName()).thenReturn("COM1");
 		when(os.CloseHandle(anyInt())).thenReturn(true);
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.ResetEvent(eventHandle)).thenReturn(true);
 		writer = new WriterImpl(port, os, portHandle);
 	}
 
@@ -184,7 +185,7 @@ public class TestWriterImpl {
 		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Write operation failed, because the handle is invalid!");
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
 
 		writer.write(DATA);
 	}
@@ -299,7 +300,7 @@ public class TestWriterImpl {
 		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! Write operation failed, because the handle is invalid!");
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
 
 		writer.write(DATA);
 	}
@@ -318,7 +319,7 @@ public class TestWriterImpl {
 		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
 
 		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_FAILED!");
+		exception.expectMessage("WaitForSingleObject failed unexpected!");
 
 		writer.write(DATA);
 	}
