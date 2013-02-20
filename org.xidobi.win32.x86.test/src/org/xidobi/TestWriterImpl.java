@@ -51,16 +51,25 @@ import org.xidobi.structs.OVERLAPPED;
  */
 public class TestWriterImpl {
 
+	/** Dummy size of a {@link OVERLAPPED} */
 	private static final int OVERLAPPED_SIZE = 1;
+	/** Dummy pointer to an {@link OVERLAPPED}-struct */
+	private int PTR_OVERLAPPED = 1;
+	/** Dummy size of a {@link DWORD} */
 	private static final int DWORD_SIZE = 2;
+	/** Dummy pointer to an {@link DWORD} */
+	private int PTR_BYTES_TRANSFERRED = 2;
 
+	/** some unspecific error code */
 	private static final int DUMMY_ERROR_CODE = 12345;
 
-	private static final int eventHandle = 1;
+	/** Dummy event handle */
+	private static final int EVENT_HANDLE = 1;
 
-	/** a valid HANDLE value used in tests */
-	private static final int portHandle = 2;
+	/** Dummy serial port handle */
+	private static final int PORT_HANDLE = 2;
 
+	/** some dummy data, that should be written */
 	private static final byte[] DATA = new byte[5];
 
 	/** check exceptions */
@@ -76,27 +85,22 @@ public class TestWriterImpl {
 	/** the class under test */
 	private WriterImpl writer;
 
-	/** pointer to an {@link OVERLAPPED}-struct */
-	private int ptrOverlapped = 1;
-	/** pointer to an {@link DWORD} */
-	private int ptrBytesTransferred = 2;
-
 	@Before
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
 
 		when(os.sizeOf_OVERLAPPED()).thenReturn(OVERLAPPED_SIZE);
-		when(os.malloc(OVERLAPPED_SIZE)).thenReturn(ptrOverlapped);
+		when(os.malloc(OVERLAPPED_SIZE)).thenReturn(PTR_OVERLAPPED);
 
 		when(os.sizeOf_DWORD()).thenReturn(DWORD_SIZE);
-		when(os.malloc(DWORD_SIZE)).thenReturn(ptrBytesTransferred);
+		when(os.malloc(DWORD_SIZE)).thenReturn(PTR_BYTES_TRANSFERRED);
 
 		when(port.getPortName()).thenReturn("COM1");
 		when(os.CloseHandle(anyInt())).thenReturn(true);
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.ResetEvent(eventHandle)).thenReturn(true);
-		writer = new WriterImpl(port, os, portHandle);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.ResetEvent(EVENT_HANDLE)).thenReturn(true);
+		writer = new WriterImpl(port, os, PORT_HANDLE);
 	}
 
 	/**
@@ -109,7 +113,7 @@ public class TestWriterImpl {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >os< must not be null!");
 
-		new WriterImpl(port, null, portHandle);
+		new WriterImpl(port, null, PORT_HANDLE);
 	}
 
 	/**
@@ -122,7 +126,7 @@ public class TestWriterImpl {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Argument >port< must not be null!");
 
-		new WriterImpl(null, os, portHandle);
+		new WriterImpl(null, os, PORT_HANDLE);
 	}
 
 	/**
@@ -147,12 +151,12 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_succeedImmediatly() throws IOException {
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
 
 		writer.write(DATA);
 
-		verify(os, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
+		verify(os, times(1)).WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 	}
 
 	/**
@@ -163,7 +167,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileReturnsUnexpectedNumberOfBytes() throws IOException {
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
 
 		exception.expect(NativeCodeException.class);
@@ -171,7 +175,7 @@ public class TestWriterImpl {
 
 		writer.write(DATA);
 
-		verify(os, times(1)).WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
+		verify(os, times(1)).WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED());
 	}
 
 	/**
@@ -182,7 +186,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
@@ -199,7 +203,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_OPERATION_ABORTED() throws IOException {
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
@@ -216,7 +220,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsUnexpected() throws IOException {
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
@@ -233,8 +237,8 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFails() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
@@ -251,10 +255,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectReturnsUndefinedValue() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(DUMMY_ERROR_CODE);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned unexpected value! Got: " + DUMMY_ERROR_CODE);
@@ -270,11 +274,11 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_successfull() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length);
 
 		writer.write(DATA);
@@ -288,11 +292,11 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_lessBytesWritten() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(DATA.length - 1);
 
 		exception.expect(NativeCodeException.class);
@@ -309,10 +313,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectReturnsWAIT_TIMEOUT() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_TIMEOUT);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Write operation timed out after 2000 milliseconds!");
@@ -329,10 +333,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -348,10 +352,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFails() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_FAILED);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject failed unexpected!");
@@ -367,10 +371,10 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectReturnsWAIT_ABANDONED() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_ABANDONED);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_ABANDONED);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
@@ -387,11 +391,11 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_OPERATION_ABORTED() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
@@ -408,11 +412,11 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -429,11 +433,11 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsUnexpected() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult failed unexpected!");
@@ -450,7 +454,7 @@ public class TestWriterImpl {
 	public void close() throws Exception {
 		writer.close();
 
-		verify(os).CloseHandle(eventHandle);
+		verify(os).CloseHandle(EVENT_HANDLE);
 	}
 
 	/**
@@ -462,8 +466,8 @@ public class TestWriterImpl {
 	public void dispose() {
 		writer.dispose();
 
-		verify(os).free(ptrBytesTransferred);
-		verify(os).free(ptrOverlapped);
+		verify(os).free(PTR_BYTES_TRANSFERRED);
+		verify(os).free(PTR_OVERLAPPED);
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
