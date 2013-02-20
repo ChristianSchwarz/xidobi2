@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
@@ -59,10 +60,10 @@ public class TestReaderImpl {
 	private static final int OVERLAPPED_SIZE = 1;
 	/** pointer to an {@link OVERLAPPED}-struct */
 	private int PTR_OVERLAPPED = 1;
-	
+
 	/** dummy size of DWORD */
 	private static final int DWORD_SIZE = 2;
-	
+
 	/** pointer to an {@link DWORD}, that is used for the number of transferred bytes */
 	private int PTR_BYTES_TRANSFERRED = 2;
 	/** pointer to an {@link DWORD}, that is used for the event mask */
@@ -94,7 +95,6 @@ public class TestReaderImpl {
 
 	/** the class under test */
 	private ReaderImpl reader;
-
 
 	@Before
 	@SuppressWarnings("javadoc")
@@ -181,7 +181,7 @@ public class TestReaderImpl {
 		//@formatter:off
 		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 2000)).thenReturn(WAIT_TIMEOUT, WAIT_OBJECT_0);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_TIMEOUT, WAIT_OBJECT_0);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
 			doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
@@ -206,7 +206,7 @@ public class TestReaderImpl {
 		//@formatter:off
 		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_OBJECT_0);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
 		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
@@ -217,6 +217,111 @@ public class TestReaderImpl {
 		byte[] result = reader.read();
 
 		assertThat(result, is(DATA));
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * is called, the operation is pending and <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_ABANDONED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingReturnsWAIT_ABANDONED() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_ABANDONED);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned an unexpected value: WAIT_ABANDONED!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
+	 * called, the operation is pending, <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_FAILED</code> and the last error code is <code>ERROR_INVALID_HANDLE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingFailedWithERROR_INVALID_HANDLE() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		// @formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
+	 * called, the operation is pending, <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_FAILED</code> and the last error code is <code>ERROR_OPERATION_ABORTED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingFailedWithERROR_OPERATION_ABORTED() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		// @formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * is called, the operation is pending, <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_FAILED</code> and the last error code is unexpected.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingFailedUnexpected() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject failed unexpected!");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * is called, the operation is pending, <code>WaitForSingleObject(...)</code> returns unexpected
+	 * value.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingWaitForSingleObjectFailedUnexpected() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(DUMMY_ERROR_CODE);
+		// @formatter:on
+
+		exception.expect(NativeCodeException.class);
+		exception.expectMessage("WaitForSingleObject returned unexpected value! Got: " + DUMMY_ERROR_CODE);
+
+		reader.read();
 	}
 
 	/**
