@@ -379,16 +379,59 @@ public class TestWriterImpl {
 	}
 
 	/**
-	 * Verifies that an {@link NativeCodeException} is thrown, when the
-	 * <code>GetOverlappedResult(...)</code> returns <code>false</code>.
+	 * Verifies that an {@link IOException} is thrown, when the
+	 * <code>GetOverlappedResult(...)</code> returns <code>false</code> and the last error is
+	 * <code>ERROR_OPERATION_ABORTED</code>.
 	 * 
 	 * @throws IOException
 	 */
 	@Test
-	public void write_GetOverlappedResultFails() throws IOException {
+	public void write_GetOverlappedResultFailsWithERROR_OPERATION_ABORTED() throws IOException {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+
+		writer.write(DATA);
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when the
+	 * <code>GetOverlappedResult(...)</code> returns <code>false</code> and the last error is
+	 * <code>ERROR_INVALID_HANDLE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_GetOverlappedResultFailsWithERROR_INVALID_HANDLE() throws IOException {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
+		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+
+		writer.write(DATA);
+	}
+
+	/**
+	 * Verifies that an {@link NativeCodeException} is thrown, when the
+	 * <code>GetOverlappedResult(...)</code> returns <code>false</code> and the last error is
+	 * unexpected.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_GetOverlappedResultFailsUnexpected() throws IOException {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
+		when(os.WriteFile(eq(portHandle), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
 		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
 		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
 
