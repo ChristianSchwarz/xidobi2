@@ -86,6 +86,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #CreateFileA(String, int, int, int, int, int, int)}. */
 	private native int CreateFileA(String lpFileName, int dwDesiredAccess, int dwShareMode, int lpSecurityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, int hTemplateFile, INT lastError);
 
 	/** {@inheritDoc} */
@@ -97,6 +98,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #CloseHandle(int)}. */
 	private native boolean CloseHandle(int handle, INT lastError);
 
 	/** {@inheritDoc} */
@@ -108,6 +110,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #GetCommState(int, DCB)}. */
 	private native boolean GetCommState(int handle, DCB dcb, INT lastError);
 
 	/** {@inheritDoc} */
@@ -119,6 +122,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #SetCommState(int, DCB)}. */
 	private native boolean SetCommState(int handle, DCB dcb, INT lastError);
 
 	/** {@inheritDoc} */
@@ -130,6 +134,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #CreateEventA(int, boolean, boolean, String)}. */
 	private native int CreateEventA(int lpEventAttributes, boolean bManualReset, boolean bInitialState, @Nullable String lpName, INT lastError);
 
 	/** {@inheritDoc} */
@@ -141,6 +146,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #WriteFile(int, byte[], int, DWORD, OVERLAPPED)}. */
 	private native boolean WriteFile(int handle, @Nonnull byte[] lpBuffer, int nNumberOfBytesToWrite, @Nullable DWORD lpNumberOfBytesWritten, @Nullable OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
@@ -152,6 +158,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #ReadFile(int, NativeByteArray, int, DWORD, OVERLAPPED)}. */
 	private native boolean ReadFile(int handle, @Nonnull NativeByteArray lpBuffer, int nNumberOfBytesToRead, @Nullable DWORD lpNumberOfBytesRead, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
@@ -170,6 +177,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #FormatMessageA(int, Void, int, int, byte[], int, Void)}. */
 	private native int FormatMessageA(int dwFlags, Void lpSource, int dwMessageId, int dwLanguageId, @Nonnull byte[] lpBuffer, int nSize, Void arguments, INT lastError);
 
 	/** {@inheritDoc} */
@@ -180,6 +188,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #GetOverlappedResult(int, OVERLAPPED, DWORD, boolean)}. */
 	private native boolean GetOverlappedResult(int handle, OVERLAPPED lpOverlapped, DWORD lpNumberOfBytesTransferred, boolean bWait, INT lastError);
 
 	/** {@inheritDoc} */
@@ -190,6 +199,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #WaitForSingleObject(int, int)}. */
 	private native int WaitForSingleObject(int hHandle, int dwMilliseconds, INT lastError);
 
 	/** {@inheritDoc} */
@@ -209,6 +219,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #SetCommMask(int, int)}. */
 	private native boolean SetCommMask(int hFile, int dwEvtMask, INT lastError);
 
 	/** {@inheritDoc} */
@@ -219,6 +230,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #WaitCommEvent(int, DWORD, OVERLAPPED)}. */
 	private native boolean WaitCommEvent(int hFile, DWORD lpEvtMask, OVERLAPPED lpOverlapped, INT lastError);
 
 	/** {@inheritDoc} */
@@ -229,6 +241,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #PurgeComm(int, int)}. */
 	private native boolean PurgeComm(int hFile, int dwFlags, INT lastError);
 
 	/** {@inheritDoc} */
@@ -239,6 +252,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #ClearCommError(int, INT, COMSTAT)}. */
 	private native boolean ClearCommError(int hFile, INT lpErrors, COMSTAT lpStat, INT lastError);
 
 	/** {@inheritDoc} */
@@ -249,6 +263,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #ResetEvent(int)}. */
 	private native boolean ResetEvent(int hEvent, INT lastError);
 
 	/** {@inheritDoc} */
@@ -259,6 +274,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #SetCommBreak(int)}. */
 	private native boolean SetCommBreak(int hFile, INT lastError);
 
 	/** {@inheritDoc} */
@@ -269,6 +285,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #ClearCommBreak(int)}. */
 	private native boolean ClearCommBreak(int hFile, INT lastError);
 
 	/** {@inheritDoc} */
@@ -279,6 +296,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #CancelIo(int)}. */
 	private native boolean CancelIo(int hFile, INT lastError);
 
 	/** {@inheritDoc} */
@@ -289,6 +307,7 @@ public class OS implements WinApi {
 		return result;
 	}
 
+	/** Native reference to {@link #SetEvent(int)}. */
 	private native boolean SetEvent(int hEvent, INT lastError);
 
 	/** {@inheritDoc} */
