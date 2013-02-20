@@ -57,14 +57,28 @@ public class TestReaderImpl {
 
 	/** dummy size of OVERLAPPED */
 	private static final int OVERLAPPED_SIZE = 1;
+	/** pointer to an {@link OVERLAPPED}-struct */
+	private int PTR_OVERLAPPED = 1;
+	
 	/** dummy size of DWORD */
 	private static final int DWORD_SIZE = 2;
+	
+	/** pointer to an {@link DWORD}, that is used for the number of transferred bytes */
+	private int PTR_BYTES_TRANSFERRED = 2;
+	/** pointer to an {@link DWORD}, that is used for the event mask */
+	private int PTR_EVT_MASK = 3;
+
+	/** pointer to the native byte array */
+	private static final int PTR_NATIVE_BYTE_ARRAY = 4;
+
 	/** a dummy error code */
 	private static final int DUMMY_ERROR_CODE = 12345;
+
 	/** a dummy handle to the event object */
-	private static final int eventHandle = 1;
+	private static final int DUMMY_EVENT_HANDLE = 1;
 	/** a valid HANDLE value used in tests */
-	private static final int portHandle = 2;
+	private static final int DUMMY_PORT_HANDLE = 2;
+
 	/** the dummy data that is read */
 	private static final byte[] DATA = new byte[5];
 
@@ -81,32 +95,26 @@ public class TestReaderImpl {
 	/** the class under test */
 	private ReaderImpl reader;
 
-	/** pointer to an {@link OVERLAPPED}-struct */
-	private int ptrOverlapped = 1;
-	/** pointer to an {@link DWORD} */
-	private int ptrBytesTransferred = 2;
-	private int ptrEvtMask = 3;
-	private static final int ptrNativeByteArray = 23;
 
 	@Before
 	@SuppressWarnings("javadoc")
 	public void setUp() {
 		initMocks(this);
 
-		when(os.malloc(DATA.length)).thenReturn(ptrNativeByteArray);
+		when(os.malloc(DATA.length)).thenReturn(PTR_NATIVE_BYTE_ARRAY);
 
 		when(os.sizeOf_OVERLAPPED()).thenReturn(OVERLAPPED_SIZE);
-		when(os.malloc(OVERLAPPED_SIZE)).thenReturn(ptrOverlapped);
+		when(os.malloc(OVERLAPPED_SIZE)).thenReturn(PTR_OVERLAPPED);
 
 		when(os.sizeOf_DWORD()).thenReturn(DWORD_SIZE);
-		when(os.malloc(DWORD_SIZE)).thenReturn(ptrBytesTransferred, ptrEvtMask);
+		when(os.malloc(DWORD_SIZE)).thenReturn(PTR_BYTES_TRANSFERRED, PTR_EVT_MASK);
 
 		when(port.getPortName()).thenReturn("COM1");
 		when(os.CloseHandle(anyInt())).thenReturn(true);
-		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
-		when(os.ResetEvent(eventHandle)).thenReturn(true);
+		when(os.CreateEventA(0, true, false, null)).thenReturn(DUMMY_EVENT_HANDLE);
+		when(os.ResetEvent(DUMMY_EVENT_HANDLE)).thenReturn(true);
 
-		reader = new ReaderImpl(port, os, portHandle);
+		reader = new ReaderImpl(port, os, DUMMY_PORT_HANDLE);
 	}
 
 	/**
@@ -117,7 +125,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
@@ -134,7 +142,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithUnexpectedErrorCode() throws IOException {
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
@@ -151,7 +159,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventForUnexpectedEvent() throws IOException {
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR + 1);
 
 		exception.expect(NativeCodeException.class);
@@ -171,13 +179,13 @@ public class TestReaderImpl {
 	@Test
 	public void read_WaitCommEventPendingReturnsWAIT_TIMEOUT() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_TIMEOUT, WAIT_OBJECT_0);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 2000)).thenReturn(WAIT_TIMEOUT, WAIT_OBJECT_0);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
-			doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+			doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		// @formatter:on
 
@@ -196,13 +204,13 @@ public class TestReaderImpl {
 	@Test
 	public void read_WaitCommEventPendingReturnsWAIT_OBJECT_0() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		// @formatter:on
 
@@ -220,9 +228,9 @@ public class TestReaderImpl {
 	@Test
 	public void read_ClearCommErrorFailed() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(10, false)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
+		doAnswer(withAvailableBytes(10, false)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 		//@formatter:on
 
@@ -241,10 +249,10 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFileSuccessfull() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		//@formatter:on
 
@@ -263,12 +271,12 @@ public class TestReaderImpl {
 	@Test
 	public void read_withNoDataAvailable() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		when(os.ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT())).
+		when(os.ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT())).
 			then(withAvailableBytes(0, true)).
 			then(withAvailableBytes(DATA.length, true));
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		//@formatter:on
 
@@ -287,10 +295,10 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFileFailsUnexpected() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
 		//@formatter:on
 
@@ -309,10 +317,10 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFileFailsERROR_INVALID_HANDLE() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
 		//@formatter:on
 
@@ -331,12 +339,12 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFilePendingWaitFails() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_FAILED);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -355,12 +363,12 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFilePendingWaitFailsWithERROR_INVALID_HANDLE() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_FAILED);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
 		//@formatter:on
 
 		exception.expect(IOException.class);
@@ -378,12 +386,12 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFilePendingReturnsWAIT_ABANDONED() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_ABANDONED);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_ABANDONED);
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -401,12 +409,12 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFilePendingReturnsUnexpectedValue() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(123);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(123);
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -424,12 +432,12 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFilePendingReturnsWAIT_TIMEOUT() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_TIMEOUT);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_TIMEOUT);
 		//@formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -447,14 +455,14 @@ public class TestReaderImpl {
 	@Test
 	public void read_GetOverlappedResultFails() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, 
 		                                         DUMMY_ERROR_CODE);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(DUMMY_PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
 		// @formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -473,14 +481,14 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFilePendingReturnsUnexpectedNumberOfBytes() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length - 2);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(DUMMY_PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
 		// @formatter:on
 
 		exception.expect(NativeCodeException.class);
@@ -498,14 +506,14 @@ public class TestReaderImpl {
 	@Test
 	public void read_ReadFilePendingSuccess() throws IOException {
 		//@formatter:off
-		when(os.WaitCommEvent(eq(portHandle), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
 		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR, 
 		                                                DATA.length);
-			doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(portHandle), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(portHandle), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+			doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
 		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING);
-		when(os.WaitForSingleObject(eventHandle, 100)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(portHandle), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(DUMMY_PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(true);
 		when(os.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
 		// @formatter:on
 
@@ -524,7 +532,7 @@ public class TestReaderImpl {
 
 		reader.close();
 
-		verify(os).CloseHandle(eventHandle);
+		verify(os).CloseHandle(DUMMY_EVENT_HANDLE);
 	}
 
 	/**
@@ -537,9 +545,9 @@ public class TestReaderImpl {
 
 		reader.dispose();
 
-		verify(os).free(ptrBytesTransferred);
-		verify(os).free(ptrOverlapped);
-		verify(os).free(ptrEvtMask);
+		verify(os).free(PTR_BYTES_TRANSFERRED);
+		verify(os).free(PTR_OVERLAPPED);
+		verify(os).free(PTR_EVT_MASK);
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
