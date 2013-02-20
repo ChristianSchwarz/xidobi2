@@ -86,9 +86,9 @@ public class Application implements IApplication {
 
 		ScheduledExecutorService ex = newScheduledThreadPool(3);
 
-		ex.scheduleAtFixedRate(write(connection, ex), 0, 1, SECONDS);
+		ex.scheduleAtFixedRate(write(connection, ex), 0, 500, MILLISECONDS);
 		ex.scheduleWithFixedDelay(read(connection, ex), 0, 500, MILLISECONDS);
-		ex.scheduleAtFixedRate(close(connection, ex), 10, 10, SECONDS);
+		ex.scheduleAtFixedRate(close(connection, ex), 5, 5, SECONDS);
 
 		return ex;
 	}
