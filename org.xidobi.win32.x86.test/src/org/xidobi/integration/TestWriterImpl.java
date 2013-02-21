@@ -17,7 +17,7 @@ package org.xidobi.integration;
 
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.OS.OS;
-import static org.xidobi.SerialPortSettings.from9600and8N1;
+import static org.xidobi.SerialPortSettings.from9600bauds8N1;
 import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
 import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
 import static org.xidobi.WinApi.GENERIC_READ;
@@ -46,7 +46,7 @@ import org.xidobi.structs.DCB;
 public class TestWriterImpl extends AbstractIntegrationTest {
 
 	/** Settings for the serial port */
-	private static final SerialPortSettings PORT_SETTINGS = from9600and8N1().create();
+	private static final SerialPortSettings PORT_SETTINGS = from9600bauds8N1().create();
 
 	/** needed to verifiy exception */
 	@Rule
