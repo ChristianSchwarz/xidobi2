@@ -15,8 +15,8 @@
  */
 package org.xidobi;
 
-import static org.xidobi.StopBits.StopBits_1_5;
-import static org.xidobi.StopBits.StopBits_2;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.structs.DCB.DTR_CONTROL_DISABLE;
 import static org.xidobi.structs.DCB.DTR_CONTROL_ENABLE;
@@ -96,14 +96,14 @@ public class DCBConfigurator {
 		DataBits dataBits = settings.getDataBits();
 		StopBits stopBits = settings.getStopBits();
 		switch (dataBits) {
-			case DataBits_5:
-				if (stopBits == StopBits_2)
+			case DATABITS_5:
+				if (stopBits == STOPBITS_2)
 					throw new IllegalArgumentException("Invalid serial port settings! The use of 2 stop bits with 5 data bits is an invalid combination.");
 				return;
-			case DataBits_6:
-			case DataBits_7:
-			case DataBits_8:
-				if (stopBits == StopBits_1_5)
+			case DATABITS_6:
+			case DATABITS_7:
+			case DATABITS_8:
+				if (stopBits == STOPBITS_1_5)
 					throw new IllegalArgumentException("Invalid serial port settings! The use of 1.5 stop bits with 6, 7 or 8 data bits is an invalid combination.");
 				return;
 			default:
@@ -119,19 +119,19 @@ public class DCBConfigurator {
 	/** Configures the data bits on the DCB "struct". */
 	private void configureDataBits(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getDataBits()) {
-			case DataBits_5:
+			case DATABITS_5:
 				dcb.ByteSize = 5;
 				return;
-			case DataBits_6:
+			case DATABITS_6:
 				dcb.ByteSize = 6;
 				return;
-			case DataBits_7:
+			case DATABITS_7:
 				dcb.ByteSize = 7;
 				return;
-			case DataBits_8:
+			case DATABITS_8:
 				dcb.ByteSize = 8;
 				return;
-			case DataBits_9:
+			case DATABITS_9:
 				dcb.ByteSize = 9;
 				return;
 		}
@@ -140,13 +140,13 @@ public class DCBConfigurator {
 	/** Configures the stop bits on the DCB "struct". */
 	private void configureStopBits(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getStopBits()) {
-			case StopBits_1:
+			case STOPBITS_1:
 				dcb.StopBits = ONESTOPBIT;
 				return;
-			case StopBits_1_5:
+			case STOPBITS_1_5:
 				dcb.StopBits = ONE5STOPBITS;
 				return;
-			case StopBits_2:
+			case STOPBITS_2:
 				dcb.StopBits = TWOSTOPBITS;
 				return;
 		}
@@ -155,19 +155,19 @@ public class DCBConfigurator {
 	/** Configures the parity on the DCB "struct". */
 	private void configureParity(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getParity()) {
-			case Parity_None:
+			case PARITY_NONE:
 				dcb.Parity = NOPARITY;
 				return;
-			case Parity_Even:
+			case PARITY_EVEN:
 				dcb.Parity = EVENPARITY;
 				return;
-			case Parity_Odd:
+			case PARITY_ODD:
 				dcb.Parity = ODDPARITY;
 				return;
-			case Parity_Mark:
+			case PARITY_MARK:
 				dcb.Parity = MARKPARITY;
 				return;
-			case Parity_Space:
+			case PARITY_SPACE:
 				dcb.Parity = SPACEPARITY;
 				return;
 		}
@@ -199,25 +199,25 @@ public class DCBConfigurator {
 		dcb.fInX = FALSE;
 
 		switch (settings.getFlowControl()) {
-			case FlowControl_None:
+			case FLOWCONTROL_NONE:
 				return;
-			case FlowControl_RTSCTS_In:
+			case FLOWCONTROL_RTSCTS_IN:
 				dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
 				return;
-			case FlowControl_RTSCTS_Out:
+			case FLOWCONTROL_RTSCTS_OUT:
 				dcb.fOutxCtsFlow = TRUE;
 				return;
-			case FlowControl_RTSCTS_In_Out:
+			case FLOWCONTROL_RTSCTS_IN_OUT:
 				dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
 				dcb.fOutxCtsFlow = TRUE;
 				return;
-			case FlowControl_XONXOFF_In:
+			case FLOWCONTROL_XONXOFF_IN:
 				dcb.fInX = TRUE;
 				return;
-			case FlowControl_XONXOFF_Out:
+			case FLOWCONTROL_XONXOFF_OUT:
 				dcb.fOutX = TRUE;
 				return;
-			case FlowControl_XONXOFF_In_Out:
+			case FLOWCONTROL_XONXOFF_IN_OUT:
 				dcb.fInX = TRUE;
 				dcb.fOutX = TRUE;
 				return;

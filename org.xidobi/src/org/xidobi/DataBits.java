@@ -33,18 +33,18 @@ package org.xidobi;
 public enum DataBits {
 
 	/** 5 data bits (for Baudot code) */
-	DataBits_5,
+	DATABITS_5,
 
 	/** 6 data bits (rarely used) */
-	DataBits_6,
+	DATABITS_6,
 
 	/** 7 data bits (for true ASCII) */
-	DataBits_7,
+	DATABITS_7,
 
 	/** 8 data bits (for any kind of data, almost universally used in newer applications) */
-	DataBits_8,
+	DATABITS_8,
 
 	/** 9 data bits (rarely used) */
-	DataBits_9
+	DATABITS_9
 
 }

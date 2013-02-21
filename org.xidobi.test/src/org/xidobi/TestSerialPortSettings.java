@@ -18,17 +18,17 @@ package org.xidobi;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.xidobi.DataBits.DataBits_5;
-import static org.xidobi.DataBits.DataBits_6;
-import static org.xidobi.DataBits.DataBits_8;
-import static org.xidobi.FlowControl.FlowControl_None;
-import static org.xidobi.FlowControl.FlowControl_RTSCTS_In;
-import static org.xidobi.Parity.Parity_None;
-import static org.xidobi.Parity.Parity_Odd;
-import static org.xidobi.Parity.Parity_Space;
-import static org.xidobi.StopBits.StopBits_1;
-import static org.xidobi.StopBits.StopBits_1_5;
-import static org.xidobi.StopBits.StopBits_2;
+import static org.xidobi.DataBits.DATABITS_5;
+import static org.xidobi.DataBits.DATABITS_6;
+import static org.xidobi.DataBits.DATABITS_8;
+import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.Parity.PARITY_ODD;
+import static org.xidobi.Parity.PARITY_SPACE;
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -87,10 +87,10 @@ public class TestSerialPortSettings {
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result.getBauds(), is(9600));
-		assertThat(result.getDataBits(), is(DataBits_8));
-		assertThat(result.getStopBits(), is(StopBits_1));
-		assertThat(result.getParity(), is(Parity_None));
-		assertThat(result.getFlowControl(), is(FlowControl_None));
+		assertThat(result.getDataBits(), is(DATABITS_8));
+		assertThat(result.getStopBits(), is(STOPBITS_1));
+		assertThat(result.getParity(), is(PARITY_NONE));
+		assertThat(result.getFlowControl(), is(FLOWCONTROL_NONE));
 		assertThat(result.isRTS(), is(true));
 		assertThat(result.isDTR(), is(true));
 	}
@@ -131,10 +131,10 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withDataBits() {
-		SerialPortSettings result = builder.set(DataBits_6).create();
+		SerialPortSettings result = builder.set(DATABITS_6).create();
 
 		assertThat(result, is(notNullValue()));
-		assertThat(result.getDataBits(), is(DataBits_6));
+		assertThat(result.getDataBits(), is(DATABITS_6));
 	}
 
 	/**
@@ -152,10 +152,10 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withStopBits() {
-		SerialPortSettings result = builder.set(StopBits_2).create();
+		SerialPortSettings result = builder.set(STOPBITS_2).create();
 
 		assertThat(result, is(notNullValue()));
-		assertThat(result.getStopBits(), is(StopBits_2));
+		assertThat(result.getStopBits(), is(STOPBITS_2));
 	}
 
 	/**
@@ -173,10 +173,10 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withParity() {
-		SerialPortSettings result = builder.set(Parity_Odd).create();
+		SerialPortSettings result = builder.set(PARITY_ODD).create();
 
 		assertThat(result, is(notNullValue()));
-		assertThat(result.getParity(), is(Parity_Odd));
+		assertThat(result.getParity(), is(PARITY_ODD));
 	}
 
 	/**
@@ -194,10 +194,10 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withFlowControl() {
-		SerialPortSettings result = builder.set(FlowControl_RTSCTS_In).create();
+		SerialPortSettings result = builder.set(FLOWCONTROL_RTSCTS_IN).create();
 
 		assertThat(result, is(notNullValue()));
-		assertThat(result.getFlowControl(), is(FlowControl_RTSCTS_In));
+		assertThat(result.getFlowControl(), is(FLOWCONTROL_RTSCTS_IN));
 	}
 
 	/**
@@ -260,10 +260,10 @@ public class TestSerialPortSettings {
 	public void create_withAllValuesSet() {
 		//@formatter:off
 		SerialPortSettings result = SerialPortSettings.from9600and8N1()
-													  .set(DataBits_5)
-													  .set(StopBits_1_5)
-													  .set(Parity_Space)
-													  .set(FlowControl_RTSCTS_In)
+													  .set(DATABITS_5)
+													  .set(STOPBITS_1_5)
+													  .set(PARITY_SPACE)
+													  .set(FLOWCONTROL_RTSCTS_IN)
 													  .rts(false)
 													  .dtr(false)
 													  .create();
@@ -271,10 +271,10 @@ public class TestSerialPortSettings {
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result.getBauds(), is(9600));
-		assertThat(result.getDataBits(), is(DataBits_5));
-		assertThat(result.getStopBits(), is(StopBits_1_5));
-		assertThat(result.getParity(), is(Parity_Space));
-		assertThat(result.getFlowControl(), is(FlowControl_RTSCTS_In));
+		assertThat(result.getDataBits(), is(DATABITS_5));
+		assertThat(result.getStopBits(), is(STOPBITS_1_5));
+		assertThat(result.getParity(), is(PARITY_SPACE));
+		assertThat(result.getFlowControl(), is(FLOWCONTROL_RTSCTS_IN));
 		assertThat(result.isRTS(), is(false));
 		assertThat(result.isDTR(), is(false));
 	}

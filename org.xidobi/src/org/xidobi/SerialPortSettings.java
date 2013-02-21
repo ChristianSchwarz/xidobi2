@@ -15,10 +15,10 @@
  */
 package org.xidobi;
 
-import static org.xidobi.DataBits.DataBits_8;
-import static org.xidobi.FlowControl.FlowControl_None;
-import static org.xidobi.Parity.Parity_None;
-import static org.xidobi.StopBits.StopBits_1;
+import static org.xidobi.DataBits.DATABITS_8;
+import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.StopBits.STOPBITS_1;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
@@ -66,14 +66,14 @@ public class SerialPortSettings {
 
 		/** the baud rate */
 		private int bauds = 9600;
-		/** the data bits, default is {@link DataBits#DataBits_8} */
-		private DataBits dataBits = DataBits_8;
-		/** the stop bits, default is {@link StopBits#StopBits_1} */
-		private StopBits stopBits = StopBits_1;
-		/** the parity, default is {@link Parity#Parity_None} */
-		private Parity parity = Parity_None;
-		/** the flow control, default is {@link FlowControl#FlowControl_None} */
-		private FlowControl flowControl = FlowControl_None;
+		/** the data bits, default is {@link DataBits#DATABITS_8} */
+		private DataBits dataBits = DATABITS_8;
+		/** the stop bits, default is {@link StopBits#STOPBITS_1} */
+		private StopBits stopBits = STOPBITS_1;
+		/** the parity, default is {@link Parity#PARITY_NONE} */
+		private Parity parity = PARITY_NONE;
+		/** the flow control, default is {@link FlowControl#FLOWCONTROL_NONE} */
+		private FlowControl flowControl = FLOWCONTROL_NONE;
 		/** the RTS (Request To Send) */
 		private boolean rts = true;
 		/** the DRT (Data Terminal Ready) */

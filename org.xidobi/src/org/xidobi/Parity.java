@@ -36,18 +36,18 @@ package org.xidobi;
 public enum Parity {
 
 	/** no parity bit is sent at all */
-	Parity_None,
+	PARITY_NONE,
 
 	/** ensures that at least one state transition occurs in each character */
-	Parity_Odd,
+	PARITY_ODD,
 
-	/** TODO describe value */
-	Parity_Even,
+	/** ensures that at least one state transition occurs in each even character */
+	PARITY_EVEN,
 
 	/** the parity bit is always set to the mark signal condition (logical 1) */
-	Parity_Mark,
+	PARITY_MARK,
 
 	/** space parity always sends the parity bit in the space signal condition */
-	Parity_Space
+	PARITY_SPACE
 
 }

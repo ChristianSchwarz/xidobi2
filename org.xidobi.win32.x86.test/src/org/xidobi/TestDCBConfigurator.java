@@ -19,26 +19,26 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.DataBits.DataBits_5;
-import static org.xidobi.DataBits.DataBits_6;
-import static org.xidobi.DataBits.DataBits_7;
-import static org.xidobi.DataBits.DataBits_8;
-import static org.xidobi.DataBits.DataBits_9;
-import static org.xidobi.FlowControl.FlowControl_None;
-import static org.xidobi.FlowControl.FlowControl_RTSCTS_In;
-import static org.xidobi.FlowControl.FlowControl_RTSCTS_In_Out;
-import static org.xidobi.FlowControl.FlowControl_RTSCTS_Out;
-import static org.xidobi.FlowControl.FlowControl_XONXOFF_In;
-import static org.xidobi.FlowControl.FlowControl_XONXOFF_In_Out;
-import static org.xidobi.FlowControl.FlowControl_XONXOFF_Out;
-import static org.xidobi.Parity.Parity_Even;
-import static org.xidobi.Parity.Parity_Mark;
-import static org.xidobi.Parity.Parity_None;
-import static org.xidobi.Parity.Parity_Odd;
-import static org.xidobi.Parity.Parity_Space;
-import static org.xidobi.StopBits.StopBits_1;
-import static org.xidobi.StopBits.StopBits_1_5;
-import static org.xidobi.StopBits.StopBits_2;
+import static org.xidobi.DataBits.DATABITS_5;
+import static org.xidobi.DataBits.DATABITS_6;
+import static org.xidobi.DataBits.DATABITS_7;
+import static org.xidobi.DataBits.DATABITS_8;
+import static org.xidobi.DataBits.DATABITS_9;
+import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
+import static org.xidobi.Parity.PARITY_EVEN;
+import static org.xidobi.Parity.PARITY_MARK;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.Parity.PARITY_ODD;
+import static org.xidobi.Parity.PARITY_SPACE;
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
 import static org.xidobi.structs.DCB.EVENPARITY;
 import static org.xidobi.structs.DCB.MARKPARITY;
 import static org.xidobi.structs.DCB.NOPARITY;
@@ -62,10 +62,10 @@ import org.xidobi.structs.DCB;
 public class TestDCBConfigurator {
 
 	private final static int IGNORE_BAUDS = 9600;
-	private final static DataBits IGNORE_DATABITS = DataBits_9;
-	private final static StopBits IGNORE_STOPBITS = StopBits_1_5;
-	private final static Parity IGNORE_PARITY = Parity_None;
-	private final static FlowControl IGNORE_FLOWCONTROL = FlowControl_None;
+	private final static DataBits IGNORE_DATABITS = DATABITS_9;
+	private final static StopBits IGNORE_STOPBITS = STOPBITS_1_5;
+	private final static Parity IGNORE_PARITY = PARITY_NONE;
+	private final static FlowControl IGNORE_FLOWCONTROL = FLOWCONTROL_NONE;
 	private final static boolean IGNORE = true;
 
 	/** Class under test */
@@ -115,7 +115,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_with5dataBitsAnd2stopBits() {
-		mockSerialPortSettings(9600, DataBits_5, StopBits_2, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(9600, DATABITS_5, STOPBITS_2, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Invalid serial port settings! The use of 2 stop bits with 5 data bits is an invalid combination.");
@@ -132,7 +132,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_with6dataBitsAnd15stopBits() {
-		mockSerialPortSettings(9600, DataBits_6, StopBits_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(9600, DATABITS_6, STOPBITS_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Invalid serial port settings! The use of 1.5 stop bits with 6, 7 or 8 data bits is an invalid combination.");
@@ -149,7 +149,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_with7dataBitsAnd15stopBits() {
-		mockSerialPortSettings(9600, DataBits_7, StopBits_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(9600, DATABITS_7, STOPBITS_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Invalid serial port settings! The use of 1.5 stop bits with 6, 7 or 8 data bits is an invalid combination.");
@@ -166,7 +166,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_with8dataBitsAnd15stopBits() {
-		mockSerialPortSettings(9600, DataBits_8, StopBits_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(9600, DATABITS_8, STOPBITS_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Invalid serial port settings! The use of 1.5 stop bits with 6, 7 or 8 data bits is an invalid combination.");
@@ -183,7 +183,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withInvalid() {
-		mockSerialPortSettings(9600, DataBits_5, StopBits_2, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(9600, DATABITS_5, STOPBITS_2, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Invalid serial port settings! The use of 2 stop bits with 5 data bits is an invalid combination.");
@@ -208,7 +208,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withDataBits5() {
-		mockSerialPortSettings(IGNORE_BAUDS, DataBits_5, IGNORE_STOPBITS, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, DATABITS_5, IGNORE_STOPBITS, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -220,7 +220,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withDataBits6() {
-		mockSerialPortSettings(IGNORE_BAUDS, DataBits_6, StopBits_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, DATABITS_6, STOPBITS_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -232,7 +232,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withDataBits7() {
-		mockSerialPortSettings(IGNORE_BAUDS, DataBits_7, StopBits_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, DATABITS_7, STOPBITS_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -244,7 +244,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withDataBits8() {
-		mockSerialPortSettings(IGNORE_BAUDS, DataBits_8, StopBits_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, DATABITS_8, STOPBITS_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -256,7 +256,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withDataBits9() {
-		mockSerialPortSettings(IGNORE_BAUDS, DataBits_9, IGNORE_STOPBITS, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, DATABITS_9, IGNORE_STOPBITS, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -268,7 +268,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withStopBits1() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, StopBits_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, STOPBITS_1, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -280,7 +280,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withStopBits1_5() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, StopBits_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, STOPBITS_1_5, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -292,7 +292,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withStopBits2() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, StopBits_2, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, STOPBITS_2, IGNORE_PARITY, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -304,7 +304,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withParityNone() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, Parity_None, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, PARITY_NONE, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -316,7 +316,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withParityOdd() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, Parity_Odd, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, PARITY_ODD, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -328,7 +328,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withParityEven() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, Parity_Even, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, PARITY_EVEN, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -340,7 +340,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withParityMark() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, Parity_Mark, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, PARITY_MARK, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -352,7 +352,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withParitySpace() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, Parity_Space, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, PARITY_SPACE, IGNORE_FLOWCONTROL, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -365,7 +365,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withFlowControlNone() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FlowControl_None, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FLOWCONTROL_NONE, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -381,7 +381,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withFlowControlRTSCTSIn() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FlowControl_RTSCTS_In, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FLOWCONTROL_RTSCTS_IN, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -397,7 +397,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withFlowControlRTSCTSOut() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FlowControl_RTSCTS_Out, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FLOWCONTROL_RTSCTS_OUT, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -413,7 +413,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withFlowControlRTSCTSInOut() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FlowControl_RTSCTS_In_Out, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FLOWCONTROL_RTSCTS_IN_OUT, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -429,7 +429,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withFlowControlXONXOFFIn() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FlowControl_XONXOFF_In, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FLOWCONTROL_XONXOFF_IN, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -445,7 +445,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withFlowControlXONXOFFOut() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FlowControl_XONXOFF_Out, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FLOWCONTROL_XONXOFF_OUT, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 
@@ -461,7 +461,7 @@ public class TestDCBConfigurator {
 	 */
 	@Test
 	public void configureDCB_withFlowControlXONXOFFInOut() {
-		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FlowControl_XONXOFF_In_Out, IGNORE, IGNORE);
+		mockSerialPortSettings(IGNORE_BAUDS, IGNORE_DATABITS, IGNORE_STOPBITS, IGNORE_PARITY, FLOWCONTROL_XONXOFF_IN_OUT, IGNORE, IGNORE);
 
 		configurator.configureDCB(dcb, settings);
 

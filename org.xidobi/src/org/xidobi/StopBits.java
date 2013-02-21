@@ -32,12 +32,12 @@ package org.xidobi;
 public enum StopBits {
 
 	/** one stop bit */
-	StopBits_1,
+	STOPBITS_1,
 
 	/** one-and-one half stop bits */
-	StopBits_1_5,
+	STOPBITS_1_5,
 
 	/** two stop bits */
-	StopBits_2
+	STOPBITS_2
 
 }

@@ -37,24 +37,24 @@ package org.xidobi;
 public enum FlowControl {
 
 	/** no flow control */
-	FlowControl_None,
+	FLOWCONTROL_NONE,
 
 	/** RTS/CTS In */
-	FlowControl_RTSCTS_In,
+	FLOWCONTROL_RTSCTS_IN,
 
 	/** RTS/CTS Out */
-	FlowControl_RTSCTS_Out,
+	FLOWCONTROL_RTSCTS_OUT,
 
 	/** RTS/CTS In & Out */
-	FlowControl_RTSCTS_In_Out,
+	FLOWCONTROL_RTSCTS_IN_OUT,
 
 	/** XON/XOFF In */
-	FlowControl_XONXOFF_In,
+	FLOWCONTROL_XONXOFF_IN,
 
 	/** XON/XOFF Out */
-	FlowControl_XONXOFF_Out,
+	FLOWCONTROL_XONXOFF_OUT,
 
 	/** XON/XOFF In & Out */
-	FlowControl_XONXOFF_In_Out;
+	FLOWCONTROL_XONXOFF_IN_OUT;
 
 }
