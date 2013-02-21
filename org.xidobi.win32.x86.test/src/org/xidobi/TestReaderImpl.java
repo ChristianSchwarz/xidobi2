@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
@@ -130,6 +131,40 @@ public class TestReaderImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> returns
+	 * <code>false</code> and the last error is <code>ERROR_ACCESS_DENIED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventFailsWithERROR_ACCESS_DENIED() throws IOException {
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_ACCESS_DENIED);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> returns
+	 * <code>false</code> and the last error is <code>ERROR_OPERATION_ABORTED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventFailsWithERROR_OPERATION_ABORTED() throws IOException {
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_OPERATION_ABORTED);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
 
 		reader.read();
 	}
@@ -257,6 +292,27 @@ public class TestReaderImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
+	 * called, the operation is pending, <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_FAILED</code> and the last error code is <code>ERROR_ACCESS_DENIED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingFailedWithERROR_ACCESS_DENIED() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_ACCESS_DENIED);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		// @formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
 
 		reader.read();
 	}
@@ -436,6 +492,50 @@ public class TestReaderImpl {
 	}
 
 	/**
+	 * Verifies that an {@link IOException} is thrown, when <code>ReadFile(...)</code> returns
+	 * <code>false</code> and the last error code is <code>ERROR_ACCESS_DENIED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFileFailsERROR_ACCESS_DENIED() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_ACCESS_DENIED);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when <code>ReadFile(...)</code> returns
+	 * <code>false</code> and the last error code is <code>ERROR_OPERATION_ABORTED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFileFailsERROR_OPERATION_ABORTED() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_OPERATION_ABORTED);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+
+		reader.read();
+	}
+
+	/**
 	 * Verifies that a {@link NativeCodeException} is thrown, when <code>ReadFile(...)</code> is
 	 * pending and <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code>.
 	 * 
@@ -478,6 +578,54 @@ public class TestReaderImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>ReadFile(...)</code> is pending and
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the last error is
+	 * <code>ERROR_ACCESS_DENIED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingWaitFailsWithERROR_ACCESS_DENIED() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_ACCESS_DENIED);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>ReadFile(...)</code> is pending and
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the last error is
+	 * <code>ERROR_OPERATION_ABORTED</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingWaitFailsWithERROR_OPERATION_ABORTED() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
 
 		reader.read();
 	}
