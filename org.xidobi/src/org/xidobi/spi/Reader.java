@@ -39,7 +39,8 @@ public interface Reader extends IoOperation {
 	 * 
 	 * @return the byte's read from the port, never <code>null</code>
 	 * @throws IOException
-	 *             if the port was closed during the operation
+	 *             if this port was closed or an unexpected I/O error occurs or the thread was
+	 *             interrupted
 	 */
 	@Nonnull
 	byte[] read() throws IOException;

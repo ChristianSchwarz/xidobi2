@@ -15,7 +15,7 @@
  */
 package org.xidobi.integration;
 
-import static org.xidobi.SerialPortSettings.from9600_8N1;
+import static org.xidobi.SerialPortSettings.from9600and8N1;
 
 import org.junit.Test;
 import org.xidobi.OS;
@@ -46,7 +46,7 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 
 		SerialPort serialPort = finder.get(getAvailableSerialPort());
 
-		SerialConnection connection = serialPort.open(from9600_8N1().create());
+		SerialConnection connection = serialPort.open(from9600and8N1().create());
 		connection.close();
 	}
 
@@ -61,7 +61,7 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 
 		SerialPort serialPort = finder.get(getAvailableSerialPort());
 
-		SerialConnection connection = serialPort.open(from9600_8N1().create());
+		SerialConnection connection = serialPort.open(from9600and8N1().create());
 		connection.write("This is just a test".getBytes());
 		connection.close();
 	}
@@ -77,7 +77,7 @@ public class TestOpenWriteReadClose extends AbstractIntegrationTest {
 
 		SerialPort serialPort = finder.get(getAvailableSerialPort());
 
-		final SerialConnection connection = serialPort.open(from9600_8N1().create());
+		final SerialConnection connection = serialPort.open(from9600and8N1().create());
 		new Thread(new Runnable() {
 
 			@Override

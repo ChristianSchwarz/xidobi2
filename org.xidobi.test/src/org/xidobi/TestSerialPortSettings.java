@@ -46,7 +46,7 @@ public class TestSerialPortSettings {
 	@Before
 	@SuppressWarnings("javadoc")
 	public void setUp() {
-		builder = SerialPortSettings.from9600_8N1();
+		builder = SerialPortSettings.from9600and8N1();
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void bauds_withNegativeBaudRate() {
-		SerialPortSettings.from9600_8N1().bauds(-1);
+		SerialPortSettings.from9600and8N1().bauds(-1);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void bauds_withZeroBaudRate() {
-		SerialPortSettings.from9600_8N1().bauds(0);
+		SerialPortSettings.from9600and8N1().bauds(0);
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_unspecified() {
-		SerialPortSettings result = SerialPortSettings.from9600_8N1().create();
+		SerialPortSettings result = SerialPortSettings.from9600and8N1().create();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result.getBauds(), is(9600));
@@ -259,7 +259,7 @@ public class TestSerialPortSettings {
 	@Test
 	public void create_withAllValuesSet() {
 		//@formatter:off
-		SerialPortSettings result = SerialPortSettings.from9600_8N1()
+		SerialPortSettings result = SerialPortSettings.from9600and8N1()
 													  .dataBits(DataBits_5)
 													  .stopBits(StopBits_1_5)
 													  .parity(Parity_Space)

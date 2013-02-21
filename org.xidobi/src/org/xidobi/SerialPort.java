@@ -45,7 +45,7 @@ public interface SerialPort {
 	SerialConnection open(@Nonnull SerialPortSettings settings) throws IOException;
 
 	/**
-	 * Returns the name of this port
+	 * Returns the name of this port, for example "COM1".
 	 * 
 	 * @return the port name, not <code>null</code>
 	 */

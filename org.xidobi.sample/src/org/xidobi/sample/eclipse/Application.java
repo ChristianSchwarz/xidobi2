@@ -20,7 +20,7 @@ import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.xidobi.SerialPortSettings.from9600_8N1;
+import static org.xidobi.SerialPortSettings.from9600and8N1;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class Application implements IApplication {
 	/** Connects the serial port an starts write and read tests. */
 	private ScheduledExecutorService connect(SerialPort port) throws IOException {
 
-		SerialConnection connection = port.open(from9600_8N1().create());
+		SerialConnection connection = port.open(from9600and8N1().create());
 
 		System.out.println("\nConnected to " + port.getPortName() + ".");
 

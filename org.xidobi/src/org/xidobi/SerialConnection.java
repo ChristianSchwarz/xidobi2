@@ -46,7 +46,8 @@ public interface SerialConnection extends Closeable {
 	 * 
 	 * @return the received <code>byte[]</code>, never <code>null</code>
 	 * @throws IOException
-	 *             if this port was closed or an unexpected I/O error occurs.
+	 *             if this port was closed or an unexpected I/O error occurs or the thread was
+	 *             interrupted
 	 */
 	@Nonnull
 	byte[] read() throws IOException;

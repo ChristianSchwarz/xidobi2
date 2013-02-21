@@ -94,7 +94,6 @@ public class SerialPortSettings {
 			checkArgument(bauds > 0, "bauds", "Baud rate must be greater than 0!");
 			this.bauds = bauds;
 			return this;
-
 		}
 
 		/**
@@ -251,7 +250,7 @@ public class SerialPortSettings {
 	 * @return a new builder for the serial port settings, never <code>null</code>
 	 */
 	@Nonnull
-	public static SerialPortSettingsBuilder from9600_8N1() {
+	public static SerialPortSettingsBuilder from9600and8N1() {
 		return new SerialPortSettingsBuilder();
 	}
 
