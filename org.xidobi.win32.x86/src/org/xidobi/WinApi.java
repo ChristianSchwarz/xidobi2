@@ -94,9 +94,7 @@ public interface WinApi {
 	int ERROR_MORE_DATA = 234;
 	/** No more data is available. Indicates in an enumeration that no more elements are available. */
 	int ERROR_NO_MORE_ITEMS = 259;
-	/**
-	 * The I/O operation has been aborted because of either a thread exit or an application request.
-	 */
+	/** The operation has been aborted because of either a thread exit or an application request. */
 	int ERROR_OPERATION_ABORTED = 995;
 	/** Overlapped I/O event is not in a signaled state. */
 	int ERROR_IO_INCOMPLETE = 996;

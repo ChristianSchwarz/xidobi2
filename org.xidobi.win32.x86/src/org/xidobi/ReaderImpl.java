@@ -230,8 +230,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		} finally {
 			if (readBuffer != null) {
 				readBuffer.dispose();
-			}
-		}
+		}}
 		//@formatter:on
 	}
 
