@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static java.lang.Thread.interrupted;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
@@ -24,6 +25,7 @@ import static org.xidobi.WinApi.WAIT_TIMEOUT;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 
 import javax.annotation.Nonnull;
 
@@ -83,6 +85,10 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 
 			// Repeat until data is available:
 			while (true) {
+
+				// check if the current thread is interrupted
+				if (interrupted())
+					throw new InterruptedIOException("The thread for the read operation is interrupted!");
 
 				// wait for some data to arrive
 				awaitArrivalOfData();
