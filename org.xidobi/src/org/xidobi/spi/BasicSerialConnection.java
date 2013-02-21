@@ -185,8 +185,11 @@ public class BasicSerialConnection implements SerialConnection {
 	 * connection to the serial port is closed.
 	 * <p>
 	 * <b>IMPORTANT:</b> Don't call this method yourself!
+	 * 
+	 * @throws IOException
+	 *             if some I/O error uccurs
 	 */
-	protected void closeInternal() {}
+	protected void closeInternal() throws IOException {}
 
 	/** {@inheritDoc} */
 	public final boolean isClosed() {

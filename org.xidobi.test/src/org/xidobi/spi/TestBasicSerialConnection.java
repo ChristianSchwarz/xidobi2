@@ -433,7 +433,7 @@ public class TestBasicSerialConnection {
 		}
 
 		@Override
-		protected void closeInternal() {
+		protected void closeInternal() throws IOException {
 			portInternal.closeInternal();
 		}
 	}
