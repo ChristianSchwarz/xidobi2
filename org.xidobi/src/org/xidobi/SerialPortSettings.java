@@ -107,7 +107,7 @@ public class SerialPortSettings {
 		 * @return {@code this}
 		 */
 		@Nonnull
-		public SerialPortSettingsBuilder dataBits(@Nonnull DataBits dataBits) {
+		public SerialPortSettingsBuilder set(@Nonnull DataBits dataBits) {
 			this.dataBits = checkArgumentNotNull(dataBits, "dataBits");
 			return this;
 		}
@@ -123,7 +123,7 @@ public class SerialPortSettings {
 		 * @return {@code this}
 		 */
 		@Nonnull
-		public SerialPortSettingsBuilder stopBits(@Nonnull StopBits stopBits) {
+		public SerialPortSettingsBuilder set(@Nonnull StopBits stopBits) {
 			this.stopBits = checkArgumentNotNull(stopBits, "stopBits");
 			return this;
 		}
@@ -136,7 +136,7 @@ public class SerialPortSettings {
 		 * @return {@code this}
 		 */
 		@Nonnull
-		public SerialPortSettingsBuilder parity(@Nonnull Parity parity) {
+		public SerialPortSettingsBuilder set(@Nonnull Parity parity) {
 			this.parity = checkArgumentNotNull(parity, "parity");
 			return this;
 		}
@@ -149,7 +149,7 @@ public class SerialPortSettings {
 		 * @return {@code this}
 		 */
 		@Nonnull
-		public SerialPortSettingsBuilder flowControl(@Nonnull FlowControl flowControl) {
+		public SerialPortSettingsBuilder set(@Nonnull FlowControl flowControl) {
 			this.flowControl = checkArgumentNotNull(flowControl, "flowControl");
 			return this;
 		}

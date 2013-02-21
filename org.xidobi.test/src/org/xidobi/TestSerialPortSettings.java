@@ -131,7 +131,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withDataBits() {
-		SerialPortSettings result = builder.dataBits(DataBits_6).create();
+		SerialPortSettings result = builder.set(DataBits_6).create();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result.getDataBits(), is(DataBits_6));
@@ -143,7 +143,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void create_withNullDataBits() {
-		builder.dataBits(null);
+		builder.set((DataBits) null);
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withStopBits() {
-		SerialPortSettings result = builder.stopBits(StopBits_2).create();
+		SerialPortSettings result = builder.set(StopBits_2).create();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result.getStopBits(), is(StopBits_2));
@@ -164,7 +164,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void create_withNullStopBits() {
-		builder.stopBits(null);
+		builder.set((StopBits) null);
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withParity() {
-		SerialPortSettings result = builder.parity(Parity_Odd).create();
+		SerialPortSettings result = builder.set(Parity_Odd).create();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result.getParity(), is(Parity_Odd));
@@ -185,7 +185,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void create_withNullParity() {
-		builder.parity(null);
+		builder.set((Parity) null);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test
 	public void create_withFlowControl() {
-		SerialPortSettings result = builder.flowControl(FlowControl_RTSCTS_In).create();
+		SerialPortSettings result = builder.set(FlowControl_RTSCTS_In).create();
 
 		assertThat(result, is(notNullValue()));
 		assertThat(result.getFlowControl(), is(FlowControl_RTSCTS_In));
@@ -206,7 +206,7 @@ public class TestSerialPortSettings {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void create_withNullFlowControl() {
-		builder.flowControl(null);
+		builder.set((FlowControl) null);
 	}
 
 	/**
@@ -260,10 +260,10 @@ public class TestSerialPortSettings {
 	public void create_withAllValuesSet() {
 		//@formatter:off
 		SerialPortSettings result = SerialPortSettings.from9600and8N1()
-													  .dataBits(DataBits_5)
-													  .stopBits(StopBits_1_5)
-													  .parity(Parity_Space)
-													  .flowControl(FlowControl_RTSCTS_In)
+													  .set(DataBits_5)
+													  .set(StopBits_1_5)
+													  .set(Parity_Space)
+													  .set(FlowControl_RTSCTS_In)
 													  .rts(false)
 													  .dtr(false)
 													  .create();
