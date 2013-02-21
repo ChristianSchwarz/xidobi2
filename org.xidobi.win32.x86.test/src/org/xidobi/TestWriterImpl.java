@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
+import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
 import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
@@ -209,6 +210,23 @@ public class TestWriterImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+
+		writer.write(DATA);
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WriteFile(...)</code> returns
+	 * <code>false</code> and the last error code is not <code>ERROR_GEN_FAILURE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WriteFileFailsWithERROR_GEN_FAILURE() throws IOException {
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_GEN_FAILURE);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		writer.write(DATA);
 	}
@@ -403,6 +421,26 @@ public class TestWriterImpl {
 	}
 
 	/**
+	 * Verifies that an {@link IOException} is thrown, when the
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the last error
+	 * code is <code>ERROR_GEN_FAILURE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_WaitForSingleObjectFailsWithERROR_GEN_FAILURE() throws IOException {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_GEN_FAILURE);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+
+		writer.write(DATA);
+	}
+
+	/**
 	 * Verifies that an {@link NativeCodeException} is thrown, when the
 	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code>.
 	 * 
@@ -499,6 +537,27 @@ public class TestWriterImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+
+		writer.write(DATA);
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when the
+	 * <code>GetOverlappedResult(...)</code> returns <code>false</code> and the last error is
+	 * <code>ERROR_GEN_FAILURE</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void write_GetOverlappedResultFailsWithERROR_GEN_FAILURE() throws IOException {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_GEN_FAILURE);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		writer.write(DATA);
 	}

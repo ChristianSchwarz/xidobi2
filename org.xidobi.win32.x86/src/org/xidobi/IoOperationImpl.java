@@ -16,6 +16,7 @@
 package org.xidobi;
 
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
+import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
@@ -160,6 +161,8 @@ public abstract class IoOperationImpl implements IoOperation {
 				throw portClosedException("I/O operation failed, because access denied.");
 			case ERROR_OPERATION_ABORTED:
 				throw portClosedException("I/O operation has been aborted.");
+			case ERROR_GEN_FAILURE:
+				throw portClosedException("I/O operation failed, because a device attached to the system is not functioning.");
 			default:
 				throw newNativeCodeException(os, nativeMethodName + " failed unexpected!", errorCode);
 		}

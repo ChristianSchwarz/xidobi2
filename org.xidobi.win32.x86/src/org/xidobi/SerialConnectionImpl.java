@@ -18,6 +18,7 @@ package org.xidobi;
 import static java.lang.Thread.sleep;
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
+import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.GENERIC_READ;
@@ -177,7 +178,8 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	 * following:
 	 * <ul>
 	 * <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE}
-	 * <li>{@link WinApi#ERROR_OPERATION_ABORTED ERROR_OPERATION_ABORTED}
+	 * <li>{@link WinApi#ERROR_ACCESS_DENIED ERROR_ACCESS_DENIED}
+	 * <li>{@link WinApi#ERROR_GEN_FAILURE ERROR_GEN_FAILURE}
 	 * </ul>
 	 * 
 	 * @param nativeMethodName
@@ -191,6 +193,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 		checkArgumentNotNull(nativeMethodName, "nativeMethodName");
 		switch (errorCode) {
 			case ERROR_INVALID_HANDLE:
+			case ERROR_GEN_FAILURE:
 			case ERROR_ACCESS_DENIED:
 				return;
 			default:

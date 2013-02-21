@@ -106,7 +106,8 @@ public class Application implements IApplication {
 					}
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					if (!(e instanceof IOException))
+						e.printStackTrace();
 					ex.shutdownNow();
 					throw new RuntimeException(e);
 				}
@@ -130,7 +131,8 @@ public class Application implements IApplication {
 					}
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					if (!(e instanceof IOException))
+						e.printStackTrace();
 					ex.shutdownNow();
 					throw new RuntimeException(e);
 				}
@@ -151,7 +153,8 @@ public class Application implements IApplication {
 					}
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					if (!(e instanceof IOException))
+						e.printStackTrace();
 					throw new RuntimeException(e);
 				}
 			}
