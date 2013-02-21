@@ -18,6 +18,7 @@ package org.xidobi;
 import static java.lang.Thread.sleep;
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.GENERIC_READ;
 import static org.xidobi.WinApi.GENERIC_WRITE;
@@ -27,11 +28,13 @@ import static org.xidobi.WinApi.PURGE_RXABORT;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.PURGE_TXABORT;
 import static org.xidobi.WinApi.PURGE_TXCLEAR;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import javax.annotation.Nonnull;
 
 import org.xidobi.spi.BasicSerialConnection;
+import org.xidobi.spi.NativeCodeException;
 
 /**
  * Implementation of the interface {@link SerialConnection} for Windows (32-bit) on x86 platforms.
@@ -92,7 +95,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	private void cancelIO() {
 		boolean cancelIoResult = os.CancelIo(handle);
 		if (!cancelIoResult)
-			throw newNativeCodeException(os, "CancelIo failed unexpected!", os.GetLastError());
+			handleNativeError("CancelIo", os.GetLastError());
 	}
 
 	/**
@@ -102,7 +105,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	private void purgeComm() {
 		boolean purgeCommResult = os.PurgeComm(handle, PURGE_RXABORT | PURGE_TXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
 		if (!purgeCommResult)
-			throw newNativeCodeException(os, "PurgeComm failed unexpected!", os.GetLastError());
+			handleNativeError("PurgeComm", os.GetLastError());
 	}
 
 	/**
@@ -114,7 +117,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	private void releaseWaitCommEvent() {
 		boolean setCommMaskResult = os.SetCommMask(handle, EV_RXCHAR);
 		if (!setCommMaskResult)
-			throw newNativeCodeException(os, "SetCommMask failed unexpected!", os.GetLastError());
+			handleNativeError("SetCommMask", os.GetLastError());
 	}
 
 	/** Closes the handle of the serial port. */
@@ -164,6 +167,33 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 		}
 		catch (InterruptedException e) {
 			// TODO Do we really wan't to ignore this exception?
+		}
+	}
+
+	/**
+	 * Handles the native error.
+	 * <p>
+	 * This method throws a {@link NativeCodeException}, if the given error code is none of the
+	 * following:
+	 * <ul>
+	 * <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE}
+	 * <li>{@link WinApi#ERROR_OPERATION_ABORTED ERROR_OPERATION_ABORTED}
+	 * </ul>
+	 * 
+	 * @param nativeMethodName
+	 *            the name of the native method, must not be <code>null</code>
+	 * @param errorCode
+	 *            the last error code
+	 * @exception NativeCodeException
+	 *                for all unexpected error codes
+	 */
+	protected final void handleNativeError(@Nonnull String nativeMethodName, int errorCode) {
+		checkArgumentNotNull(nativeMethodName, "nativeMethodName");
+		switch (errorCode) {
+			case ERROR_INVALID_HANDLE:
+				return;
+			default:
+				throw newNativeCodeException(os, nativeMethodName + " failed unexpected!", errorCode);
 		}
 	}
 }
