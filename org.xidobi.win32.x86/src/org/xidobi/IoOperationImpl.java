@@ -122,10 +122,10 @@ public abstract class IoOperationImpl implements IoOperation {
 	}
 
 	/** Resets the overlapped event handle */
-	protected final void resetOverlappedEventHandle() {
+	protected final void resetOverlappedEventHandle() throws IOException {
 		boolean resetEventResult = os.ResetEvent(overlapped.hEvent);
 		if (!resetEventResult)
-			throw newNativeCodeException(os, "ResetEvent failed unexpected!", os.GetLastError());
+			handleNativeError("ResetEvent", os.GetLastError());
 	}
 
 	/**
