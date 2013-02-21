@@ -86,6 +86,8 @@ public interface WinApi {
 	int ERROR_ACCESS_DENIED = 5;
 	/** The handle is invalid. */
 	int ERROR_INVALID_HANDLE = 6;
+	/** The device does not recognize the command. */
+	int ERROR_BAD_COMMAND = 22;
 	/** A device attached to the system is not functioning. */
 	int ERROR_GEN_FAILURE = 31;
 	/** More data is available. */

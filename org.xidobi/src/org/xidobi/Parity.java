@@ -29,6 +29,7 @@ package org.xidobi;
  * <li>Odd</li>
  * <li>Even</li>
  * <li>Mark</li>
+ * <li>Space</li>
  * </ul>
  * 
  * @author Tobias Breﬂler
