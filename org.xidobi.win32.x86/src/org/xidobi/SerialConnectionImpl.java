@@ -32,6 +32,9 @@ import static org.xidobi.WinApi.PURGE_TXCLEAR;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+
 import javax.annotation.Nonnull;
 
 import org.xidobi.spi.BasicSerialConnection;
@@ -76,7 +79,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	}
 
 	@Override
-	protected void closeInternal() {
+	protected void closeInternal() throws IOException {
 		//@formatter:off
 		try {
 			cancelIO();
@@ -129,7 +132,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	}
 
 	/** Awaits the termination of all pending I/O operations. */
-	private void awaitCloseTermination() {
+	private void awaitCloseTermination() throws IOException {
 
 		String portName = getPort().getPortName();
 
@@ -162,12 +165,12 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	}
 
 	/** Invokes <code>Thread.sleep(int)</code> uninterruptibly. */
-	private void sleepUninterruptibly(int duration) {
+	private void sleepUninterruptibly(int duration) throws IOException {
 		try {
 			sleep(duration);
 		}
 		catch (InterruptedException e) {
-			// TODO Do we really wan't to ignore this exception?
+			throw new InterruptedIOException(e.getMessage());
 		}
 	}
 
