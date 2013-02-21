@@ -191,6 +191,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 		checkArgumentNotNull(nativeMethodName, "nativeMethodName");
 		switch (errorCode) {
 			case ERROR_INVALID_HANDLE:
+			case ERROR_ACCESS_DENIED:
 				return;
 			default:
 				throw newNativeCodeException(os, nativeMethodName + " failed unexpected!", errorCode);

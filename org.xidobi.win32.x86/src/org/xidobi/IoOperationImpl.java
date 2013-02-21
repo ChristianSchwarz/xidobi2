@@ -15,6 +15,7 @@
  */
 package org.xidobi;
 
+import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
@@ -155,6 +156,8 @@ public abstract class IoOperationImpl implements IoOperation {
 		switch (errorCode) {
 			case ERROR_INVALID_HANDLE:
 				throw portClosedException("I/O operation failed, because the handle is invalid.");
+			case ERROR_ACCESS_DENIED:
+				throw portClosedException("I/O operation failed, because access denied.");
 			case ERROR_OPERATION_ABORTED:
 				throw portClosedException("I/O operation has been aborted.");
 			default:
