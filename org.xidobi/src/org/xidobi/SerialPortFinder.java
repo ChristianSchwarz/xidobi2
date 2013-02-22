@@ -22,10 +22,14 @@ import javax.annotation.Nonnull;
 
 /**
  * Interface for classes which can find serial ports that are installed on the system.
+ * <b>IMPORTANT</b> Platform integrators must provide an implementation of this interface! The
+ * implementing class must be named {@code org.xidobi.SerialPortFinderImpl}, in order to be
+ * instantiable for the {@link SerialPortProvider}!
  * 
  * @author Tobias Breﬂler
  * 
  * @see SerialPort
+ * @see SerialPortProvider
  */
 public interface SerialPortFinder {
 
