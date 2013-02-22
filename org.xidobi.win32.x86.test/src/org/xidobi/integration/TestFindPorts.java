@@ -44,7 +44,7 @@ public class TestFindPorts extends AbstractIntegrationTest {
 	 * Verifies that {@link SerialPortFinderImpl#getAll()} never returns a <code>null</code> value
 	 * and never throws an exception.
 	 */
-	@Test(timeout = 1500)
+	@Test(timeout = 2500)
 	public void findSerialPortsLoop() {
 		for (int i = 0; i < 10_000; i++) {
 			SerialPortFinderImpl finder = new SerialPortFinderImpl(OS);
