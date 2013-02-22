@@ -40,6 +40,13 @@ import org.xidobi.structs.OVERLAPPED;
 
 /**
  * Abstract class for I/O operations.
+ * <p>
+ * Subclasses are:
+ * 
+ * <ul>
+ * <li>{@link ReaderImpl} for read operations</li>
+ * <li>{@link WriterImpl} for write operations</li>
+ * </ul>
  * 
  * @author Christian Schwarz
  * @author Tobias Breﬂler
@@ -51,8 +58,10 @@ import org.xidobi.structs.OVERLAPPED;
 public abstract class IoOperationImpl implements IoOperation {
 
 	/** the serial port, never <code>null</code> */
+	@Nonnull
 	protected final SerialPort port;
 	/** the native Win32-API, never <code>null</code> */
+	@Nonnull
 	protected final WinApi os;
 	/** the native handle of the serial port */
 	protected final int handle;
@@ -129,9 +138,8 @@ public abstract class IoOperationImpl implements IoOperation {
 	}
 
 	/**
-	 * Handles the native error.
-	 * <p>
-	 * This method throws an {@link IOException}, if the given error code is one of the following:
+	 * Handles the native error and throws an {@link IOException}, if the given error code is one of
+	 * the following:
 	 * <ul>
 	 * <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE}
 	 * <li>{@link WinApi#ERROR_OPERATION_ABORTED ERROR_OPERATION_ABORTED}
@@ -149,8 +157,15 @@ public abstract class IoOperationImpl implements IoOperation {
 	 * @throws IOException
 	 *             if the error code is one of the following:
 	 *             <ul>
-	 *             <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE} <li>
+	 *             <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE}
+	 *             <li>
 	 *             {@link WinApi#ERROR_OPERATION_ABORTED ERROR_OPERATION_ABORTED}
+	 *             <li>
+	 *             {@link WinApi#ERROR_ACCESS_DENIED ERROR_ACCESS_DENIED}
+	 *             <li>
+	 *             {@link WinApi#ERROR_GEN_FAILURE ERROR_GEN_FAILURE}
+	 *             <li>
+	 *             {@link WinApi#ERROR_BAD_COMMAND ERROR_BAD_COMMAND}
 	 *             </ul>
 	 * @exception NativeCodeException
 	 *                for all unexpected error codes

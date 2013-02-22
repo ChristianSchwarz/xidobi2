@@ -37,7 +37,8 @@ import javax.annotation.Nonnull;
 import org.xidobi.structs.DCB;
 
 /**
- * Configures the native DCB "struct" with the values from the {@link SerialPortSettings}.
+ * Configures the native {@link DCB} with the values from the {@link SerialPortSettings}.
+ * Additionally it verifies the settings to be valid.
  * 
  * @author Tobias Breﬂler
  * 
@@ -52,10 +53,10 @@ public class DCBConfigurator {
 	private static final int FALSE = 0;
 
 	/**
-	 * Configures the native DCB "struct" with the values from the given serial port settings.
+	 * Configures the native {@link DCB} with the values from the given serial port settings.
 	 * 
 	 * @param dcb
-	 *            the DCB "struct" that should be configured, must not be <code>null</code>
+	 *            the {@link DCB} that should be configured, must not be <code>null</code>
 	 * @param settings
 	 *            the serial port settings, must not be <code>null</code>
 	 * @throws IllegalArgumentException
@@ -111,12 +112,12 @@ public class DCBConfigurator {
 		}
 	}
 
-	/** Configures the baud rate on the DCB "struct". */
+	/** Configures the baud rate on the {@link DCB}. */
 	private void configureBaudRate(DCB dcb, SerialPortSettings settings) {
 		dcb.BaudRate = settings.getBauds();
 	}
 
-	/** Configures the data bits on the DCB "struct". */
+	/** Configures the data bits on the {@link DCB}. */
 	private void configureDataBits(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getDataBits()) {
 			case DATABITS_5:
@@ -137,7 +138,7 @@ public class DCBConfigurator {
 		}
 	}
 
-	/** Configures the stop bits on the DCB "struct". */
+	/** Configures the stop bits on the {@link DCB}. */
 	private void configureStopBits(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getStopBits()) {
 			case STOPBITS_1:
@@ -152,7 +153,7 @@ public class DCBConfigurator {
 		}
 	}
 
-	/** Configures the parity on the DCB "struct". */
+	/** Configures the parity on the {@link DCB}. */
 	private void configureParity(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getParity()) {
 			case PARITY_NONE:
@@ -173,7 +174,7 @@ public class DCBConfigurator {
 		}
 	}
 
-	/** Configures the RTS on the DCB "struct". */
+	/** Configures the RTS on the {@link DCB}. */
 	private void configureRTS(DCB dcb, SerialPortSettings settings) {
 		if (settings.isRTS())
 			dcb.fRtsControl = RTS_CONTROL_ENABLE;
@@ -181,7 +182,7 @@ public class DCBConfigurator {
 			dcb.fRtsControl = RTS_CONTROL_DISABLE;
 	}
 
-	/** Configures the DTR on the DCB "struct". */
+	/** Configures the DTR on the {@link DCB}. */
 	private void configureDTR(DCB dcb, SerialPortSettings settings) {
 		if (settings.isDTR())
 			dcb.fDtrControl = DTR_CONTROL_ENABLE;
@@ -189,15 +190,16 @@ public class DCBConfigurator {
 			dcb.fDtrControl = DTR_CONTROL_DISABLE;
 	}
 
-	/** Configures the flow control on the DCB "struct". */
+	/** Configures the flow control on the {@link DCB}. */
 	private void configureFlowControl(DCB dcb, SerialPortSettings settings) {
 
-		// Reset flow control settings:
+		// reset the flow control settings:
 		dcb.fRtsControl = RTS_CONTROL_ENABLE;
 		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
 
+		// set the flow control:
 		switch (settings.getFlowControl()) {
 			case FLOWCONTROL_NONE:
 				return;
@@ -226,6 +228,10 @@ public class DCBConfigurator {
 
 	/** Resets the other values to default. */
 	private void configureFixValues(DCB dcb) {
+
+		// NOTE: We configure the following values in the same way as they do in the jSSC project.
+		// Please do not change these values, until you know any better.
+
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
 		dcb.fTXContinueOnXoff = TRUE;
