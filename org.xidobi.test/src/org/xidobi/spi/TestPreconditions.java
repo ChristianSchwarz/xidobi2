@@ -35,7 +35,7 @@ public class TestPreconditions {
 	public ExpectedException exception = ExpectedException.none();
 
 	/**
-	 * Verifies that the argument is returned if it is not <code>null</code>
+	 * Verifies that the argument is returned, if it is not <code>null</code>
 	 */
 	@Test
 	public void checkArgumentNotNull_nonNullValue() {
@@ -56,7 +56,7 @@ public class TestPreconditions {
 	}
 
 	/**
-	 * Verifies that the argument is returned if it is not <code>null</code>
+	 * Verifies that the argument is returned, if it is not <code>null</code>
 	 */
 	@Test
 	public void checkArgumentNotNull_nonNullValue_noArgName() {
@@ -77,7 +77,7 @@ public class TestPreconditions {
 	}
 
 	/**
-	 * Verifies that no exception is thrown when the condition is <code>true</code>.
+	 * Verifies that no exception is thrown, when the condition is <code>true</code>.
 	 */
 	@Test
 	public void checkArgument_conditionMatch() {
@@ -85,7 +85,7 @@ public class TestPreconditions {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the condition does'n match.
 	 */
 	@Test
 	public void checkArgument_conditionMismatch_nullArg_nullExpectation() {
@@ -96,7 +96,7 @@ public class TestPreconditions {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the condition does'n match.
 	 * Containing the argument name as message.
 	 */
 	@Test
@@ -108,8 +108,8 @@ public class TestPreconditions {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
-	 * Containing the argument name as message.
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the condition doesn't
+	 * match. Containing the argument name as message.
 	 */
 	@Test
 	public void checkArgument_conditionMismatch_nullArg_withExpectation() {
@@ -120,8 +120,8 @@ public class TestPreconditions {
 	}
 
 	/**
-	 * Verifies that an {@link IllegalArgumentException} is thrown when the condition does'n match.
-	 * Containing the argument name as message.
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the condition doesn't
+	 * match. Containing the argument name as message.
 	 */
 	@Test
 	public void checkArgument_conditionMismatch_withArg_withExpectation() {
@@ -129,6 +129,48 @@ public class TestPreconditions {
 		exception.expectMessage("Argument >argName< is invalid! The expected exception message.");
 
 		Preconditions.checkArgument(false, "argName", "The expected exception message.");
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the condition doesn't
+	 * match.
+	 */
+	@Test
+	public void checkArgument2_conditionMismatch() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage("Argument >argName< is invalid!");
+
+		Preconditions.checkArgument(false, "argName");
+	}
+
+	/**
+	 * Verifies that an {@link IllegalArgumentException} is thrown, when the condition doesn't match
+	 * and the argument name is <code>null</code>. Then the message of the
+	 * {@link IllegalArgumentException} must be <code>null</code> too.
+	 */
+	@Test
+	public void checkArgument2_conditionMismatch_withNull() {
+		exception.expect(IllegalArgumentException.class);
+		exception.expectMessage(nullValue(String.class));
+
+		Preconditions.checkArgument(false, null);
+	}
+
+	/**
+	 * Verifies that no exception is thrown, when the condition is <code>true</code>.
+	 */
+	@Test
+	public void checkArgument2_conditionMatch() {
+		Preconditions.checkArgument(true, "argName");
+	}
+
+	/**
+	 * Verifies that no exception is thrown, when the condition is <code>true</code> and the
+	 * argument name is <code>null</code>.
+	 */
+	@Test
+	public void checkArgument2_conditionMatch_withNull() {
+		Preconditions.checkArgument(true, null);
 	}
 
 }
