@@ -190,8 +190,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
+		mockWriteFileFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -207,8 +206,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_ACCESS_DENIED() throws IOException {
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_ACCESS_DENIED);
+		mockWriteFileFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
@@ -224,8 +222,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_GEN_FAILURE() throws IOException {
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_GEN_FAILURE);
+		mockWriteFileFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
@@ -241,8 +238,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_BAD_COMMAND() throws IOException {
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_BAD_COMMAND);
+		mockWriteFileFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
@@ -258,8 +254,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_NOT_READY() throws IOException {
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_NOT_READY);
+		mockWriteFileFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
@@ -275,8 +270,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsWithERROR_OPERATION_ABORTED() throws IOException {
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_OPERATION_ABORTED);
+		mockWriteFileFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
@@ -292,8 +286,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WriteFileFailsUnexpected() throws IOException {
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		mockWriteFileFailsWith(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WriteFile failed unexpected!");
@@ -405,10 +398,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_OPERATION_ABORTED() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+		mockWaitForSingleObjectFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
@@ -425,10 +415,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+		mockWaitForSingleObjectFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -445,10 +432,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_ACCESS_DENIED() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_ACCESS_DENIED);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+		mockWaitForSingleObjectFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
@@ -465,10 +449,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_GEN_FAILURE() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_GEN_FAILURE);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+		mockWaitForSingleObjectFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
@@ -485,10 +466,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_BAD_COMMAND() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_BAD_COMMAND);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+		mockWaitForSingleObjectFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
@@ -505,10 +483,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_WaitForSingleObjectFailsWithERROR_NOT_READY() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_NOT_READY);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+		mockWaitForSingleObjectFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
@@ -563,11 +538,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_OPERATION_ABORTED() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		mockGetOverlappedResultFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
@@ -584,11 +555,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		mockGetOverlappedResultFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -605,11 +572,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_ACCESS_DENIED() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_ACCESS_DENIED);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		mockGetOverlappedResultFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
@@ -626,11 +589,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_GEN_FAILURE() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_GEN_FAILURE);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		mockGetOverlappedResultFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
@@ -647,11 +606,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_BAD_COMMAND() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_BAD_COMMAND);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		mockGetOverlappedResultFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
@@ -668,11 +623,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsWithERROR_NOT_READY() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_NOT_READY);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		mockGetOverlappedResultFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
@@ -689,11 +640,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void write_GetOverlappedResultFailsUnexpected() throws IOException {
-		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
-		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
-		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
-		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
+		mockGetOverlappedResultFailsWith(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("GetOverlappedResult failed unexpected!");
@@ -736,5 +683,28 @@ public class TestWriterImpl {
 	/** matches any {@link INT} */
 	private DWORD anyDWORD() {
 		return any(DWORD.class);
+	}
+
+	/** Mocks <code>WriteFile</code> to fail with given error code. */
+	private void mockWriteFileFailsWith(int errorCode) {
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(errorCode);
+	}
+
+	/** Mocks <code>WriteFile</code> (pending) to fail with given error code. */
+	private void mockWaitForSingleObjectFailsWith(int errorCode) {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, errorCode);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_FAILED);
+	}
+
+	/** Mocks <code>GetOverlappedResult</code> to fail with given error code. */
+	private void mockGetOverlappedResultFailsWith(int errorCode) {
+		when(os.CreateEventA(0, true, false, null)).thenReturn(EVENT_HANDLE);
+		when(os.WriteFile(eq(PORT_HANDLE), eq(DATA), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, errorCode);
+		when(os.WaitForSingleObject(EVENT_HANDLE, 2000)).thenReturn(WAIT_OBJECT_0);
+		when(os.GetOverlappedResult(eq(PORT_HANDLE), anyOVERLAPPED(), anyDWORD(), eq(true))).thenReturn(false);
 	}
 }
