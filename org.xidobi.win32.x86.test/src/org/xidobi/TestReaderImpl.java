@@ -29,6 +29,7 @@ import static org.xidobi.WinApi.ERROR_BAD_COMMAND;
 import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
 import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.ERROR_NOT_READY;
 import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.EV_RXCHAR;
 import static org.xidobi.WinApi.WAIT_ABANDONED;
@@ -201,6 +202,23 @@ public class TestReaderImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> returns
+	 * <code>false</code> and the last error is <code>ERROR_NOT_READY</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventFailsWithERROR_NOT_READY() throws IOException {
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_NOT_READY);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
 
 		reader.read();
 	}
@@ -391,6 +409,27 @@ public class TestReaderImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>WaitCommEvent(...)</code> is
+	 * called, the operation is pending, <code>WaitForSingleObject(...)</code> returns
+	 * <code>WAIT_FAILED</code> and the last error code is <code>ERROR_NOT_READY</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_WaitCommEventPendingFailedWithERROR_NOT_READY() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_NOT_READY);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		// @formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
 
 		reader.read();
 	}
@@ -637,6 +676,28 @@ public class TestReaderImpl {
 
 	/**
 	 * Verifies that an {@link IOException} is thrown, when <code>ReadFile(...)</code> returns
+	 * <code>false</code> and the last error code is <code>ERROR_NOT_READY</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFileFailsERROR_NOT_READY() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_NOT_READY);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that an {@link IOException} is thrown, when <code>ReadFile(...)</code> returns
 	 * <code>false</code> and the last error code is <code>ERROR_OPERATION_ABORTED</code>.
 	 * 
 	 * @throws IOException
@@ -772,6 +833,30 @@ public class TestReaderImpl {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+
+		reader.read();
+	}
+
+	/**
+	 * Verifies that a {@link IOException} is thrown, when <code>ReadFile(...)</code> is pending and
+	 * <code>WaitForSingleObject(...)</code> returns <code>WAIT_FAILED</code> and the last error is
+	 * <code>ERROR_NOT_READY</code>.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	public void read_ReadFilePendingWaitFailsWithERROR_NOT_READY() throws IOException {
+		//@formatter:off
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_NOT_READY);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+		//@formatter:on
+
+		exception.expect(IOException.class);
+		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
 
 		reader.read();
 	}
