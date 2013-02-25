@@ -61,12 +61,15 @@ public class Application implements IApplication {
 		String portName = reader.readLine();
 
 		SerialPort port = finder.get(portName);
+		if (port == null) {
+			System.err.println("Port not found!");
+			return EXIT_OK;
+		}
 
 		while (true) {
 			try {
 				connect(port).awaitTermination(MAX_VALUE, DAYS);
 				System.out.println("\nRestarting connection...");
-				Thread.sleep(100);
 			}
 			catch (IOException e) {
 				// ignore
@@ -74,6 +77,7 @@ public class Application implements IApplication {
 			catch (Exception e) {
 				e.printStackTrace();
 			}
+			Thread.sleep(1000);
 		}
 	}
 
