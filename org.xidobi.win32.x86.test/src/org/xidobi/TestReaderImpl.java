@@ -129,8 +129,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithERROR_INVALID_HANDLE() throws IOException {
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_INVALID_HANDLE);
+		mockWaitCommEventFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -146,8 +145,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithERROR_ACCESS_DENIED() throws IOException {
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_ACCESS_DENIED);
+		mockWaitCommEventFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
@@ -163,8 +161,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithERROR_OPERATION_ABORTED() throws IOException {
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_OPERATION_ABORTED);
+		mockWaitCommEventFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
@@ -180,8 +177,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithERROR_GEN_FAILURE() throws IOException {
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_GEN_FAILURE);
+		mockWaitCommEventFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
@@ -197,8 +193,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithERROR_BAD_COMMAND() throws IOException {
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_BAD_COMMAND);
+		mockWaitCommEventFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
@@ -214,8 +209,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithERROR_NOT_READY() throws IOException {
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_NOT_READY);
+		mockWaitCommEventFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
@@ -231,8 +225,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventFailsWithUnexpectedErrorCode() throws IOException {
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(DUMMY_ERROR_CODE);
+		mockWaitCommEventFailsWith(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitCommEvent failed unexpected!");
@@ -338,11 +331,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventPendingFailedWithERROR_INVALID_HANDLE() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		// @formatter:on
+		mockWaitCommEventPendingFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -359,11 +348,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventPendingFailedWithERROR_ACCESS_DENIED() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_ACCESS_DENIED);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		// @formatter:on
+		mockWaitCommEventPendingFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
@@ -380,11 +365,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventPendingFailedWithERROR_GEN_FAILURE() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_GEN_FAILURE);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		// @formatter:on
+		mockWaitCommEventPendingFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
@@ -401,11 +382,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventPendingFailedWithERROR_BAD_COMMAND() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_BAD_COMMAND);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		// @formatter:on
+		mockWaitCommEventPendingFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
@@ -422,11 +399,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventPendingFailedWithERROR_NOT_READY() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_NOT_READY);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		// @formatter:on
+		mockWaitCommEventPendingFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
@@ -443,11 +416,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventPendingFailedWithERROR_OPERATION_ABORTED() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		// @formatter:on
+		mockWaitCommEventPendingFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
@@ -464,11 +433,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_WaitCommEventPendingFailedUnexpected() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, DUMMY_ERROR_CODE);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		// @formatter:on
+		mockWaitCommEventPendingFailsWith(DUMMY_ERROR_CODE);
 
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("WaitForSingleObject failed unexpected!");
@@ -750,14 +715,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_ReadFilePendingWaitFailsWithERROR_INVALID_HANDLE() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_INVALID_HANDLE);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		//@formatter:on
+		mockReadFilePendingWaitFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
@@ -774,14 +732,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_ReadFilePendingWaitFailsWithERROR_ACCESS_DENIED() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_ACCESS_DENIED);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		//@formatter:on
+		mockReadFilePendingWaitFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
@@ -798,14 +749,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_ReadFilePendingWaitFailsWithERROR_GEN_FAILURE() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_GEN_FAILURE);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		//@formatter:on
+		mockReadFilePendingWaitFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
@@ -822,14 +766,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_ReadFilePendingWaitFailsWithERROR_BAD_COMMAND() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_BAD_COMMAND);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		//@formatter:on
+		mockReadFilePendingWaitFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
@@ -846,14 +783,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_ReadFilePendingWaitFailsWithERROR_NOT_READY() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_NOT_READY);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		//@formatter:on
+		mockReadFilePendingWaitFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
@@ -870,14 +800,7 @@ public class TestReaderImpl {
 	 */
 	@Test
 	public void read_ReadFilePendingWaitFailsWithERROR_OPERATION_ABORTED() throws IOException {
-		//@formatter:off
-		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
-		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
-		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
-		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, ERROR_OPERATION_ABORTED);
-		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
-		//@formatter:on
+		mockReadFilePendingWaitFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
 		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
@@ -1093,6 +1016,29 @@ public class TestReaderImpl {
 				return returnValue;
 			}
 		};
+	}
+
+	/** Mocks <code>WaitCommEvent</code> to fail with the given error code. */
+	private void mockWaitCommEventFailsWith(int errorCode) {
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(errorCode);
+	}
+
+	/** Mocks <code>WaitCommEvent</code> (pending) to fail with the given error code. */
+	private void mockWaitCommEventPendingFailsWith(int errorCode) {
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, errorCode);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
+	}
+
+	/** Mocks <code>ReadFile</code> (pending) to fail with the given error code. */
+	private void mockReadFilePendingWaitFailsWith(int errorCode) {
+		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR);
+		doAnswer(withAvailableBytes(DATA.length, true)).when(os).ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT());
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(false);
+		when(os.GetLastError()).thenReturn(ERROR_IO_PENDING, errorCode);
+		when(os.WaitForSingleObject(DUMMY_EVENT_HANDLE, 100)).thenReturn(WAIT_FAILED);
 	}
 
 }
