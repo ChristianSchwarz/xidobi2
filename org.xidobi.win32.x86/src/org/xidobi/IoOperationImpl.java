@@ -19,6 +19,7 @@ import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_BAD_COMMAND;
 import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
 import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
+import static org.xidobi.WinApi.ERROR_NOT_READY;
 import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
 import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.spi.Preconditions.checkArgument;
@@ -166,6 +167,8 @@ public abstract class IoOperationImpl implements IoOperation {
 	 *             {@link WinApi#ERROR_GEN_FAILURE ERROR_GEN_FAILURE}
 	 *             <li>
 	 *             {@link WinApi#ERROR_BAD_COMMAND ERROR_BAD_COMMAND}
+	 *             <li>
+	 *             {@link WinApi#ERROR_NOT_READY ERROR_NOT_READY}
 	 *             </ul>
 	 * @exception NativeCodeException
 	 *                for all unexpected error codes
@@ -184,6 +187,8 @@ public abstract class IoOperationImpl implements IoOperation {
 				throw portClosedException("I/O operation failed, because a device attached to the system is not functioning.");
 			case ERROR_BAD_COMMAND:
 				throw portClosedException("I/O operation failed, because the device doesn't recognize the command.");
+			case ERROR_NOT_READY:
+				throw portClosedException("I/O operation failed, because the device is not ready.");
 			default:
 				throw newNativeCodeException(os, nativeMethodName + " failed unexpected!", errorCode);
 		}
