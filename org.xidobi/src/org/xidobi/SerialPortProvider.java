@@ -15,7 +15,7 @@
  */
 package org.xidobi;
 
-import static org.xidobi.Activator.getBundleClassLoader;
+import static java.lang.Thread.currentThread;
 
 /**
  * Provides the serial port finder implementation for the system it is running on.
@@ -28,7 +28,7 @@ public class SerialPortProvider {
 	private static SerialPortFinder finder;
 
 	static {
-		ClassLoader cl = getBundleClassLoader();
+		ClassLoader cl = currentThread().getContextClassLoader();
 		try {
 			Class<?> finderClass = cl.loadClass("org.xidobi.SerialPortFinderImpl");
 
