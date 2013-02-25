@@ -11,3 +11,4 @@ Eclipse-ExtensibleAPI: true
 Require-Bundle: javax.annotation;bundle-version="1.3.7"
 Bundle-Activator: org.xidobi.Activator
 Import-Package: org.osgi.framework;version="1.6.0"
+Bundle-ActivationPolicy: lazy
