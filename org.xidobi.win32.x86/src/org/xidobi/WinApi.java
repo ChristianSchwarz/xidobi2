@@ -519,6 +519,9 @@ public interface WinApi {
 	 * A list of all Windows error codes can be found <a
 	 * href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381(v=vs.85).aspx"
 	 * >here</a>.
+	 * <p>
+	 * This method returns 0 (<code>ERROR_SUCCESS</code>), if no error was stored for the current
+	 * thread.
 	 * 
 	 * @return {@code DWORD} - The return value is the calling thread's last-error code.
 	 */
