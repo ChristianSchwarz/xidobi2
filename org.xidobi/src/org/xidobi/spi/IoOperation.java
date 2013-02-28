@@ -33,7 +33,8 @@ import java.io.IOException;
 public interface IoOperation extends Closeable {
 
 	/**
-	 * The implementation must close native resources, for example handles and connections.
+	 * The implementation must close native handles, that are made by this I/O operation. In order
+	 * to dispose resources, please see {@link #dispose()}.
 	 * <p>
 	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
 	 * closed.
