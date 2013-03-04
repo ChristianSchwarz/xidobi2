@@ -260,7 +260,7 @@ public class TestBasicSerialConnection {
 		port.close();
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed!");
+		exception.expectMessage("Port COM1 was closed!");
 
 		port.write(BYTES);
 	}
@@ -338,7 +338,7 @@ public class TestBasicSerialConnection {
 		port.close();
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed!");
+		exception.expectMessage("Port COM1 was closed!");
 
 		port.read();
 	}
@@ -407,7 +407,7 @@ public class TestBasicSerialConnection {
 		IOException result = port.portClosedException();
 
 		assertThat(result, is(notNullValue()));
-		assertThat(result.getMessage(), is("Port COM1 is closed!"));
+		assertThat(result.getMessage(), is("Port COM1 was closed!"));
 	}
 
 	/**
@@ -419,7 +419,7 @@ public class TestBasicSerialConnection {
 		IOException result = port.portClosedException("Additional message.");
 
 		assertThat(result, is(notNullValue()));
-		assertThat(result.getMessage(), is("Port COM1 is closed! Additional message."));
+		assertThat(result.getMessage(), is("Port COM1 was closed! Additional message."));
 	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
