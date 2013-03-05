@@ -234,20 +234,26 @@ public class TestReaderImpl {
 	}
 
 	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * Verifies that no {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
 	 * is successfull, but the event mask is not <code>EV_RXCHAR</code>.
 	 * 
 	 * @throws IOException
 	 */
 	@Test
 	public void read_WaitCommEventForUnexpectedEvent() throws IOException {
+		//@formatter:off
 		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR + 1);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR + 1, EV_RXCHAR);
+		when(os.ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT())).
+			then(withAvailableBytes(0, true)).
+			then(withAvailableBytes(DATA.length, true));
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
+		//@formatter:on
 
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitCommEvt was signaled for unexpected event!");
+		byte[] result = reader.read();
 
-		reader.read();
+		assertThat(result, is(DATA));
 	}
 
 	/**
