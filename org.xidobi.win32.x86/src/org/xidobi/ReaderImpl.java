@@ -218,6 +218,8 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		int mask = eventMask.getValue();
 		if (mask == 0)
 			throw portClosedException("Read operation failed, because a communication error event was signaled!");
+		// NOTICE: We have to ignore wrong event masks, because some serial port drivers are
+		// signaling events we haven't registered for.
 		if ((mask & EV_RXCHAR) != EV_RXCHAR) {
 			// throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: "
 			// + mask + ", expected: " + EV_RXCHAR);
