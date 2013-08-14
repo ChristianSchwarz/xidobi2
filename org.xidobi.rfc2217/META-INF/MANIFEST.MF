@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: xidobi RFC2217 support
+Bundle-SymbolicName: org.xidobi.rfc2217
+Bundle-Version: 0.0.1.qualifier
+Fragment-Host: org.xidobi;bundle-version="[0.0.1,1.0.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
