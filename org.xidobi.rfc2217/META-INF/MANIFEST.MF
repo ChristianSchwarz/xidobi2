@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: xidobi RFC2217 support
 Bundle-SymbolicName: org.xidobi.rfc2217
 Bundle-Version: 0.0.1.qualifier
-Fragment-Host: org.xidobi;bundle-version="[0.0.1,1.0.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.xidobi.rfc2217
-Require-Bundle: org.apache.commons.net;bundle-version="3.2.0"
+Require-Bundle: org.apache.commons.net;bundle-version="3.2.0",
+ org.xidobi;bundle-version="0.0.1"
+Import-Package: javax.annotation;resolution:=optional

@@ -62,7 +62,6 @@ public class Rfc2217SerialPort implements SerialPort {
 	 *             </ul>
 	 */
 	@Nonnull
-	@Override
 	@WillCloseWhenClosed
 	public SerialConnection open(@Nonnull SerialPortSettings settings) throws IOException {
 		if (settings == null)
@@ -76,7 +75,6 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * "RFC2217@192.168.0.15:5588". {@inheritDoc}
 	 */
 	@Nonnull
-	@Override
 	public String getPortName() {
 		return "RFC2217@" + accessServer.getHostString() + ":" + accessServer.getPort();
 	}
@@ -95,7 +93,6 @@ public class Rfc2217SerialPort implements SerialPort {
 	 *         </ul>
 	 */
 	@Nullable
-	@Override
 	public String getDescription() {
 		return null;
 	}
