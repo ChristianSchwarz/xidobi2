@@ -163,7 +163,11 @@ public class OS implements WinApi {
 
 	/** {@inheritDoc} */
 	public int GetLastError() {
-		return lastNativeErrorCodes.get(currentThread());
+		Integer lastError = lastNativeErrorCodes.get(currentThread());
+		if (lastError == null)
+			// no error was stored
+			return ERROR_SUCCESS;
+		return lastError;
 	}
 
 	/** {@inheritDoc} */

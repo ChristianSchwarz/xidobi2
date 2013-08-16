@@ -132,7 +132,7 @@ public class TestReaderImpl {
 		mockWaitCommEventFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the handle is invalid.");
 
 		reader.read();
 	}
@@ -148,7 +148,7 @@ public class TestReaderImpl {
 		mockWaitCommEventFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because access denied.");
 
 		reader.read();
 	}
@@ -164,7 +164,7 @@ public class TestReaderImpl {
 		mockWaitCommEventFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+		exception.expectMessage("Port COM1 was closed! I/O operation has been aborted.");
 
 		reader.read();
 	}
@@ -180,7 +180,7 @@ public class TestReaderImpl {
 		mockWaitCommEventFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		reader.read();
 	}
@@ -196,7 +196,7 @@ public class TestReaderImpl {
 		mockWaitCommEventFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device doesn't recognize the command.");
 
 		reader.read();
 	}
@@ -212,7 +212,7 @@ public class TestReaderImpl {
 		mockWaitCommEventFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device is not ready.");
 
 		reader.read();
 	}
@@ -234,20 +234,26 @@ public class TestReaderImpl {
 	}
 
 	/**
-	 * Verifies that a {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
+	 * Verifies that no {@link NativeCodeException} is thrown, when <code>WaitCommEvent(...)</code>
 	 * is successfull, but the event mask is not <code>EV_RXCHAR</code>.
 	 * 
 	 * @throws IOException
 	 */
 	@Test
 	public void read_WaitCommEventForUnexpectedEvent() throws IOException {
+		//@formatter:off
 		when(os.WaitCommEvent(eq(DUMMY_PORT_HANDLE), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
-		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR + 1);
+		when(os.getValue_DWORD(anyDWORD())).thenReturn(EV_RXCHAR + 1, EV_RXCHAR);
+		when(os.ClearCommError(eq(DUMMY_PORT_HANDLE), anyINT(), anyCOMSTAT())).
+			then(withAvailableBytes(0, true)).
+			then(withAvailableBytes(DATA.length, true));
+		when(os.ReadFile(eq(DUMMY_PORT_HANDLE), any(NativeByteArray.class), eq(DATA.length), anyDWORD(), anyOVERLAPPED())).thenReturn(true);
+		when(os.getByteArray(any(NativeByteArray.class), eq(DATA.length))).thenReturn(DATA);
+		//@formatter:on
 
-		exception.expect(NativeCodeException.class);
-		exception.expectMessage("WaitCommEvt was signaled for unexpected event!");
+		byte[] result = reader.read();
 
-		reader.read();
+		assertThat(result, is(DATA));
 	}
 
 	/**
@@ -334,7 +340,7 @@ public class TestReaderImpl {
 		mockWaitCommEventPendingFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the handle is invalid.");
 
 		reader.read();
 	}
@@ -351,7 +357,7 @@ public class TestReaderImpl {
 		mockWaitCommEventPendingFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because access denied.");
 
 		reader.read();
 	}
@@ -368,7 +374,7 @@ public class TestReaderImpl {
 		mockWaitCommEventPendingFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		reader.read();
 	}
@@ -385,7 +391,7 @@ public class TestReaderImpl {
 		mockWaitCommEventPendingFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device doesn't recognize the command.");
 
 		reader.read();
 	}
@@ -402,7 +408,7 @@ public class TestReaderImpl {
 		mockWaitCommEventPendingFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device is not ready.");
 
 		reader.read();
 	}
@@ -419,7 +425,7 @@ public class TestReaderImpl {
 		mockWaitCommEventPendingFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+		exception.expectMessage("Port COM1 was closed! I/O operation has been aborted.");
 
 		reader.read();
 	}
@@ -568,7 +574,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the handle is invalid.");
 
 		reader.read();
 	}
@@ -590,7 +596,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because access denied.");
 
 		reader.read();
 	}
@@ -612,7 +618,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		reader.read();
 	}
@@ -634,7 +640,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device doesn't recognize the command.");
 
 		reader.read();
 	}
@@ -656,7 +662,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device is not ready.");
 
 		reader.read();
 	}
@@ -678,7 +684,7 @@ public class TestReaderImpl {
 		//@formatter:on
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+		exception.expectMessage("Port COM1 was closed! I/O operation has been aborted.");
 
 		reader.read();
 	}
@@ -718,7 +724,7 @@ public class TestReaderImpl {
 		mockReadFilePendingWaitFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the handle is invalid.");
 
 		reader.read();
 	}
@@ -735,7 +741,7 @@ public class TestReaderImpl {
 		mockReadFilePendingWaitFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because access denied.");
 
 		reader.read();
 	}
@@ -752,7 +758,7 @@ public class TestReaderImpl {
 		mockReadFilePendingWaitFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		reader.read();
 	}
@@ -769,7 +775,7 @@ public class TestReaderImpl {
 		mockReadFilePendingWaitFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device doesn't recognize the command.");
 
 		reader.read();
 	}
@@ -786,7 +792,7 @@ public class TestReaderImpl {
 		mockReadFilePendingWaitFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device is not ready.");
 
 		reader.read();
 	}
@@ -803,7 +809,7 @@ public class TestReaderImpl {
 		mockReadFilePendingWaitFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+		exception.expectMessage("Port COM1 was closed! I/O operation has been aborted.");
 
 		reader.read();
 	}

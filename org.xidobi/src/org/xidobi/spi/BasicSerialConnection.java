@@ -240,6 +240,6 @@ public class BasicSerialConnection implements SerialConnection {
 			message = "";
 		else
 			message = " " + message;
-		return new IOException("Port " + port.getPortName() + " is closed!" + message);
+		return new IOException("Port " + port.getPortName() + " was closed!" + message);
 	}
 }

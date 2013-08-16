@@ -251,7 +251,7 @@ public abstract class IoOperationImpl implements IoOperation {
 			message = "";
 		else
 			message = " " + message;
-		return new IOException("Port " + port.getPortName() + " is closed!" + message);
+		return new IOException("Port " + port.getPortName() + " was closed!" + message);
 	}
 
 	/** {@inheritDoc} */

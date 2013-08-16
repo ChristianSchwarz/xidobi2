@@ -193,7 +193,7 @@ public class TestWriterImpl {
 		mockWriteFileFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the handle is invalid.");
 
 		writer.write(DATA);
 	}
@@ -209,7 +209,7 @@ public class TestWriterImpl {
 		mockWriteFileFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because access denied.");
 
 		writer.write(DATA);
 	}
@@ -225,7 +225,7 @@ public class TestWriterImpl {
 		mockWriteFileFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		writer.write(DATA);
 	}
@@ -241,7 +241,7 @@ public class TestWriterImpl {
 		mockWriteFileFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device doesn't recognize the command.");
 
 		writer.write(DATA);
 	}
@@ -257,7 +257,7 @@ public class TestWriterImpl {
 		mockWriteFileFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device is not ready.");
 
 		writer.write(DATA);
 	}
@@ -273,7 +273,7 @@ public class TestWriterImpl {
 		mockWriteFileFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+		exception.expectMessage("Port COM1 was closed! I/O operation has been aborted.");
 
 		writer.write(DATA);
 	}
@@ -401,7 +401,7 @@ public class TestWriterImpl {
 		mockWaitForSingleObjectFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+		exception.expectMessage("Port COM1 was closed! I/O operation has been aborted.");
 
 		writer.write(DATA);
 	}
@@ -418,7 +418,7 @@ public class TestWriterImpl {
 		mockWaitForSingleObjectFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the handle is invalid.");
 
 		writer.write(DATA);
 	}
@@ -435,7 +435,7 @@ public class TestWriterImpl {
 		mockWaitForSingleObjectFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because access denied.");
 
 		writer.write(DATA);
 	}
@@ -452,7 +452,7 @@ public class TestWriterImpl {
 		mockWaitForSingleObjectFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		writer.write(DATA);
 	}
@@ -469,7 +469,7 @@ public class TestWriterImpl {
 		mockWaitForSingleObjectFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device doesn't recognize the command.");
 
 		writer.write(DATA);
 	}
@@ -486,7 +486,7 @@ public class TestWriterImpl {
 		mockWaitForSingleObjectFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device is not ready.");
 
 		writer.write(DATA);
 	}
@@ -541,7 +541,7 @@ public class TestWriterImpl {
 		mockGetOverlappedResultFailsWith(ERROR_OPERATION_ABORTED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation has been aborted.");
+		exception.expectMessage("Port COM1 was closed! I/O operation has been aborted.");
 
 		writer.write(DATA);
 	}
@@ -558,7 +558,7 @@ public class TestWriterImpl {
 		mockGetOverlappedResultFailsWith(ERROR_INVALID_HANDLE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the handle is invalid.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the handle is invalid.");
 
 		writer.write(DATA);
 	}
@@ -575,7 +575,7 @@ public class TestWriterImpl {
 		mockGetOverlappedResultFailsWith(ERROR_ACCESS_DENIED);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because access denied.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because access denied.");
 
 		writer.write(DATA);
 	}
@@ -592,7 +592,7 @@ public class TestWriterImpl {
 		mockGetOverlappedResultFailsWith(ERROR_GEN_FAILURE);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because a device attached to the system is not functioning.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because a device attached to the system is not functioning.");
 
 		writer.write(DATA);
 	}
@@ -609,7 +609,7 @@ public class TestWriterImpl {
 		mockGetOverlappedResultFailsWith(ERROR_BAD_COMMAND);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device doesn't recognize the command.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device doesn't recognize the command.");
 
 		writer.write(DATA);
 	}
@@ -626,7 +626,7 @@ public class TestWriterImpl {
 		mockGetOverlappedResultFailsWith(ERROR_NOT_READY);
 
 		exception.expect(IOException.class);
-		exception.expectMessage("Port COM1 is closed! I/O operation failed, because the device is not ready.");
+		exception.expectMessage("Port COM1 was closed! I/O operation failed, because the device is not ready.");
 
 		writer.write(DATA);
 	}

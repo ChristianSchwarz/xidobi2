@@ -210,16 +210,20 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	}
 
 	/**
-	 * Throws a {@link NativeCodeException}, when the <code>EV_RXCHAR</code> flag in the given
-	 * <code>eventMask</code> is not set or an {@link IOException} when the <code>eventMask</code>
-	 * is 0.
+	 * Throws an {@link IOException}, when the <code>EV_RXCHAR</code> flag in the given
+	 * <code>eventMask</code> is 0.
 	 */
 	private void checkEventMask(DWORD eventMask) throws IOException {
 		int mask = eventMask.getValue();
 		if (mask == 0)
 			throw portClosedException("Read operation failed, because a communication error event was signaled!");
-		if ((mask & EV_RXCHAR) != EV_RXCHAR)
-			throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: " + mask + ", expected: " + EV_RXCHAR);
+		// NOTICE: We have to ignore wrong event masks, because some serial port drivers are
+		// signaling events we haven't registered for.
+		if ((mask & EV_RXCHAR) != EV_RXCHAR) {
+			// throw new NativeCodeException("WaitCommEvt was signaled for unexpected event! Got: "
+			// + mask + ", expected: " + EV_RXCHAR);
+			return;
+		}
 	}
 
 	@Override
