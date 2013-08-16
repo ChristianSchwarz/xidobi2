@@ -56,8 +56,10 @@
 		<module>../org.xidobi.test</module>
 		<module>../org.xidobi.win32.x86</module>
 		<module>../org.xidobi.win32.x86.test</module>
+		<module>../org.xidobi.rfc2217</module>
+		<module>../org.xidobi.rfc2217.test</module>
 	</modules>
-
+	
 	<!--
 		repository list - 
 		urls should be defined in the properties 

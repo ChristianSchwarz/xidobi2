@@ -16,7 +16,4 @@
 			</arguments>
 		</buildCommand>
 	</buildSpec>
-	<natures>
-		<nature>org.eclipse.pde.PluginNature</nature>
-	</natures>
 </projectDescription>
