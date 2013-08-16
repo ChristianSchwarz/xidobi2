@@ -25,6 +25,8 @@ import org.xidobi.SerialPortSettings;
  */
 public class Rfc2217SerialPort implements SerialPort {
 
+
+	
 	/** The address of the access server, we are connected to */
 	private final InetSocketAddress accessServer;
 
