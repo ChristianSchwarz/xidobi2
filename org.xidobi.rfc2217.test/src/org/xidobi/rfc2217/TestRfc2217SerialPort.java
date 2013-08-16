@@ -95,6 +95,7 @@ public class TestRfc2217SerialPort {
 	@Test
 	public void getDescription_whenNotOpened() {
 		assertThat(port.getDescription(), is(nullValue()));
-
 	}
+	
+	
 }
