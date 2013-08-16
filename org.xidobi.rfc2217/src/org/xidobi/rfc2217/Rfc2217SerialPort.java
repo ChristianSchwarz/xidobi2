@@ -7,6 +7,7 @@
 package org.xidobi.rfc2217;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,6 +25,14 @@ import org.xidobi.SerialPortSettings;
  */
 public class Rfc2217SerialPort implements SerialPort {
 
+	/**
+	 * Creates a new {@link Rfc2217SerialPort} that that will be connected to the given Access Server Address. This port ist initial not open.
+	 * @param accessServer
+	 */
+	public Rfc2217SerialPort(@Nonnull InetSocketAddress accessServer){
+		
+	}
+	
 	/**
 	 * Opens this serial port by establihing a Telnet session with the access server, defined in the
 	 * constructor.
