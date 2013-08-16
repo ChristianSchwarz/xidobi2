@@ -27,10 +27,13 @@ public class Rfc2217SerialPort implements SerialPort {
 
 	/**
 	 * Creates a new {@link Rfc2217SerialPort} that that will be connected to the given Access Server Address. This port ist initial not open.
-	 * @param accessServer
+	 * @param accessServer the adress of the Access Server
+	 * 
+	 * @exception IllegalArgumentException if <code>null</code> is passed
 	 */
 	public Rfc2217SerialPort(@Nonnull InetSocketAddress accessServer){
-		
+		if (accessServer==null)
+			throw new IllegalArgumentException("Parameter >accessServer< must not be null!");
 	}
 	
 	/**
@@ -52,6 +55,9 @@ public class Rfc2217SerialPort implements SerialPort {
 	@Override
 	@WillCloseWhenClosed
 	public SerialConnection open(@Nonnull SerialPortSettings settings) throws IOException {
+		if (settings==null)
+			throw new IllegalArgumentException("Parameter >settings< must not be null!");
+		
 		return null;
 	}
 

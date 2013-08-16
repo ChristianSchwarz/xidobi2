@@ -5,3 +5,4 @@ Bundle-SymbolicName: org.xidobi.rfc2217
 Bundle-Version: 0.0.1.qualifier
 Fragment-Host: org.xidobi;bundle-version="[0.0.1,1.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.xidobi.rfc2217
