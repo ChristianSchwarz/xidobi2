@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2013 Gemtec GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<!--
+ * XML-Buildfile for Maven.
+ * 
+ * author Felix Koehler
+-->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.xidobi</groupId>
+	<artifactId>xidobi</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<!-- project information -->
+	<issueManagement>
+		<url>https://code.google.com/p/xidobi/issues/list</url>
+	</issueManagement>
+	<name>Xidobi</name>
+	<url>https://code.google.com/p/xidobi/</url>
+	<description>xidobi is a library for serial communication in Java 1.5+. It's released under the Apache 2.0 License, so it can be used and modified in open source and commercial projects. </description>
+
+	<!--
+		build variables
+		* tycho.version - which tycho version should used for the build
+		* tycho.group	- where to find the choosen tycho version
+		* eclipse.repository - which eclipse repository should used for solving dependencies (ex. junit-test/surfire) 
+	 -->
+	<properties>
+		<tycho.version>0.16.0</tycho.version>
+		<tycho.group>org.eclipse.tycho</tycho.group>
+		<eclipse.repository>http://download.eclipse.org/releases/juno/</eclipse.repository>
+	</properties>
+
+	<!-- module list -->
+	<modules>
+		<module>../org.xidobi.native.win32.x86</module>
+		<module>../org.xidobi</module>
+		<module>../org.xidobi.test</module>
+		<module>../org.xidobi.win32.x86</module>
+		<module>../org.xidobi.win32.x86.test</module>
+	</modules>
+
+	<!--
+		repository list - 
+		urls should be defined in the properties 
+	-->
+	<repositories>
+		<repository>
+			<id>eclipse repository</id>
+			<layout>p2</layout>
+			<url>${eclipse.repository}</url>
+		</repository>
+	</repositories>
+
+	
+	<profiles>
+		<!-- 
+			profile: codeCoverage
+			activates the jacoco plugin for code coverage 
+		-->
+		<profile>
+			<id>codeCoverage</id>
+			<properties>
+				<!-- Properties to enable jacoco code coverage analysis -->
+				<jacoco.reportPath>../org.xidobi.master/target/jacoco.exec</jacoco.reportPath>
+			</properties>
+			<build>
+				<plugins>
+					<!-- Enabling use of jacoco -->
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.5.3.201107060350</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+								<configuration>
+									<!-- Where to put jacoco coverage report -->
+									<destFile>${jacoco.reportPath}</destFile>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<build>
+		<plugins>
+			<!-- activate Tycho -->
+			<plugin>
+				<groupId>${tycho.group}</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<!-- Use the targetplatform defined in the targetdefinition file to get 
+				third party libraries. -->
+			<plugin>
+				<groupId>${tycho.group}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>org.xidobi</groupId>
+							<artifactId>xidobi</artifactId>
+							<version>0.0.1-SNAPSHOT</version>
+							<classifier>xidobi</classifier>
+						</artifact>
+					</target>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+
+			</plugin>
+
+			<!-- activate tests -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>0.16.0</version>
+				<configuration>
+					<showEclipseLog>true</showEclipseLog>
+					<failIfNoTests>false</failIfNoTests>
+					<testFailureIgnore>true</testFailureIgnore>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

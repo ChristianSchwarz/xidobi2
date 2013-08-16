@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright 2013 Gemtec GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<!--
+ * XML-Buildfile for Maven.
+ * 
+ * author Felix Koehler
+-->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.xidobi</groupId>
+		<artifactId>xidobi</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../org.xidobi.master/pom.xml</relativePath>
+	</parent>
+	
+	<groupId>org.xidobi</groupId>
+	<artifactId>org.xidobi.native.win32.x86</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>dll</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<version>1.0-alpha-7</version>
+				<extensions>true</extensions>
+				<configuration>
+           	
+           			<!-- Compiler options -->
+					<compilerStartOptions>
+						<compilerStartOption>-D_JNI_IMPLEMENTATION_ -O3 -Wall -c -fmessage-length=0</compilerStartOption>
+					</compilerStartOptions>
+
+					<!-- Linker options -->
+					<linkerStartOptions>
+						<linkerStartOption>-Wl,--kill-at -shared</linkerStartOption>
+					</linkerStartOptions>
+
+					<sources>
+						<source>
+							<directory>.</directory>
+							<fileNames>
+								<fileName>OS_structs.c</fileName>
+								<fileName>OS.c</fileName>
+							</fileNames>
+						</source>
+					</sources>
+
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
