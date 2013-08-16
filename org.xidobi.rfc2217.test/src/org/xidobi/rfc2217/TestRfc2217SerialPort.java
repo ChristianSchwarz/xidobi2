@@ -15,7 +15,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static java.net.InetSocketAddress.createUnresolved;
+
 import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link Rfc2217SerialPort}
@@ -59,13 +65,36 @@ public class TestRfc2217SerialPort {
 	/**
 	 * If argument {@code settings} is <code>null</code> an {@link IllegalArgumentException} must be
 	 * thrown.
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	@Test
 	public void open_nullSetting() throws IOException {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("Parameter >settings< must not be null!");
-		
+
 		port.open(null);
+	}
+
+	/**
+	 * The Portname must represent the address of the access server in the form
+	 * {@code "RFC2217@"+hostname+":"+port}
+	 * 
+	 * @see #ACCESS_SERVER_ADDRESS
+	 */
+	@Test
+	@SuppressWarnings("javadoc")
+	// <- access to ACCESS_SERVER_ADDRESS is not visible
+	public void getPortName() {
+		assertThat(port.getPortName(), is("RFC2217@host:12345"));
+	}
+
+	/**
+	 * If the port is not open the description must be <code>null</code>
+	 */
+	@Test
+	public void getDescription_whenNotOpened() {
+		assertThat(port.getDescription(), is(nullValue()));
+
 	}
 }
