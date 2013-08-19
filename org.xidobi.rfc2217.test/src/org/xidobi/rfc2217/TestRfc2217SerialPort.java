@@ -9,13 +9,26 @@ package org.xidobi.rfc2217;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.xidobi.SerialConnection;
+import org.xidobi.SerialPortSettings;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
 import static java.net.InetSocketAddress.createUnresolved;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.hamcrest.Matchers.is;
@@ -29,10 +42,14 @@ import static org.junit.Assert.assertThat;
  * @author Christian Schwarz
  * 
  */
+@SuppressWarnings("javadoc")
 public class TestRfc2217SerialPort {
 
+	/** Default Port Settings */
+	private static final SerialPortSettings PORT_SETTINGS = SerialPortSettings.from9600bauds8N1().create();
+
 	/** The Dummy Address of an Acess Server */
-	private static final InetSocketAddress ACCESS_SERVER_ADDRESS = createUnresolved("host", 12345);
+	private static final InetSocketAddress ACCESS_SERVER_ADDRESS = createUnresolved("host", 23);
 
 	/** needed to verifiy exception */
 	@Rule
@@ -41,13 +58,22 @@ public class TestRfc2217SerialPort {
 	/** class under test */
 	private Rfc2217SerialPort port;
 
+	@Mock
+	private TelnetClient telnetClient;
+
+	@Captor
+	private ArgumentCaptor<TelnetNotificationHandler> notificationHandler;
+
+	private ListenableFuture<SerialConnection> f;
+
 	/**
 	 * Init's the {@link Rfc2217SerialPort} with an unresolved Address.
 	 */
 	@Before
 	public void setUp() {
 		initMocks(this);
-		port = new Rfc2217SerialPort(ACCESS_SERVER_ADDRESS);
+		port = new TestableRfc2217Port(ACCESS_SERVER_ADDRESS);
+
 	}
 
 	/**
@@ -83,10 +109,8 @@ public class TestRfc2217SerialPort {
 	 * @see #ACCESS_SERVER_ADDRESS
 	 */
 	@Test
-	@SuppressWarnings("javadoc")
-	// <- access to ACCESS_SERVER_ADDRESS is not visible
 	public void getPortName() {
-		assertThat(port.getPortName(), is("RFC2217@host:12345"));
+		assertThat(port.getPortName(), is("RFC2217@host:23"));
 	}
 
 	/**
@@ -96,6 +120,82 @@ public class TestRfc2217SerialPort {
 	public void getDescription_whenNotOpened() {
 		assertThat(port.getDescription(), is(nullValue()));
 	}
+
+	/**
+	 * If a positiv value of milli seconds is passed, no exception must be thrown!
+	 */
+	@Test
+	public void setNegotiationTimeout()  {
+		port.setNegotiationTimeout(500);
+	}
 	
-	
+	/**
+	 * If a negative value of milli seconds is passed, the setter must fail fast, to indicate an error!
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void setNegotiationTimeout_negative()  {
+		port.setNegotiationTimeout(-500);
+	}
+
+	/**
+	 * If the host is unknown an IOException must be thrown.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(expected = IOException.class)
+	public void open_unknownHost() throws IOException {
+		doThrow(IOException.class).when(telnetClient).connect(anyString(), anyInt());
+
+		port.open(PORT_SETTINGS);
+	}
+
+	/**
+	 * If the Binary Telnet Option is not negotiation within 5seconds a IOException must be thrown
+	 * to indicate that this required Option is not available.
+	 */
+
+	@Test(timeout = 100)
+	public void open_binaryOptionTimeout() throws Exception {
+		exception.expect(IOException.class);
+		exception.expectMessage("Negotiation failed! The access server doesn't negotiated the binary option within");
+
+		port.setNegotiationTimeout(10);
+		port.open(PORT_SETTINGS);
+	}
+
+	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private final class TestableRfc2217Port extends Rfc2217SerialPort {
+
+		TestableRfc2217Port(InetSocketAddress accessServer) {
+			super(accessServer);
+		}
+
+		@Override
+		protected TelnetClient createTelnetClient() {
+			return telnetClient;
+		}
+	}
+
+	/**
+	 * Opens the given port asynchron with the given settings.
+	 * 
+	 * @return the Future containing the result of the {@code open()} - Operation
+	 */
+	private ListenableFuture<SerialConnection> openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
+		final SettableFuture<SerialConnection> f = SettableFuture.create();
+
+		new Thread() {
+			public void run() {
+				try {
+					f.set(port.open(portSettings));
+				}
+				catch (IOException e) {
+					f.setException(e);
+				}
+			};
+		}.start();
+
+		return f;
+	}
+
 }

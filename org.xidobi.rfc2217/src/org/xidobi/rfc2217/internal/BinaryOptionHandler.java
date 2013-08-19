@@ -14,4 +14,9 @@ public class BinaryOptionHandler extends SimpleOptionHandler {
     public BinaryOptionHandler() {
         super(BINARY, true, true, true, true);
     }
+    
+    @Override
+    public int[] startSubnegotiationLocal() {
+    	return super.startSubnegotiationLocal();
+    }
 }

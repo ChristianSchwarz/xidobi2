@@ -11,11 +11,11 @@ import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
  */
 public class ComPortOptionHandler extends SimpleOptionHandler {
 
-    private final SerialConnectionImpl connection;
 
-    protected ComPortOptionHandler(SerialConnectionImpl connection) {
+    
+    public ComPortOptionHandler() {
         super(COM_PORT_OPTION, true, false, true, false);
-        throw new UnsupportedOperationException("not implmented yet");
+
     }
 
     @Override
@@ -33,4 +33,10 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
         // notify the SerialConnectionImpl that the server has agreed to accept COM-PORT-OPTION subnegotiation commands
         return null;
     }
+    
+    @Override
+    public int[] startSubnegotiationRemote() {
+    	return super.startSubnegotiationRemote();
+    }
+    
 }

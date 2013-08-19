@@ -4,7 +4,8 @@ Bundle-Name: xidobi RFC2217 support
 Bundle-SymbolicName: org.xidobi.rfc2217
 Bundle-Version: 0.0.1.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.xidobi.rfc2217
+Export-Package: org.xidobi.rfc2217,
+ org.xidobi.rfc2217.internal;x-friends:="eu.gemtec.apache.mina.transport.serial.xidobi.rfc2217.test"
 Require-Bundle: org.apache.commons.net;bundle-version="3.2.0",
  org.xidobi;bundle-version="0.0.1"
 Import-Package: javax.annotation;resolution:=optional

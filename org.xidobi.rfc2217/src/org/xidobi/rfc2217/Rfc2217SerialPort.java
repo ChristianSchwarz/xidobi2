@@ -1,6 +1,6 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
  *
+ * Copyright Gemtec GmbH 2009-2013
  * Erstellt am: 14.08.2013 09:02:05
  * Erstellt von: Christian Schwarz 
  */
@@ -9,13 +9,26 @@ package org.xidobi.rfc2217;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.WillCloseWhenClosed;
 
+import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.commons.net.telnet.TelnetOptionHandler;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortSettings;
+import org.xidobi.rfc2217.internal.BinaryOptionHandler;
+import org.xidobi.rfc2217.internal.ComPortOptionHandler;
+import org.xidobi.rfc2217.internal.NegotiationHandler;
+import org.xidobi.rfc2217.internal.SerialConnectionImpl;
+
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 
 /**
  * Implements the client side of the RFC2217 serial over telnet protocol as {@link SerialPort}.
@@ -25,10 +38,13 @@ import org.xidobi.SerialPortSettings;
  */
 public class Rfc2217SerialPort implements SerialPort {
 
-
-	
 	/** The address of the access server, we are connected to */
 	private final InetSocketAddress accessServer;
+	/**
+	 * defines the timeout that is used for the negotiation phase of
+	 * {@link #open(SerialPortSettings)} , in milli seconds
+	 */
+	private long negotiationTimeout;
 
 	/**
 	 * Creates a new {@link Rfc2217SerialPort} that that will be connected to the given Access
@@ -67,7 +83,60 @@ public class Rfc2217SerialPort implements SerialPort {
 		if (settings == null)
 			throw new IllegalArgumentException("Parameter >settings< must not be null!");
 
-		return null;
+		TelnetClient telnetClient = createTelnetClient();
+		configure(telnetClient);
+		connect(telnetClient);
+		awaitNegotiation(telnetClient);
+
+		return new SerialConnectionImpl(this, telnetClient);
+
+	}
+
+	/**
+	 * Subclasses may override this method to create an own {@link TelnetClient} or to add special
+	 * {@link TelnetOptionHandler}'s to it.
+	 * 
+	 * @return a new {@link TelnetClient} instance that is not connected
+	 */
+	@Nonnull
+	protected TelnetClient createTelnetClient() {
+		return new TelnetClient();
+	}
+
+	/**
+	 * Configures the {@link TelnetClient}, adds the handlers for BINARY-OPERATION and
+	 * COMPORT-OPTION.
+	 */
+	private void configure(TelnetClient telnetClient) throws IOException {
+		telnetClient.setReaderThread(true);
+		try {
+			telnetClient.addOptionHandler(new BinaryOptionHandler());
+			telnetClient.addOptionHandler(new ComPortOptionHandler());
+		}
+		catch (InvalidTelnetOptionException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/**
+	 * Connects the Telnet Client to the access server. An {@link IOException} will be thrown if it
+	 * is not possible, e.g. if the host is unknown or cannot be resolved.
+	 */
+	private void connect(TelnetClient telnetClient) throws IOException {
+		telnetClient.connect(accessServer.getHostString(), accessServer.getPort());
+	}
+
+	/**
+	 * Awaits the the end of the negotiation phase. An {@link IOException} will thrown if the
+	 * connection was closed, the negotiation phase timed out or at least one option is not
+	 * supported by the access server.
+	 */
+	private void awaitNegotiation(TelnetClient telnetClient) throws IOException {
+		NegotiationHandler nh = new NegotiationHandler(telnetClient);
+
+		nh.awaitOptionState(BINARY,RECEIVED_DO, negotiationTimeout);
+		nh.awaitOptionState(BINARY,RECEIVED_WILL, negotiationTimeout);
+		nh.awaitOptionState(COM_PORT_OPTION,RECEIVED_DO, negotiationTimeout);
 	}
 
 	/**
@@ -88,13 +157,32 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * information. Thus clients should not rely on this!
 	 * 
 	 * @return <ul>
-	 *         <li><code>null</code>, if this port is not open</li> 
-	 *         <li>signature information of the access server as defined in RFC2217, if this port is open</li>
+	 *         <li><code>null</code>, if this port is not open</li> <li>signature information of the
+	 *         access server as defined in RFC2217, if this port is open</li>
 	 *         </ul>
 	 */
 	@Nullable
 	public String getDescription() {
 		return null;
+	}
+
+	/**
+	 * Sets the negotiation timeout in milli seconds for all telnet options. This method must be
+	 * called before {@link #open(SerialPortSettings)} otherwise it has no effect. The
+	 * {@link #open(SerialPortSettings)} will wait atmost the given number of milli seconds to
+	 * receive notifications about the required options.
+	 * 
+	 * @param milliSeconds
+	 *            the milli seconds until all options must be negotiated or refused by the access
+	 *            server
+	 * 
+	 * @see #open(SerialPortSettings)
+	 */
+	public void setNegotiationTimeout(@Nonnegative long milliSeconds) {
+		if (milliSeconds < 0)
+			throw new IllegalArgumentException("The negotiation timeout must be positive! Got:" + milliSeconds);
+		negotiationTimeout = milliSeconds;
+
 	}
 
 }
