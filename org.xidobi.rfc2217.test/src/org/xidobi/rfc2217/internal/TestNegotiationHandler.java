@@ -212,7 +212,7 @@ public class TestNegotiationHandler {
 	@Test(timeout = 100)
 	public void awaitWillSendOption_refusedWhileWaiting() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("The access server refused to accept option: " + BINARY + "!");
+		exception.expectMessage("The access server refused to send option: " + BINARY + "!");
 		
 		notifyAsyncNegotiationReceived(RECEIVED_WONT, BINARY, 20);
 		
