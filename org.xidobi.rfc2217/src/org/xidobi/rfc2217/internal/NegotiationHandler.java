@@ -37,9 +37,11 @@ public class NegotiationHandler {
 	/**
 	 * @param telnetClient
 	 *            the Telnet Client to be observed
-	 * @param expectedOptions
 	 */
 	public NegotiationHandler(TelnetClient telnetClient) {
+		if (telnetClient==null)
+			throw new IllegalArgumentException("Parameter >telnetClient< must not be null!");
+		
 		telnetClient.registerNotifHandler(handler);
 	}
 
@@ -63,7 +65,7 @@ public class NegotiationHandler {
 	 *            the number of milli seconds to wait at most
 	 * @throws IOException
 	 */
-	public int awaitOptionState(int optionCode, int expectedOptionState, @Nonnegative long negotiationTimeout) throws IOException {
+	public void awaitOptionState(int optionCode, int expectedOptionState, @Nonnegative long negotiationTimeout) throws IOException {
 
 		throw new UnsupportedOperationException("Not implemented yet!");
 	}
