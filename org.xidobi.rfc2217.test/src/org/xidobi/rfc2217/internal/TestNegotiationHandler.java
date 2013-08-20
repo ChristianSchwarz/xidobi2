@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.apache.commons.net.telnet.TelnetOption;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,9 +21,15 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations.Mock;
 
+import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 
 import static org.mockito.Mockito.verify;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.*;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
@@ -120,11 +127,29 @@ public class TestNegotiationHandler {
 	/**
 	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
 	 * access server didn't answer within the given time if it is willing to accept the option.
+	 * <p>
+	 * No 
+	 * @throws IOException
+	 */
+	@Test(timeout = 200)
+	public void awaitWillAcceptOption_timeout() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server timed out to negotiate option: " +BINARY+"!");
+		
+		long start = currentTimeMillis();
+		handler.awaitWillAcceptOption(BINARY, 50);
+		assertThat(currentTimeMillis()-start, is(lessThan(100L)));
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * access server didn't answer within the given time if it is willing to accept the option.
+	 * <p>
 	 * 
 	 * @throws IOException
 	 */
 	@Test(timeout = 100)
-	public void awaitWillAcceptOption_timeout() throws IOException {
+	public void awaitWillAcceptOption_timeout2() throws IOException {
 		exception.expect(IOException.class);
 		exception.expectMessage("The access server refused to accept option: " +BINARY+"!");
 		

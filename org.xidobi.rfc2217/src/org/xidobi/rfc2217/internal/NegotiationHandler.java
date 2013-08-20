@@ -21,6 +21,8 @@ import javax.annotation.Nonnull;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
+import static java.lang.Math.max;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -118,11 +120,14 @@ public class NegotiationHandler {
 				throw new IOException("The access server refused to accept option: " + optionCode + "!");
 
 			awaitNotification(remainingTime);
-			remainingTime= currentTimeMillis() - startTime;
+			
+			final long elapsedMs = currentTimeMillis() - startTime;
+			remainingTime= max(negotiationTimeout-elapsedMs,0);
 			
 		}
 		while (remainingTime > 0);
-
+		
+		throw new IOException("The access server timed out to negotiate option: " +optionCode+"!");
 	}
 
 	/**
