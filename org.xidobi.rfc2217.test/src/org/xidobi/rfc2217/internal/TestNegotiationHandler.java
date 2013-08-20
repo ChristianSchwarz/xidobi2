@@ -6,33 +6,49 @@
  */
 package org.xidobi.rfc2217.internal;
 
+import java.io.IOException;
+
 import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.commons.net.telnet.TelnetNotificationHandler;
+import org.apache.commons.net.telnet.TelnetOption;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations.Mock;
 
+import static java.lang.Thread.sleep;
+
+import static org.mockito.Mockito.verify;
+
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.*;
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * Tests the class {@link NegotiationHandler}
+ * 
  * @author Christian Schwarz
- *
+ * 
  */
 public class TestNegotiationHandler {
 
-	/** needed to verifiy exception*/
+	/** needed to verifiy exception */
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	/** class under test*/
+	/** class under test */
 	@InjectMocks
 	private NegotiationHandler handler;
 
 	@Mock
 	private TelnetClient telnetClient;
+
+	@Captor
+	private ArgumentCaptor<TelnetNotificationHandler> notificationHandler;
 
 	/**
 	 * 
@@ -40,15 +56,100 @@ public class TestNegotiationHandler {
 	@Before
 	public void setUp() {
 		initMocks(this);
-		handler = new NegotiationHandler(telnetClient);
+		verify(telnetClient).registerNotifHandler(notificationHandler.capture());
+	}
+
+	/**
+	 * If <code>null</code> is passed to the constructor an {@link IllegalArgumentException} must be
+	 * thrown.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void new_nullTelnetClient() {
+		new NegotiationHandler(null);
+
+	}
+
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return immediatly if the
+	 * access server signaled that it is willing to accept the option, before the method was called.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillAcceptOption_acceptedBeforeCall() throws IOException {
+		notifyNegotiationReceived(RECEIVED_DO, BINARY);
+
+		handler.awaitWillAcceptOption(BINARY, 1000);
+	}
+
+	
+	
+
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * access server signaled that it refused to accept the option, before the method was called.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillAcceptOption_refusedBeforeCall() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server refused to accept option: " +BINARY+"!");
+
+		notifyNegotiationReceived(RECEIVED_DONT, BINARY);
+
+		handler.awaitWillAcceptOption(BINARY, 1000);
 	}
 	
 	/**
-	 * If <code>null</code> is passed to the constructor an {@link IllegalArgumentException} must be thrown.
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return if the
+	 * access server signaled that it is willing to accept the option, before the method was called.
+	 * 
+	 * @throws IOException
 	 */
-	@Test(expected=IllegalArgumentException.class)
-	public void new_nullTelnetClient() {
-		new NegotiationHandler(null);
+	@Test(timeout = 100)
+	public void awaitWillAcceptOption_acceptedAfterCall() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server refused to accept option: " +BINARY+"!");
 		
+		notifyAsyncNegotiationReceived(RECEIVED_DONT, BINARY,50);
+		
+		handler.awaitWillAcceptOption(BINARY, 1000);
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * access server didn't answer within the given time if it is willing to accept the option.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillAcceptOption_timeout() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server refused to accept option: " +BINARY+"!");
+		
+		notifyAsyncNegotiationReceived(RECEIVED_DONT, BINARY,50);
+		
+		handler.awaitWillAcceptOption(BINARY, 1000);
+	}
+	
+	///////////////
+	protected void notifyNegotiationReceived(int negotiationCode, int optionCode) {
+		notificationHandler.getValue().receivedNegotiation(negotiationCode,optionCode);
+	}
+	
+	protected void notifyAsyncNegotiationReceived(final int negotiationCode,final int optionCode,final long delayMs) {
+		new Thread(){
+			@Override
+			public void run() {
+				try {
+					sleep(delayMs);
+					notifyNegotiationReceived(negotiationCode,optionCode);
+				}
+				catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 }

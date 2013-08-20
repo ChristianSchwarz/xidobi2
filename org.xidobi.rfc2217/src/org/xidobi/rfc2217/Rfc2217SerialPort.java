@@ -26,8 +26,6 @@ import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 
 /**
@@ -45,6 +43,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * {@link #open(SerialPortSettings)} , in milli seconds
 	 */
 	private long negotiationTimeout;
+	private NegotiationHandler negotiationHandler;
 
 	/**
 	 * Creates a new {@link Rfc2217SerialPort} that that will be connected to the given Access
@@ -84,14 +83,20 @@ public class Rfc2217SerialPort implements SerialPort {
 			throw new IllegalArgumentException("Parameter >settings< must not be null!");
 
 		TelnetClient telnetClient = createTelnetClient();
+		
 		configure(telnetClient);
+		
+		createNegotiationHandler(telnetClient);
+		
 		connect(telnetClient);
+		
 		awaitNegotiation(telnetClient);
 
 		return new SerialConnectionImpl(this, telnetClient);
 
 	}
 
+	
 	/**
 	 * Subclasses may override this method to create an own {@link TelnetClient} or to add special
 	 * {@link TelnetOptionHandler}'s to it.
@@ -118,6 +123,10 @@ public class Rfc2217SerialPort implements SerialPort {
 		}
 	}
 
+	private void createNegotiationHandler(TelnetClient telnetClient) {
+		negotiationHandler = new NegotiationHandler(telnetClient);
+	}
+	
 	/**
 	 * Connects the Telnet Client to the access server. An {@link IOException} will be thrown if it
 	 * is not possible, e.g. if the host is unknown or cannot be resolved.
@@ -132,11 +141,10 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * supported by the access server.
 	 */
 	private void awaitNegotiation(@Nonnull TelnetClient telnetClient) throws IOException {
-		NegotiationHandler nh = new NegotiationHandler(telnetClient);
 
-		nh.awaitOptionState(BINARY,RECEIVED_DO, negotiationTimeout);
-		nh.awaitOptionState(BINARY,RECEIVED_WILL, negotiationTimeout);
-		nh.awaitOptionState(COM_PORT_OPTION,RECEIVED_DO, negotiationTimeout);
+		negotiationHandler.awaitWillAcceptOption(BINARY, negotiationTimeout);
+		negotiationHandler.awaitWillSendOption(BINARY, negotiationTimeout);
+		negotiationHandler.awaitWillAcceptOption(COM_PORT_OPTION, negotiationTimeout);
 	}
 
 	/**

@@ -83,6 +83,8 @@ public class TestRfc2217SerialPort {
 
 		new Rfc2217SerialPort(null);
 	}
+	
+	
 
 	/**
 	 * If argument {@code settings} is <code>null</code> an {@link IllegalArgumentException} must be
@@ -97,6 +99,7 @@ public class TestRfc2217SerialPort {
 
 		port.open(null);
 	}
+	
 
 	/**
 	 * The Portname must represent the address of the access server in the form
