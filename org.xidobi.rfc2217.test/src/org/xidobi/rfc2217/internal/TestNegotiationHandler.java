@@ -11,7 +11,6 @@ import java.io.IOException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.apache.commons.net.telnet.TelnetOption;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,18 +21,19 @@ import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations.Mock;
 
 import static java.lang.System.currentTimeMillis;
-import static java.lang.Thread.sleep;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
 
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WONT;
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.*;
-import static org.apache.commons.net.telnet.TelnetOption.BINARY;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * Tests the class {@link NegotiationHandler}
@@ -171,6 +171,104 @@ public class TestNegotiationHandler {
 
 		long start = currentTimeMillis();
 		handler.awaitWillAcceptOption(BINARY, 50);
+		assertThat(currentTimeMillis() - start, is(lessThan(100L)));
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return immediatly if the
+	 * access server signaled that it is willing to send the option, before the method was called.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillSendOption_acceptedBeforeCall() throws IOException {
+		notifyNegotiationReceived(RECEIVED_WILL, BINARY);
+		
+		handler.awaitWillSendOption(BINARY, 1000);
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * access server signaled that it refused to send the option, before the method was called.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillSendOption_refusedBeforeCall() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server refused to send option: " + BINARY + "!");
+		
+		notifyNegotiationReceived(RECEIVED_WONT, BINARY);
+		
+		handler.awaitWillSendOption(BINARY, 1000);
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return if the access server
+	 * signaled that it is willing to send the option, before the method was called.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillSendOption_refusedWhileWaiting() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server refused to accept option: " + BINARY + "!");
+		
+		notifyAsyncNegotiationReceived(RECEIVED_WONT, BINARY, 20);
+		
+		handler.awaitWillSendOption(BINARY, 1000);
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return if the access server
+	 * is willing to send the option while waiting.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillSendOption_acceptedWhileWaiting() throws IOException {
+		notifyAsyncNegotiationReceived(RECEIVED_WILL, BINARY, 20);
+		
+		handler.awaitWillSendOption(BINARY, 1000);
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * access server didn't answer within the given time if it is willing to accept or refuse the option.
+	 * <p>
+	 * No notification of an refused or accepted option is received in this test case.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 200)
+	public void awaitWillSendOption_timeout() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server timed out to negotiate option: " + BINARY + "!");
+		
+		long start = currentTimeMillis();
+		handler.awaitWillSendOption(BINARY, 50);
+		assertThat(currentTimeMillis() - start, is(lessThan(100L)));
+	}
+	
+	/**
+	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * negotiation of the given option timed out.
+	 * <p>
+	 * 
+	 * An irrelevant notification of an the interested option is send in this test case, while
+	 * waiting.This must have no effect to the waiting method.
+	 * 
+	 * @throws IOException
+	 */
+	@Test(timeout = 100)
+	public void awaitWillSendOption_timeout2() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("The access server timed out to negotiate option: " + BINARY + "!");
+		
+		notifyAsyncNegotiationReceived(RECEIVED_WILL, TelnetOption.ECHO, 20);
+		
+		long start = currentTimeMillis();
+		handler.awaitWillSendOption(BINARY, 50);
 		assertThat(currentTimeMillis() - start, is(lessThan(100L)));
 	}
 

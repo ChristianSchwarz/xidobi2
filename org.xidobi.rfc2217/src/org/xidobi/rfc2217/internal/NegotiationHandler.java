@@ -7,10 +7,8 @@
 package org.xidobi.rfc2217.internal;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -21,10 +19,8 @@ import javax.annotation.Nonnull;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 
-import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 import static java.lang.Math.max;
 import static java.lang.System.currentTimeMillis;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -109,25 +105,48 @@ public class NegotiationHandler {
 	 *            the number of milli seconds to wait at most
 	 * @throws IOException
 	 */
-	public void awaitWillAcceptOption(int optionCode, @Nonnegative long negotiationTimeout) throws IOException {
+	public void awaitWillAcceptOption(final int optionCode, @Nonnegative long negotiationTimeout) throws IOException {
+		OptionStatus acceptStatus = new OptionStatus() {
+			public boolean isStatusKnown() {
+				return willingToAccept.contains(optionCode) || refusedToAccept.contains(optionCode); 
+			}
+			
+			public void throwIOExceptionIfRefused() throws IOException {
+				if (refusedToAccept.contains(optionCode))
+				throw new IOException("The access server refused to accept option: " + optionCode + "!");
+			}
+		};
+		
+		final boolean timeout = !loopUntilOptionStatusIsKnown(acceptStatus, negotiationTimeout);
+		if (timeout)
+			throw new IOException("The access server timed out to negotiate option: " +optionCode+"!");
+	}
+
+	/**
+	 * @param optionCode
+	 * @param timeoutMs
+	 * @throws IOException
+	 */
+	private boolean loopUntilOptionStatusIsKnown(OptionStatus option, long timeoutMs) throws IOException {
 		long startTime = currentTimeMillis(); 
 
-		long remainingTime = negotiationTimeout;
+		long remainingTime = timeoutMs;
 		do {
-			if (willingToAccept.contains(optionCode))
-				return;
-			if (refusedToAccept.contains(optionCode))
-				throw new IOException("The access server refused to accept option: " + optionCode + "!");
-
+			if (option.isStatusKnown()){
+					option.throwIOExceptionIfRefused();
+					return true;
+			}
+			
 			awaitNotification(remainingTime);
 			
 			final long elapsedMs = currentTimeMillis() - startTime;
-			remainingTime= max(negotiationTimeout-elapsedMs,0);
+			remainingTime= max(timeoutMs-elapsedMs,0);
 			
 		}
 		while (remainingTime > 0);
 		
-		throw new IOException("The access server timed out to negotiate option: " +optionCode+"!");
+		return false;
+
 	}
 
 	/**
@@ -160,4 +179,10 @@ public class NegotiationHandler {
 		throw new UnsupportedOperationException("Not implemented yet!");
 	}
 
+	
+	private interface OptionStatus {
+		boolean isStatusKnown();
+		
+		void throwIOExceptionIfRefused() throws IOException;
+	}
 }
