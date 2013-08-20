@@ -18,11 +18,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
-
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 
 import static java.net.InetSocketAddress.createUnresolved;
 import static org.mockito.Matchers.anyInt;
@@ -64,7 +60,7 @@ public class TestRfc2217SerialPort {
 	@Captor
 	private ArgumentCaptor<TelnetNotificationHandler> notificationHandler;
 
-	private ListenableFuture<SerialConnection> f;
+
 
 	/**
 	 * Init's the {@link Rfc2217SerialPort} with an unresolved Address.
@@ -176,26 +172,26 @@ public class TestRfc2217SerialPort {
 		}
 	}
 
-	/**
-	 * Opens the given port asynchron with the given settings.
-	 * 
-	 * @return the Future containing the result of the {@code open()} - Operation
-	 */
-	private ListenableFuture<SerialConnection> openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
-		final SettableFuture<SerialConnection> f = SettableFuture.create();
-
-		new Thread() {
-			public void run() {
-				try {
-					f.set(port.open(portSettings));
-				}
-				catch (IOException e) {
-					f.setException(e);
-				}
-			};
-		}.start();
-
-		return f;
-	}
+//	/**
+//	 * Opens the given port asynchron with the given settings.
+//	 * 
+//	 * @return the Future containing the result of the {@code open()} - Operation
+//	 */
+//	private ListenableFuture<SerialConnection> openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
+//		final SettableFuture<SerialConnection> f = SettableFuture.create();
+//
+//		new Thread() {
+//			public void run() {
+//				try {
+//					f.set(port.open(portSettings));
+//				}
+//				catch (IOException e) {
+//					f.setException(e);
+//				}
+//			};
+//		}.start();
+//
+//		return f;
+//	}
 
 }
