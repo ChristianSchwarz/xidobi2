@@ -104,10 +104,10 @@ public class Rfc2217SerialPort implements SerialPort {
 	}
 
 	/**
-	 * Configures the {@link TelnetClient}, adds the handlers for BINARY-OPERATION and
+	 * Configures the {@link TelnetClient}, adds handler for BINARY-OPERATION and
 	 * COMPORT-OPTION.
 	 */
-	private void configure(TelnetClient telnetClient) throws IOException {
+	private void configure(@Nonnull TelnetClient telnetClient) throws IOException {
 		telnetClient.setReaderThread(true);
 		try {
 			telnetClient.addOptionHandler(new BinaryOptionHandler());
@@ -122,7 +122,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * Connects the Telnet Client to the access server. An {@link IOException} will be thrown if it
 	 * is not possible, e.g. if the host is unknown or cannot be resolved.
 	 */
-	private void connect(TelnetClient telnetClient) throws IOException {
+	private void connect(@Nonnull TelnetClient telnetClient) throws IOException {
 		telnetClient.connect(accessServer.getHostString(), accessServer.getPort());
 	}
 
@@ -131,7 +131,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * connection was closed, the negotiation phase timed out or at least one option is not
 	 * supported by the access server.
 	 */
-	private void awaitNegotiation(TelnetClient telnetClient) throws IOException {
+	private void awaitNegotiation(@Nonnull TelnetClient telnetClient) throws IOException {
 		NegotiationHandler nh = new NegotiationHandler(telnetClient);
 
 		nh.awaitOptionState(BINARY,RECEIVED_DO, negotiationTimeout);
@@ -141,7 +141,7 @@ public class Rfc2217SerialPort implements SerialPort {
 
 	/**
 	 * Returns the name of this port in the form {@code "RFC2217@"+hostname+":"+port}, e.g
-	 * "RFC2217@192.168.0.15:5588". {@inheritDoc}
+	 * "RFC2217@192.168.0.15:23". {@inheritDoc}
 	 */
 	@Nonnull
 	public String getPortName() {
