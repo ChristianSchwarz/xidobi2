@@ -40,9 +40,9 @@ public class Rfc2217SerialPort implements SerialPort {
 	private final InetSocketAddress accessServer;
 	/**
 	 * defines the timeout that is used for the negotiation phase of
-	 * {@link #open(SerialPortSettings)} , in milli seconds
+	 * {@link #open(SerialPortSettings)} , in milli seconds, default is 1second
 	 */
-	private long negotiationTimeout;
+	private long negotiationTimeout = 5000;
 	private NegotiationHandler negotiationHandler;
 
 	/**
@@ -142,9 +142,9 @@ public class Rfc2217SerialPort implements SerialPort {
 	 */
 	private void awaitNegotiation(@Nonnull TelnetClient telnetClient) throws IOException {
 
+		negotiationHandler.awaitWillAcceptOption(COM_PORT_OPTION, negotiationTimeout);
 		negotiationHandler.awaitWillAcceptOption(BINARY, negotiationTimeout);
 		negotiationHandler.awaitWillSendOption(BINARY, negotiationTimeout);
-		negotiationHandler.awaitWillAcceptOption(COM_PORT_OPTION, negotiationTimeout);
 	}
 
 	/**

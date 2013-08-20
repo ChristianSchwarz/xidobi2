@@ -149,14 +149,14 @@ public class TestRfc2217SerialPort {
 	}
 
 	/**
-	 * If the Binary Telnet Option is not negotiation within 5seconds a IOException must be thrown
-	 * to indicate that this required Option is not available.
+	 * If the Binary Telnet Option is not negotiation within 10milli seconds a IOException must be thrown
+	 * to indicate that this option was not accepted or refused by the access server.
 	 */
 
 	@Test(timeout = 100)
 	public void open_binaryOptionTimeout() throws Exception {
 		exception.expect(IOException.class);
-		exception.expectMessage("Negotiation failed! The access server doesn't negotiated the binary option within");
+		exception.expectMessage("The access server timed out to negotiate option");
 
 		port.setNegotiationTimeout(10);
 		port.open(PORT_SETTINGS);

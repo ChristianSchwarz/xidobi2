@@ -6,17 +6,10 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.net.InetSocketAddress;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.net.ProtocolCommandEvent;
-import org.apache.commons.net.ProtocolCommandListener;
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.apache.commons.net.telnet.SimpleOptionHandler;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetInputListener;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
@@ -25,14 +18,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.omg.CORBA.TCKind;
-import org.xidobi.rfc2217.internal.BinaryOptionHandler;
-import org.xidobi.rfc2217.internal.ComPortOptionHandler;
-import org.xidobi.rfc2217.internal.SerialConnectionImpl;
+import org.xidobi.SerialPortSettings;
+import org.xidobi.rfc2217.Rfc2217SerialPort;
 
-import static org.hamcrest.Matchers.*;
-
-import static org.junit.Assert.assertThat;
+import static java.lang.Thread.sleep;
+import static java.net.InetSocketAddress.createUnresolved;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
@@ -43,44 +33,38 @@ public class IntegrationTest {
 
 	/**
 	 * @author Christian Schwarz
-	 *
+	 * 
 	 */
-	private  final class NegotiationListener implements TelnetNotificationHandler {
+	private final class NegotiationListener implements TelnetNotificationHandler {
 		public void receivedNegotiation(int negotiation_code, int option_code) {
-			
-			 String txt= null;
-			
+
+			String txt = null;
+
 			switch (negotiation_code) {
 				case TelnetNotificationHandler.RECEIVED_DO:
-					txt = "DO "+option_code;
+					txt = "DO " + option_code;
 					break;
 				case TelnetNotificationHandler.RECEIVED_DONT:
-					txt = "DONT "+option_code;
+					txt = "DONT " + option_code;
 					break;
 				case TelnetNotificationHandler.RECEIVED_WILL:
-					txt = "WILL "+option_code;
+					txt = "WILL " + option_code;
 					break;
 				case TelnetNotificationHandler.RECEIVED_WONT:
-					txt = "WONT "+option_code;
+					txt = "WONT " + option_code;
 					break;
 				case TelnetNotificationHandler.RECEIVED_COMMAND:
-					txt = "COMMAND "+option_code;
+					txt = "COMMAND " + option_code;
 					break;
 			}
+
 			System.out.println(txt);
-			
-			optionSupport.put(option_code,negotiation_code);
-			lock.tryLock();
-			try{
-				negotiationReceived.signal();
-			}finally{
-				lock.unlock();
-			}
+			System.out.flush();
 		}
 	}
+
 	private ReentrantLock lock = new ReentrantLock();
 	private Condition negotiationReceived = lock.newCondition();
-	
 
 	/** needed to verifiy exception */
 	@Rule
@@ -92,44 +76,47 @@ public class IntegrationTest {
 
 	@Mock
 	private SerialConnectionImpl connection;
-	
-	private final  Map<Integer, Integer> optionSupport = new HashMap<Integer, Integer>();
 
 	@Before
 	public void setUp() {
 		initMocks(this);
-
 	}
 
 	/**
 	 * 
 	 */
 	@Test
-	
 	public void testName() throws Exception {
-
 		TelnetClient telnetClient = new TelnetClient();
 		telnetClient.setReaderThread(true);
 		telnetClient.addOptionHandler(new BinaryOptionHandler());
 		telnetClient.addOptionHandler(new ComPortOptionHandler());
 		telnetClient.registerNotifHandler(new NegotiationListener());
-		telnetClient.registerInputListener(new TelnetInputListener(){
+		telnetClient.registerInputListener(new TelnetInputListener() {
 
 			public void telnetInputAvailable() {
 				System.out.println("telnetInputAvailable");
-			}});
-		
-		
+			}
+		});
+
 		System.out.println("connect");
 		telnetClient.connect("192.168.98.31");
+		sleep(1000);
+
+		System.out.println(telnetClient.getLocalOptionState(0));
+		System.out.println(telnetClient.getRemoteOptionState(0));
+		System.out.println(telnetClient.getLocalOptionState(45));
+		System.out.println(telnetClient.getRemoteOptionState(45));
 		
-		lock.tryLock();
-		try{
-			negotiationReceived.await(15,TimeUnit.SECONDS);
-		}finally{
-			lock.unlock();
-		}
-		
-		System.out.println(""+optionSupport);
+		telnetClient.disconnect();
 	}
+
+	/**
+	 * 
+*/
+	@Test
+	public void testNam2e() throws Exception {
+		new Rfc2217SerialPort(createUnresolved("192.168.98.31", 23)).open(SerialPortSettings.from9600bauds8N1().create());
+	}
+
 }
