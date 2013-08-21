@@ -60,7 +60,7 @@ public class NegotiationHandler {
 					break;
 			}
 
-			negotiationLock.tryLock();
+			negotiationLock.lock();
 			try {
 				negotiationReceived.signalAll();
 			}
@@ -191,7 +191,7 @@ public class NegotiationHandler {
 	 * Waits for any option notification, send by the access server.
 	 */
 	protected void awaitNotification(long remainingTime) {
-		negotiationLock.tryLock();
+		negotiationLock.lock();
 		try {
 			negotiationReceived.await(remainingTime, MILLISECONDS);
 		}
