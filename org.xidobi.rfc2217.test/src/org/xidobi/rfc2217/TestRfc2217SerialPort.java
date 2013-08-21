@@ -6,11 +6,17 @@
  */
 package org.xidobi.rfc2217;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.nio.IntBuffer;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
@@ -21,30 +27,30 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 
-import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.sleep;
 import static java.net.InetSocketAddress.createUnresolved;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasToString;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
 
 import static org.junit.Assert.assertThat;
 
@@ -75,6 +81,8 @@ public class TestRfc2217SerialPort {
 
 	@Captor
 	private ArgumentCaptor<TelnetNotificationHandler> notificationHandler;
+
+	private Future<SerialConnection> openFuture;
 
 	/**
 	 * Init's the {@link Rfc2217SerialPort} with an unresolved Address.
@@ -149,6 +157,34 @@ public class TestRfc2217SerialPort {
 	}
 
 	/**
+	 * If the access server refuse to accept com-port-options, the telnet client must be
+	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
+	 * apply the serial settings on the access server.
+	 * 
+	 */
+	@Test(timeout = 500)
+	public void open() throws Throwable {
+		openFuture = openAsync(port, PORT_SETTINGS);
+
+		TelnetNotificationHandler handler = awaitValue(notificationHandler, 200);
+		handler.receivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		handler.receivedNegotiation(RECEIVED_DO, BINARY);
+		handler.receivedNegotiation(RECEIVED_WILL, BINARY);
+
+		
+		await(openFuture);
+		
+		int[] baudRateCmd = new IntArray()
+		.putByte(COM_PORT_OPTION)
+		.putByte(SET_BAUDRATE)
+		.putInt(PORT_SETTINGS.getBauds())
+		.toArray();
+
+		verify(telnetClient).sendSubnegotiation(baudRateCmd);
+
+	}
+
+	/**
 	 * If the host is unknown an IOException must be thrown.
 	 * 
 	 * @throws IOException
@@ -185,14 +221,14 @@ public class TestRfc2217SerialPort {
 	 * 
 	 */
 	@Test(timeout = 500)
-	public void open_failedComOptionRefused() throws Exception {
-		final AtomicReference<IOException> e;
+	public void open_failedComOptionRefused() throws Throwable {
+		exception.expect(IOException.class);
+		exception.expectMessage("refused to accept option: " + COM_PORT_OPTION);
 
-		e= openAsync(port, PORT_SETTINGS);
-		awaitValue(notificationHandler,200).receivedNegotiation(RECEIVED_DONT, COM_PORT_OPTION);
-
+		openFuture = openAsync(port, PORT_SETTINGS);
+		awaitValue(notificationHandler, 200).receivedNegotiation(RECEIVED_DONT, COM_PORT_OPTION);
 		verify(telnetClient, timeout(200)).disconnect();
-		assertThat(e.get(), hasToString(containsString("refused to accept option: "+COM_PORT_OPTION)));
+		await(openFuture);
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,46 +245,92 @@ public class TestRfc2217SerialPort {
 	}
 
 	/**
+	 * Waits if necessary for the computation to complete or throws an Exception if the future was
+	 * canceled, interrupted or terminated unexpected. Any {@link ExecutionException} will be
+	 * transformed to its cause exception.
+	 */
+	private <T> void await(Future<T> future) throws Throwable {
+		try {
+			future.get();
+		}
+		catch (ExecutionException e) {
+			throw e.getCause();
+		}
+	}
+
+	/**
 	 * Opens the given port asynchron with the given settings.
 	 * 
 	 * @return the Future containing the result of the {@code open()} - Operation
 	 */
-	private AtomicReference<IOException> openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
-		final AtomicReference<IOException> f = new AtomicReference<IOException>();
+	private Future<SerialConnection> openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
+		ExecutorService e = newSingleThreadExecutor();
 
-		new Thread() {
-			public void run() {
-				try {
-					port.open(portSettings);
-				}
-				catch (IOException e) {
-					f.set(e);
-					e.printStackTrace();
-				}
-			};
-		}.start();
+		Callable<SerialConnection> task = new Callable<SerialConnection>() {
+
+			public SerialConnection call() throws Exception {
+				return port.open(portSettings);
+			}
+		};
+
+		final Future<SerialConnection> f = e.submit(task);
+
+		e.shutdown();
 
 		return f;
+
 	}
 
 	private <T> T awaitValue(ArgumentCaptor<T> captor, long millis) throws TimeoutException {
-		
-		
+
 		while (millis > 0) {
 			if (!captor.getAllValues().isEmpty())
 				return captor.getValue();
-			
+
 			try {
 				sleep(5);
 			}
 			catch (InterruptedException ignore) {}
-			
-			millis-=5;
-			
+
+			millis -= 5;
+
 		}
 
 		throw new TimeoutException();
 
+	}
+	
+	private class IntArray {
+
+		private ByteArrayOutputStream bo = new ByteArrayOutputStream();
+		private DataOutput o = new DataOutputStream(bo);
+		
+		IntArray putByte(int v){
+			try {
+				o.writeByte(v);
+			}
+			catch (IOException cantHappen) {}
+			return this;
+		}
+		
+		IntArray putInt(int v){
+			try {
+				o.writeInt(v);
+			}
+			catch (IOException cantHappen) {}
+			return this;
+		}
+		
+		int[] toArray(){
+			
+			final byte[] bytes = bo.toByteArray();
+			final int[] r = new int[bytes.length];
+			for (int i = 0; i < r.length; i++)
+				r[i] = (byte)(bytes[i]&0xff);
+				
+			
+			return r;
+		}
 	}
 
 }

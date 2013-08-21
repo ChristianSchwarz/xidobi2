@@ -37,12 +37,18 @@ import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 public class Rfc2217SerialPort implements SerialPort {
 
 	/** The address of the access server, we are connected to */
+	@Nonnull
 	private final InetSocketAddress accessServer;
 	/**
 	 * defines the timeout that is used for the negotiation phase of
 	 * {@link #open(SerialPortSettings)} , in milli seconds, default is 1second
 	 */
 	private long negotiationTimeout = 5000;
+	
+	/**
+	 * Used to await the option negotiations during {@link #open(SerialPortSettings)}
+	 * @see #awaitNegotiation(TelnetClient)
+	 */
 	private NegotiationHandler negotiationHandler;
 
 	/**
@@ -91,25 +97,15 @@ public class Rfc2217SerialPort implements SerialPort {
 		connect(telnetClient);
 		try {
 			awaitNegotiation(telnetClient);
-
+			
+			sendPortSettings(telnetClient,settings);
+			
 			return new SerialConnectionImpl(this, telnetClient);
 		}
 		catch (IOException e) {
 			disconnect(telnetClient);
 			throw e;
 		}
-	}
-
-	/** Disconnects the {@link TelnetClient} and sucks all kind of thrown Exceptions.*/
-	private void disconnect(TelnetClient telnetClient) {
-		if (telnetClient == null)
-			return;
-		
-		try {
-			telnetClient.disconnect();
-		}
-		catch (Exception ignore) {}
-
 	}
 
 	/**
@@ -159,6 +155,26 @@ public class Rfc2217SerialPort implements SerialPort {
 		negotiationHandler.awaitAcceptOptionNegotiation(COM_PORT_OPTION, negotiationTimeout);
 		negotiationHandler.awaitAcceptOptionNegotiation(BINARY, negotiationTimeout);
 		negotiationHandler.awaitSendOptionNegotiation(BINARY, negotiationTimeout);
+	}
+	
+	/**
+	 * @param telnetClient
+	 * @param settings
+	 */
+	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) {
+		
+	}
+
+	/** Disconnects the {@link TelnetClient} and sucks all kind of thrown Exceptions.*/
+	private void disconnect(TelnetClient telnetClient) {
+		if (telnetClient == null)
+			return;
+		
+		try {
+			telnetClient.disconnect();
+		}
+		catch (Exception ignore) {}
+	
 	}
 
 	/**
