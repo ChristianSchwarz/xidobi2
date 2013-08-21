@@ -156,9 +156,9 @@ public class Rfc2217SerialPort implements SerialPort {
 	 */
 	private void awaitNegotiation(@Nonnull TelnetClient telnetClient) throws IOException {
 
-		negotiationHandler.awaitWillAcceptOption(COM_PORT_OPTION, negotiationTimeout);
-		negotiationHandler.awaitWillAcceptOption(BINARY, negotiationTimeout);
-		negotiationHandler.awaitWillSendOption(BINARY, negotiationTimeout);
+		negotiationHandler.awaitAcceptOptionNegotiation(COM_PORT_OPTION, negotiationTimeout);
+		negotiationHandler.awaitAcceptOptionNegotiation(BINARY, negotiationTimeout);
+		negotiationHandler.awaitSendOptionNegotiation(BINARY, negotiationTimeout);
 	}
 
 	/**

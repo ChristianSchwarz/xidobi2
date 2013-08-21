@@ -8,6 +8,9 @@ package org.xidobi.rfc2217;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
@@ -18,26 +21,30 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.xidobi.SerialPortSettings;
-import org.xidobi.rfc2217.internal.RFC2217;
 
+import static java.lang.System.currentTimeMillis;
+import static java.lang.Thread.sleep;
 import static java.net.InetSocketAddress.createUnresolved;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WONT;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 import static org.junit.Assert.assertThat;
 
@@ -76,7 +83,7 @@ public class TestRfc2217SerialPort {
 	public void setUp() {
 		initMocks(this);
 		port = new TestableRfc2217Port(ACCESS_SERVER_ADDRESS);
-		verify(telnetClient,atLeast(0)).registerNotifHandler(notificationHandler.capture());
+		doNothing().when(telnetClient).registerNotifHandler(notificationHandler.capture());
 	}
 
 	/**
@@ -175,18 +182,17 @@ public class TestRfc2217SerialPort {
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
 	 * apply the serial settings on the access server.
+	 * 
 	 */
-	@Test(timeout = 100)
-	public void open_failedComOptionRefused() throws IOException {
-		exception.expect(IOException.class);
-		exception.expectMessage("xx");
+	@Test(timeout = 500)
+	public void open_failedComOptionRefused() throws Exception {
+		final AtomicReference<IOException> e;
 
-		openAsync(port, PORT_SETTINGS);
-		
-		notificationHandler.getValue().receivedNegotiation(RECEIVED_WONT, COM_PORT_OPTION);
-		
-		verify(telnetClient,timeout(200)).disconnect();
-		
+		e= openAsync(port, PORT_SETTINGS);
+		awaitValue(notificationHandler,200).receivedNegotiation(RECEIVED_DONT, COM_PORT_OPTION);
+
+		verify(telnetClient, timeout(200)).disconnect();
+		assertThat(e.get(), hasToString(containsString("refused to accept option: "+COM_PORT_OPTION)));
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -207,7 +213,8 @@ public class TestRfc2217SerialPort {
 	 * 
 	 * @return the Future containing the result of the {@code open()} - Operation
 	 */
-	private void openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
+	private AtomicReference<IOException> openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
+		final AtomicReference<IOException> f = new AtomicReference<IOException>();
 
 		new Thread() {
 			public void run() {
@@ -215,10 +222,32 @@ public class TestRfc2217SerialPort {
 					port.open(portSettings);
 				}
 				catch (IOException e) {
+					f.set(e);
 					e.printStackTrace();
 				}
 			};
 		}.start();
+
+		return f;
+	}
+
+	private <T> T awaitValue(ArgumentCaptor<T> captor, long millis) throws TimeoutException {
+		
+		
+		while (millis > 0) {
+			if (!captor.getAllValues().isEmpty())
+				return captor.getValue();
+			
+			try {
+				sleep(5);
+			}
+			catch (InterruptedException ignore) {}
+			
+			millis-=5;
+			
+		}
+
+		throw new TimeoutException();
 
 	}
 
