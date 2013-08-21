@@ -18,14 +18,23 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.xidobi.SerialPortSettings;
+import org.xidobi.rfc2217.internal.RFC2217;
 
 import static java.net.InetSocketAddress.createUnresolved;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WONT;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -60,8 +69,6 @@ public class TestRfc2217SerialPort {
 	@Captor
 	private ArgumentCaptor<TelnetNotificationHandler> notificationHandler;
 
-
-
 	/**
 	 * Init's the {@link Rfc2217SerialPort} with an unresolved Address.
 	 */
@@ -69,7 +76,7 @@ public class TestRfc2217SerialPort {
 	public void setUp() {
 		initMocks(this);
 		port = new TestableRfc2217Port(ACCESS_SERVER_ADDRESS);
-
+		verify(telnetClient,atLeast(0)).registerNotifHandler(notificationHandler.capture());
 	}
 
 	/**
@@ -83,8 +90,6 @@ public class TestRfc2217SerialPort {
 
 		new Rfc2217SerialPort(null);
 	}
-	
-	
 
 	/**
 	 * If argument {@code settings} is <code>null</code> an {@link IllegalArgumentException} must be
@@ -99,7 +104,6 @@ public class TestRfc2217SerialPort {
 
 		port.open(null);
 	}
-	
 
 	/**
 	 * The Portname must represent the address of the access server in the form
@@ -124,15 +128,16 @@ public class TestRfc2217SerialPort {
 	 * If a positiv value of milli seconds is passed, no exception must be thrown!
 	 */
 	@Test
-	public void setNegotiationTimeout()  {
+	public void setNegotiationTimeout() {
 		port.setNegotiationTimeout(500);
 	}
-	
+
 	/**
-	 * If a negative value of milli seconds is passed, the setter must fail fast, to indicate an error!
+	 * If a negative value of milli seconds is passed, the setter must fail fast, to indicate an
+	 * error!
 	 */
 	@Test(expected = IllegalArgumentException.class)
-	public void setNegotiationTimeout_negative()  {
+	public void setNegotiationTimeout_negative() {
 		port.setNegotiationTimeout(-500);
 	}
 
@@ -149,17 +154,39 @@ public class TestRfc2217SerialPort {
 	}
 
 	/**
-	 * If the Binary Telnet Option is not negotiation within 10milli seconds a IOException must be thrown
-	 * to indicate that this option was not accepted or refused by the access server.
+	 * If the Binary Telnet Option is not negotiation within 10milli seconds a IOException must be
+	 * thrown to indicate that this option was not accepted or refused by the access server.
 	 */
-
 	@Test(timeout = 100)
-	public void open_binaryOptionTimeout() throws Exception {
+	public void open_failedBinaryOptionTimeout() throws Exception {
 		exception.expect(IOException.class);
 		exception.expectMessage("The access server timed out to negotiate option");
 
 		port.setNegotiationTimeout(10);
-		port.open(PORT_SETTINGS);
+		try {
+			port.open(PORT_SETTINGS);
+		}
+		finally {
+			verify(telnetClient).disconnect();
+		}
+	}
+
+	/**
+	 * If the access server refuse to accept com-port-options, the telnet client must be
+	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
+	 * apply the serial settings on the access server.
+	 */
+	@Test(timeout = 100)
+	public void open_failedComOptionRefused() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("xx");
+
+		openAsync(port, PORT_SETTINGS);
+		
+		notificationHandler.getValue().receivedNegotiation(RECEIVED_WONT, COM_PORT_OPTION);
+		
+		verify(telnetClient,timeout(200)).disconnect();
+		
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,26 +202,24 @@ public class TestRfc2217SerialPort {
 		}
 	}
 
-//	/**
-//	 * Opens the given port asynchron with the given settings.
-//	 * 
-//	 * @return the Future containing the result of the {@code open()} - Operation
-//	 */
-//	private ListenableFuture<SerialConnection> openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
-//		final SettableFuture<SerialConnection> f = SettableFuture.create();
-//
-//		new Thread() {
-//			public void run() {
-//				try {
-//					f.set(port.open(portSettings));
-//				}
-//				catch (IOException e) {
-//					f.setException(e);
-//				}
-//			};
-//		}.start();
-//
-//		return f;
-//	}
+	/**
+	 * Opens the given port asynchron with the given settings.
+	 * 
+	 * @return the Future containing the result of the {@code open()} - Operation
+	 */
+	private void openAsync(final Rfc2217SerialPort port, final SerialPortSettings portSettings) {
+
+		new Thread() {
+			public void run() {
+				try {
+					port.open(portSettings);
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			};
+		}.start();
+
+	}
 
 }

@@ -83,20 +83,35 @@ public class Rfc2217SerialPort implements SerialPort {
 			throw new IllegalArgumentException("Parameter >settings< must not be null!");
 
 		TelnetClient telnetClient = createTelnetClient();
-		
-		configure(telnetClient);
-		
-		createNegotiationHandler(telnetClient);
-		
-		connect(telnetClient);
-		
-		awaitNegotiation(telnetClient);
 
-		return new SerialConnectionImpl(this, telnetClient);
+		configure(telnetClient);
+
+		createNegotiationHandler(telnetClient);
+
+		connect(telnetClient);
+		try {
+			awaitNegotiation(telnetClient);
+
+			return new SerialConnectionImpl(this, telnetClient);
+		}
+		catch (IOException e) {
+			disconnect(telnetClient);
+			throw e;
+		}
+	}
+
+	/** Disconnects the {@link TelnetClient} and sucks all kind of thrown Exceptions.*/
+	private void disconnect(TelnetClient telnetClient) {
+		if (telnetClient == null)
+			return;
+		
+		try {
+			telnetClient.disconnect();
+		}
+		catch (Exception ignore) {}
 
 	}
 
-	
 	/**
 	 * Subclasses may override this method to create an own {@link TelnetClient} or to add special
 	 * {@link TelnetOptionHandler}'s to it.
@@ -109,8 +124,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	}
 
 	/**
-	 * Configures the {@link TelnetClient}, adds handler for BINARY-OPERATION and
-	 * COMPORT-OPTION.
+	 * Configures the {@link TelnetClient}, adds handler for BINARY-OPERATION and COMPORT-OPTION.
 	 */
 	private void configure(@Nonnull TelnetClient telnetClient) throws IOException {
 		telnetClient.setReaderThread(true);
@@ -126,7 +140,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	private void createNegotiationHandler(TelnetClient telnetClient) {
 		negotiationHandler = new NegotiationHandler(telnetClient);
 	}
-	
+
 	/**
 	 * Connects the Telnet Client to the access server. An {@link IOException} will be thrown if it
 	 * is not possible, e.g. if the host is unknown or cannot be resolved.
