@@ -77,7 +77,7 @@ public class TestNegotiationHandler {
 	}
 
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return immediatly if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must return immediatly if the
 	 * access server signaled that it is willing to accept the option, before the method was called.
 	 * 
 	 * @throws IOException
@@ -86,11 +86,11 @@ public class TestNegotiationHandler {
 	public void awaitWillAcceptOption_acceptedBeforeCall() throws IOException {
 		notifyNegotiationReceived(RECEIVED_DO, BINARY);
 
-		handler.awaitWillAcceptOption(BINARY, 1000);
+		handler.awaitAcceptOptionNegotiation(BINARY, 1000);
 	}
 
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must throw an IOException if the
 	 * access server signaled that it refused to accept the option, before the method was called.
 	 * 
 	 * @throws IOException
@@ -102,11 +102,11 @@ public class TestNegotiationHandler {
 
 		notifyNegotiationReceived(RECEIVED_DONT, BINARY);
 
-		handler.awaitWillAcceptOption(BINARY, 1000);
+		handler.awaitAcceptOptionNegotiation(BINARY, 1000);
 	}
 
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return if the access server
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must return if the access server
 	 * signaled that it is willing to accept the option, before the method was called.
 	 * 
 	 * @throws IOException
@@ -118,11 +118,11 @@ public class TestNegotiationHandler {
 
 		notifyAsyncNegotiationReceived(RECEIVED_DONT, BINARY, 20);
 
-		handler.awaitWillAcceptOption(BINARY, 1000);
+		handler.awaitAcceptOptionNegotiation(BINARY, 1000);
 	}
 
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return if the access server
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must return if the access server
 	 * is willing to accept the option while waiting.
 	 * 
 	 * @throws IOException
@@ -131,11 +131,11 @@ public class TestNegotiationHandler {
 	public void awaitWillAcceptOption_acceptedWhileWaiting() throws IOException {
 		notifyAsyncNegotiationReceived(RECEIVED_DO, BINARY, 20);
 
-		handler.awaitWillAcceptOption(BINARY, 1000);
+		handler.awaitAcceptOptionNegotiation(BINARY, 1000);
 	}
 
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must throw an IOException if the
 	 * access server didn't answer within the given time if it is willing to accept the option.
 	 * <p>
 	 * No notification of an refused or accepted option is send in this test case.
@@ -148,12 +148,12 @@ public class TestNegotiationHandler {
 		exception.expectMessage("The access server timed out to negotiate option: " + BINARY + "!");
 
 		long start = currentTimeMillis();
-		handler.awaitWillAcceptOption(BINARY, 50);
+		handler.awaitAcceptOptionNegotiation(BINARY, 50);
 		assertThat(currentTimeMillis() - start, is(lessThan(100L)));
 	}
 
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must throw an IOException if the
 	 * negotiation of the given option timed out.
 	 * <p>
 	 * 
@@ -170,12 +170,12 @@ public class TestNegotiationHandler {
 		notifyAsyncNegotiationReceived(RECEIVED_DO, TelnetOption.ECHO, 20);
 
 		long start = currentTimeMillis();
-		handler.awaitWillAcceptOption(BINARY, 50);
+		handler.awaitAcceptOptionNegotiation(BINARY, 50);
 		assertThat(currentTimeMillis() - start, is(lessThan(100L)));
 	}
 	
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return immediatly if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must return immediatly if the
 	 * access server signaled that it is willing to send the option, before the method was called.
 	 * 
 	 * @throws IOException
@@ -184,11 +184,11 @@ public class TestNegotiationHandler {
 	public void awaitWillSendOption_acceptedBeforeCall() throws IOException {
 		notifyNegotiationReceived(RECEIVED_WILL, BINARY);
 		
-		handler.awaitWillSendOption(BINARY, 1000);
+		handler.awaitSendOptionNegotiation(BINARY, 1000);
 	}
 	
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must throw an IOException if the
 	 * access server signaled that it refused to send the option, before the method was called.
 	 * 
 	 * @throws IOException
@@ -200,11 +200,11 @@ public class TestNegotiationHandler {
 		
 		notifyNegotiationReceived(RECEIVED_WONT, BINARY);
 		
-		handler.awaitWillSendOption(BINARY, 1000);
+		handler.awaitSendOptionNegotiation(BINARY, 1000);
 	}
 	
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return if the access server
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must return if the access server
 	 * signaled that it is willing to send the option, before the method was called.
 	 * 
 	 * @throws IOException
@@ -216,11 +216,11 @@ public class TestNegotiationHandler {
 		
 		notifyAsyncNegotiationReceived(RECEIVED_WONT, BINARY, 20);
 		
-		handler.awaitWillSendOption(BINARY, 1000);
+		handler.awaitSendOptionNegotiation(BINARY, 1000);
 	}
 	
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must return if the access server
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must return if the access server
 	 * is willing to send the option while waiting.
 	 * 
 	 * @throws IOException
@@ -229,11 +229,11 @@ public class TestNegotiationHandler {
 	public void awaitWillSendOption_acceptedWhileWaiting() throws IOException {
 		notifyAsyncNegotiationReceived(RECEIVED_WILL, BINARY, 20);
 		
-		handler.awaitWillSendOption(BINARY, 1000);
+		handler.awaitSendOptionNegotiation(BINARY, 1000);
 	}
 	
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must throw an IOException if the
 	 * access server didn't answer within the given time if it is willing to accept or refuse the option.
 	 * <p>
 	 * No notification of an refused or accepted option is received in this test case.
@@ -246,12 +246,12 @@ public class TestNegotiationHandler {
 		exception.expectMessage("The access server timed out to negotiate option: " + BINARY + "!");
 		
 		long start = currentTimeMillis();
-		handler.awaitWillSendOption(BINARY, 50);
+		handler.awaitSendOptionNegotiation(BINARY, 50);
 		assertThat(currentTimeMillis() - start, is(lessThan(100L)));
 	}
 	
 	/**
-	 * {@link NegotiationHandler#awaitWillAcceptOption(int, long)} must throw an IOException if the
+	 * {@link NegotiationHandler#awaitAcceptOptionNegotiation(int, long)} must throw an IOException if the
 	 * negotiation of the given option timed out.
 	 * <p>
 	 * 
@@ -268,7 +268,7 @@ public class TestNegotiationHandler {
 		notifyAsyncNegotiationReceived(RECEIVED_WILL, TelnetOption.ECHO, 20);
 		
 		long start = currentTimeMillis();
-		handler.awaitWillSendOption(BINARY, 50);
+		handler.awaitSendOptionNegotiation(BINARY, 50);
 		assertThat(currentTimeMillis() - start, is(lessThan(100L)));
 	}
 

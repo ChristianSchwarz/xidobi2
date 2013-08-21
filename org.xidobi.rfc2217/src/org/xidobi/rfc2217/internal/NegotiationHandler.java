@@ -103,7 +103,7 @@ public class NegotiationHandler {
 	}
 
 	/**
-	 * Waits until the given option is accepted or refused by the access server or an timeout
+	 * Waits until the given option is accepted (Telnet:WILL) or refused (Telnet:WONT) by the access server or an timeout
 	 * occures. Nothing happens if within the given time the access server acknoledged that it is
 	 * willing to send the option. If an timeout occures or the access server denied to send the
 	 * option an {@link IOException} will be thrown.
@@ -114,7 +114,7 @@ public class NegotiationHandler {
 	 *            the number of milli seconds to wait at most
 	 * @throws IOException
 	 */
-	public void awaitWillSendOption(final int optionCode, long negotiationTimeout) throws IOException {
+	public void awaitSendOptionNegotiation(final int optionCode, long negotiationTimeout) throws IOException {
 		OptionStatus acceptStatus = new OptionStatus() {
 			public boolean isStatusKnown() {
 				return willingToSend.contains(optionCode) || refusedToSend.contains(optionCode);
@@ -132,7 +132,7 @@ public class NegotiationHandler {
 	}
 
 	/**
-	 * Waits until the given option is accepted or refused by the access server or an timeout
+	 * Waits until the given option is accepted (Telnet:DO) or refused (Telnet:DONT) by the access server or an timeout
 	 * occures. Nothing happens if within the given time the access server acknoledged that it is
 	 * willing to accept the option. If an timeout occures or the access server denied to accept the
 	 * option an {@link IOException} will be thrown.
@@ -143,7 +143,7 @@ public class NegotiationHandler {
 	 *            the number of milli seconds to wait at most
 	 * @throws IOException
 	 */
-	public void awaitWillAcceptOption(final int optionCode, @Nonnegative long negotiationTimeout) throws IOException {
+	public void awaitAcceptOptionNegotiation(final int optionCode, @Nonnegative long negotiationTimeout) throws IOException {
 		OptionStatus acceptStatus = new OptionStatus() {
 			public boolean isStatusKnown() {
 				return willingToAccept.contains(optionCode) || refusedToAccept.contains(optionCode);
