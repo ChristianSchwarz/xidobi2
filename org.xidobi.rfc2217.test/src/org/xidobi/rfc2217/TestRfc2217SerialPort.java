@@ -6,9 +6,6 @@
  */
 package org.xidobi.rfc2217;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.IntBuffer;
@@ -40,8 +37,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
@@ -53,6 +50,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 import static org.junit.Assert.assertThat;
+import static testtools.MessageBuilder.buildSetBaudRateRequest;
 
 /**
  * Tests the class {@link Rfc2217SerialPort}
@@ -173,14 +171,8 @@ public class TestRfc2217SerialPort {
 
 		
 		await(openFuture);
-		
-		int[] baudRateCmd = new IntArray()
-		.putByte(COM_PORT_OPTION)
-		.putByte(SET_BAUDRATE)
-		.putInt(PORT_SETTINGS.getBauds())
-		.toArray();
 
-		verify(telnetClient).sendSubnegotiation(baudRateCmd);
+		verify(telnetClient).sendSubnegotiation(buildSetBaudRateRequest(PORT_SETTINGS.getBauds()));
 
 	}
 
@@ -298,39 +290,6 @@ public class TestRfc2217SerialPort {
 
 		throw new TimeoutException();
 
-	}
-	
-	private class IntArray {
-
-		private ByteArrayOutputStream bo = new ByteArrayOutputStream();
-		private DataOutput o = new DataOutputStream(bo);
-		
-		IntArray putByte(int v){
-			try {
-				o.writeByte(v);
-			}
-			catch (IOException cantHappen) {}
-			return this;
-		}
-		
-		IntArray putInt(int v){
-			try {
-				o.writeInt(v);
-			}
-			catch (IOException cantHappen) {}
-			return this;
-		}
-		
-		int[] toArray(){
-			
-			final byte[] bytes = bo.toByteArray();
-			final int[] r = new int[bytes.length];
-			for (int i = 0; i < r.length; i++)
-				r[i] = (byte)(bytes[i]&0xff);
-				
-			
-			return r;
-		}
 	}
 
 }

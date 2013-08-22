@@ -15,15 +15,8 @@ import javax.annotation.Nonnull;
  * @author Christian Schwarz
  * 
  */
-public class ControlReq {
+public class ControlRequestBuilder {
 
-	/**
-	 * Creates a new {@link ControlReq} with the given Command Request.
-	 * 
-	 * @param command
-	 *            the Command of this request
-	 * @exception IllegalArgumentException
-	 *                if <code>null</code> is passed
-	 */
-	public ControlReq(@Nonnull AbstractControlCmdReq command) {}
+	/** This class is not intendet to be instanciated */
+	private ControlRequestBuilder(){}
 }

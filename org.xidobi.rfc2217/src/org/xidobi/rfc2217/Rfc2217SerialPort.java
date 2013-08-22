@@ -126,7 +126,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		telnetClient.setReaderThread(true);
 		try {
 			telnetClient.addOptionHandler(new BinaryOptionHandler());
-			telnetClient.addOptionHandler(new ComPortOptionHandler());
+			telnetClient.addOptionHandler(new ComPortOptionHandler(null));
 		}
 		catch (InvalidTelnetOptionException e) {
 			throw new IllegalStateException(e);

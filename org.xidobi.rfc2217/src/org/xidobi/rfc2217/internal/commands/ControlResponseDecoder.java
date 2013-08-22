@@ -7,21 +7,17 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import java.io.DataInput;
+import java.io.DataInputStream;
 
 /**
  * @author Christian Schwarz
  *
  */
-public class ControlResp {
+public class ControlResponseDecoder {
 
-	/**
-	 * 
-	 */
-	public ControlResp(DataInput input) {
-		throw new UnsupportedOperationException("Not implemented yet");
-	}
 	
-	public AbstractControlCmdResp getResponse() {
+	
+	public AbstractControlCmdResp decode(DataInput input) {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 }
