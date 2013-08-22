@@ -14,8 +14,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.WillCloseWhenClosed;
 
-import org.apache.commons.net.ProtocolCommandEvent;
-import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetOptionHandler;
@@ -25,9 +23,9 @@ import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.internal.BinaryOptionHandler;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
-import org.xidobi.rfc2217.internal.commands.AbstractControlCmdResp;
 import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
+import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
@@ -75,7 +73,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		
 		optionResponseProcessor = new CommandProcessor() {
 			
-			public void onResponseReceived(AbstractControlCmdResp response) {
+			public void onResponseReceived(AbstractControlCmd response) {
 				
 			}
 		};

@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.net.telnet.SimpleOptionHandler;
-import org.xidobi.rfc2217.internal.commands.AbstractControlCmdResp;
+import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -22,7 +22,7 @@ import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	public static interface CommandProcessor {
-		void onResponseReceived(AbstractControlCmdResp response);
+		void onResponseReceived(AbstractControlCmd response);
 	}
 
 	/** The processor will be notified when a command response was received */
@@ -58,7 +58,7 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
 
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
-		AbstractControlCmdResp resp = decoder.decode(input);
+		AbstractControlCmd resp = decoder.decode(input);
 		commandProcessor.onResponseReceived(resp);
 
 		return null;

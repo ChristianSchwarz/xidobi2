@@ -17,7 +17,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
-import org.xidobi.rfc2217.internal.commands.AbstractControlCmdResp;
+import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import static org.mockito.Matchers.argThat;
@@ -40,7 +40,7 @@ import static org.hamcrest.Matchers.is;
  */
 public class TestComPortOptionHandler {
 
-	private static final AbstractControlCmdResp DUMMY_RESPONSE = mock(AbstractControlCmdResp.class);
+	private static final AbstractControlCmd DUMMY_RESPONSE = mock(AbstractControlCmd.class);
 
 	/** needed to verifiy exceptions */
 	@Rule
