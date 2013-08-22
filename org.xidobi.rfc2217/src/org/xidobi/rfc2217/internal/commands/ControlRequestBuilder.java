@@ -6,10 +6,9 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import javax.annotation.Nonnull;
 
 /**
- * Base class for all Com-Port-Option Request Messages. The specific command is passed to the
+ * Provides static methods to create Com-Port-Option Requests in binary form. The specific command is passed to the
  * constructor.
  * 
  * @author Christian Schwarz
