@@ -47,7 +47,7 @@ public class TestBaudrateControlCmd {
 		when(input.readUnsignedByte()).thenReturn(44, 1);
 		when(input.readInt()).thenReturn(1600);
 
-		cmd = new BaudrateControlCmd(1600, true);
+		cmd = new BaudrateControlCmd(1600);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class TestBaudrateControlCmd {
 
 		new BaudrateControlCmd(input);
 	}
-	
+
 	/**
 	 * When a baudrate that is smaller than 1 is supplied to the constructor, an
 	 * {@link IllegalArgumentException} should be thrown.
@@ -94,7 +94,7 @@ public class TestBaudrateControlCmd {
 	public void new_withNegativeBaudrate() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The baudrate must not be less than 1! Got: >-3<");
-		new BaudrateControlCmd(-3, true);
+		new BaudrateControlCmd(-3);
 	}
 
 	/**
@@ -108,23 +108,7 @@ public class TestBaudrateControlCmd {
 		InOrder orderedVerification = inOrder(output);
 
 		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
-		orderedVerification.verify(output).write(1); // By Client
-		orderedVerification.verify(output).writeInt(1600); // The baudrate
-	}
-
-	/**
-	 * Checks whether the encoded message is correct, when the request should be sent by server.
-	 */
-	@Test
-	public void write_correctDataSentByServer() throws IOException {
-		cmd = new BaudrateControlCmd(1600, false);
-		DataOutput output = mock(DataOutput.class);
-		cmd.write(output);
-
-		InOrder orderedVerification = inOrder(output);
-
-		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
-		orderedVerification.verify(output).write(101); // By Client
+		orderedVerification.verify(output).write(1); // SET-BAUDRATE
 		orderedVerification.verify(output).writeInt(1600); // The baudrate
 	}
 }

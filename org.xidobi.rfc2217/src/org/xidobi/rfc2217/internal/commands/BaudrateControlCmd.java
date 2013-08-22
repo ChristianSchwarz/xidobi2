@@ -6,6 +6,9 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -23,20 +26,6 @@ import javax.annotation.Nonnegative;
  */
 public class BaudrateControlCmd extends AbstractControlCmd {
 
-	/**
-	 * The command code of this request when it's sent by the server.
-	 */
-	private static final int COMMAND_CODE_SERVER = 101;
-	/**
-	 * The command code of this request when it's sent by the client.
-	 */
-	private static final int COMMAND_CODE_CLIENT = 1;
-	/**
-	 * The byte that signals that a message sets a com-port option.
-	 */
-	private static final int COM_PORT_OPTION = 44;
-	/** <code>true</code>, if the request is sent by a client, otherwise <code>false</code>. */
-	private boolean fromClient;
 	/** The preferred baudrate. */
 	private int baudrate;
 
@@ -49,13 +38,11 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 *            <code>true</code>, if the message is sent by the client, <code>false</code> if the
 	 *            message is sent by the server
 	 */
-	public BaudrateControlCmd(	@Nonnegative int baudrate,
-								boolean fromClient) {
+	public BaudrateControlCmd(@Nonnegative int baudrate) {
 		if (baudrate < 1)
 			throw new IllegalArgumentException("The baudrate must not be less than 1! Got: >" + baudrate + "<");
 
 		this.baudrate = baudrate;
-		this.fromClient = fromClient;
 	}
 
 	public BaudrateControlCmd(DataInput input) throws IOException {
@@ -75,7 +62,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	@Override
 	protected void write(DataOutput output) throws IOException {
 		output.write(COM_PORT_OPTION);
-		output.write(fromClient ? COMMAND_CODE_CLIENT : COMMAND_CODE_SERVER);
+		output.write(SET_BAUDRATE);
 		output.writeInt(baudrate);
 	}
 
