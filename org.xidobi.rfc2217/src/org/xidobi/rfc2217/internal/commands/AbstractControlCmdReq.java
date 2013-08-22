@@ -7,14 +7,13 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * @author Christian Schwarz
- *
  */
 public abstract class AbstractControlCmdReq {
 
-	protected abstract void write(DataOutput output);
-	
-	
+	protected abstract void write(DataOutput output) throws IOException;
+
 }
