@@ -6,6 +6,15 @@
  */
 package org.xidobi.rfc2217.internal;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.any;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import java.io.DataInput;
 
 import org.junit.Before;
@@ -17,30 +26,17 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
-import org.xidobi.rfc2217.internal.commands.AbstractControlCmdResp;
+import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
-
-import static org.mockito.Matchers.argThat;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import static org.hamcrest.Matchers.any;
-import static org.hamcrest.Matchers.is;
 
 /**
  * Tests the class {@link ComPortOptionHandler}
  * 
  * @author Christian Schwarz
- * 
  */
 public class TestComPortOptionHandler {
 
-	private static final AbstractControlCmdResp DUMMY_RESPONSE = mock(AbstractControlCmdResp.class);
+	private static final AbstractControlCmd DUMMY_RESPONSE = mock(AbstractControlCmd.class);
 
 	/** needed to verifiy exceptions */
 	@Rule
@@ -87,10 +83,11 @@ public class TestComPortOptionHandler {
 	}
 
 	/**
-	 * Check the transformation of an int[] of a given length to an byte[]. Values greater than {@code 0xFF} must truncated to 8Bit.
+	 * Check the transformation of an int[] of a given length to an byte[]. Values greater than
+	 * {@code 0xFF} must truncated to 8Bit.
 	 */
 	@Test
-	public void toByteArray(){
+	public void toByteArray() {
 		byte[] bytes = ComPortOptionHandler.toByteArray(new int[] { 0xff, 0x102, 3, 0, 0, 0 }, 3);
 		assertThat(bytes, is(new byte[] { (byte) 0xff, (byte) 0x02, 3 }));
 	}

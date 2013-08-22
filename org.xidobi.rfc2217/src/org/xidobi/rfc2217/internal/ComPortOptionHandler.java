@@ -1,5 +1,7 @@
 package org.xidobi.rfc2217.internal;
 
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -7,12 +9,10 @@ import java.io.DataInputStream;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.net.telnet.SimpleOptionHandler;
-import org.xidobi.rfc2217.internal.commands.AbstractControlCmdResp;
+import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 
 /**
  * Handles the RFC 2217 telnet COM-PORT-OPTION.
@@ -22,19 +22,19 @@ import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	public static interface CommandProcessor {
-		void onResponseReceived(AbstractControlCmdResp response);
+
+		void onResponseReceived(AbstractControlCmd response);
 	}
 
 	/** The processor will be notified when a command response was received */
 	@Nonnull
 	private final CommandProcessor commandProcessor;
-	
+
 	/** Used to decode response */
 	@Nonnull
 	private final ControlResponseDecoder decoder;
 
 	/**
-	 * 
 	 * @param commandProcessor
 	 */
 	public ComPortOptionHandler(CommandProcessor commandProcessor) {
@@ -58,7 +58,7 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
 
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
-		final AbstractControlCmdResp resp = decoder.decode(input);
+		final AbstractControlCmd resp = decoder.decode(input);
 		commandProcessor.onResponseReceived(resp);
 
 		return null;
