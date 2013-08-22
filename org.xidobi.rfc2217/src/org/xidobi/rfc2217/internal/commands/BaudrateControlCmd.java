@@ -39,6 +39,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 *            message is sent by the server
 	 */
 	public BaudrateControlCmd(@Nonnegative int baudrate) {
+		super(SET_BAUDRATE);
 		if (baudrate < 1)
 			throw new IllegalArgumentException("The baudrate must not be less than 1! Got: >" + baudrate + "<");
 
@@ -46,7 +47,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	}
 
 	public BaudrateControlCmd(DataInput input) throws IOException {
-		super(input);
+		super(SET_BAUDRATE, input);
 	}
 
 	@Override
@@ -60,7 +61,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	}
 
 	@Override
-	protected void write(DataOutput output) throws IOException {
+	public void write(DataOutput output) throws IOException {
 		output.write(COM_PORT_OPTION);
 		output.write(SET_BAUDRATE);
 		output.writeInt(baudrate);

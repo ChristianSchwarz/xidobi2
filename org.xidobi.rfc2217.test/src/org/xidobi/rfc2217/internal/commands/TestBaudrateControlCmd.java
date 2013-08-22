@@ -61,17 +61,6 @@ public class TestBaudrateControlCmd {
 	}
 
 	/**
-	 * When the commandCode is the code of the server, the message must be accepted and read.
-	 */
-	@Test
-	public void read_fromServer() throws IOException {
-		when(input.readUnsignedByte()).thenReturn(44, 101);
-
-		cmd = new BaudrateControlCmd(input);
-		assertThat(cmd.getBaudrate(), is(1600));
-	}
-
-	/**
 	 * When the baudrate is invalid, an {@link IOException} should be thrown.
 	 */
 	@SuppressWarnings("unused")

@@ -12,6 +12,8 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
+import org.xidobi.rfc2217.internal.RFC2217;
+
 /**
  * Baseclass for configuration commands.
  * 
@@ -19,11 +21,16 @@ import javax.annotation.Nonnull;
  */
 public abstract class AbstractControlCmd {
 
-	/**
-	 * This constructor is empty so subclasses can create constructors for creating a new message.
-	 */
-	AbstractControlCmd() {
+	private int commandCode;
 
+	/**
+	 * This constructor is used by subclasses to create a new message.
+	 * 
+	 * @param commandCode
+	 *            the code of this command
+	 */
+	AbstractControlCmd(int commandCode) {
+		this.commandCode = commandCode;
 	}
 
 	/**
@@ -32,12 +39,16 @@ public abstract class AbstractControlCmd {
 	 * Implementation Note: The constructor call will delegate {@link #read(DataInput)} to
 	 * {@link #read(DataInput)} in order to decode the content.
 	 * 
+	 * @param commandCode
+	 *            the code of this command
 	 * @param input
 	 *            used to decode the content
 	 * @throws IOException
 	 *             if the message is malformed or the underlying media can't be read
 	 */
-	AbstractControlCmd(@Nonnull DataInput input) throws IOException {
+	AbstractControlCmd(	int commandCode,
+						@Nonnull DataInput input) throws IOException {
+		this(commandCode);
 		read(input);
 	}
 
@@ -61,5 +72,15 @@ public abstract class AbstractControlCmd {
 	 * @throws IOException
 	 *             if the output can't be written to
 	 */
-	protected abstract void write(DataOutput output) throws IOException;
+	public abstract void write(DataOutput output) throws IOException;
+
+	/**
+	 * Returns the code of this command.
+	 * 
+	 * @return the code of this command
+	 * @see RFC2217
+	 */
+	public int getCommandCode() {
+		return commandCode;
+	}
 }
