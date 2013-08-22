@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.junit.Before;
@@ -23,9 +24,12 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
+import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 
+import testtools.MessageBuilder;
 import static java.lang.Thread.sleep;
 import static java.net.InetSocketAddress.createUnresolved;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -36,8 +40,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
@@ -49,6 +53,7 @@ import static org.hamcrest.Matchers.nullValue;
 
 import static org.junit.Assert.assertThat;
 import static testtools.MessageBuilder.buildSetBaudRateRequest;
+import static testtools.MessageBuilder.buildSetBaudRateResponse;
 
 /**
  * Tests the class {@link Rfc2217SerialPort}
@@ -78,17 +83,21 @@ public class TestRfc2217SerialPort {
 	@Captor
 	private ArgumentCaptor<TelnetNotificationHandler> notificationHandler;
 
+	@Captor
+	private ArgumentCaptor<ComPortOptionHandler> comPortOptionHandler;
+	
 	private Future<SerialConnection> openFuture;
 
 	/**
 	 * Init's the {@link Rfc2217SerialPort} with an unresolved Address.
+	 * @throws Exception 
 	 */
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception{
 		initMocks(this);
 		port = new TestableRfc2217Port(ACCESS_SERVER_ADDRESS);
 		doNothing().when(telnetClient).registerNotifHandler(notificationHandler.capture());
-		doNothing().when(telnetClient).registerNotifHandler(notificationHandler.capture());
+		doNothing().when(telnetClient).addOptionHandler(comPortOptionHandler.capture());
 	}
 
 	/**
@@ -168,10 +177,16 @@ public class TestRfc2217SerialPort {
 		handler.receivedNegotiation(RECEIVED_DO, BINARY);
 		handler.receivedNegotiation(RECEIVED_WILL, BINARY);
 		
+		ComPortOptionHandler comOption = awaitValue(comPortOptionHandler, 200);
+		
+		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds());
+		
+		comOption.answerSubnegotiation(resp, resp.length);
 		
 		await(openFuture);
 
-		verify(telnetClient).sendSubnegotiation(buildSetBaudRateRequest(PORT_SETTINGS.getBauds()));
+		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds());
+		verify(telnetClient).sendSubnegotiation(req);
 
 	}
 
