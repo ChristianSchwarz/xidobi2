@@ -8,4 +8,5 @@ Fragment-Host: org.xidobi.rfc2217;bundle-version="[0.0.1,1.0.0)"
 Require-Bundle: org.xidobi;bundle-version="0.0.1",
  org.junit;bundle-version="4.8.2",
  org.mockito;bundle-version="1.9.0",
- org.hamcrest.library;bundle-version="1.2.0"
+ org.hamcrest.library;bundle-version="1.2.0",
+ com.google.guava;bundle-version="13.0.1"

@@ -1,12 +1,16 @@
 package org.xidobi.rfc2217.internal;
 
-import java.util.Arrays;
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
 
 import javax.annotation.Nonnull;
 
 import org.apache.commons.net.telnet.SimpleOptionHandler;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmdResp;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 
@@ -17,33 +21,54 @@ import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
  */
 public class ComPortOptionHandler extends SimpleOptionHandler {
 
-	/** The processor will be notified when a command response was received */
-	@Nonnull
-	private final CommandProcessor commandProcessor;
-
 	public static interface CommandProcessor {
 		void onResponseReceived(AbstractControlCmdResp response);
 	}
+	
+	
+	/** The processor will be notified when a command response was received */
+	@Nonnull
+	private final CommandProcessor commandProcessor;
+	@Nonnull
+	private final ControlResponseDecoder decoder;
 
+
+	/**
+	 * 
+	 * @param commandProcessor
+	 */
 	public ComPortOptionHandler(CommandProcessor commandProcessor) {
 		this(commandProcessor, new ControlResponseDecoder());
 	}
 
-	/**
-	 * 
-	 */
-	public ComPortOptionHandler(CommandProcessor commandProcessor,
-								ControlResponseDecoder decoder) {
+
+	@VisibleForTesting
+	ComPortOptionHandler(	CommandProcessor commandProcessor,
+							ControlResponseDecoder decoder) {
 		super(COM_PORT_OPTION, true, false, true, false);
 		if (commandProcessor == null)
 			throw new IllegalArgumentException("Parameter >commandProcessor< must not be null!");
 
 		this.commandProcessor = commandProcessor;
+		this.decoder = decoder;
 	}
 
 	@Override
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
-		System.out.println(Arrays.toString(suboptionData));
+		
+		DataInput input = new DataInputStream(new  ByteArrayInputStream(toByteArray(suboptionData,suboptionLength)));
+		final AbstractControlCmdResp resp = decoder.decode(input);
+		commandProcessor.onResponseReceived(resp);
+		
 		return null;
+	}
+	
+
+	@VisibleForTesting
+	static byte[] toByteArray(int[] suboptionData, int suboptionLength){
+		byte[] result= new byte[suboptionLength];
+		for (int i = 0; i < suboptionLength; i++) 
+			result[i]=(byte)(suboptionData[i]&0xff);
+		return result;
 	}
 }

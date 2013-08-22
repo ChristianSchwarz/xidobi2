@@ -14,8 +14,8 @@ package org.xidobi.rfc2217.internal.commands;
  * @author Christian Schwarz
  * 
  */
-public class ControlRequestBuilder {
+public class ControlRequestEncoder {
 
 	/** This class is not intendet to be instanciated */
-	private ControlRequestBuilder(){}
+	private ControlRequestEncoder(){}
 }
