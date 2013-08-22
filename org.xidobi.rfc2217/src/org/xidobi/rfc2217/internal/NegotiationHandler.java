@@ -15,6 +15,8 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
+import org.xidobi.rfc2217.internal.UpdatingGuard.Predicate;
+
 
 /**
  * This class is used to await notifications during the negotiation phase of a telnet session.
@@ -27,7 +29,7 @@ import org.apache.commons.net.telnet.TelnetNotificationHandler;
  * @author Christian Schwarz
  * 
  */
-public class NegotiationHandler extends UpdatingGuard {
+public class NegotiationHandler  {
 
 	/**
 	 * Listen for option negotiations. Accepted and refused options are stored to dedicated
@@ -53,7 +55,7 @@ public class NegotiationHandler extends UpdatingGuard {
 					break;
 			}
 
-			checkCondition();
+			negotiationChange.checkCondition();
 		}
 	};
 	
@@ -67,6 +69,7 @@ public class NegotiationHandler extends UpdatingGuard {
 	/** contains the options that the access server refused to accept*/
 	private final Set<Integer> refusedToAccept = new HashSet<Integer>();
 
+	private final UpdatingGuard negotiationChange = new UpdatingGuard();
 	
 	/**
 	 * @param telnetClient
@@ -100,7 +103,7 @@ public class NegotiationHandler extends UpdatingGuard {
 			}
 		};
 	
-		final boolean timeout = !awaitUninterruptibly(acceptStatus, negotiationTimeout);
+		final boolean timeout = !negotiationChange.awaitUninterruptibly(acceptStatus, negotiationTimeout);
 		if (timeout)
 			throw new IOException("The access server timed out to negotiate option: " + optionCode + "!");
 		if (refusedToSend.contains(optionCode))
@@ -126,7 +129,7 @@ public class NegotiationHandler extends UpdatingGuard {
 			}
 		};
 
-		final boolean timeout = !awaitUninterruptibly(acceptStatus, negotiationTimeout);
+		final boolean timeout = !negotiationChange.awaitUninterruptibly(acceptStatus, negotiationTimeout);
 		if (timeout)
 			throw new IOException("The access server timed out to negotiate option: " + optionCode + "!");
 		if (refusedToAccept.contains(optionCode))
