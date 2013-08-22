@@ -7,6 +7,7 @@
 package org.xidobi.rfc2217.internal.commands;
 
 /**
+ * Base class for all Com-Port-Option Request Messages. The specific command is passed to the constructor.
  * @author Christian Schwarz
  *
  */
@@ -14,6 +15,7 @@ public class ControlReq {
 
 	/**
 	 * 
+	 * @param request
 	 */
 	public ControlReq(AbstractControlCmdReq request) {}
 }
