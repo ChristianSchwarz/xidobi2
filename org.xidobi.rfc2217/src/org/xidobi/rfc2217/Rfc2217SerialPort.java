@@ -14,6 +14,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.WillCloseWhenClosed;
 
+import org.apache.commons.net.ProtocolCommandEvent;
+import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetOptionHandler;
@@ -22,6 +24,8 @@ import org.xidobi.SerialPort;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.internal.BinaryOptionHandler;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
+import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
+import org.xidobi.rfc2217.internal.commands.AbstractControlCmdResp;
 import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
 
@@ -50,6 +54,9 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * @see #awaitNegotiation(TelnetClient)
 	 */
 	private NegotiationHandler negotiationHandler;
+	private final CommandProcessor optionResponseProcessor;
+	
+	
 
 	/**
 	 * Creates a new {@link Rfc2217SerialPort} that that will be connected to the given Access
@@ -65,6 +72,13 @@ public class Rfc2217SerialPort implements SerialPort {
 		if (accessServer == null)
 			throw new IllegalArgumentException("Parameter >accessServer< must not be null!");
 		this.accessServer = accessServer;
+		
+		optionResponseProcessor = new CommandProcessor() {
+			
+			public void onResponseReceived(AbstractControlCmdResp response) {
+				
+			}
+		};
 	}
 
 	/**
@@ -126,7 +140,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		telnetClient.setReaderThread(true);
 		try {
 			telnetClient.addOptionHandler(new BinaryOptionHandler());
-			telnetClient.addOptionHandler(new ComPortOptionHandler(null));
+			telnetClient.addOptionHandler(new ComPortOptionHandler(optionResponseProcessor));
 		}
 		catch (InvalidTelnetOptionException e) {
 			throw new IllegalStateException(e);

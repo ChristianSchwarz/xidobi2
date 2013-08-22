@@ -58,7 +58,7 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
 
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
-		final AbstractControlCmdResp resp = decoder.decode(input);
+		AbstractControlCmdResp resp = decoder.decode(input);
 		commandProcessor.onResponseReceived(resp);
 
 		return null;

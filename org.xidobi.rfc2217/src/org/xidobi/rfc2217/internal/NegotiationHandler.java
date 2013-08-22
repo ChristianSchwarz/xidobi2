@@ -9,19 +9,12 @@ package org.xidobi.rfc2217.internal;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
-
-import static java.lang.Math.max;
-import static java.lang.System.currentTimeMillis;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * This class is used to await notifications during the negotiation phase of a telnet session.
@@ -34,7 +27,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @author Christian Schwarz
  * 
  */
-public class NegotiationHandler {
+public class NegotiationHandler extends UpdatingGuard {
 
 	/**
 	 * Listen for option negotiations. Accepted and refused options are stored to dedicated
@@ -60,18 +53,10 @@ public class NegotiationHandler {
 					break;
 			}
 
-			negotiationLock.lock();
-			try {
-				negotiationReceived.signalAll();
-			}
-			finally {
-				negotiationLock.unlock();
-			}
+			checkCondition();
 		}
 	};
-	/** The {@link TelnetClient} to be checked for accepted options */
-	@Nonnull
-	private final TelnetClient telnetClient;
+	
 
 	/** contains the options that the access server is willing to send*/
 	private final Set<Integer> willingToSend = new HashSet<Integer>();
@@ -82,11 +67,7 @@ public class NegotiationHandler {
 	/** contains the options that the access server refused to accept*/
 	private final Set<Integer> refusedToAccept = new HashSet<Integer>();
 
-	/** This lock guards the {@link #negotiationReceived}-Condition*/
-	private final Lock negotiationLock = new ReentrantLock();
-	/** This condition is signaled everytime a option negotiation was received*/
-	private final Condition negotiationReceived = negotiationLock.newCondition();
-
+	
 	/**
 	 * @param telnetClient
 	 *            the Telnet Client to be observed
@@ -96,8 +77,6 @@ public class NegotiationHandler {
 			throw new IllegalArgumentException("Parameter >telnetClient< must not be null!");
 		if (telnetClient.isConnected())
 			throw new IllegalStateException("The Telnet Client must not be connected! Please instantiate this class before it is connected!");
-
-		this.telnetClient = telnetClient;
 
 		telnetClient.registerNotifHandler(handler);
 	}
@@ -115,20 +94,17 @@ public class NegotiationHandler {
 	 * @throws IOException
 	 */
 	public void awaitSendOptionNegotiation(final int optionCode, long negotiationTimeout) throws IOException {
-		OptionStatus acceptStatus = new OptionStatus() {
-			public boolean isStatusKnown() {
+		Predicate acceptStatus = new Predicate() {
+			public boolean isSatisfied() {
 				return willingToSend.contains(optionCode) || refusedToSend.contains(optionCode);
-			}
-	
-			public void throwIOExceptionIfRefused() throws IOException {
-				if (refusedToSend.contains(optionCode))
-					throw new IOException("The access server refused to send option: " + optionCode + "!");
 			}
 		};
 	
-		final boolean timeout = !loopUntilOptionStatusIsKnown(acceptStatus, negotiationTimeout);
+		final boolean timeout = !awaitUninterruptibly(acceptStatus, negotiationTimeout);
 		if (timeout)
 			throw new IOException("The access server timed out to negotiate option: " + optionCode + "!");
+		if (refusedToSend.contains(optionCode))
+			throw new IOException("The access server refused to send option: " + optionCode + "!");
 	}
 
 	/**
@@ -144,67 +120,16 @@ public class NegotiationHandler {
 	 * @throws IOException
 	 */
 	public void awaitAcceptOptionNegotiation(final int optionCode, @Nonnegative long negotiationTimeout) throws IOException {
-		OptionStatus acceptStatus = new OptionStatus() {
-			public boolean isStatusKnown() {
+		Predicate acceptStatus = new Predicate() {
+			public boolean isSatisfied() {
 				return willingToAccept.contains(optionCode) || refusedToAccept.contains(optionCode);
-			}
-
-			public void throwIOExceptionIfRefused() throws IOException {
-				if (refusedToAccept.contains(optionCode))
-					throw new IOException("The access server refused to accept option: " + optionCode + "!");
 			}
 		};
 
-		final boolean timeout = !loopUntilOptionStatusIsKnown(acceptStatus, negotiationTimeout);
+		final boolean timeout = !awaitUninterruptibly(acceptStatus, negotiationTimeout);
 		if (timeout)
 			throw new IOException("The access server timed out to negotiate option: " + optionCode + "!");
-	}
-
-	/**
-	 * Returns <code>true</code> if the loop finished because the option was accepted return
-	 * <code>false</code> if an timeout was detected, or throws an {@link IOException} if the option
-	 * was refused.
-	 */
-	private boolean loopUntilOptionStatusIsKnown(OptionStatus option, long timeoutMs) throws IOException {
-		long startTime = currentTimeMillis();
-
-		long remainingTime = timeoutMs;
-		do {
-			if (option.isStatusKnown()) {
-				option.throwIOExceptionIfRefused();
-				return true;
-			}
-
-			awaitNotification(remainingTime);
-
-			final long elapsedMs = currentTimeMillis() - startTime;
-			remainingTime = max(timeoutMs - elapsedMs, 0);
-
-		}
-		while (remainingTime > 0);
-
-		return false;
-
-	}
-
-	/**
-	 * Waits for any option notification, send by the access server.
-	 */
-	protected void awaitNotification(long remainingTime) {
-		negotiationLock.lock();
-		try {
-			negotiationReceived.await(remainingTime, MILLISECONDS);
-		}
-		catch (InterruptedException ignore) {}
-		finally {
-			negotiationLock.unlock();
-		}
-	}
-
-	/** This interface is used to implement the specific behavior of will accept and will send*/
-	private interface OptionStatus {
-		boolean isStatusKnown();
-
-		void throwIOExceptionIfRefused() throws IOException;
+		if (refusedToAccept.contains(optionCode))
+			throw new IOException("The access server refused to accept option: " + optionCode + "!");
 	}
 }

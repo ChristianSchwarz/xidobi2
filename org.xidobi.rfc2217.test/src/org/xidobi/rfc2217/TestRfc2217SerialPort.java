@@ -8,7 +8,6 @@ package org.xidobi.rfc2217;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.IntBuffer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -37,10 +36,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
@@ -89,6 +87,7 @@ public class TestRfc2217SerialPort {
 	public void setUp() {
 		initMocks(this);
 		port = new TestableRfc2217Port(ACCESS_SERVER_ADDRESS);
+		doNothing().when(telnetClient).registerNotifHandler(notificationHandler.capture());
 		doNothing().when(telnetClient).registerNotifHandler(notificationHandler.capture());
 	}
 
@@ -168,7 +167,7 @@ public class TestRfc2217SerialPort {
 		handler.receivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
 		handler.receivedNegotiation(RECEIVED_DO, BINARY);
 		handler.receivedNegotiation(RECEIVED_WILL, BINARY);
-
+		
 		
 		await(openFuture);
 
@@ -267,6 +266,7 @@ public class TestRfc2217SerialPort {
 
 		final Future<SerialConnection> f = e.submit(task);
 
+		
 		e.shutdown();
 
 		return f;
