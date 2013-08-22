@@ -21,11 +21,14 @@ import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.internal.BinaryOptionHandler;
+import org.xidobi.rfc2217.internal.BlockingCommandSender;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
+import org.xidobi.rfc2217.internal.UpdatingGuard;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
 import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
+import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
@@ -52,9 +55,10 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * @see #awaitNegotiation(TelnetClient)
 	 */
 	private NegotiationHandler negotiationHandler;
-	private final CommandProcessor optionResponseProcessor;
+	private BlockingCommandSender commandSender;
 	
-	
+
+
 
 	/**
 	 * Creates a new {@link Rfc2217SerialPort} that that will be connected to the given Access
@@ -71,12 +75,8 @@ public class Rfc2217SerialPort implements SerialPort {
 			throw new IllegalArgumentException("Parameter >accessServer< must not be null!");
 		this.accessServer = accessServer;
 		
-		optionResponseProcessor = new CommandProcessor() {
-			
-			public void onResponseReceived(AbstractControlCmd response) {
-				
-			}
-		};
+		
+		
 	}
 
 	/**
@@ -102,10 +102,11 @@ public class Rfc2217SerialPort implements SerialPort {
 
 		TelnetClient telnetClient = createTelnetClient();
 
-		configure(telnetClient);
 
 		createNegotiationHandler(telnetClient);
-
+		commandSender = new BlockingCommandSender(telnetClient);
+		
+		configure(telnetClient);
 		connect(telnetClient);
 		try {
 			awaitNegotiation(telnetClient);
@@ -138,7 +139,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		telnetClient.setReaderThread(true);
 		try {
 			telnetClient.addOptionHandler(new BinaryOptionHandler());
-			telnetClient.addOptionHandler(new ComPortOptionHandler(optionResponseProcessor));
+			telnetClient.addOptionHandler(new ComPortOptionHandler(commandSender));
 		}
 		catch (InvalidTelnetOptionException e) {
 			throw new IllegalStateException(e);
@@ -172,8 +173,10 @@ public class Rfc2217SerialPort implements SerialPort {
 	/**
 	 * @param telnetClient
 	 * @param settings
+	 * @throws IOException 
 	 */
-	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) {
+	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) throws IOException {
+		BaudrateControlCmd baudRateResp = commandSender.send(new BaudrateControlCmd(settings.getBauds()));
 		
 	}
 

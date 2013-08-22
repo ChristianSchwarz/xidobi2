@@ -86,12 +86,5 @@ public class TestComPortOptionHandler {
 		verify(processor).onResponseReceived(DUMMY_RESPONSE);
 	}
 
-	/**
-	 * Check the transformation of an int[] of a given length to an byte[]. Values greater than {@code 0xFF} must truncated to 8Bit.
-	 */
-	@Test
-	public void toByteArray(){
-		byte[] bytes = ComPortOptionHandler.toByteArray(new int[] { 0xff, 0x102, 3, 0, 0, 0 }, 3);
-		assertThat(bytes, is(new byte[] { (byte) 0xff, (byte) 0x02, 3 }));
-	}
+	
 }

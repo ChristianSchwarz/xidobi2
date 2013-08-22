@@ -12,6 +12,7 @@ import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import static org.xidobi.rfc2217.internal.ArrayUtil.toByteArray;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 
 /**
@@ -65,15 +66,9 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	}
 
 	/** Creates a {@link DataInput} from the given int[] and length. */
-	protected DataInput createDataInputFrom(int[] suboptionData, int suboptionLength) {
+	private static DataInput createDataInputFrom(int[] suboptionData, int suboptionLength) {
 		return new DataInputStream(new ByteArrayInputStream(toByteArray(suboptionData, suboptionLength)));
 	}
 
-	@VisibleForTesting
-	static byte[] toByteArray(int[] suboptionData, int suboptionLength) {
-		byte[] result = new byte[suboptionLength];
-		for (int i = 0; i < suboptionLength; i++)
-			result[i] = (byte) (suboptionData[i] & 0xff);
-		return result;
-	}
+	
 }

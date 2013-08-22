@@ -55,7 +55,7 @@ public class NegotiationHandler  {
 					break;
 			}
 
-			negotiationChange.checkCondition();
+			negotiationChange.signalAll();
 		}
 	};
 	

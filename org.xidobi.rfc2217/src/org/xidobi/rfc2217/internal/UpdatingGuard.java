@@ -35,10 +35,9 @@ public class UpdatingGuard  {
 
 	/**
 	 * Returns <code>true</code> if the loop finished because the option was accepted return
-	 * <code>false</code> if an timeout was detected, or throws an {@link IOException} if the option
-	 * was refused.
+	 * <code>false</code> if an timeout was detected.
 	 */
-	protected boolean awaitUninterruptibly(Predicate condition, long timeoutMs) throws IOException {
+	public boolean awaitUninterruptibly(Predicate condition, long timeoutMs)  {
 		long startTime = currentTimeMillis();
 
 		long remainingTime = timeoutMs;
@@ -75,7 +74,7 @@ public class UpdatingGuard  {
 	/**
 	 * 
 	 */
-	public void checkCondition() {
+	public void signalAll() {
 		lock.lock();
 		try {
 			change.signalAll();
