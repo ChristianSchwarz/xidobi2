@@ -24,14 +24,14 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	public static interface CommandProcessor {
 		void onResponseReceived(AbstractControlCmdResp response);
 	}
-	
-	
+
 	/** The processor will be notified when a command response was received */
 	@Nonnull
 	private final CommandProcessor commandProcessor;
+	
+	/** Used to decode response */
 	@Nonnull
 	private final ControlResponseDecoder decoder;
-
 
 	/**
 	 * 
@@ -41,13 +41,14 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 		this(commandProcessor, new ControlResponseDecoder());
 	}
 
-
 	@VisibleForTesting
 	ComPortOptionHandler(	CommandProcessor commandProcessor,
 							ControlResponseDecoder decoder) {
 		super(COM_PORT_OPTION, true, false, true, false);
 		if (commandProcessor == null)
 			throw new IllegalArgumentException("Parameter >commandProcessor< must not be null!");
+		if (decoder == null)
+			throw new IllegalArgumentException("Parameter >decoder< must not be null!");
 
 		this.commandProcessor = commandProcessor;
 		this.decoder = decoder;
@@ -55,20 +56,24 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	@Override
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
-		
-		DataInput input = new DataInputStream(new  ByteArrayInputStream(toByteArray(suboptionData,suboptionLength)));
+
+		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
 		final AbstractControlCmdResp resp = decoder.decode(input);
 		commandProcessor.onResponseReceived(resp);
-		
+
 		return null;
 	}
-	
+
+	/** Creates a {@link DataInput} from the given int[] and length. */
+	protected DataInput createDataInputFrom(int[] suboptionData, int suboptionLength) {
+		return new DataInputStream(new ByteArrayInputStream(toByteArray(suboptionData, suboptionLength)));
+	}
 
 	@VisibleForTesting
-	static byte[] toByteArray(int[] suboptionData, int suboptionLength){
-		byte[] result= new byte[suboptionLength];
-		for (int i = 0; i < suboptionLength; i++) 
-			result[i]=(byte)(suboptionData[i]&0xff);
+	static byte[] toByteArray(int[] suboptionData, int suboptionLength) {
+		byte[] result = new byte[suboptionLength];
+		for (int i = 0; i < suboptionLength; i++)
+			result[i] = (byte) (suboptionData[i] & 0xff);
 		return result;
 	}
 }
