@@ -64,10 +64,7 @@ public class TestBaudrateControlCmdRequest {
 
 		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
 		orderedVerification.verify(output).write(1); // By Client
-		orderedVerification.verify(output, times(2)).write(0); // First and second byte of the
-																// baudrate
-		orderedVerification.verify(output).write(6); // Third byte of the baudrate
-		orderedVerification.verify(output).write(64); // Fourth byte of the baudrate
+		orderedVerification.verify(output).writeInt(1600); // The baudrate
 	}
 
 	/**
@@ -83,9 +80,6 @@ public class TestBaudrateControlCmdRequest {
 
 		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
 		orderedVerification.verify(output).write(101); // By Client
-		orderedVerification.verify(output, times(2)).write(0); // First and second byte of the
-		// baudrate
-		orderedVerification.verify(output).write(6); // Third byte of the baudrate
-		orderedVerification.verify(output).write(64); // Fourth byte of the baudrate
+		orderedVerification.verify(output).writeInt(1600); // The baudrate
 	}
 }

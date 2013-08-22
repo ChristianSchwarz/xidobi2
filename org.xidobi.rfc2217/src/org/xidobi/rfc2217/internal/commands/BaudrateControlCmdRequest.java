@@ -61,10 +61,7 @@ public class BaudrateControlCmdRequest extends AbstractControlCmdReq {
 	protected void write(DataOutput output) throws IOException {
 		output.write(COM_PORT_OPTION);
 		output.write(fromClient ? COMMAND_CODE_CLIENT : COMMAND_CODE_SERVER);
-		output.write((baudrate >> 24) & 0xFF);
-		output.write((baudrate >> 16) & 0xFF);
-		output.write((baudrate >> 8) & 0xFF);
-		output.write(baudrate & 0xFF);
+		output.writeInt(baudrate);
 	}
 
 }
