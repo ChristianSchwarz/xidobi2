@@ -1,11 +1,12 @@
 /*
  * Copyright Gemtec GmbH 2009-2013
  *
- * Erstellt am: 22.08.2013 08:29:41
+ * Erstellt am: 22.08.2013 12:42:08
  * Erstellt von: Peter-René Jeschke
  */
 package org.xidobi.rfc2217.internal.commands;
 
+import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -20,7 +21,7 @@ import javax.annotation.Nonnegative;
  * 
  * @author Peter-René Jeschke
  */
-public class BaudrateControlCmdRequest extends AbstractControlCmdReq {
+public class BaudrateControlCmd extends AbstractControlCmd {
 
 	/**
 	 * The command code of this request when it's sent by the server.
@@ -48,8 +49,8 @@ public class BaudrateControlCmdRequest extends AbstractControlCmdReq {
 	 *            <code>true</code>, if the message is sent by the client, <code>false</code> if the
 	 *            message is sent by the server
 	 */
-	public BaudrateControlCmdRequest(	@Nonnegative int baudrate,
-										boolean fromClient) {
+	public BaudrateControlCmd(	@Nonnegative int baudrate,
+								boolean fromClient) {
 		if (baudrate < 1)
 			throw new IllegalArgumentException("The baudrate must not be less than 1! Got: >" + baudrate + "<");
 
@@ -57,11 +58,35 @@ public class BaudrateControlCmdRequest extends AbstractControlCmdReq {
 		this.fromClient = fromClient;
 	}
 
+	public BaudrateControlCmd(DataInput input) throws IOException {
+		super(input);
+	}
+
+	@Override
+	protected void read(DataInput input) throws IOException {
+		int baudrate = input.readInt();
+
+		if (baudrate < 1)
+			throw new IOException("The received baudrate is invalid! Expected a value greater or equal to 1, got: >" + baudrate + "<");
+
+		this.baudrate = baudrate;
+	}
+
 	@Override
 	protected void write(DataOutput output) throws IOException {
 		output.write(COM_PORT_OPTION);
 		output.write(fromClient ? COMMAND_CODE_CLIENT : COMMAND_CODE_SERVER);
 		output.writeInt(baudrate);
+	}
+
+	/**
+	 * Returns the requested baudrate.
+	 * 
+	 * @return the baudRate that was requested by the access-server
+	 */
+	public @Nonnegative
+	int getBaudrate() {
+		return baudrate;
 	}
 
 }
