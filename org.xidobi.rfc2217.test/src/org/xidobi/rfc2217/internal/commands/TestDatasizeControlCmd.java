@@ -86,18 +86,6 @@ public class TestDatasizeControlCmd {
 	}
 
 	/**
-	 * When a dataSize that is smaller than 1 is supplied to the constructor, an
-	 * {@link IllegalArgumentException} should be thrown.
-	 */
-	@SuppressWarnings("unused")
-	@Test
-	public void new_withNegativeBaudrate() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The baudrate must not be less than 1! Got: >-3<");
-		new BaudrateControlCmd(-3);
-	}
-
-	/**
 	 * Checks whether the encoded message is correct.
 	 */
 	@Test
