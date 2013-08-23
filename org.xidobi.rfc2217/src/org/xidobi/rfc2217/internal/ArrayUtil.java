@@ -6,30 +6,29 @@
  */
 package org.xidobi.rfc2217.internal;
 
-
 /**
  * @author Christian Schwarz
- *
+ * 
  */
+@SuppressWarnings("javadoc")
 public class ArrayUtil {
-	
-	
+
 	/** This class is not intended to be instanciated */
 	private ArrayUtil() {}
-	
-	
-	public static int[] toIntArray(byte[] bytes){
+
+	/** Transforms the given byte[] to an int[] by coping all bytes into it. */
+	public static int[] toIntArray(byte[] bytes) {
 		int[] result = new int[bytes.length];
 		for (int i = 0; i < bytes.length; i++)
-			result[i] =bytes[i];
+			result[i] = bytes[i];
 		return result;
 	}
-	
+
 	/**
 	 * 
-	 * @param bytes
-	 * @param length
-	 * @return
+	 * Transforms the given int[] to an byte[]. Only the byte of lowest order will be copied, higher
+	 * ordered bytes of an int will be ignored, e.g. {@code int[]{0x102} will be converted to
+	 * {@code byte[]{0x02}
 	 */
 	public static byte[] toByteArray(int[] bytes, int length) {
 		byte[] result = new byte[length];
