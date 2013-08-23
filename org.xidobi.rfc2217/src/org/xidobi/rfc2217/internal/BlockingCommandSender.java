@@ -14,65 +14,75 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.net.telnet.TelnetClient;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
-import org.xidobi.rfc2217.internal.UpdatingGuard.Predicate;
+import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 
 import static org.xidobi.rfc2217.internal.ArrayUtil.toIntArray;
 
 /**
  * @author Christian Schwarz
- *
+ * 
  */
-public class BlockingCommandSender implements CommandProcessor{
+public class BlockingCommandSender implements CommandProcessor {
 
-	
-	private final Map<Class<?>, AbstractControlCmd> responses = new HashMap<Class<?>, AbstractControlCmd>() ;
-	UpdatingGuard guard = new UpdatingGuard();
-	
+	private final Map<Class<?>, AbstractControlCmd> responses = new HashMap<Class<?>, AbstractControlCmd>();
+	/** */
+	private final ConditionalGuard guard = new ConditionalGuard();
+
 	private TelnetClient telnetClient;
+
 	/**
-	 * 
+	 * Creates a new instance, using the given {@link TelnetClient}.
+	 * @param telnetClient used to send control commands
 	 */
 	public BlockingCommandSender(TelnetClient telnetClient) {
 		this.telnetClient = telnetClient;
-		
 	}
-	
-	public <T extends AbstractControlCmd> T send(T req) throws IOException{
-		removeResponse(req.getClass());
-		sendCmd(req);
-		return  (T)awaitResponse(req.getClass());
-	}
-	
-	
-	
 
 	/**
-	 * @param setBaudrate
-	 * @return 
-	 * @throws IOException 
+	 * Sends the given Control Command and returns the response. An {@link IOException} will be
+	 * thrown if an I/O Error occured while writing or an receive timeout was detected.
+	 * 
+	 * @param req the control command to be send
+	 * @return the response
+	 * @throws IOException if an I/O Error occured while writing or an receive timeout was detected
 	 */
-	private <T extends AbstractControlCmd> T  awaitResponse(final Class<T> commandType) throws IOException {
+	@Nonnull
+	public <T extends AbstractControlCmd> T send(T req) throws IOException {
+		removeResponse(req.getClass());
+		sendCmd(req);
+		return (T) awaitResponse(req.getClass());
+	}
+
+	/**
+	 * Waits 1 second for the control command of the given type and returns it. If nothing was
+	 * received within this time <code>null</code> will be returned.
+	 */
+	private <T extends AbstractControlCmd> T awaitResponse(final Class<T> commandType) {
 		final AtomicReference<T> resp = new AtomicReference<T>();
-		Predicate condition = new Predicate() {
-			
+		Condition condition = new Condition() {
+
 			public boolean isSatisfied() {
-				final T cmdResp = (T)removeResponse(commandType);
+				final T cmdResp = (T) removeResponse(commandType);
 				resp.set(cmdResp);
-				return cmdResp!=null;
+				return cmdResp != null;
 			}
 		};
-		
+
 		guard.awaitUninterruptibly(condition, 1000);
-	
+
 		return resp.get();
 	}
 
 	/**
-	 * @param is 
+	 * Sends the given given control command.
+	 * 
 	 * @throws IOException
+	 *             if an I/O error occurs while writing the message
 	 */
 	protected void sendCmd(AbstractControlCmd message) throws IOException {
 		ByteArrayOutputStream bo = new ByteArrayOutputStream();
@@ -83,16 +93,22 @@ public class BlockingCommandSender implements CommandProcessor{
 	}
 
 	/**
-	 * @param command
+	 * Remove the previous received Control Command of the given Type, and return it.
+	 * <code>null</code> will be returned if no Control Command was removed.
 	 */
-	protected <T extends AbstractControlCmd> T removeResponse(final Class<T> commandType) {
+	private <T extends AbstractControlCmd> T removeResponse(final Class<T> commandType) {
 		return (T) responses.remove(commandType);
-		
+
 	}
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients. It exists to serve as
+	 *              callback for received messages of the {@link ComPortOptionHandler}.
+	 * @see ComPortOptionHandler
+	 * @see CommandProcessor
+	 */
 	public void onResponseReceived(AbstractControlCmd response) {
 		guard.signalAll();
 	}
-	
-	
+
 }
