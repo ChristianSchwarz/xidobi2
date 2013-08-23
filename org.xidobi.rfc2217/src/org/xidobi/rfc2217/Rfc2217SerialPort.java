@@ -23,11 +23,8 @@ import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.internal.BinaryOptionHandler;
 import org.xidobi.rfc2217.internal.BlockingCommandSender;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
-import org.xidobi.rfc2217.internal.UpdatingGuard;
-import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
 import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
-import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;

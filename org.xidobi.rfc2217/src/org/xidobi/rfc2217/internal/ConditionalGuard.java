@@ -6,8 +6,6 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import java.io.IOException;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,16 +17,16 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @author Christian Schwarz
  * 
  */
-public class UpdatingGuard  {
+public class ConditionalGuard  {
 
 	/** This lock guards the {@link #change}-Condition */
 	private final Lock lock = new ReentrantLock();
 
 	/** This condition is signaled everytime a option negotiation was received */
-	private final Condition change = lock.newCondition();
+	private final java.util.concurrent.locks.Condition change = lock.newCondition();
 
 	/** This interface is used to implement the specific behavior of will accept and will send */
-	public static interface Predicate {
+	public static interface Condition {
 		boolean isSatisfied();
 
 	}
@@ -37,7 +35,7 @@ public class UpdatingGuard  {
 	 * Returns <code>true</code> if the loop finished because the option was accepted return
 	 * <code>false</code> if an timeout was detected.
 	 */
-	public boolean awaitUninterruptibly(Predicate condition, long timeoutMs)  {
+	public boolean awaitUninterruptibly(Condition condition, long timeoutMs)  {
 		long startTime = currentTimeMillis();
 
 		long remainingTime = timeoutMs;
