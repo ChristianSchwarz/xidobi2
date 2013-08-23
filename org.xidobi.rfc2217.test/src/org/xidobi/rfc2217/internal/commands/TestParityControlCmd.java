@@ -1,7 +1,7 @@
 /*
  * Copyright Gemtec GmbH 2009-2013
  *
- * Erstellt am: 22.08.2013 13:19:26
+ * Erstellt am: 23.08.2013 15:02:21
  * Erstellt von: Peter-René Jeschke
  */
 package org.xidobi.rfc2217.internal.commands;
@@ -25,16 +25,16 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 
 /**
- * Tests the class {@link DatasizeControlCmd}.
+ * Tests the class {@link ParityControlCmd}.
  * 
  * @author Peter-René Jeschke
  */
-public class TestDatasizeControlCmd {
+public class TestParityControlCmd {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	private DatasizeControlCmd cmd;
+	private ParityControlCmd cmd;
 
 	@Mock
 	private DataInput input;
@@ -45,44 +45,44 @@ public class TestDatasizeControlCmd {
 
 		when(input.readByte()).thenReturn((byte) 3);
 
-		cmd = new DatasizeControlCmd(3);
+		cmd = new ParityControlCmd(3);
 	}
 
 	/**
-	 * When a negative datasize is supplied to the constructor, an {@link IllegalArgumentException}
+	 * When a negative pairty is supplied to the constructor, an {@link IllegalArgumentException}
 	 * should be thrown.
 	 */
 	@SuppressWarnings("unused")
 	@Test
 	public void new_withNegativeDatasize() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The dataSize must not be less than 1! Got: >-3<");
+		exception.expectMessage("The parity must not be negative! Got: >-3<");
 
-		new DatasizeControlCmd(-3);
+		new ParityControlCmd(-3);
 	}
 
 	/**
-	 * Checks whether the dataSize is read correctly.
+	 * Checks whether the parity is read correctly.
 	 */
 	@Test
 	public void read_isCorrect() throws IOException {
-		cmd = new DatasizeControlCmd(input);
+		cmd = new ParityControlCmd(input);
 
-		assertThat(cmd.getDataSize(), is(3));
+		assertThat(cmd.getParity(), is(3));
 	}
 
 	/**
-	 * When the dataSize is invalid, an {@link IOException} should be thrown.
+	 * When the parity is invalid, an {@link IOException} should be thrown.
 	 */
 	@SuppressWarnings("unused")
 	@Test
-	public void read_invalidDataSize() throws IOException {
+	public void read_invalidParity() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("The received datasize is invalid! Expected a value greater or equal to 1, got: >-3<");
+		exception.expectMessage("The received parity is invalid! Expected a value greater or equal to 0, got: >-3<");
 
 		when(input.readByte()).thenReturn((byte) -3);
 
-		new DatasizeControlCmd(input);
+		new ParityControlCmd(input);
 	}
 
 	/**
@@ -96,8 +96,7 @@ public class TestDatasizeControlCmd {
 		InOrder orderedVerification = inOrder(output);
 
 		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
-		orderedVerification.verify(output).write(2); // SET-DATASIZE
-		orderedVerification.verify(output).writeByte(3); // The datasize
+		orderedVerification.verify(output).write(3); // SET-PARITY
+		orderedVerification.verify(output).writeByte(3); // The parity
 	}
-
 }
