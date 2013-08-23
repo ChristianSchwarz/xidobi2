@@ -29,11 +29,11 @@ public class MessageBuilder {
 	 * @param baudRate
 	 * @return the binary form
 	 */
-	public static int[] buildSetBaudRateRequest(@Nonnegative int baudRate) {
+	public static ByteBuffer buildSetBaudRateRequest(@Nonnegative int baudRate) {
 		
-		return bufferComPortCommand(SET_BAUDRATE)//
-		.putInt(baudRate)//
-		.toIntArray();
+		return buildComPortCommand(SET_BAUDRATE)//
+		.putInt(baudRate);
+		
 	}
 	/**
 	 * Creates the binary form of a "set baud command" response message, using the given baud rate.
@@ -41,17 +41,17 @@ public class MessageBuilder {
 	 * @param baudRate
 	 * @return the binary form
 	 */
-	public static int[] buildSetBaudRateResponse(@Nonnegative int baudRate) {
-		return bufferComPortCommand(SET_BAUDRATE+SERVER_OFFSET)//
-		.putInt(baudRate)//
-		.toIntArray();
+	public static ByteBuffer buildSetBaudRateResponse(@Nonnegative int baudRate) {
+		return buildComPortCommand(SET_BAUDRATE+SERVER_OFFSET)//
+		.putInt(baudRate);
+	
 	}
 	
 	public static ByteBuffer buffer(){
 		return new ByteBuffer();
 	}
 	
-	public static ByteBuffer bufferComPortCommand(int command){
+	public static ByteBuffer buildComPortCommand(int command){
 		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(command);
 	}
 }

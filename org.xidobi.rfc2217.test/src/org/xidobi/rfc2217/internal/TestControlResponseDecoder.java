@@ -6,23 +6,21 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInput;
-import java.io.DataInputStream;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
+import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
-import testtools.ByteBuffer;
-import testtools.MessageBuilder;
+import static org.hamcrest.Matchers.is;
+
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
-import static testtools.MessageBuilder.buffer;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static testtools.MessageBuilder.buildSetBaudRateResponse;
 
 /**
  * Tests class {@link ControlResponseDecoder}
@@ -48,21 +46,12 @@ public class TestControlResponseDecoder {
 
 	/**
 	 * 
-*/
+	 */
 	@Test
 	public void decodeBaudRateCommand() throws Exception {
-		DataInput input = buffer()//
-		.putBytes(COM_PORT_OPTION, SET_BAUDRATE)//
-		.putInt(9600)//
-		.toDataInput();
-
-		decoder.decode(input);
+		DataInput input = buildSetBaudRateResponse(9600).toDataInput();//
+		BaudrateControlCmd cmd = (BaudrateControlCmd) decoder.decode(input);
+		assertThat(cmd.getBaudrate(), is(9600));
 	}
 
-	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/** Creates a new {@link DataInput} of the given array, using the lowest byte of every int. */
-	private DataInput message(int... bytes) {
-		byte[] buf = new ByteBuffer().putBytes(bytes).toByteArray();
-		return new DataInputStream(new ByteArrayInputStream(buf));
-	}
 }

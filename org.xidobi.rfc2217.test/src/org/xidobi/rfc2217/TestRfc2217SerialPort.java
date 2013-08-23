@@ -179,13 +179,13 @@ public class TestRfc2217SerialPort {
 		
 		ComPortOptionHandler comOption = awaitValue(comPortOptionHandler, 200);
 		
-		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds());
+		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds()).toIntArray();
 		
 		comOption.answerSubnegotiation(resp, resp.length);
 		
 		await(open);
 
-		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds());
+		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds()).toIntArray();
 		verify(telnetClient).sendSubnegotiation(req);
 
 	}
@@ -253,13 +253,13 @@ public class TestRfc2217SerialPort {
 		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
 		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
 		
-		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds()+1000);
+		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds()+1000).toIntArray();
 
 		telnetReceivedCommand(resp);
 		
 		await(open);
 
-		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds());
+		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds()).toIntArray();
 		verify(telnetClient).sendSubnegotiation(req);
 
 	}
