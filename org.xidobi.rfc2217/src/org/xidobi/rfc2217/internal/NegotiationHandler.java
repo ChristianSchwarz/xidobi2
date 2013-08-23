@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
-import org.xidobi.rfc2217.internal.UpdatingGuard.Predicate;
+import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
 
 
 /**
@@ -69,7 +69,7 @@ public class NegotiationHandler  {
 	/** contains the options that the access server refused to accept*/
 	private final Set<Integer> refusedToAccept = new HashSet<Integer>();
 
-	private final UpdatingGuard negotiationChange = new UpdatingGuard();
+	private final ConditionalGuard negotiationChange = new ConditionalGuard();
 	
 	/**
 	 * @param telnetClient
@@ -97,7 +97,7 @@ public class NegotiationHandler  {
 	 * @throws IOException
 	 */
 	public void awaitSendOptionNegotiation(final int optionCode, long negotiationTimeout) throws IOException {
-		Predicate acceptStatus = new Predicate() {
+		Condition acceptStatus = new Condition() {
 			public boolean isSatisfied() {
 				return willingToSend.contains(optionCode) || refusedToSend.contains(optionCode);
 			}
@@ -123,7 +123,7 @@ public class NegotiationHandler  {
 	 * @throws IOException
 	 */
 	public void awaitAcceptOptionNegotiation(final int optionCode, @Nonnegative long negotiationTimeout) throws IOException {
-		Predicate acceptStatus = new Predicate() {
+		Condition acceptStatus = new Condition() {
 			public boolean isSatisfied() {
 				return willingToAccept.contains(optionCode) || refusedToAccept.contains(optionCode);
 			}
