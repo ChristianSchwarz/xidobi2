@@ -7,6 +7,7 @@
 package org.xidobi.rfc2217.internal;
 
 import java.io.DataInput;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,10 +17,13 @@ import org.mockito.InjectMocks;
 import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
+import testtools.MessageBuilder;
+
 import static org.hamcrest.Matchers.is;
 
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static testtools.MessageBuilder.buffer;
 import static testtools.MessageBuilder.buildSetBaudRateResponse;
 
 /**
@@ -44,6 +48,19 @@ public class TestControlResponseDecoder {
 
 	}
 
+	/**
+	 * Decode must fail if the option code is not the expected RFC2217 Com-Port-Option (44)
+	 */
+	@Test
+	public void decodeUnexpectedOptionCode() throws Exception {
+		exception.expect(IOException.class);
+		exception.expectMessage("Unexpected option code: 0");
+
+
+		DataInput input = buffer(0).toDataInput();//
+		decoder.decode(input);
+
+	}
 	/**
 	 * 
 	 */

@@ -3,6 +3,7 @@ package org.xidobi.rfc2217.internal;
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
@@ -24,6 +25,8 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	public static interface CommandProcessor {
 		void onResponseReceived(AbstractControlCmd response);
+		
+		void onError(IOException e);
 	}
 
 	/** The processor will be notified when a command response was received */
@@ -59,8 +62,13 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
 
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
-		AbstractControlCmd resp = decoder.decode(input);
-		commandProcessor.onResponseReceived(resp);
+		try {
+			AbstractControlCmd resp= decoder.decode(input);
+			commandProcessor.onResponseReceived(resp);
+		}
+		catch (IOException e) {
+			
+		}
 
 		return null;
 	}

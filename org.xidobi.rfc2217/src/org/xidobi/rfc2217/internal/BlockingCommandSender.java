@@ -111,4 +111,8 @@ public class BlockingCommandSender implements CommandProcessor {
 		guard.signalAll();
 	}
 
+	public void onError(IOException e) {
+		//TODO
+	}
+
 }

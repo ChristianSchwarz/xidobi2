@@ -7,6 +7,7 @@
 package org.xidobi.rfc2217.internal;
 
 import java.io.DataInput;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,8 +26,8 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import static org.hamcrest.Matchers.any;
@@ -75,9 +76,10 @@ public class TestComPortOptionHandler {
 	/**
 	 * When a command response of the acces server was received the registered
 	 * {@link CommandProcessor} must be notified.
+	 * @throws IOException 
 	 */
 	@Test
-	public void answerSubnegotiation() {
+	public void answerSubnegotiation() throws IOException {
 		when(decoder.decode(argThat(is(any(DataInput.class))))).thenReturn(DUMMY_RESPONSE);
 
 		final int[] binaryDummyResponse = {};

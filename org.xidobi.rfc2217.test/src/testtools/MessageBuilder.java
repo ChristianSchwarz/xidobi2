@@ -51,6 +51,10 @@ public class MessageBuilder {
 		return new ByteBuffer();
 	}
 	
+	public static ByteBuffer buffer(int ...bytes){
+		return new ByteBuffer().putBytes(bytes);
+	}
+	
 	public static ByteBuffer buildComPortCommand(int command){
 		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(command);
 	}
