@@ -6,12 +6,15 @@
  */
 package testtools;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-class ByteArrayBuilder {
+public class ByteBuffer {
 
 	private ByteArrayOutputStream bo = new ByteArrayOutputStream();
 	private DataOutput o = new DataOutputStream(bo);
@@ -19,9 +22,9 @@ class ByteArrayBuilder {
 	/**
 	 * Use IntArrayBuilder
 	 */
-	public ByteArrayBuilder() {}
-	
-	public ByteArrayBuilder putByte(int v) {
+	public ByteBuffer() {}
+
+	public ByteBuffer putByte(int v) {
 		try {
 			o.writeByte(v);
 		}
@@ -29,7 +32,7 @@ class ByteArrayBuilder {
 		return this;
 	}
 
-	public ByteArrayBuilder putInt(int v) {
+	public ByteBuffer putInt(int v) {
 		try {
 			o.writeInt(v);
 		}
@@ -37,6 +40,17 @@ class ByteArrayBuilder {
 		return this;
 	}
 
+	public ByteBuffer putBytes(int... v) {
+		for (int i : v)
+			putInt(i);
+
+		return this;
+	}
+
+	public byte[] toByteArray() {
+		return bo.toByteArray();
+	}
+	
 	public int[] toIntArray() {
 
 		final byte[] bytes = bo.toByteArray();
@@ -46,4 +60,10 @@ class ByteArrayBuilder {
 
 		return r;
 	}
+	
+	public DataInput toDataInput(){
+		return new DataInputStream(new ByteArrayInputStream(toByteArray()));
+	}
+	
+	
 }

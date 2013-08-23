@@ -86,7 +86,7 @@ public class TestRfc2217SerialPort {
 	@Captor
 	private ArgumentCaptor<ComPortOptionHandler> comPortOptionHandler;
 	
-	private Future<SerialConnection> openFuture;
+	private Future<SerialConnection> open;
 
 	/**
 	 * Init's the {@link Rfc2217SerialPort} with an unresolved Address.
@@ -170,7 +170,7 @@ public class TestRfc2217SerialPort {
 	 */
 	@Test(timeout = 500)
 	public void open() throws Throwable {
-		openFuture = openAsync(port, PORT_SETTINGS);
+		open = openAsync(port, PORT_SETTINGS);
 
 		TelnetNotificationHandler handler = awaitValue(notificationHandler, 200);
 		handler.receivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
@@ -183,7 +183,7 @@ public class TestRfc2217SerialPort {
 		
 		comOption.answerSubnegotiation(resp, resp.length);
 		
-		await(openFuture);
+		await(open);
 
 		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds());
 		verify(telnetClient).sendSubnegotiation(req);
@@ -231,13 +231,51 @@ public class TestRfc2217SerialPort {
 		exception.expect(IOException.class);
 		exception.expectMessage("refused to accept option: " + COM_PORT_OPTION);
 
-		openFuture = openAsync(port, PORT_SETTINGS);
+		open = openAsync(port, PORT_SETTINGS);
 		awaitValue(notificationHandler, 200).receivedNegotiation(RECEIVED_DONT, COM_PORT_OPTION);
 		verify(telnetClient, timeout(200)).disconnect();
-		await(openFuture);
+		await(open);
+	}
+	
+	
+	/**
+	 * If the access server refuse to accept com-port-options, the telnet client must be
+	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
+	 * apply the serial settings on the access server.
+	 * 
+	 */
+	@Test(timeout = 500)
+	public void open_failedBaudRateRefused() throws Throwable {
+		open = openAsync(port, PORT_SETTINGS);
+
+		
+		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
+		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
+		
+		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds()+1000);
+
+		telnetReceivedCommand(resp);
+		
+		await(open);
+
+		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds());
+		verify(telnetClient).sendSubnegotiation(req);
+
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private void telnetReceivedNegotiation(int negotiationCode, int optionCode) throws TimeoutException{
+		TelnetNotificationHandler handler = awaitValue(notificationHandler, 200);
+		handler.receivedNegotiation(negotiationCode, optionCode);
+	}
+	
+	private void telnetReceivedCommand(int[] resp) throws TimeoutException {
+		ComPortOptionHandler comOption = awaitValue(comPortOptionHandler, 200);
+		comOption.answerSubnegotiation(resp, resp.length);
+	}
+	
+	
 	private final class TestableRfc2217Port extends Rfc2217SerialPort {
 
 		TestableRfc2217Port(InetSocketAddress accessServer) {

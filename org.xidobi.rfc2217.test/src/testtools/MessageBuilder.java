@@ -31,9 +31,7 @@ public class MessageBuilder {
 	 */
 	public static int[] buildSetBaudRateRequest(@Nonnegative int baudRate) {
 		
-		return new ByteArrayBuilder()//
-		.putByte(COM_PORT_OPTION)//
-		.putByte(SET_BAUDRATE)//
+		return bufferComPortCommand(SET_BAUDRATE)//
 		.putInt(baudRate)//
 		.toIntArray();
 	}
@@ -44,11 +42,16 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static int[] buildSetBaudRateResponse(@Nonnegative int baudRate) {
-		
-		return new ByteArrayBuilder()//
-		.putByte(COM_PORT_OPTION)//
-		.putByte(SET_BAUDRATE+SERVER_OFFSET)//
+		return bufferComPortCommand(SET_BAUDRATE+SERVER_OFFSET)//
 		.putInt(baudRate)//
 		.toIntArray();
+	}
+	
+	public static ByteBuffer buffer(){
+		return new ByteBuffer();
+	}
+	
+	public static ByteBuffer bufferComPortCommand(int command){
+		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(command);
 	}
 }
