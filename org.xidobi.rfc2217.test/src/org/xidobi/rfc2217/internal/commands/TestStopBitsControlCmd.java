@@ -19,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /**
- * Tests the class {@link StopsizeControlCmd}.
+ * Tests the class {@link StopBitsControlCmd}.
  * 
  * @author Christin Nitsche
  * 
@@ -28,7 +28,7 @@ public class TestStopsizeControlCmd {
 	@Rule
 	public ExpectedException exception = none();
 
-	private StopsizeControlCmd cmd;
+	private StopBitsControlCmd cmd;
 
 	@Mock
 	private DataInput input;
@@ -38,7 +38,7 @@ public class TestStopsizeControlCmd {
 		initMocks(this);
 		when(input.readByte()).thenReturn((byte) 2);
 
-		cmd = new StopsizeControlCmd(2);
+		cmd = new StopBitsControlCmd(2);
 
 	}
 
@@ -47,8 +47,8 @@ public class TestStopsizeControlCmd {
 	 */
 	@Test
 	public void read_isCorrect() throws Exception {
-		cmd = new StopsizeControlCmd(input);
-		assertThat(cmd.getStopsize(), Matchers.is(2));
+		cmd = new StopBitsControlCmd(input);
+		assertThat(cmd.getStopBits(), Matchers.is(2));
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class TestStopsizeControlCmd {
 		exception.expectMessage("The received stopsize is invalid! Expected a value greater or equal to 1, got: >-1<");
 
 		when(input.readByte()).thenReturn((byte) -1);
-		new StopsizeControlCmd(input);
+		new StopBitsControlCmd(input);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class TestStopsizeControlCmd {
 	public void new_withNegativeStopsize() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The stopsize must not be less than 1! Got: >-2<");
-		new StopsizeControlCmd(-2);
+		new StopBitsControlCmd(-2);
 	}
 
 
