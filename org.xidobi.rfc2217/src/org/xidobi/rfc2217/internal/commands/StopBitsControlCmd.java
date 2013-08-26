@@ -7,7 +7,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-//@formatter:off
+
 
 /**
  * 
@@ -15,61 +15,60 @@ import java.io.IOException;
  * command can also be sent to query the current stop bit size. The value is one octet (byte). The
  * value is an index into the following value table:
  * 
- * 
- * Value			Stop Bit Size 
- * 0 				Request Current Data Size 
- * 1				1
- * 2				2
- * 3				1.5
- * 4-127			Available for Future Use
- * 
+ * <pre>
+ * Value		Stop Bit Size 
+ *     0		Request Current Data Size 
+ *     1		1
+ *     2		2
+ *     3		1.5
+ * 4-127		Available for Future Use
+ * </pre>
  * @author Christin Nitsche
  * 
  */
-//@formatter:on
-public class StopsizeControlCmd extends AbstractControlCmd {
 
-	/** The preferred stopsize. */
-	private int stopsize;
+public class StopBitsControlCmd extends AbstractControlCmd {
+
+	private int stopBits;
 
 	/**
-	 * Creates a new {@link StopsizeControlCmd}.
+	 * Creates a new {@link StopBitsControlCmd}.
 	 * 
 	 * @param commandCode
 	 *            the preferred stopsize, greater or equal to one.
 	 */
-	StopsizeControlCmd(int stopsize) {
+	StopBitsControlCmd(int stopsize) {
 		super(SET_STOPSIZE);
 		if (stopsize < 1)
 			throw new IllegalArgumentException("The stopsize must not be less than 1! Got: >" + stopsize + "<");
-		this.stopsize = stopsize;
+		this.stopBits = stopsize;
 	}
 
 	/**
-	 * Creates a new {@link StopsizeControlCmd}.
+	 * Creates a new {@link StopBitsControlCmd}.
 	 * 
 	 * @param input
 	 *            used to decode the content of the command, must not be <code>null</code>
 	 * @throws IOException
 	 *             if the message is malformed or the underlying media can't be read
 	 */
-	public StopsizeControlCmd(DataInput input) throws IOException {
+	public StopBitsControlCmd(DataInput input) throws IOException {
 		super(SET_STOPSIZE, input);
 	}
 
 	@Override
 	protected void read(DataInput input) throws IOException {
-		int stopsize = input.readByte();
-		if (stopsize < 1)
-			throw new IOException("The received stopsize is invalid! Expected a value greater or equal to 1, got: >" + stopsize + "<");
-		this.stopsize = stopsize;
+		int stopBits = input.readByte();
+		if (stopBits < 1)
+			throw new IOException("The received stopsize is invalid! Expected a value greater or equal to 1, got: >" + stopBits + "<");
+		this.stopBits = stopBits;
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
 		output.write(COM_PORT_OPTION);
 		output.write(SET_STOPSIZE);
-		output.writeByte(stopsize);
+		output.writeByte(stopBits);
 	}
 
 	/**
@@ -77,8 +76,8 @@ public class StopsizeControlCmd extends AbstractControlCmd {
 	 * 
 	 * @return the stopsize, greater or equal to one
 	 */
-	public int getStopsize() {
-		return stopsize;
+	public int getStopBits() {
+		return stopBits;
 	}
 
 }
