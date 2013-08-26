@@ -29,7 +29,7 @@ import static org.junit.Assert.assertThat;
 import static testtools.MessageBuilder.buffer;
 
 /**
- * Tests the class {@link DatasizeControlCmd}.
+ * Tests the class {@link DataBitsControlCmd}.
  * 
  * @author Peter-René Jeschke
  */
@@ -38,7 +38,7 @@ public class TestDatasizeControlCmd {
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	private DatasizeControlCmd cmd;
+	private DataBitsControlCmd cmd;
 
 	@Mock
 	private DataInput input;
@@ -54,7 +54,7 @@ public class TestDatasizeControlCmd {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void new_null() {
-		new DatasizeControlCmd((DataBits)null);
+		new DataBitsControlCmd((DataBits)null);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class TestDatasizeControlCmd {
 	 */
 	@Test
 	public void read_isCorrect() throws IOException {
-		cmd = new DatasizeControlCmd(buffer(5).toDataInput());
+		cmd = new DataBitsControlCmd(buffer(5).toDataInput());
 
 		assertThat(cmd.getDataSize(), is(DATABITS_5));
 	}
@@ -76,7 +76,7 @@ public class TestDatasizeControlCmd {
 		exception.expectMessage("Unexpected data bits value: -3");
 
 
-		cmd = new DatasizeControlCmd(buffer(-3).toDataInput());
+		cmd = new DataBitsControlCmd(buffer(-3).toDataInput());
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class TestDatasizeControlCmd {
 	@Test
 	public void write_correctData() throws IOException {
 		DataOutput output = mock(DataOutput.class);
-		new DatasizeControlCmd(DATABITS_5).write(output);
+		new DataBitsControlCmd(DATABITS_5).write(output);
 
 		verify(output).writeByte(5); // The datasize
 	}

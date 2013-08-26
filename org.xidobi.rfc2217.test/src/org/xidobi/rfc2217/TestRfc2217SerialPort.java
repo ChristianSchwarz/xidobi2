@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.junit.Before;
@@ -25,34 +24,38 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 
-import testtools.MessageBuilder;
+import testtools.ByteBuffer;
 import static java.lang.Thread.sleep;
 import static java.net.InetSocketAddress.createUnresolved;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 
+import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import static org.junit.Assert.assertThat;
-import static testtools.MessageBuilder.buildSetBaudRateRequest;
 import static testtools.MessageBuilder.buildSetBaudRateResponse;
 
 /**
@@ -168,27 +171,25 @@ public class TestRfc2217SerialPort {
 	 * apply the serial settings on the access server.
 	 * 
 	 */
-	@Test(timeout = 500)
+	@Test//(timeout = 500)
 	public void open() throws Throwable {
+		final int bauds = PORT_SETTINGS.getBauds();
+
+		doAnswer(receivedCommand(buildSetBaudRateResponse(bauds)))
+		.when(telnetClient).sendSubnegotiation(Mockito.argThat(any(int[].class)));
+		
 		open = openAsync(port, PORT_SETTINGS);
 
-		TelnetNotificationHandler handler = awaitValue(notificationHandler, 200);
-		handler.receivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
-		handler.receivedNegotiation(RECEIVED_DO, BINARY);
-		handler.receivedNegotiation(RECEIVED_WILL, BINARY);
+		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
+		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
 		
-		ComPortOptionHandler comOption = awaitValue(comPortOptionHandler, 200);
 		
-		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds()).toIntArray();
-		
-		comOption.answerSubnegotiation(resp, resp.length);
-		
-		await(open);
-
-		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds()).toIntArray();
-		verify(telnetClient).sendSubnegotiation(req);
-
+		SerialConnection connection = await(open);
+		assertThat(connection, is(notNullValue()));
 	}
+
+	
 
 	/**
 	 * If the host is unknown an IOException must be thrown.
@@ -232,8 +233,8 @@ public class TestRfc2217SerialPort {
 		exception.expectMessage("refused to accept option: " + COM_PORT_OPTION);
 
 		open = openAsync(port, PORT_SETTINGS);
-		awaitValue(notificationHandler, 200).receivedNegotiation(RECEIVED_DONT, COM_PORT_OPTION);
-		verify(telnetClient, timeout(200)).disconnect();
+		awaitValue(notificationHandler, 300).receivedNegotiation(RECEIVED_DONT, COM_PORT_OPTION);
+		verify(telnetClient, timeout(300)).disconnect();
 		await(open);
 	}
 	
@@ -246,21 +247,23 @@ public class TestRfc2217SerialPort {
 	 */
 	@Test(timeout = 500)
 	public void open_failedBaudRateRefused() throws Throwable {
+		final int bauds = PORT_SETTINGS.getBauds();
+
 		open = openAsync(port, PORT_SETTINGS);
 
-		
 		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
 		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
 		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
 		
-		int[] resp = buildSetBaudRateResponse(PORT_SETTINGS.getBauds()+1000).toIntArray();
+		ByteBuffer resp = buildSetBaudRateResponse(bauds+1000);
 
 		telnetReceivedCommand(resp);
 		
-		await(open);
+		exception.expect(IOException.class);
+		exception.expectMessage("The baud rate setting was refused ("+bauds+")!");
 
-		int[] req = buildSetBaudRateRequest(PORT_SETTINGS.getBauds()).toIntArray();
-		verify(telnetClient).sendSubnegotiation(req);
+		await(open);
+		
 
 	}
 
@@ -270,9 +273,23 @@ public class TestRfc2217SerialPort {
 		handler.receivedNegotiation(negotiationCode, optionCode);
 	}
 	
-	private void telnetReceivedCommand(int[] resp) throws TimeoutException {
+	/**
+	 * @param buildSetBaudRateResponse
+	 * @return
+	 */
+	private Answer<Void> receivedCommand(final ByteBuffer resp) {
+		return new Answer<Void>() {
+
+			public Void answer(InvocationOnMock invocation) throws Throwable {
+				telnetReceivedCommand(resp);
+				return null;
+			}};
+	}
+	
+	private void telnetReceivedCommand(ByteBuffer resp) throws TimeoutException {
 		ComPortOptionHandler comOption = awaitValue(comPortOptionHandler, 200);
-		comOption.answerSubnegotiation(resp, resp.length);
+		int[] data = resp.toIntArray();
+		comOption.answerSubnegotiation(data, data.length);
 	}
 	
 	
@@ -287,15 +304,18 @@ public class TestRfc2217SerialPort {
 			return telnetClient;
 		}
 	}
+	
+	
 
 	/**
 	 * Waits if necessary for the computation to complete or throws an Exception if the future was
 	 * canceled, interrupted or terminated unexpected. Any {@link ExecutionException} will be
 	 * transformed to its cause exception.
+	 * @return 
 	 */
-	private <T> void await(Future<T> future) throws Throwable {
+	private <T> T await(Future<T> future) throws Throwable {
 		try {
-			future.get();
+			return future.get();
 		}
 		catch (ExecutionException e) {
 			throw e.getCause();
@@ -313,7 +333,12 @@ public class TestRfc2217SerialPort {
 		Callable<SerialConnection> task = new Callable<SerialConnection>() {
 
 			public SerialConnection call() throws Exception {
+				try{
 				return port.open(portSettings);
+				}catch (Exception e) {
+					e.printStackTrace();
+					throw e;
+				}
 			}
 		};
 

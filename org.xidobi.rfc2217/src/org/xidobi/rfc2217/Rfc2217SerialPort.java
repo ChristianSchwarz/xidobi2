@@ -27,6 +27,7 @@ import org.xidobi.rfc2217.internal.ComPortOptionHandler.DecoderErrorHandler;
 import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
 import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
+import org.xidobi.rfc2217.internal.commands.DataBitsControlCmd;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
@@ -54,7 +55,12 @@ public class Rfc2217SerialPort implements SerialPort {
 	 */
 	private NegotiationHandler negotiationHandler;
 	private BlockingCommandSender commandSender;
-	private DecoderErrorHandler commandErrorHandler;
+	
+	@Nonnull
+	private final DecoderErrorHandler commandErrorHandler = new DecoderErrorHandler() {
+		
+		public void onDecoderError(IOException e) {}
+	};
 	
 
 
@@ -182,6 +188,10 @@ public class Rfc2217SerialPort implements SerialPort {
 	 */
 	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) throws IOException {
 		BaudrateControlCmd baudRateResp = commandSender.send(new BaudrateControlCmd(settings.getBauds()));
+		if (baudRateResp.getBaudrate()!=settings.getBauds())
+			throw new IOException("The baud rate setting was refused ("+settings.getBauds()+")!");
+			
+		//DataBitsControlCmd dataBits = commandSender.send(new DataBitsControlCmd(settings.getDataBits()));
 		
 	}
 

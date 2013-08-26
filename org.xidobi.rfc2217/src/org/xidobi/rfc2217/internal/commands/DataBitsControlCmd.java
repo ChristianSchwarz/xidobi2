@@ -44,7 +44,7 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE;
  */
 
 //@formatter:on
-public class DatasizeControlCmd extends AbstractControlCmd {
+public class DataBitsControlCmd extends AbstractControlCmd {
 
 	/**
 	 * The preferred datasize
@@ -54,12 +54,12 @@ public class DatasizeControlCmd extends AbstractControlCmd {
 	
 
 	/**
-	 * Creates a new {@link DatasizeControlCmd}.
+	 * Creates a new {@link DataBitsControlCmd}.
 	 * 
 	 * @param dataBits
 	 *            the preferred datasize, must not be less than one
 	 */
-	public DatasizeControlCmd(@Nonnull DataBits dataBits) {
+	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE);
 		if (dataBits==null)
 			throw new IllegalArgumentException("Parameter >dataBits< must not be null!");
@@ -69,14 +69,14 @@ public class DatasizeControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Creates a new {@link DatasizeControlCmd}.
+	 * Creates a new {@link DataBitsControlCmd}.
 	 * 
 	 * @param input
 	 *            used to decode the content of the command, must not be <code>null</code>
 	 * @throws IOException
 	 *             if the message is malformed or the underlying media can't be read
 	 */
-	public DatasizeControlCmd(@Nonnull DataInput input) throws IOException {
+	public DataBitsControlCmd(@Nonnull DataInput input) throws IOException {
 		super(SET_DATASIZE, input);
 	}
 

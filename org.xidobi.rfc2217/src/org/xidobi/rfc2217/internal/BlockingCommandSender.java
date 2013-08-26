@@ -20,7 +20,6 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
 import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
-import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import static org.xidobi.rfc2217.internal.ArrayUtil.toIntArray;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
@@ -59,7 +58,11 @@ public class BlockingCommandSender implements CommandProcessor {
 	public <T extends AbstractControlCmd> T send(T req) throws IOException {
 		removeResponse(req.getClass());
 		sendCmd(req);
-		return (T) awaitResponse(req.getClass());
+		final T resp = (T) awaitResponse(req.getClass());
+		
+		if (resp==null)
+			throw new IOException("Response-Timeout: No response received for command:"+ req);
+		return resp;
 	}
 
 	/**
@@ -115,6 +118,7 @@ public class BlockingCommandSender implements CommandProcessor {
 	 * @see CommandProcessor
 	 */
 	public void onResponseReceived(AbstractControlCmd response) {
+		responses.put(response.getClass(), response);
 		guard.signalAll();
 	}
 
