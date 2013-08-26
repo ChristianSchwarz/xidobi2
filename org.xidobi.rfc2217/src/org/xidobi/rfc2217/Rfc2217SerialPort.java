@@ -26,6 +26,7 @@ import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.DecoderErrorHandler;
 import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
+import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
 import org.xidobi.rfc2217.internal.commands.DataBitsControlCmd;
 
@@ -189,14 +190,24 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * @throws IOException 
 	 */
 	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) throws IOException {
-		BaudrateControlCmd baudRateResp = commandSender.send(new BaudrateControlCmd(settings.getBauds()));
-		if (baudRateResp.getBaudrate()!=settings.getBauds())
-			throw new IOException("The baud rate setting was refused ("+settings.getBauds()+")!");
-			
-		DataBitsControlCmd dataBits = commandSender.send(new DataBitsControlCmd(settings.getDataBits()));
-		if (dataBits.getDataBits()!=settings.getDataBits())
-			throw new IOException("The data bits setting was refused ("+settings.getDataBits()+")!");
+		sendAndValidate(new BaudrateControlCmd(settings.getBauds()),
+		                "The baud rate setting was refused ("+settings.getBauds()+")!");
 		
+			
+		sendAndValidate(new DataBitsControlCmd(settings.getDataBits()),
+		                "The data bits setting was refused ("+settings.getDataBits()+")!");
+		
+	}
+
+	/**
+	 * @param req
+	 * @param errorMessage
+	 * @throws IOException
+	 */
+	protected void sendAndValidate(final AbstractControlCmd req, final String errorMessage) throws IOException {
+		AbstractControlCmd resp = commandSender.send(req);
+		if (!resp.equals(req)) 
+			throw new IOException(errorMessage);
 	}
 
 	/** Disconnects the {@link TelnetClient} and sucks all kind of thrown Exceptions.*/
