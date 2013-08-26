@@ -6,13 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -21,8 +14,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.xidobi.DataBits;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.DataBits.DATABITS_5;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
+import static testtools.MessageBuilder.buffer;
 
 /**
  * Tests the class {@link DatasizeControlCmd}.
@@ -40,25 +44,17 @@ public class TestDatasizeControlCmd {
 	private DataInput input;
 
 	@Before
-	public void setup() throws IOException {
+	public void setUp() throws IOException {
 		initMocks(this);
-
-		when(input.readByte()).thenReturn((byte) 3);
-
-		cmd = new DatasizeControlCmd(3);
 	}
 
 	/**
 	 * When a negative datasize is supplied to the constructor, an {@link IllegalArgumentException}
 	 * should be thrown.
 	 */
-	@SuppressWarnings("unused")
-	@Test
-	public void new_withNegativeDatasize() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The dataSize must not be less than 1! Got: >-3<");
-
-		new DatasizeControlCmd(-3);
+	@Test(expected=IllegalArgumentException.class)
+	public void new_null() {
+		new DatasizeControlCmd((DataBits)null);
 	}
 
 	/**
@@ -66,23 +62,21 @@ public class TestDatasizeControlCmd {
 	 */
 	@Test
 	public void read_isCorrect() throws IOException {
-		cmd = new DatasizeControlCmd(input);
+		cmd = new DatasizeControlCmd(buffer(5).toDataInput());
 
-		assertThat(cmd.getDataSize(), is(3));
+		assertThat(cmd.getDataSize(), is(DATABITS_5));
 	}
 
 	/**
 	 * When the dataSize is invalid, an {@link IOException} should be thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void read_invalidDataSize() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("The received datasize is invalid! Expected a value greater or equal to 1, got: >-3<");
+		exception.expectMessage("Unexpected data bits value: -3");
 
-		when(input.readByte()).thenReturn((byte) -3);
 
-		new DatasizeControlCmd(input);
+		cmd = new DatasizeControlCmd(buffer(-3).toDataInput());
 	}
 
 	/**
@@ -91,13 +85,9 @@ public class TestDatasizeControlCmd {
 	@Test
 	public void write_correctData() throws IOException {
 		DataOutput output = mock(DataOutput.class);
-		cmd.write(output);
+		new DatasizeControlCmd(DATABITS_5).write(output);
 
-		InOrder orderedVerification = inOrder(output);
-
-		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
-		orderedVerification.verify(output).write(2); // SET-DATASIZE
-		orderedVerification.verify(output).writeByte(3); // The datasize
+		verify(output).writeByte(5); // The datasize
 	}
 
 }

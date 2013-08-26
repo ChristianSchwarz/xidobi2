@@ -42,7 +42,7 @@ public class ByteBuffer {
 
 	public ByteBuffer putBytes(int... v) {
 		for (int i : v)
-			putInt(i);
+			putByte(i);
 
 		return this;
 	}

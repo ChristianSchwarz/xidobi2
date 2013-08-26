@@ -66,8 +66,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.write(COM_PORT_OPTION);
-		output.write(SET_STOPSIZE);
+
 		output.writeByte(stopBits);
 	}
 

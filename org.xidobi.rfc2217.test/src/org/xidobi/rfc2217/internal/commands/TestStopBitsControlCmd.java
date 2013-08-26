@@ -2,7 +2,10 @@ package org.xidobi.rfc2217.internal.commands;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
+
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.DataInput;
@@ -85,10 +88,6 @@ public class TestStopBitsControlCmd {
 		DataOutput output = Mockito.mock(DataOutput.class);
 		cmd.write(output);
 
-		InOrder order = Mockito.inOrder(output);
-
-		order.verify(output).write(44); 	// COM-PORT OPTION
-		order.verify(output).write(4); 		// SET_STOPSIZE
-		order.verify(output).writeByte(2); 	// The stop bits
+		verify(output).writeByte(2); 	// The stop bits
 	}
 }

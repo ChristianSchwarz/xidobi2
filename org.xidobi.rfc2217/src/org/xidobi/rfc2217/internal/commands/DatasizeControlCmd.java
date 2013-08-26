@@ -6,54 +6,65 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import org.xidobi.DataBits;
+
+import static org.xidobi.DataBits.DATABITS_5;
+import static org.xidobi.DataBits.DATABITS_6;
+import static org.xidobi.DataBits.DATABITS_7;
+import static org.xidobi.DataBits.DATABITS_8;
+import static org.xidobi.DataBits.DATABITS_9;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE;
+
+//@formatter:off
 /**
- * <code>IAC SB COM-PORT-OPTION SET-DATASIZE &lt;value&gt; IAC SE</code> <br />
+ * <code>IAC SB COM-PORT-OPTION SET-DATASIZE &lt;value&gt; IAC SE</code> <br>
  * This command is sent by the client to the access server to set the data bit size. The command can
  * also be sent to query the current data bit size. The value is one octet (byte). The value is an
- * index into the following value table: Value Data Bit Size 0 Request Current Data Bit Size 1
- * Available for Future Use 2 Available for Future Use 3 Available for Future Use 4 Available for
- * Future Use 5 5 6 6 7 7 8 8 9-127 Available for Future Use
+ * index into the following value table:
+
+ * 
+ * <table border="1">
+  <tr><th>Value</th><th>Data Bit Size</th></tr>
+  <tr><td>0</td><td>Request Current Data Bits</td>
+  <tr><td>1</td><td></td></tr>
+  <tr><td>2</td><td></td></tr>
+  <tr><td>3</td><td></td></tr>
+  <tr><td>4</td><td></td></tr>
+  
+</table>
+
  * 
  * @author Peter-René Jeschke
  */
+
+//@formatter:on
 public class DatasizeControlCmd extends AbstractControlCmd {
 
 	/**
 	 * The preferred datasize
 	 */
-	private int dataSize;
+	private DataBits dataBits;
 
-	/**
-	 * Returns the preferred datasize.
-	 * 
-	 * @return the dataSize, greater or equal to one
-	 */
-	public int getDataSize() {
-		return dataSize;
-	}
+	
 
 	/**
 	 * Creates a new {@link DatasizeControlCmd}.
 	 * 
-	 * @param dataSize
+	 * @param dataBits
 	 *            the preferred datasize, must not be less than one
 	 */
-	public DatasizeControlCmd(@Nonnegative int dataSize) {
+	public DatasizeControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE);
+		if (dataBits==null)
+			throw new IllegalArgumentException("Parameter >dataBits< must not be null!");
 
-		if (dataSize < 1)
-			throw new IllegalArgumentException("The dataSize must not be less than 1! Got: >" + dataSize + "<");
-		this.dataSize = dataSize;
+		this.dataBits = dataBits;
 
 	}
 
@@ -71,18 +82,56 @@ public class DatasizeControlCmd extends AbstractControlCmd {
 
 	@Override
 	protected void read(DataInput input) throws IOException {
-		int dataSize = input.readByte();
-		if (dataSize < 1)
-			throw new IOException("The received datasize is invalid! Expected a value greater or equal to 1, got: >" + dataSize + "<");
+		final byte byteValue = input.readByte();
+		dataBits=toEnum(byteValue);
+		
+	}
 
-		this.dataSize = dataSize;
+	private DataBits toEnum(final byte dataBits) throws IOException {
+		switch (dataBits){
+			case 5: 
+				return DATABITS_5;
+			case 6:
+				return DATABITS_6;
+			case 7:
+				return DATABITS_7;
+			case 8:
+				return DATABITS_8;
+			case 9:
+				return DATABITS_9;
+		}
+		throw new IOException("Unexpected data bits value: "+dataBits);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.write(COM_PORT_OPTION);
-		output.write(SET_DATASIZE);
-		output.writeByte(dataSize);
+		output.writeByte(toByte(dataBits));
+	}
+	
+	
+	private int toByte(DataBits dataBits) {
+		switch (dataBits) {
+			case DATABITS_5:
+				return 5;
+			case DATABITS_6:
+				return 6;
+			case DATABITS_7:
+				return 7;
+			case DATABITS_8:
+				return 8;
+			case DATABITS_9:
+				return 9;
+		}
+		throw new IllegalStateException("Unexpected DataBits value:"+ dataBits);
+	}
+
+	/**
+	 * Returns the preferred datasize.
+	 * 
+	 * @return the dataSize, greater or equal to one
+	 */
+	public DataBits getDataSize() {
+		return dataBits;
 	}
 
 }

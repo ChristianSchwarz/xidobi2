@@ -30,13 +30,11 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	private int baudrate;
 
 	/**
-	 * Creates a new {@link BaudrateControlCmdRequest}.
+	 * Creates a new instance using the given baud rate.
 	 * 
 	 * @param baudrate
-	 *            the preferred baudrate, must not be smaller than 1
-	 * @param fromClient
-	 *            <code>true</code>, if the message is sent by the client, <code>false</code> if the
-	 *            message is sent by the server
+	 *            the baudrate, must be greater than 0 
+	 * 
 	 */
 	public BaudrateControlCmd(@Nonnegative int baudrate) {
 		super(SET_BAUDRATE);
@@ -62,8 +60,6 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.write(COM_PORT_OPTION);
-		output.write(SET_BAUDRATE);
 		output.writeInt(baudrate);
 	}
 

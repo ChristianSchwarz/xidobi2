@@ -21,7 +21,7 @@ import org.xidobi.rfc2217.internal.RFC2217;
  */
 public abstract class AbstractControlCmd {
 
-	private int commandCode;
+	private byte commandCode;
 
 	/**
 	 * This constructor is used by subclasses to create a new message.
@@ -30,7 +30,9 @@ public abstract class AbstractControlCmd {
 	 *            the code of this command
 	 */
 	AbstractControlCmd(int commandCode) {
-		this.commandCode = commandCode;
+		if (commandCode <1 || commandCode >12)
+			throw new IllegalArgumentException("The command codem must be in the range [1..12]! Got: "+commandCode);
+		this.commandCode = (byte)commandCode;
 	}
 
 	/**
@@ -80,7 +82,7 @@ public abstract class AbstractControlCmd {
 	 * @return the code of this command
 	 * @see RFC2217
 	 */
-	public int getCommandCode() {
+	public byte getCommandCode() {
 		return commandCode;
 	}
 }

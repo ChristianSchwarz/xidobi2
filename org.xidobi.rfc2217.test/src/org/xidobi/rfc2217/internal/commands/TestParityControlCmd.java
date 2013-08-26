@@ -7,10 +7,14 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
+
 import static org.junit.Assert.assertThat;
+
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.DataInput;
@@ -45,7 +49,7 @@ public class TestParityControlCmd {
 
 		when(input.readByte()).thenReturn((byte) 3);
 
-		cmd = new ParityControlCmd(3);
+		
 	}
 
 	/**
@@ -74,12 +78,12 @@ public class TestParityControlCmd {
 	/**
 	 * When the parity is invalid, an {@link IOException} should be thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void read_invalidParity() throws IOException {
 		exception.expect(IOException.class);
 		exception.expectMessage("The received parity is invalid! Expected a value greater or equal to 0, got: >-3<");
 
+	
 		when(input.readByte()).thenReturn((byte) -3);
 
 		new ParityControlCmd(input);
@@ -90,13 +94,12 @@ public class TestParityControlCmd {
 	 */
 	@Test
 	public void write_correctData() throws IOException {
+		
+		cmd = new ParityControlCmd(3);
 		DataOutput output = mock(DataOutput.class);
+		
 		cmd.write(output);
 
-		InOrder orderedVerification = inOrder(output);
-
-		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
-		orderedVerification.verify(output).write(3); // SET-PARITY
-		orderedVerification.verify(output).writeByte(3); // The parity
+		verify(output).writeByte(3); // The parity
 	}
 }

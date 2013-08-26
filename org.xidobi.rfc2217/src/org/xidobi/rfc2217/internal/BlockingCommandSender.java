@@ -23,6 +23,7 @@ import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import static org.xidobi.rfc2217.internal.ArrayUtil.toIntArray;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 
 /**
  * Used to send and receive com port control command in a blocking manner. 
@@ -89,8 +90,10 @@ public class BlockingCommandSender implements CommandProcessor {
 	 */
 	protected void sendCmd(AbstractControlCmd message) throws IOException {
 		ByteArrayOutputStream bo = new ByteArrayOutputStream();
-		DataOutput l = new DataOutputStream(bo);
-		message.write(l);
+		DataOutput output = new DataOutputStream(bo);
+		output.writeByte(COM_PORT_OPTION);
+		output.writeByte(message.getCommandCode());
+		message.write(output);
 		int[] bytes = toIntArray(bo.toByteArray());
 		telnetClient.sendSubnegotiation(bytes);
 	}

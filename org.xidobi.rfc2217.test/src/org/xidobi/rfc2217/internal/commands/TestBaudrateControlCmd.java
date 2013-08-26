@@ -96,8 +96,6 @@ public class TestBaudrateControlCmd {
 
 		InOrder orderedVerification = inOrder(output);
 
-		orderedVerification.verify(output).write(44); // COM-PORT-OPTION
-		orderedVerification.verify(output).write(1); // SET-BAUDRATE
 		orderedVerification.verify(output).writeInt(1600); // The baudrate
 	}
 }
