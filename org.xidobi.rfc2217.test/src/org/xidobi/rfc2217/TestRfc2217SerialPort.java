@@ -54,6 +54,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import static org.junit.Assert.assertThat;
+import static testtools.MessageBuilder.buildDataBitsRequest;
+import static testtools.MessageBuilder.buildDataBitsResponse;
 import static testtools.MessageBuilder.buildSetBaudRateRequest;
 import static testtools.MessageBuilder.buildSetBaudRateResponse;
 
@@ -170,20 +172,21 @@ public class TestRfc2217SerialPort {
 	 * apply the serial settings on the access server.
 	 * 
 	 */
-	@Test(timeout = 500)
+	@Test//(timeout = 500)
 	public void open() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
 
 		doAnswer(receivedCommand(buildSetBaudRateResponse(bauds)))
 		.when(telnetClient).sendSubnegotiation(buildSetBaudRateRequest(bauds).toIntArray());
 		
+		doAnswer(receivedCommand(buildDataBitsResponse(8)))
+		.when(telnetClient).sendSubnegotiation(buildDataBitsRequest(8).toIntArray());
+		
 		open = openAsync(port, PORT_SETTINGS);
 		
 		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
 		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
 		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
-		
-		
 		
 		SerialConnection connection = await(open);
 		assertThat(connection, is(notNullValue()));

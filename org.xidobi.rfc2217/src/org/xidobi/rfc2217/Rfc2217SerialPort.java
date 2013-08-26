@@ -59,7 +59,9 @@ public class Rfc2217SerialPort implements SerialPort {
 	@Nonnull
 	private final DecoderErrorHandler commandErrorHandler = new DecoderErrorHandler() {
 		
-		public void onDecoderError(IOException e) {}
+		public void onDecoderError(IOException e) {
+			
+		}
 	};
 	
 
@@ -108,7 +110,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		TelnetClient telnetClient = createTelnetClient();
 
 		createNegotiationHandler(telnetClient);
-		createBlockingCommandSender(telnetClient);
+		createCommandSender(telnetClient);
 		
 		configure(telnetClient);
 		connect(telnetClient);
@@ -157,7 +159,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		negotiationHandler = new NegotiationHandler(telnetClient);
 	}
 	
-	private void createBlockingCommandSender(TelnetClient telnetClient) {
+	private void createCommandSender(TelnetClient telnetClient) {
 		commandSender = new BlockingCommandSender(telnetClient);
 	}
 
@@ -191,7 +193,9 @@ public class Rfc2217SerialPort implements SerialPort {
 		if (baudRateResp.getBaudrate()!=settings.getBauds())
 			throw new IOException("The baud rate setting was refused ("+settings.getBauds()+")!");
 			
-		//DataBitsControlCmd dataBits = commandSender.send(new DataBitsControlCmd(settings.getDataBits()));
+		DataBitsControlCmd dataBits = commandSender.send(new DataBitsControlCmd(settings.getDataBits()));
+		if (dataBits.getDataBits()!=settings.getDataBits())
+			throw new IOException("The data bits setting was refused ("+settings.getDataBits()+")!");
 		
 	}
 

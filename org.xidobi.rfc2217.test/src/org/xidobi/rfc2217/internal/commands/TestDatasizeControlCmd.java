@@ -64,7 +64,7 @@ public class TestDatasizeControlCmd {
 	public void read_isCorrect() throws IOException {
 		cmd = new DataBitsControlCmd(buffer(5).toDataInput());
 
-		assertThat(cmd.getDataSize(), is(DATABITS_5));
+		assertThat(cmd.getDataBits(), is(DATABITS_5));
 	}
 
 	/**

@@ -73,4 +73,28 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 		return baudrate;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + baudrate;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BaudrateControlCmd other = (BaudrateControlCmd) obj;
+		if (baudrate != other.baudrate)
+			return false;
+		return true;
+	}
+	
+	
+
 }

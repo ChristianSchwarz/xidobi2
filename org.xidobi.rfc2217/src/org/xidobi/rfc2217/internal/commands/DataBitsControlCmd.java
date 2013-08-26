@@ -130,7 +130,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 * 
 	 * @return the dataSize, greater or equal to one
 	 */
-	public DataBits getDataSize() {
+	public DataBits getDataBits() {
 		return dataBits;
 	}
 

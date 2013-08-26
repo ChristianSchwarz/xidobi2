@@ -12,6 +12,7 @@ import java.io.IOException;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SERVER_OFFSET;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE;
 
 /**
  * @author Christian Schwarz
@@ -28,6 +29,8 @@ public class ControlResponseDecoder {
 		switch(command){
 			case SET_BAUDRATE+SERVER_OFFSET:
 				return new BaudrateControlCmd(input);
+			case SET_DATASIZE+SERVER_OFFSET:
+				return new DataBitsControlCmd(input);
 		}
 		
 		throw new UnsupportedOperationException("Not implemented yet");
