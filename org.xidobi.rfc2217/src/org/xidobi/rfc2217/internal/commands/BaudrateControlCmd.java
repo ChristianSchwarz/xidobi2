@@ -44,6 +44,10 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 		this.baudrate = baudrate;
 	}
 
+	/**
+	 * @param input
+	 * @throws IOException
+	 */
 	public BaudrateControlCmd(DataInput input) throws IOException {
 		super(SET_BAUDRATE, input);
 	}

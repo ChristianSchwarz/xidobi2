@@ -23,7 +23,7 @@ public class ControlResponseDecoder {
 	public AbstractControlCmd decode(DataInput input) throws IOException {
 		byte option = input.readByte();
 		if (option!=COM_PORT_OPTION)
-			throw new IOException("Unexpected option code: "+option+"!");
+			throw new IOException("Unexpected telnet option! Got: "+option);
 		
 		byte command = input.readByte();
 		switch(command){
@@ -31,6 +31,7 @@ public class ControlResponseDecoder {
 				return new BaudrateControlCmd(input);
 			case SET_DATASIZE+SERVER_OFFSET:
 				return new DataBitsControlCmd(input);
+			
 		}
 		
 		throw new UnsupportedOperationException("Not implemented yet");
