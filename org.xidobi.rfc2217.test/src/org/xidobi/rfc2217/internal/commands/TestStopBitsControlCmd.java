@@ -24,7 +24,7 @@ import org.mockito.Mockito;
  * @author Christin Nitsche
  * 
  */
-public class TestStopsizeControlCmd {
+public class TestStopBitsControlCmd {
 	@Rule
 	public ExpectedException exception = none();
 
@@ -89,6 +89,6 @@ public class TestStopsizeControlCmd {
 
 		order.verify(output).write(44); 	// COM-PORT OPTION
 		order.verify(output).write(4); 		// SET_STOPSIZE
-		order.verify(output).writeByte(2); 	// The stopsize
+		order.verify(output).writeByte(2); 	// The stop bits
 	}
 }

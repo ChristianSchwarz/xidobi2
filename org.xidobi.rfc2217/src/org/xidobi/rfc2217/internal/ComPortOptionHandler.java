@@ -23,10 +23,15 @@ import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
  */
 public class ComPortOptionHandler extends SimpleOptionHandler {
 
+	/** Call back that is implemented to process received responses*/
+	@SuppressWarnings("javadoc")
 	public static interface CommandProcessor {
+		/** Will be called when a control command reponse was received */
 		void onResponseReceived(AbstractControlCmd response);
-		
-		void onError(IOException e);
+	}
+	public static interface DecoderErrorHandler{
+		/** Will be called when a message could not be decoded.	 */
+		void onDecoderError(IOException e);
 	}
 
 	/** The processor will be notified when a command response was received */
@@ -37,23 +42,31 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	@Nonnull
 	private final ControlResponseDecoder decoder;
 
+	private DecoderErrorHandler errorHandler;
+
 	/**
 	 * 
 	 * @param commandProcessor
 	 */
-	public ComPortOptionHandler(CommandProcessor commandProcessor) {
-		this(commandProcessor, new ControlResponseDecoder());
+	public ComPortOptionHandler(CommandProcessor commandProcessor,
+		                     	DecoderErrorHandler errorHandler) {
+		this(commandProcessor,errorHandler, new ControlResponseDecoder());
 	}
 
 	@VisibleForTesting
 	ComPortOptionHandler(	CommandProcessor commandProcessor,
-							ControlResponseDecoder decoder) {
+	                     	DecoderErrorHandler errorHandler,
+							ControlResponseDecoder decoder
+							) {
 		super(COM_PORT_OPTION, true, false, true, false);
 		if (commandProcessor == null)
 			throw new IllegalArgumentException("Parameter >commandProcessor< must not be null!");
 		if (decoder == null)
 			throw new IllegalArgumentException("Parameter >decoder< must not be null!");
+		if (errorHandler == null)
+			throw new IllegalArgumentException("Parameter >errorHandler< must not be null!");
 
+		this.errorHandler = errorHandler;
 		this.commandProcessor = commandProcessor;
 		this.decoder = decoder;
 	}
@@ -62,13 +75,15 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
 
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
+		AbstractControlCmd resp;
 		try {
-			AbstractControlCmd resp= decoder.decode(input);
-			commandProcessor.onResponseReceived(resp);
+			resp = decoder.decode(input);
 		}
 		catch (IOException e) {
-			
+			errorHandler.onDecoderError(e);
+			return null;
 		}
+		commandProcessor.onResponseReceived(resp);
 
 		return null;
 	}

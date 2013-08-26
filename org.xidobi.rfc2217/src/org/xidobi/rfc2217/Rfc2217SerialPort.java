@@ -23,6 +23,7 @@ import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.internal.BinaryOptionHandler;
 import org.xidobi.rfc2217.internal.BlockingCommandSender;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
+import org.xidobi.rfc2217.internal.ComPortOptionHandler.DecoderErrorHandler;
 import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
 import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
@@ -53,6 +54,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	 */
 	private NegotiationHandler negotiationHandler;
 	private BlockingCommandSender commandSender;
+	private DecoderErrorHandler commandErrorHandler;
 	
 
 
@@ -99,9 +101,8 @@ public class Rfc2217SerialPort implements SerialPort {
 
 		TelnetClient telnetClient = createTelnetClient();
 
-
 		createNegotiationHandler(telnetClient);
-		commandSender = new BlockingCommandSender(telnetClient);
+		createBlockingCommandSender(telnetClient);
 		
 		configure(telnetClient);
 		connect(telnetClient);
@@ -117,6 +118,9 @@ public class Rfc2217SerialPort implements SerialPort {
 			throw e;
 		}
 	}
+
+	
+	
 
 	/**
 	 * Subclasses may override this method to create an own {@link TelnetClient} or to add special
@@ -136,7 +140,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		telnetClient.setReaderThread(true);
 		try {
 			telnetClient.addOptionHandler(new BinaryOptionHandler());
-			telnetClient.addOptionHandler(new ComPortOptionHandler(commandSender));
+			telnetClient.addOptionHandler(new ComPortOptionHandler(commandSender,commandErrorHandler));
 		}
 		catch (InvalidTelnetOptionException e) {
 			throw new IllegalStateException(e);
@@ -145,6 +149,10 @@ public class Rfc2217SerialPort implements SerialPort {
 
 	private void createNegotiationHandler(TelnetClient telnetClient) {
 		negotiationHandler = new NegotiationHandler(telnetClient);
+	}
+	
+	private void createBlockingCommandSender(TelnetClient telnetClient) {
+		commandSender = new BlockingCommandSender(telnetClient);
 	}
 
 	/**

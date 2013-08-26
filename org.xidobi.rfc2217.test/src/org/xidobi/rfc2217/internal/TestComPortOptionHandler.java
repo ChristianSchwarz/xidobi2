@@ -18,6 +18,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
+import org.xidobi.rfc2217.internal.ComPortOptionHandler.DecoderErrorHandler;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
@@ -59,6 +60,11 @@ public class TestComPortOptionHandler {
 
 	@Captor
 	private ArgumentCaptor<DataInput> input;
+	
+	@Mock
+	private DecoderErrorHandler errorHandler;
+
+
 
 	@Before
 	public void setUp() {
@@ -70,7 +76,15 @@ public class TestComPortOptionHandler {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void new_nullProcessor() {
-		new ComPortOptionHandler(null);
+		new ComPortOptionHandler(null,errorHandler);
+	}
+	
+	/**
+	 * When <code>null</code> is passed an {@link IllegalArgumentException} must be throw.
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void new_nullErrorHandler() {
+		new ComPortOptionHandler( processor,null);
 	}
 
 	/**

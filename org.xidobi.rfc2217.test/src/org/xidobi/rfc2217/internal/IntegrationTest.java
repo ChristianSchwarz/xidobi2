@@ -22,10 +22,13 @@ import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.Rfc2217SerialPort;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
+import org.xidobi.rfc2217.internal.ComPortOptionHandler.DecoderErrorHandler;
 
 import static java.lang.Thread.sleep;
 import static java.net.InetSocketAddress.createUnresolved;
+
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
 
@@ -82,6 +85,8 @@ public class IntegrationTest {
 	private SerialConnection connection;
 	@Mock
 	private CommandProcessor processor;
+	@Mock
+	private DecoderErrorHandler errorHandler;
 
 	@Before
 	public void setUp() {
@@ -97,7 +102,7 @@ public class IntegrationTest {
 		TelnetClient telnetClient = new TelnetClient();
 		telnetClient.setReaderThread(true);
 		telnetClient.addOptionHandler(new BinaryOptionHandler());
-		telnetClient.addOptionHandler(new ComPortOptionHandler(processor));
+		telnetClient.addOptionHandler(new ComPortOptionHandler(processor,errorHandler));
 		telnetClient.registerNotifHandler(new NegotiationListener());
 		telnetClient.registerInputListener(new TelnetInputListener() {
 

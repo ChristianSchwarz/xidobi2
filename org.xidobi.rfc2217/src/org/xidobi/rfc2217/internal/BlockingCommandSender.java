@@ -20,10 +20,12 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
 import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
+import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import static org.xidobi.rfc2217.internal.ArrayUtil.toIntArray;
 
 /**
+ * Used to send and receive com port control command in a blocking manner. 
  * @author Christian Schwarz
  * 
  */
@@ -34,7 +36,7 @@ public class BlockingCommandSender implements CommandProcessor {
 	private final ConditionalGuard guard = new ConditionalGuard();
 
 	private TelnetClient telnetClient;
-
+	
 	/**
 	 * Creates a new instance, using the given {@link TelnetClient}.
 	 * @param telnetClient used to send control commands
@@ -51,6 +53,7 @@ public class BlockingCommandSender implements CommandProcessor {
 	 * @return the response
 	 * @throws IOException if an I/O Error occured while writing or an receive timeout was detected
 	 */
+	@SuppressWarnings("unchecked")
 	@Nonnull
 	public <T extends AbstractControlCmd> T send(T req) throws IOException {
 		removeResponse(req.getClass());
@@ -96,6 +99,7 @@ public class BlockingCommandSender implements CommandProcessor {
 	 * Remove the previous received Control Command of the given Type, and return it.
 	 * <code>null</code> will be returned if no Control Command was removed.
 	 */
+	@SuppressWarnings("unchecked")
 	private <T extends AbstractControlCmd> T removeResponse(final Class<T> commandType) {
 		return (T) responses.remove(commandType);
 
@@ -111,8 +115,6 @@ public class BlockingCommandSender implements CommandProcessor {
 		guard.signalAll();
 	}
 
-	public void onError(IOException e) {
-		//TODO
-	}
+	
 
 }
