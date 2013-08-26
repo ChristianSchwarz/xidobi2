@@ -23,7 +23,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.SerialConnection;
@@ -50,12 +49,12 @@ import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_D
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import static org.junit.Assert.assertThat;
+import static testtools.MessageBuilder.buildSetBaudRateRequest;
 import static testtools.MessageBuilder.buildSetBaudRateResponse;
 
 /**
@@ -171,18 +170,19 @@ public class TestRfc2217SerialPort {
 	 * apply the serial settings on the access server.
 	 * 
 	 */
-	@Test//(timeout = 500)
+	@Test(timeout = 500)
 	public void open() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
 
 		doAnswer(receivedCommand(buildSetBaudRateResponse(bauds)))
-		.when(telnetClient).sendSubnegotiation(Mockito.argThat(any(int[].class)));
+		.when(telnetClient).sendSubnegotiation(buildSetBaudRateRequest(bauds).toIntArray());
 		
 		open = openAsync(port, PORT_SETTINGS);
-
+		
 		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
 		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
 		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
+		
 		
 		
 		SerialConnection connection = await(open);
@@ -249,22 +249,19 @@ public class TestRfc2217SerialPort {
 	public void open_failedBaudRateRefused() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
 
+		doAnswer(receivedCommand(buildSetBaudRateResponse(bauds+10)))
+		.when(telnetClient).sendSubnegotiation(buildSetBaudRateRequest(bauds).toIntArray());
+		
 		open = openAsync(port, PORT_SETTINGS);
 
 		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
 		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
 		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
 		
-		ByteBuffer resp = buildSetBaudRateResponse(bauds+1000);
-
-		telnetReceivedCommand(resp);
-		
 		exception.expect(IOException.class);
 		exception.expectMessage("The baud rate setting was refused ("+bauds+")!");
 
 		await(open);
-		
-
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
