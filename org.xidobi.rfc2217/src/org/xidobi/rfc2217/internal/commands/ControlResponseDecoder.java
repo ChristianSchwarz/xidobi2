@@ -34,6 +34,6 @@ public class ControlResponseDecoder {
 			
 		}
 		
-		throw new UnsupportedOperationException("Not implemented yet");
+		throw new IOException("Unsupported command option! Got: "+command);
 	}
 }

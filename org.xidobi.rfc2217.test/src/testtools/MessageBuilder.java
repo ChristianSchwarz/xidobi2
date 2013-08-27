@@ -15,6 +15,7 @@ import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SERVER_OFFSET;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY;
 
 /**
  * Provides static methods to build com port control messages in binary form.
@@ -34,11 +35,12 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static ByteBuffer buildSetBaudRateRequest(@Nonnegative int baudRate) {
-		
+
 		return buildComPortCommand(SET_BAUDRATE)//
 		.putInt(baudRate);
-		
+
 	}
+
 	/**
 	 * Creates the binary form of a "set baud command" response message, using the given baud rate.
 	 * 
@@ -46,12 +48,11 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static ByteBuffer buildSetBaudRateResponse(@Nonnegative int baudRate) {
-		return buildComPortCommand(SET_BAUDRATE+SERVER_OFFSET)//
+		return buildComPortCommand(SET_BAUDRATE + SERVER_OFFSET)//
 		.putInt(baudRate);
-	
+
 	}
-	
-	
+
 	/**
 	 * Creates the binary form of a "set baud command" response message, using the given baud rate.
 	 * 
@@ -62,7 +63,7 @@ public class MessageBuilder {
 		return buildComPortCommand(SET_DATASIZE)//
 		.putByte(databits);
 	}
-	
+
 	/**
 	 * Creates the binary form of a "set baud command" response message, using the given baud rate.
 	 * 
@@ -70,21 +71,38 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static ByteBuffer buildDataBitsResponse(@Nonnegative int databits) {
-		return buildComPortCommand(SET_DATASIZE+SERVER_OFFSET)//
-			.putByte(databits);
+		return buildComPortCommand(SET_DATASIZE + SERVER_OFFSET)//
+		.putByte(databits);
 	}
-	
-	
-	
-	public static ByteBuffer buffer(){
+
+	/**
+	 * Creates the binary form of an "set parity command" , using the given parity.
+	 * @param parity
+	 *            <ul>
+	 *            <li>0 Request Current Data Size
+	 *            <li>1 NONE
+	 *            <li>2 ODD
+	 *            <li>3 EVEN
+	 *            <li>4 MARK
+	 *            </ul>
+	 * 
+	 * @return the binary form
+	 */
+	public static ByteBuffer buildSetParityResponse(int parity) {
+		return buildComPortCommand(SET_PARITY + SERVER_OFFSET)//
+		.putByte(parity);
+	}
+
+	public static ByteBuffer buffer() {
 		return new ByteBuffer();
 	}
-	
-	public static ByteBuffer buffer(int ...bytes){
+
+	public static ByteBuffer buffer(int... bytes) {
 		return new ByteBuffer().putBytes(bytes);
 	}
-	
-	public static ByteBuffer buildComPortCommand(int command){
+
+	public static ByteBuffer buildComPortCommand(int command) {
 		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(command);
 	}
+
 }

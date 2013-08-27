@@ -15,8 +15,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 
+import testtools.MessageBuilder;
 import static org.mockito.MockitoAnnotations.initMocks;
-
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.is;
 
 import static testtools.MessageBuilder.buffer;
 import static testtools.MessageBuilder.buildDataBitsResponse;
+import static testtools.MessageBuilder.buildSetBaudRateResponse;
 
 /**
  * 
@@ -63,5 +64,19 @@ public class TestControlResponseDecoder {
 	public void decode_Databits() throws Exception {
 		resp = decoder.decode(buildDataBitsResponse(6).toDataInput());
 		assertThat(resp, is(instanceOf(DataBitsControlCmd.class)));
+	}
+	
+	/**Tests it a well formmatted baud rate response can be decoded. */
+	@Test
+	public void decode_baudRate() throws Exception {
+		resp = decoder.decode(buildSetBaudRateResponse(9600).toDataInput());
+		assertThat(resp, is(instanceOf(BaudrateControlCmd.class)));
+	}
+	
+	/**Tests it a well formmatted baud rate response can be decoded. */
+	@Test
+	public void decode_parity() throws Exception {
+		resp = decoder.decode(MessageBuilder.buildSetParityResponse(9600).toDataInput());
+		assertThat(resp, is(instanceOf(BaudrateControlCmd.class)));
 	}
 }
