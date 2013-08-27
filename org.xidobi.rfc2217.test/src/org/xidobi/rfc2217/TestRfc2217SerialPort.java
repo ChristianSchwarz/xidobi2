@@ -89,15 +89,16 @@ public class TestRfc2217SerialPort {
 
 	@Captor
 	private ArgumentCaptor<ComPortOptionHandler> comPortOptionHandler;
-	
+
 	private Future<SerialConnection> open;
 
 	/**
 	 * Init's the {@link Rfc2217SerialPort} with an unresolved Address.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	@Before
-	public void setUp() throws Exception{
+	public void setUp() throws Exception {
 		initMocks(this);
 		port = new TestableRfc2217Port(ACCESS_SERVER_ADDRESS);
 		doNothing().when(telnetClient).registerNotifHandler(notificationHandler.capture());
@@ -178,18 +179,16 @@ public class TestRfc2217SerialPort {
 
 		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(9600));
 		accessServerSends(dataBitsResponse(8)).when(telnetClient).sendSubnegotiation(dataBitsRequest(8));
-		
+
 		open = openAsync(port, PORT_SETTINGS);
-		
+
 		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
 		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
 		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
-		
+
 		SerialConnection connection = await(open);
 		assertThat(connection, is(notNullValue()));
 	}
-
-	
 
 	/**
 	 * If the host is unknown an IOException must be thrown.
@@ -237,8 +236,7 @@ public class TestRfc2217SerialPort {
 		verify(telnetClient, timeout(300)).disconnect();
 		await(open);
 	}
-	
-	
+
 	/**
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
@@ -249,35 +247,41 @@ public class TestRfc2217SerialPort {
 	public void open_failedBaudRateRefused() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
 
-		accessServerSends(baudRateResponse(bauds+10)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
-		
+		accessServerSends(baudRateResponse(bauds + 10)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
+
 		open = openAsync(port, PORT_SETTINGS);
 
 		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
 		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
 		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
-		
+
 		exception.expect(IOException.class);
-		exception.expectMessage("The baud rate setting was refused ("+bauds+")!");
+		exception.expectMessage("The baud rate setting was refused (" + bauds + ")!");
 
 		await(open);
 	}
 
-	/////////////////////////////////	Utility-Methods 	////////////////////////////////////////////////////////////////////////////
-	/** emulates the behaviour of the access server sending an negotiation*/
-	private void accessServerSendsNegotiation(int negotiationCode, int optionCode) throws TimeoutException{
+	// /////////////////////////////// Utility-Methods
+	// ////////////////////////////////////////////////////////////////////////////
+	/** emulates the behaviour of the access server sending an negotiation */
+	private void accessServerSendsNegotiation(int negotiationCode, int optionCode) throws TimeoutException {
 		TelnetNotificationHandler handler = awaitValue(notificationHandler, 200);
 		handler.receivedNegotiation(negotiationCode, optionCode);
 	}
-	
+
 	/**
-	 * @param resp
-	 * @return
+	 * Sends the given response under the specified condition.
+	 * <p>
+	 * Usage Sample:
+	 * 
+	 * <pre>
+	 * accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(9600));
+	 * </pre>
 	 */
 	private Stubber accessServerSends(final ByteBuffer resp) {
 		return doAnswer(receivedCommand(resp));
 	}
-	
+
 	/**
 	 * @param buildSetBaudRateResponse
 	 * @return
@@ -288,15 +292,16 @@ public class TestRfc2217SerialPort {
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				telnetReceivedCommand(resp);
 				return null;
-			}};
+			}
+		};
 	}
-	
+
 	private void telnetReceivedCommand(ByteBuffer resp) throws TimeoutException {
 		ComPortOptionHandler comOption = awaitValue(comPortOptionHandler, 200);
 		int[] data = resp.toIntArray();
 		comOption.answerSubnegotiation(data, data.length);
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -304,13 +309,14 @@ public class TestRfc2217SerialPort {
 		return MessageBuilder.dataBitsRequest(dataBits).toIntArray();
 	}
 
-	
-	
-	/** Argument-Matcher that checks for the binary form of a baud-rate request using the given baud-rate*/
-	private int[] baudRateRequest(int bauds){
+	/**
+	 * Argument-Matcher that checks for the binary form of a baud-rate request using the given
+	 * baud-rate
+	 */
+	private int[] baudRateRequest(int bauds) {
 		return MessageBuilder.baudRateRequest(bauds).toIntArray();
 	}
-	
+
 	private final class TestableRfc2217Port extends Rfc2217SerialPort {
 
 		TestableRfc2217Port(InetSocketAddress accessServer) {
@@ -322,14 +328,13 @@ public class TestRfc2217SerialPort {
 			return telnetClient;
 		}
 	}
-	
-	
 
 	/**
 	 * Waits if necessary for the computation to complete or throws an Exception if the future was
 	 * canceled, interrupted or terminated unexpected. Any {@link ExecutionException} will be
 	 * transformed to its cause exception.
-	 * @return 
+	 * 
+	 * @return
 	 */
 	private <T> T await(Future<T> future) throws Throwable {
 		try {
@@ -351,9 +356,10 @@ public class TestRfc2217SerialPort {
 		Callable<SerialConnection> task = new Callable<SerialConnection>() {
 
 			public SerialConnection call() throws Exception {
-				try{
-				return port.open(portSettings);
-				}catch (Exception e) {
+				try {
+					return port.open(portSettings);
+				}
+				catch (Exception e) {
 					e.printStackTrace();
 					throw e;
 				}
@@ -362,13 +368,16 @@ public class TestRfc2217SerialPort {
 
 		final Future<SerialConnection> f = e.submit(task);
 
-		
 		e.shutdown();
 
 		return f;
 
 	}
 
+	/**
+	 * Returns the {@link ArgumentCaptor}'s value once it become
+	 * available. 
+	 */
 	private <T> T awaitValue(ArgumentCaptor<T> captor, long millis) throws TimeoutException {
 
 		while (millis > 0) {

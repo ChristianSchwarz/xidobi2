@@ -100,18 +100,13 @@ public class Rfc2217SerialPort implements SerialPort {
 	 */
 	@Nonnull
 	@WillCloseWhenClosed
-	public SerialConnection open(@Nonnull SerialPortSettings settings) throws IOException {
+	public final SerialConnection open(@Nonnull SerialPortSettings settings) throws IOException {
 		if (settings == null)
 			throw new IllegalArgumentException("Parameter >settings< must not be null!");
 
-		TelnetClient telnetClient = createTelnetClient();
-
-		createNegotiationHandler(telnetClient);
-		createCommandSender(telnetClient);
-
-		configure(telnetClient);
-		connect(telnetClient);
+		TelnetClient telnetClient = initTelnetClient();
 		try {
+			connect(telnetClient);
 			awaitNegotiation(telnetClient);
 
 			sendPortSettings(telnetClient, settings);
@@ -122,6 +117,19 @@ public class Rfc2217SerialPort implements SerialPort {
 			disconnect(telnetClient);
 			throw e;
 		}
+	}
+
+	/**
+	 * Returns an initialised {@link TelnetClient}
+	 */
+	private TelnetClient initTelnetClient() throws IOException {
+		TelnetClient telnetClient = createTelnetClient();
+
+		createNegotiationHandler(telnetClient);
+		createCommandSender(telnetClient);
+
+		configure(telnetClient);
+		return telnetClient;
 	}
 
 	/**
