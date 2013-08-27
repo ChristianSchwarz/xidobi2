@@ -8,9 +8,6 @@ package testtools;
 
 import javax.annotation.Nonnegative;
 
-import org.xidobi.DataBits;
-import org.xidobi.rfc2217.internal.RFC2217;
-
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SERVER_OFFSET;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
@@ -56,7 +53,7 @@ public class MessageBuilder {
 	/**
 	 * Creates the binary form of a "set baud command" response message, using the given baud rate.
 	 * 
-	 * @param baudRate
+	 * @param databits
 	 * @return the binary form
 	 */
 	public static ByteBuffer buildDataBitsRequest(@Nonnegative int databits) {
@@ -67,7 +64,7 @@ public class MessageBuilder {
 	/**
 	 * Creates the binary form of a "set baud command" response message, using the given baud rate.
 	 * 
-	 * @param baudRate
+	 * @param databits
 	 * @return the binary form
 	 */
 	public static ByteBuffer buildDataBitsResponse(@Nonnegative int databits) {
@@ -77,6 +74,7 @@ public class MessageBuilder {
 
 	/**
 	 * Creates the binary form of an "set parity command" , using the given parity.
+	 * 
 	 * @param parity
 	 *            <ul>
 	 *            <li>0 Request Current Data Size
@@ -93,16 +91,33 @@ public class MessageBuilder {
 		.putByte(parity);
 	}
 
+	/**
+	 * Creates a new byte-buffer, containing a pre build com port option header and the given
+	 * command-code. This method is commonly used to build command-option request or responses.
+	 * 
+	 * @param commandCode
+	 * @return the binary form
+	 */
+	public static ByteBuffer buildComPortCommand(int commandCode) {
+		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(commandCode);
+	}
+
+	/**
+	 * Creates a new empty byte-buffer.
+	 * 
+	 * @return an empty byte-buffer
+	 */
 	public static ByteBuffer buffer() {
 		return new ByteBuffer();
 	}
 
+	/**
+	 * Creates a new byte-buffer containig the given byte values.
+	 * 
+	 * @param bytes
+	 * @return an byte-buffer containig the given byte values
+	 */
 	public static ByteBuffer buffer(int... bytes) {
 		return new ByteBuffer().putBytes(bytes);
 	}
-
-	public static ByteBuffer buildComPortCommand(int command) {
-		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(command);
-	}
-
 }
