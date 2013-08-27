@@ -20,11 +20,8 @@ import org.xidobi.DataBits;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
-
 import static org.xidobi.DataBits.DATABITS_5;
-
 import static org.hamcrest.Matchers.is;
-
 import static org.junit.Assert.assertThat;
 import static testtools.MessageBuilder.buffer;
 
@@ -44,17 +41,19 @@ public class TestDataBitsControlCmd {
 	private DataInput input;
 
 	@Before
+	@SuppressWarnings("javadoc")
 	public void setUp() throws IOException {
 		initMocks(this);
 	}
 
 	/**
-	 * When a negative datasize is supplied to the constructor, an {@link IllegalArgumentException}
-	 * should be thrown.
+	 * When a <code>null</code> datasize is supplied to the constructor, an
+	 * {@link IllegalArgumentException} must be thrown.
 	 */
-	@Test(expected=IllegalArgumentException.class)
+	@SuppressWarnings("unused")
+	@Test(expected = IllegalArgumentException.class)
 	public void new_null() {
-		new DataBitsControlCmd((DataBits)null);
+		new DataBitsControlCmd((DataBits) null);
 	}
 
 	/**
@@ -68,13 +67,12 @@ public class TestDataBitsControlCmd {
 	}
 
 	/**
-	 * When the dataSize is invalid, an {@link IOException} should be thrown.
+	 * When the dataSize is invalid, an {@link IOException} must be thrown.
 	 */
 	@Test
-	public void read_invalidDataSize() throws IOException {
+	public void read_invalidDataBits() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected data bits value: -3");
-
+		exception.expectMessage("Unexpected DataBits value: -3");
 
 		cmd = new DataBitsControlCmd(buffer(-3).toDataInput());
 	}
