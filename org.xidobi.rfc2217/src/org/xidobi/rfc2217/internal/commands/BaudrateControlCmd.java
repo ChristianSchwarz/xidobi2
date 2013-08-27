@@ -7,7 +7,7 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -37,7 +37,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 * 
 	 */
 	public BaudrateControlCmd(@Nonnegative int baudrate) {
-		super(SET_BAUDRATE);
+		super(SET_BAUDRATE_REQ);
 		if (baudrate < 1)
 			throw new IllegalArgumentException("The baudrate must not be less than 1! Got: >" + baudrate + "<");
 
@@ -49,7 +49,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 */
 	public BaudrateControlCmd(DataInput input) throws IOException {
-		super(SET_BAUDRATE, input);
+		super(SET_BAUDRATE_REQ, input);
 	}
 
 	@Override

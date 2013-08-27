@@ -10,9 +10,8 @@ import java.io.DataInput;
 import java.io.IOException;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SERVER_OFFSET;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
 
 /**
  * @author Christian Schwarz
@@ -27,9 +26,9 @@ public class ControlResponseDecoder {
 
 		byte command = input.readByte();
 		switch (command) {
-			case SET_BAUDRATE + SERVER_OFFSET:
+			case SET_BAUDRATE_RESP:
 				return new BaudrateControlCmd(input);
-			case SET_DATASIZE + SERVER_OFFSET:
+			case SET_DATASIZE_RESP:
 				return new DataBitsControlCmd(input);
 
 		}

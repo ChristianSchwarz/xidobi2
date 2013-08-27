@@ -30,7 +30,7 @@ import static java.net.InetSocketAddress.createUnresolved;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
 
 /**
  * @author Christian Schwarz
@@ -116,7 +116,7 @@ public class IntegrationTest {
 		sleep(1000);
 
 		//9600baud
-		int[] baudRateCmd = {COM_PORT_OPTION,SET_BAUDRATE,0,0,0x25,0x80};
+		int[] baudRateCmd = {COM_PORT_OPTION,SET_BAUDRATE_REQ,0,0,0x25,0x80};
 		telnetClient.sendSubnegotiation(baudRateCmd);
 		sleep(1000);
 

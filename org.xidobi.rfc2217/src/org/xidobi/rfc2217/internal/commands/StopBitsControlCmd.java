@@ -1,7 +1,7 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -38,7 +38,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 *            the preferred stopsize, greater or equal to one.
 	 */
 	StopBitsControlCmd(int stopsize) {
-		super(SET_STOPSIZE);
+		super(SET_STOPSIZE_REQ);
 		if (stopsize < 1)
 			throw new IllegalArgumentException("The stopsize must not be less than 1! Got: >" + stopsize + "<");
 		this.stopBits = stopsize;
@@ -53,7 +53,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public StopBitsControlCmd(DataInput input) throws IOException {
-		super(SET_STOPSIZE, input);
+		super(SET_STOPSIZE_REQ, input);
 	}
 
 	@Override

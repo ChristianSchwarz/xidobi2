@@ -11,7 +11,7 @@ import static org.xidobi.Parity.PARITY_MARK;
 import static org.xidobi.Parity.PARITY_NONE;
 import static org.xidobi.Parity.PARITY_ODD;
 import static org.xidobi.Parity.PARITY_SPACE;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -43,7 +43,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 *            the preferred parity for this message, must not be negative
 	 */
 	public ParityControlCmd(@Nonnull Parity parity) {
-		super(SET_PARITY);
+		super(SET_PARITY_REQ);
 		if (parity == null)
 			throw new IllegalArgumentException("The parameter >parity< must not be null");
 		this.parity = parity;
@@ -58,7 +58,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 */
 	public ParityControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_PARITY, input);
+		super(SET_PARITY_REQ, input);
 	}
 
 	@Override

@@ -9,10 +9,11 @@ package testtools;
 import javax.annotation.Nonnegative;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SERVER_OFFSET;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
 
 /**
  * Provides static methods to build com port control messages in binary form.
@@ -33,7 +34,7 @@ public class MessageBuilder {
 	 */
 	public static ByteBuffer baudRateRequest(@Nonnegative int baudRate) {
 
-		return buildComPortCommand(SET_BAUDRATE)//
+		return buildComPortCommand(SET_BAUDRATE_REQ)//
 		.putInt(baudRate);
 
 	}
@@ -45,7 +46,7 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static ByteBuffer baudRateResponse(@Nonnegative int baudRate) {
-		return buildComPortCommand(SET_BAUDRATE + SERVER_OFFSET)//
+		return buildComPortCommand(SET_BAUDRATE_RESP)//
 		.putInt(baudRate);
 
 	}
@@ -57,7 +58,7 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static ByteBuffer dataBitsRequest(@Nonnegative int databits) {
-		return buildComPortCommand(SET_DATASIZE)//
+		return buildComPortCommand(SET_DATASIZE_REQ)//
 		.putByte(databits);
 	}
 
@@ -68,7 +69,7 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static ByteBuffer dataBitsResponse(@Nonnegative int databits) {
-		return buildComPortCommand(SET_DATASIZE + SERVER_OFFSET)//
+		return buildComPortCommand(SET_DATASIZE_RESP)//
 		.putByte(databits);
 	}
 
@@ -87,7 +88,7 @@ public class MessageBuilder {
 	 * @return the binary form
 	 */
 	public static ByteBuffer buildSetParityResponse(int parity) {
-		return buildComPortCommand(SET_PARITY + SERVER_OFFSET)//
+		return buildComPortCommand(SET_PARITY_RESP)//
 		.putByte(parity);
 	}
 
