@@ -15,16 +15,25 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * Utility to provide a convenient way to build a sequence of byte's, that can converted to a desired format. 
+ * Utility to provide a convenient way to build a sequence of byte's, that can converted to a
+ * desired format.
+ * 
  * @author Christian Schwarz
- *
+ * 
  */
 public class ByteBuffer {
-	
+
 	private final ByteArrayOutputStream bo = new ByteArrayOutputStream();
 	private final DataOutput o = new DataOutputStream(bo);
 
-	/** Appends the lower ordered byte fo the given int to this byte-buffer. The byte-buffer grows by one byte.*/
+	/**
+	 * Appends the lower ordered byte fo the given int to this byte-buffer. The byte-buffer grows by
+	 * one byte.
+	 * 
+	 * @param v
+	 *            the byte to append
+	 * @return this
+	 */
 	public ByteBuffer putByte(int v) {
 		try {
 			o.writeByte(v);
@@ -33,7 +42,13 @@ public class ByteBuffer {
 		return this;
 	}
 
-	/** Appends the given int to this byte-buffer. The byte-buffer grows by four byte.*/
+	/**
+	 * Appends the given int to this byte-buffer. The byte-buffer grows by four byte.
+	 * 
+	 * @param v
+	 *            the int to append
+	 * @return this
+	 */
 	public ByteBuffer putInt(int v) {
 		try {
 			o.writeInt(v);
@@ -41,7 +56,15 @@ public class ByteBuffer {
 		catch (IOException cantHappen) {}
 		return this;
 	}
-	/** Appends the lower ordered byte fo the all given int's to this byte-buffer. The byte-buffer grows by number of arguments.*/
+
+	/**
+	 * Appends the lower ordered byte fo the all given int's to this byte-buffer. The byte-buffer
+	 * grows by number of arguments.
+	 * 
+	 * @param v
+	 *            the byte values to add
+	 * @return this
+	 */
 	public ByteBuffer putBytes(int... v) {
 		for (int i : v)
 			putByte(i);
@@ -49,12 +72,20 @@ public class ByteBuffer {
 		return this;
 	}
 
-	/** Returns this byte-buffer as byte[].*/
+	/**
+	 * Returns this byte-buffer as byte[].
+	 * 
+	 * @return this byte-buffer as byte[]
+	 */
 	public byte[] toByteArray() {
 		return bo.toByteArray();
 	}
-	
-	/** Returns this byte-buffer as int[], every int of the array repesents one signed byte*/
+
+	/**
+	 * Returns this byte-buffer as int[], every int of the array repesents one signed byte
+	 * 
+	 * @return this byte-buffer as int[]
+	 */
 	public int[] toIntArray() {
 
 		final byte[] bytes = bo.toByteArray();
@@ -64,11 +95,14 @@ public class ByteBuffer {
 
 		return r;
 	}
-	
-	/** Returns this byte-buffer as {@link DataInput}.*/
-	public DataInput toDataInput(){
+
+	/**
+	 * Returns this byte-buffer as {@link DataInput}.
+	 * 
+	 * @return byte-buffer as {@link DataInput}
+	 */
+	public DataInput toDataInput() {
 		return new DataInputStream(new ByteArrayInputStream(toByteArray()));
 	}
-	
-	
+
 }
