@@ -22,18 +22,18 @@ public class ControlResponseDecoder {
 	/** Decodes the input and returns its as control command */
 	public AbstractControlCmd decode(DataInput input) throws IOException {
 		byte option = input.readByte();
-		if (option!=COM_PORT_OPTION)
-			throw new IOException("Unexpected telnet option! Got: "+option);
-		
+		if (option != COM_PORT_OPTION)
+			throw new IOException("Unexpected telnet option! Got: " + option);
+
 		byte command = input.readByte();
-		switch(command){
-			case SET_BAUDRATE+SERVER_OFFSET:
+		switch (command) {
+			case SET_BAUDRATE + SERVER_OFFSET:
 				return new BaudrateControlCmd(input);
-			case SET_DATASIZE+SERVER_OFFSET:
+			case SET_DATASIZE + SERVER_OFFSET:
 				return new DataBitsControlCmd(input);
-			
+
 		}
-		
-		throw new IOException("Unsupported command option! Got: "+command);
+
+		throw new IOException("Unsupported command option! Got: " + command);
 	}
 }

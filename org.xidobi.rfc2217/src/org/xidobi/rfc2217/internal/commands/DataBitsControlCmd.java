@@ -51,8 +51,6 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	private DataBits dataBits;
 
-	
-
 	/**
 	 * Creates a new {@link DataBitsControlCmd}.
 	 * 
@@ -61,7 +59,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE);
-		if (dataBits==null)
+		if (dataBits == null)
 			throw new IllegalArgumentException("Parameter >dataBits< must not be null!");
 
 		this.dataBits = dataBits;
@@ -83,13 +81,13 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	@Override
 	protected void read(DataInput input) throws IOException {
 		final byte byteValue = input.readByte();
-		dataBits=toEnum(byteValue);
-		
+		dataBits = toEnum(byteValue);
+
 	}
 
 	private DataBits toEnum(final byte dataBits) throws IOException {
-		switch (dataBits){
-			case 5: 
+		switch (dataBits) {
+			case 5:
 				return DATABITS_5;
 			case 6:
 				return DATABITS_6;
@@ -100,15 +98,14 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			case 9:
 				return DATABITS_9;
 		}
-		throw new IOException("Unexpected data bits value: "+dataBits);
+		throw new IOException("Unexpected DataBits value: " + dataBits);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
 		output.writeByte(toByte(dataBits));
 	}
-	
-	
+
 	private int toByte(DataBits dataBits) {
 		switch (dataBits) {
 			case DATABITS_5:
@@ -122,7 +119,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			case DATABITS_9:
 				return 9;
 		}
-		throw new IllegalStateException("Unexpected DataBits value:"+ dataBits);
+		throw new IllegalStateException("Unexpected DataBits value:" + dataBits);
 	}
 
 	/**
