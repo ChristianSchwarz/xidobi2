@@ -33,7 +33,7 @@ import static testtools.MessageBuilder.buffer;
  * 
  * @author Peter-René Jeschke
  */
-public class TestDatasizeControlCmd {
+public class TestDataBitsControlCmd {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
