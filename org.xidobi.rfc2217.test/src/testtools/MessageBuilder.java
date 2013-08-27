@@ -31,7 +31,7 @@ public class MessageBuilder {
 	 * @param baudRate
 	 * @return the binary form
 	 */
-	public static ByteBuffer buildSetBaudRateRequest(@Nonnegative int baudRate) {
+	public static ByteBuffer baudRateRequest(@Nonnegative int baudRate) {
 
 		return buildComPortCommand(SET_BAUDRATE)//
 		.putInt(baudRate);
@@ -44,7 +44,7 @@ public class MessageBuilder {
 	 * @param baudRate
 	 * @return the binary form
 	 */
-	public static ByteBuffer buildSetBaudRateResponse(@Nonnegative int baudRate) {
+	public static ByteBuffer baudRateResponse(@Nonnegative int baudRate) {
 		return buildComPortCommand(SET_BAUDRATE + SERVER_OFFSET)//
 		.putInt(baudRate);
 
@@ -56,7 +56,7 @@ public class MessageBuilder {
 	 * @param databits
 	 * @return the binary form
 	 */
-	public static ByteBuffer buildDataBitsRequest(@Nonnegative int databits) {
+	public static ByteBuffer dataBitsRequest(@Nonnegative int databits) {
 		return buildComPortCommand(SET_DATASIZE)//
 		.putByte(databits);
 	}
@@ -67,7 +67,7 @@ public class MessageBuilder {
 	 * @param databits
 	 * @return the binary form
 	 */
-	public static ByteBuffer buildDataBitsResponse(@Nonnegative int databits) {
+	public static ByteBuffer dataBitsResponse(@Nonnegative int databits) {
 		return buildComPortCommand(SET_DATASIZE + SERVER_OFFSET)//
 		.putByte(databits);
 	}

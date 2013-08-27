@@ -25,11 +25,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.Stubber;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 
 import testtools.ByteBuffer;
+import testtools.MessageBuilder;
 import static java.lang.Thread.sleep;
 import static java.net.InetSocketAddress.createUnresolved;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -54,10 +56,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import static org.junit.Assert.assertThat;
-import static testtools.MessageBuilder.buildDataBitsRequest;
-import static testtools.MessageBuilder.buildDataBitsResponse;
-import static testtools.MessageBuilder.buildSetBaudRateRequest;
-import static testtools.MessageBuilder.buildSetBaudRateResponse;
+import static testtools.MessageBuilder.baudRateResponse;
+import static testtools.MessageBuilder.dataBitsResponse;
 
 /**
  * Tests the class {@link Rfc2217SerialPort}
@@ -172,21 +172,18 @@ public class TestRfc2217SerialPort {
 	 * apply the serial settings on the access server.
 	 * 
 	 */
-	@Test//(timeout = 500)
+	@Test(timeout = 500)
 	public void open() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
 
-		doAnswer(receivedCommand(buildSetBaudRateResponse(bauds)))
-		.when(telnetClient).sendSubnegotiation(buildSetBaudRateRequest(bauds).toIntArray());
-		
-		doAnswer(receivedCommand(buildDataBitsResponse(8)))
-		.when(telnetClient).sendSubnegotiation(buildDataBitsRequest(8).toIntArray());
+		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(9600));
+		accessServerSends(dataBitsResponse(8)).when(telnetClient).sendSubnegotiation(dataBitsRequest(8));
 		
 		open = openAsync(port, PORT_SETTINGS);
 		
-		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
-		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
-		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
+		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
+		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
 		
 		SerialConnection connection = await(open);
 		assertThat(connection, is(notNullValue()));
@@ -252,14 +249,13 @@ public class TestRfc2217SerialPort {
 	public void open_failedBaudRateRefused() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
 
-		doAnswer(receivedCommand(buildSetBaudRateResponse(bauds+10)))
-		.when(telnetClient).sendSubnegotiation(buildSetBaudRateRequest(bauds).toIntArray());
+		accessServerSends(baudRateResponse(bauds+10)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
 		
 		open = openAsync(port, PORT_SETTINGS);
 
-		telnetReceivedNegotiation(RECEIVED_DO, COM_PORT_OPTION);
-		telnetReceivedNegotiation(RECEIVED_DO, BINARY);
-		telnetReceivedNegotiation(RECEIVED_WILL, BINARY);
+		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
+		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
 		
 		exception.expect(IOException.class);
 		exception.expectMessage("The baud rate setting was refused ("+bauds+")!");
@@ -267,10 +263,19 @@ public class TestRfc2217SerialPort {
 		await(open);
 	}
 
-	// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	private void telnetReceivedNegotiation(int negotiationCode, int optionCode) throws TimeoutException{
+	/////////////////////////////////	Utility-Methods 	////////////////////////////////////////////////////////////////////////////
+	/** emulates the behaviour of the access server sending an negotiation*/
+	private void accessServerSendsNegotiation(int negotiationCode, int optionCode) throws TimeoutException{
 		TelnetNotificationHandler handler = awaitValue(notificationHandler, 200);
 		handler.receivedNegotiation(negotiationCode, optionCode);
+	}
+	
+	/**
+	 * @param resp
+	 * @return
+	 */
+	private Stubber accessServerSends(final ByteBuffer resp) {
+		return doAnswer(receivedCommand(resp));
 	}
 	
 	/**
@@ -292,6 +297,19 @@ public class TestRfc2217SerialPort {
 		comOption.answerSubnegotiation(data, data.length);
 	}
 	
+	/**
+	 * @return
+	 */
+	private int[] dataBitsRequest(int dataBits) {
+		return MessageBuilder.dataBitsRequest(dataBits).toIntArray();
+	}
+
+	
+	
+	/** Argument-Matcher that checks for the binary form of a baud-rate request using the given baud-rate*/
+	private int[] baudRateRequest(int bauds){
+		return MessageBuilder.baudRateRequest(bauds).toIntArray();
+	}
 	
 	private final class TestableRfc2217Port extends Rfc2217SerialPort {
 

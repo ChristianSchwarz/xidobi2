@@ -24,8 +24,8 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
 import static testtools.MessageBuilder.buffer;
-import static testtools.MessageBuilder.buildDataBitsResponse;
-import static testtools.MessageBuilder.buildSetBaudRateResponse;
+import static testtools.MessageBuilder.dataBitsResponse;
+import static testtools.MessageBuilder.baudRateResponse;
 
 /**
  * 
@@ -62,14 +62,14 @@ public class TestControlResponseDecoder {
 	/**Tests it a well formmatted data bits response can be decoded. */
 	@Test
 	public void decode_Databits() throws Exception {
-		resp = decoder.decode(buildDataBitsResponse(6).toDataInput());
+		resp = decoder.decode(dataBitsResponse(6).toDataInput());
 		assertThat(resp, is(instanceOf(DataBitsControlCmd.class)));
 	}
 	
 	/**Tests it a well formmatted baud rate response can be decoded. */
 	@Test
 	public void decode_baudRate() throws Exception {
-		resp = decoder.decode(buildSetBaudRateResponse(9600).toDataInput());
+		resp = decoder.decode(baudRateResponse(9600).toDataInput());
 		assertThat(resp, is(instanceOf(BaudrateControlCmd.class)));
 	}
 	
