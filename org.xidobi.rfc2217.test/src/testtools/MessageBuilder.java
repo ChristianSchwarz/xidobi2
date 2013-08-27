@@ -87,7 +87,7 @@ public class MessageBuilder {
 	 * 
 	 * @return the binary form
 	 */
-	public static ByteBuffer buildSetParityResponse(int parity) {
+	public static ByteBuffer parityResponse(int parity) {
 		return buildComPortCommand(SET_PARITY_RESP)//
 		.putByte(parity);
 	}

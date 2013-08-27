@@ -14,11 +14,18 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
 
 /**
+ * Decodes com port option responses of the access server.
  * @author Christian Schwarz
  */
 public class ControlResponseDecoder {
 
-	/** Decodes the input and returns its as control command */
+	/**
+	 * Decodes the input and returns it as control command response.
+	 * 
+	 * @param input the data to decode
+	 * @return the decoded resonse
+	 * @throws IOException if the input is malformed or unknown
+	 */
 	public AbstractControlCmd decode(DataInput input) throws IOException {
 		byte option = input.readByte();
 		if (option != COM_PORT_OPTION)
@@ -33,6 +40,6 @@ public class ControlResponseDecoder {
 
 		}
 
-		throw new IOException("Unsupported command option! Got: " + command);
+		throw new IOException("Unknown command option! Got: " + command);
 	}
 }

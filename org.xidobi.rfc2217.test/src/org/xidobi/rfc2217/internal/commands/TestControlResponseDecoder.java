@@ -26,12 +26,14 @@ import static org.hamcrest.Matchers.is;
 import static testtools.MessageBuilder.buffer;
 import static testtools.MessageBuilder.dataBitsResponse;
 import static testtools.MessageBuilder.baudRateResponse;
+import static testtools.MessageBuilder.parityResponse;
 
 /**
- * 
+ * Tests class {@link ControlResponseDecoder} 
  * @author Christian Schwarz
  * 
  */
+@SuppressWarnings("javadoc")
 public class TestControlResponseDecoder {
 
 	/** needed to verifiy exception */
@@ -76,7 +78,7 @@ public class TestControlResponseDecoder {
 	/**Tests it a well formmatted baud rate response can be decoded. */
 	@Test
 	public void decode_parity() throws Exception {
-		resp = decoder.decode(MessageBuilder.buildSetParityResponse(9600).toDataInput());
+		resp = decoder.decode(parityResponse(9600).toDataInput());
 		assertThat(resp, is(instanceOf(BaudrateControlCmd.class)));
 	}
 }
