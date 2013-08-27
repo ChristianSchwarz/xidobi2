@@ -92,17 +92,23 @@ public class MessageBuilder {
 		return buildComPortCommand(SET_PARITY + SERVER_OFFSET)//
 		.putByte(parity);
 	}
-
+	
+	/** Creates a new byte-buffer, containing a pre build com port option header and the given command-code. This method is commonly used to build command-option request or responses.*/
+	public static ByteBuffer buildComPortCommand(int commandCode) {
+		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(commandCode);
+	}
+	
+	/** Creates a new empty byte-buffer. */
 	public static ByteBuffer buffer() {
 		return new ByteBuffer();
 	}
 
+	
+	/** Creates a new byte-buffer containig the given byte values. */
 	public static ByteBuffer buffer(int... bytes) {
 		return new ByteBuffer().putBytes(bytes);
 	}
 
-	public static ByteBuffer buildComPortCommand(int command) {
-		return new ByteBuffer().putByte(COM_PORT_OPTION).putByte(command);
-	}
+	
 
 }
