@@ -49,24 +49,22 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * {@link #open(SerialPortSettings)} , in milli seconds, default is 1second
 	 */
 	private long negotiationTimeout = 5000;
-	
+
 	/**
 	 * Used to await the option negotiations during {@link #open(SerialPortSettings)}
+	 * 
 	 * @see #awaitNegotiation(TelnetClient)
 	 */
 	private NegotiationHandler negotiationHandler;
 	private BlockingCommandSender commandSender;
-	
+
 	@Nonnull
 	private final DecoderErrorHandler commandErrorHandler = new DecoderErrorHandler() {
-		
+
 		public void onDecoderError(IOException e) {
-			
+
 		}
 	};
-	
-
-
 
 	/**
 	 * Creates a new {@link Rfc2217SerialPort} that that will be connected to the given Access
@@ -82,9 +80,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		if (accessServer == null)
 			throw new IllegalArgumentException("Parameter >accessServer< must not be null!");
 		this.accessServer = accessServer;
-		
-		
-		
+
 	}
 
 	/**
@@ -112,14 +108,14 @@ public class Rfc2217SerialPort implements SerialPort {
 
 		createNegotiationHandler(telnetClient);
 		createCommandSender(telnetClient);
-		
+
 		configure(telnetClient);
 		connect(telnetClient);
 		try {
 			awaitNegotiation(telnetClient);
-			
-			sendPortSettings(telnetClient,settings);
-			
+
+			sendPortSettings(telnetClient, settings);
+
 			return new SerialConnectionImpl(this, telnetClient);
 		}
 		catch (IOException e) {
@@ -127,9 +123,6 @@ public class Rfc2217SerialPort implements SerialPort {
 			throw e;
 		}
 	}
-
-	
-	
 
 	/**
 	 * Subclasses may override this method to create an own {@link TelnetClient} or to add special
@@ -149,7 +142,7 @@ public class Rfc2217SerialPort implements SerialPort {
 		telnetClient.setReaderThread(true);
 		try {
 			telnetClient.addOptionHandler(new BinaryOptionHandler());
-			telnetClient.addOptionHandler(new ComPortOptionHandler(commandSender,commandErrorHandler));
+			telnetClient.addOptionHandler(new ComPortOptionHandler(commandSender, commandErrorHandler));
 		}
 		catch (InvalidTelnetOptionException e) {
 			throw new IllegalStateException(e);
@@ -159,7 +152,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	private void createNegotiationHandler(TelnetClient telnetClient) {
 		negotiationHandler = new NegotiationHandler(telnetClient);
 	}
-	
+
 	private void createCommandSender(TelnetClient telnetClient) {
 		commandSender = new BlockingCommandSender(telnetClient);
 	}
@@ -183,43 +176,38 @@ public class Rfc2217SerialPort implements SerialPort {
 		negotiationHandler.awaitAcceptOptionNegotiation(BINARY, negotiationTimeout);
 		negotiationHandler.awaitSendOptionNegotiation(BINARY, negotiationTimeout);
 	}
-	
+
 	/**
-	 * @param telnetClient
-	 * @param settings
-	 * @throws IOException 
+	 * Sets the given {@link SerialPortSettings} on the access server. 
+	 * @throws IOException if the access server refused to set one of the properties.
 	 */
 	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) throws IOException {
-		sendAndValidate(new BaudrateControlCmd(settings.getBauds()),
-		                "The baud rate setting was refused ("+settings.getBauds()+")!");
-		
-			
-		sendAndValidate(new DataBitsControlCmd(settings.getDataBits()),
-		                "The data bits setting was refused ("+settings.getDataBits()+")!");
-		
+		sendAndValidate(new BaudrateControlCmd(settings.getBauds()), "The baud rate setting was refused (" + settings.getBauds() + ")!");
+
+		sendAndValidate(new DataBitsControlCmd(settings.getDataBits()), "The data bits setting was refused (" + settings.getDataBits() + ")!");
+
 	}
 
 	/**
-	 * @param req
-	 * @param errorMessage
-	 * @throws IOException
+	 *Send the given command to the access server and valides the response. 
+	 * @throws IOException if the send operation failed or the access server did not respone with the same content (to indicate that the operation was successfull)
 	 */
-	protected void sendAndValidate(final AbstractControlCmd req, final String errorMessage) throws IOException {
+	private void sendAndValidate(final AbstractControlCmd req, final String errorMessage) throws IOException {
 		AbstractControlCmd resp = commandSender.send(req);
-		if (!resp.equals(req)) 
+		if (!resp.equals(req))
 			throw new IOException(errorMessage);
 	}
 
-	/** Disconnects the {@link TelnetClient} and sucks all kind of thrown Exceptions.*/
+	/** Disconnects the {@link TelnetClient} and sucks all kind of thrown Exceptions. */
 	private void disconnect(TelnetClient telnetClient) {
 		if (telnetClient == null)
 			return;
-		
+
 		try {
 			telnetClient.disconnect();
 		}
 		catch (Exception ignore) {}
-	
+
 	}
 
 	/**
