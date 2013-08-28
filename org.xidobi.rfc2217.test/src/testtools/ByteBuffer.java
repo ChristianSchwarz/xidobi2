@@ -42,6 +42,22 @@ public class ByteBuffer {
 		return this;
 	}
 
+	
+	/**
+	 * Appends the lower ordered byte fo the given int to this byte-buffer. The byte-buffer grows by
+	 * one byte.
+	 * 
+	 * @param v
+	 *            the String to append
+	 * @return this
+	 */
+	public ByteBuffer putBytes(String v) {
+		try {
+			o.writeBytes(v);
+		}
+		catch (IOException cantHappen) {}
+		return this;
+	}
 	/**
 	 * Appends the given int to this byte-buffer. The byte-buffer grows by four byte.
 	 * 

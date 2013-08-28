@@ -30,8 +30,8 @@ public abstract class AbstractControlCmd {
 	 *            the code of this command
 	 */
 	AbstractControlCmd(int commandCode) {
-		if (commandCode <1 || commandCode >12)
-			throw new IllegalArgumentException("The command codem must be in the range [1..12]! Got: "+commandCode);
+		if (commandCode <0 || commandCode >12)
+			throw new IllegalArgumentException("The command codem must be in the range [0..12]! Got: "+commandCode);
 		this.commandCode = (byte)commandCode;
 	}
 
