@@ -26,6 +26,7 @@ import org.xidobi.StopBits;
  * @author Christin Nitsche
  * @author Konrad Schulz
  */
+@SuppressWarnings("javadoc")
 public class TestStopBitsControlCmd {
 
 	@Rule
@@ -37,7 +38,6 @@ public class TestStopBitsControlCmd {
 	private DataOutput output;
 
 	@Before
-	@SuppressWarnings("javadoc")
 	public void setUp() throws IOException {
 		initMocks(this);
 	}

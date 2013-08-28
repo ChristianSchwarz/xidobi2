@@ -30,6 +30,7 @@ import org.mockito.Mock;
  * 
  * @author Peter-René Jeschke
  */
+@SuppressWarnings("javadoc")
 public class TestBaudrateControlCmd {
 
 	@Rule

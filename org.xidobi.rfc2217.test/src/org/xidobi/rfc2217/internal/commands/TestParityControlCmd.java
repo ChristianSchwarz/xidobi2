@@ -31,7 +31,9 @@ import org.xidobi.Parity;
  * Tests the class {@link ParityControlCmd}.
  * 
  * @author Peter-René Jeschke
+ * @author Konrad Schulz
  */
+@SuppressWarnings("javadoc")
 public class TestParityControlCmd {
 
 	@Rule
@@ -43,7 +45,6 @@ public class TestParityControlCmd {
 	private DataOutput output;
 
 	@Before
-	@SuppressWarnings("javadoc")
 	public void setup() throws IOException {
 		initMocks(this);
 	}

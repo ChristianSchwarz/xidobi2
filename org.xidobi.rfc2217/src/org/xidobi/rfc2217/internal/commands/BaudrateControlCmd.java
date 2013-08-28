@@ -6,7 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
 
 import java.io.DataInput;
@@ -33,7 +32,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 * Creates a new instance using the given baud rate.
 	 * 
 	 * @param baudrate
-	 *            the baudrate, must be greater than 0 
+	 *            the baudrate, must be greater than 0
 	 * 
 	 */
 	public BaudrateControlCmd(@Nonnegative int baudrate) {
@@ -98,7 +97,5 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-	
-	
 
 }

@@ -31,7 +31,9 @@ import org.xidobi.DataBits;
  * Tests the class {@link DataBitsControlCmd}.
  * 
  * @author Peter-René Jeschke
+ * @author Konrad Schulz
  */
+@SuppressWarnings("javadoc")
 public class TestDataBitsControlCmd {
 
 	@Rule
@@ -43,7 +45,6 @@ public class TestDataBitsControlCmd {
 	private DataOutput output;
 
 	@Before
-	@SuppressWarnings("javadoc")
 	public void setUp() throws IOException {
 		initMocks(this);
 	}
@@ -164,20 +165,21 @@ public class TestDataBitsControlCmd {
 	@Test
 	public void read_invalidDataBits() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected DataBits value: -3");
+		exception.expectMessage("Unexpected dataBits value: -3");
 
 		cmd = new DataBitsControlCmd(buffer(-3).toDataInput());
 	}
 
 	/**
-	 * When the dataBits is invalid, an {@link IOException} must be thrown.
+	 * When the dataBits is invalid, an {@link IOException} should be thrown.
 	 */
 	@Test
-	public void write_invalidParity() throws IOException {
+	public void write_invalidDataBits() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected DataBits value: 4");
+		exception.expectMessage("Unexpected dataBits value: 10");
 
-		cmd = new DataBitsControlCmd(buffer(4).toDataInput());
+		cmd = new DataBitsControlCmd(buffer(10).toDataInput());
 		cmd.write(output);
 	}
+
 }
