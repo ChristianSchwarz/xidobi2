@@ -27,7 +27,7 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
  * This command is sent by the client to the access server to set the data bit size. The command can
  * also be sent to query the current data bit size. The value is one octet (byte). The value is an
  * index into the following value table:
-
+ 
  * 
  * <table border="1">
   <tr><th>Value</th><th>Data Bit Size</th></tr>
@@ -98,7 +98,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			case 9:
 				return DATABITS_9;
 		}
-		throw new IOException("Unexpected DataBits value: " + dataBits);
+		throw new IOException("Unexpected dataBits value: " + dataBits);
 	}
 
 	@Override
@@ -119,7 +119,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			case DATABITS_9:
 				return 9;
 		}
-		throw new IllegalStateException("Unexpected DataBits value:" + dataBits);
+		throw new IllegalStateException("Unexpected dataBits value:" + dataBits);
 	}
 
 	/**

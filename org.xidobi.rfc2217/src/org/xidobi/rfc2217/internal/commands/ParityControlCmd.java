@@ -30,6 +30,7 @@ import org.xidobi.Parity;
  * for Future Use
  * 
  * @author Peter-René Jeschke
+ * @author Konrad Schulz
  */
 public class ParityControlCmd extends AbstractControlCmd {
 
@@ -40,7 +41,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 * Creates a new {@link ParityControlCmd}.
 	 * 
 	 * @param parity
-	 *            the preferred parity for this message, must not be negative
+	 *            the preferred parity for this message, must not be <code>null</code>
 	 */
 	public ParityControlCmd(@Nonnull Parity parity) {
 		super(SET_PARITY_REQ);
