@@ -40,7 +40,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 * @param commandCode
 	 *            the preferred stopsize, greater or equal to one.
 	 */
-	StopBitsControlCmd(StopBits stopBits) {
+	public StopBitsControlCmd(StopBits stopBits) {
 		super(SET_STOPSIZE_REQ);
 		if (stopBits == null)
 			throw new IllegalArgumentException("The parameter >stopBits< must not be null");

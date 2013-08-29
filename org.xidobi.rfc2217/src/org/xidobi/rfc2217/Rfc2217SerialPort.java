@@ -6,6 +6,9 @@
  */
 package org.xidobi.rfc2217;
 
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -29,9 +32,9 @@ import org.xidobi.rfc2217.internal.SerialConnectionImpl;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
 import org.xidobi.rfc2217.internal.commands.DataBitsControlCmd;
-
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.apache.commons.net.telnet.TelnetOption.BINARY;
+import org.xidobi.rfc2217.internal.commands.FlowControlCmd;
+import org.xidobi.rfc2217.internal.commands.ParityControlCmd;
+import org.xidobi.rfc2217.internal.commands.StopBitsControlCmd;
 
 /**
  * Implements the client side of the RFC2217 serial over telnet protocol as {@link SerialPort}.
@@ -186,19 +189,29 @@ public class Rfc2217SerialPort implements SerialPort {
 	}
 
 	/**
-	 * Sets the given {@link SerialPortSettings} on the access server. 
-	 * @throws IOException if the access server refused to set one of the properties.
+	 * Sets the given {@link SerialPortSettings} on the access server.
+	 * 
+	 * @throws IOException
+	 *             if the access server refused to set one of the properties.
 	 */
 	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) throws IOException {
 		sendAndValidate(new BaudrateControlCmd(settings.getBauds()), "The baud rate setting was refused (" + settings.getBauds() + ")!");
 
 		sendAndValidate(new DataBitsControlCmd(settings.getDataBits()), "The data bits setting was refused (" + settings.getDataBits() + ")!");
 
+		sendAndValidate(new ParityControlCmd(settings.getParity()), "The parity setting was refused (" + settings.getParity() + ")!");
+
+		sendAndValidate(new StopBitsControlCmd(settings.getStopBits()), "The stop bits setting was refused (" + settings.getStopBits() + ")!");
+
+		sendAndValidate(new FlowControlCmd(settings.getFlowControl()), "The flowControl setting was refused (" + settings.getFlowControl() + ")!");
 	}
 
 	/**
-	 *Send the given command to the access server and valides the response. 
-	 * @throws IOException if the send operation failed or the access server did not respone with the same content (to indicate that the operation was successfull)
+	 * Send the given command to the access server and valides the response.
+	 * 
+	 * @throws IOException
+	 *             if the send operation failed or the access server did not respone with the same
+	 *             content (to indicate that the operation was successfull)
 	 */
 	private void sendAndValidate(final AbstractControlCmd req, final String errorMessage) throws IOException {
 		AbstractControlCmd resp = commandSender.send(req);

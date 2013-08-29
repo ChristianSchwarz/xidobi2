@@ -29,7 +29,6 @@ import org.mockito.InjectMocks;
  * Tests class {@link ControlResponseDecoder}
  * 
  * @author Christian Schwarz
- * 
  */
 @SuppressWarnings("javadoc")
 public class TestControlResponseDecoder {
@@ -73,10 +72,17 @@ public class TestControlResponseDecoder {
 		assertThat(resp, is(instanceOf(BaudrateControlCmd.class)));
 	}
 
-	/** Tests it a well formmatted baud rate response can be decoded. */
+	/** Tests it a well formmatted pairty response can be decoded. */
 	@Test
 	public void decode_parity() throws Exception {
-		resp = decoder.decode(parityResponse(9600).toDataInput());
-		assertThat(resp, is(instanceOf(BaudrateControlCmd.class)));
+		resp = decoder.decode(parityResponse(2).toDataInput());
+		assertThat(resp, is(instanceOf(ParityControlCmd.class)));
+	}
+
+	/** Tests it a well formmatted pairty response can be decoded. */
+	@Test
+	public void decode_flowControl() throws Exception {
+		resp = decoder.decode(parityResponse(2).toDataInput());
+		assertThat(resp, is(instanceOf(ParityControlCmd.class)));
 	}
 }

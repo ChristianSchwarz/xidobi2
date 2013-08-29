@@ -52,7 +52,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * @param flowControl
 	 *            the preferred flowControl for this message, must not be <code>null</code>
 	 */
-	FlowControlCmd(FlowControl flowControl) {
+	public FlowControlCmd(FlowControl flowControl) {
 		super(SET_CONTROL_REQ);
 		if (flowControl == null)
 			throw new IllegalArgumentException("The parameter >flowControl< must not be null");
