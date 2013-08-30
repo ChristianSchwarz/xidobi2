@@ -17,6 +17,7 @@ import org.xidobi.rfc2217.internal.RFC2217;
 /**
  * Baseclass for configuration commands.
  * 
+ * @author Christian Schwarz
  * @author Peter-René Jeschke
  */
 public abstract class AbstractControlCmd {
@@ -28,11 +29,12 @@ public abstract class AbstractControlCmd {
 	 * 
 	 * @param commandCode
 	 *            the code of this command
+	 * @exception IllegalArgumentException if  {@code 0 > commandCode > 12}
 	 */
 	AbstractControlCmd(int commandCode) {
-		if (commandCode <0 || commandCode >12)
-			throw new IllegalArgumentException("The command codem must be in the range [0..12]! Got: "+commandCode);
-		this.commandCode = (byte)commandCode;
+		if (commandCode < 0 || commandCode > 12)
+			throw new IllegalArgumentException("The command codem must be in the range [0..12]! Got: " + commandCode);
+		this.commandCode = (byte) commandCode;
 	}
 
 	/**
@@ -77,12 +79,13 @@ public abstract class AbstractControlCmd {
 	public abstract void write(DataOutput output) throws IOException;
 
 	/**
-	 * Returns the code of this command.
+	 * Returns the code of this command as defined in RFC2217.
 	 * 
 	 * @return the code of this command
 	 * @see RFC2217
 	 */
-	public byte getCommandCode() {
+	public final byte getCommandCode() {
 		return commandCode;
 	}
+
 }
