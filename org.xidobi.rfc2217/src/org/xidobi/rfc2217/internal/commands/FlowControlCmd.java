@@ -173,10 +173,15 @@ public class FlowControlCmd extends AbstractControlCmd {
 
 	
 
+	public void setFlowControl(byte flowControl) {
+		this.flowControl = flowControl;
+	}
+
 	@Override
 	public String toString() {
 		return "FlowControlCmd [flowControl=" + flowControl + "]";
 	}
+
 
 	@Override
 	public int hashCode() {
