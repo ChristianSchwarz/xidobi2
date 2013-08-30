@@ -14,6 +14,7 @@ import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN;
 import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
 import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_RESP;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -26,17 +27,17 @@ import org.xidobi.FlowControl;
 //@formatter:off
 /**
  * IAC SB COM-PORT-OPTION SET-CONTROL <value> IAC SE
-       This command is sent by the client to the access server to set
-       special com port options. The command can also be sent to query
-       the current option value. The value is one octet (byte). The
-       value is an index into the following value table:
-	<table border="1">
-    	<tr><th> Value Control Commands </th></tr>
-        <tr><td> 0 </td><td> Request Com Port Flow Control Setting (outbound/both) 	</td></tr>
-        <tr><td> 1 </td><td> Use No Flow Control (outbound/both) 					</td></tr>
-        <tr><td> 2 </td><td> Use XON/XOFF Flow Control (outbound/both) 				</td></tr>
-        <tr><td> 3 </td><td> Use HARDWARE Flow Control (outbound/both) 				</td></tr>
-    </table>
+ *     This command is sent by the client to the access server to set
+ *     special com port options. The command can also be sent to query
+ *     the current option value. The value is one octet (byte). The
+ *     value is an index into the following value table:
+ *	<table>
+ *   	<tr><th>Value</th><th>Control Commands </th></tr>
+ *       <tr><td> 0 </td><td> Request Com Port Flow Control Setting (outbound/both) </td></tr>
+ *       <tr><td> 1 </td><td> Use No Flow Control (outbound/both) 					</td></tr>
+ *       <tr><td> 2 </td><td> Use XON/XOFF Flow Control (outbound/both) 			</td></tr>
+ *       <tr><td> 3 </td><td> Use HARDWARE Flow Control (outbound/both) 			</td></tr>
+ *   </table>
  * 
  * @author Konrad Schulz
  */
@@ -50,7 +51,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * Creates a new {@link FlowControlCmd}.
 	 * 
 	 * @param flowControl
-	 *            the preferred flowControl for this message, must not be <code>null</code>
+	 *            the flowControl for this message, must not be <code>null</code>
 	 */
 	public FlowControlCmd(FlowControl flowControl) {
 		super(SET_CONTROL_REQ);
@@ -61,14 +62,15 @@ public class FlowControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Reads a new {@link FlowControlCmd}.
+	 * Creates a new {@link DataBitsControlCmd}-Response, that is decoded from the given
+	 * <i>input</i>.
 	 * 
 	 * @param input
 	 *            the input where the command must be read from, must not be <code>null</code>
 	 * @throws IOException
 	 */
 	public FlowControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_CONTROL_REQ, input);
+		super(SET_CONTROL_RESP, input);
 	}
 
 	@Override
@@ -108,6 +110,16 @@ public class FlowControlCmd extends AbstractControlCmd {
 			throw new IllegalArgumentException("The parameter >flowControl< must not be " + flowControl + ", use " + control + " instead.");
 	}
 
+	/**
+	 * Returns the {@link FlowControl} belonging to the assigned byte value.
+	 * 
+	 * @param flowControl
+	 *            the input byte value
+	 * @return the {@link FlowControl} belonging to the assigned byte value
+	 * 
+	 * @throws IOException
+	 *             when there was no {@link FlowControl} found to the assigned byte value
+	 */
 	private FlowControl toEnum(final byte flowControl) throws IOException {
 		switch (flowControl) {
 			case 1:
@@ -124,6 +136,16 @@ public class FlowControlCmd extends AbstractControlCmd {
 		throw new IOException("Unexpected flowControl value: " + flowControl);
 	}
 
+	/**
+	 * Returns the byte value belonging to the assigned {@link FlowControl}.
+	 * 
+	 * @param flowControl
+	 *            the {@link FlowControl} that needs to be translated for the output byte value
+	 * @return the byte value belonging to the assigned {@link FlowControl}
+	 * 
+	 * @throws IOException
+	 *             when there was no byte value found to the assigned {@link FlowControl}
+	 */
 	private int toByte(FlowControl flowControl) {
 		switch (flowControl) {
 			case FLOWCONTROL_NONE:
@@ -163,7 +185,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "FlowControlCmd [flowControl=" + flowControl + "]";

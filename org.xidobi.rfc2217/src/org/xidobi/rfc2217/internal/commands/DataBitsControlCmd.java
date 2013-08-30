@@ -19,7 +19,7 @@ import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.DataBits.DATABITS_7;
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.DataBits.DATABITS_9;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.*;
 
 //@formatter:off
 /**
@@ -27,35 +27,39 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
  * This command is sent by the client to the access server to set the data bit size. The command can
  * also be sent to query the current data bit size. The value is one octet (byte). The value is an
  * index into the following value table:
- 
  * 
- * <table border="1">
-  <tr><th>Value</th><th>Data Bit Size</th></tr>
-  <tr><td>0</td><td>Request Current Data Bits</td>
-  <tr><td>1</td><td></td></tr>
-  <tr><td>2</td><td></td></tr>
-  <tr><td>3</td><td></td></tr>
-  <tr><td>4</td><td></td></tr>
-  
-</table>
-
+ * <table>
+ * <tr><th>Value</th><th>Data Bit Size</th></tr>
+ * <tr><td>0</td><td>Request Current Data Bits</td>
+ * <tr><td>1-4</td><td>Available for Future Use</td></tr>
+ * <tr><td>5</td><td>5</td></tr>
+ * <tr><td>6</td><td>6</td></tr>
+ * <tr><td>7</td><td>7</td></tr>
+ * <tr><td>8</td><td>8</td></tr>
+ * <tr><td>9</td><td>9</td></tr>
+ * <tr><td>10-127</td><td>Available for Future Use</td></tr>
+ * </table>
  * 
  * @author Peter-René Jeschke
+ * @author Christian Schwarz
  */
 
 //@formatter:on
 public class DataBitsControlCmd extends AbstractControlCmd {
 
 	/**
-	 * The preferred datasize
+	 * The Data Bits value of this control command
 	 */
+	@Nonnull
 	private DataBits dataBits;
 
 	/**
-	 * Creates a new {@link DataBitsControlCmd}.
+	 * Creates a new {@link DataBitsControlCmd}-Request using the given data bits.
 	 * 
 	 * @param dataBits
-	 *            the preferred datasize, must not be less than one
+	 *            the Data Bits value of this control command
+	 * @exception IllegalArgumentException
+	 *                if <code>null</code> is passed
 	 */
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
@@ -67,7 +71,8 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Creates a new {@link DataBitsControlCmd}.
+	 * Creates a new {@link DataBitsControlCmd}-Response, that is decoded from the given
+	 * <i>input</i>.
 	 * 
 	 * @param input
 	 *            used to decode the content of the command, must not be <code>null</code>
@@ -75,16 +80,25 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public DataBitsControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_DATASIZE_REQ, input);
+		super(SET_DATASIZE_RESP, input);
 	}
 
+	/**
+	 * Decodes the {@link DataBits} value from the first byte of the <i>input</i>. The values 5-9
+	 * are supported, if any other value is read an {@link IOException} will be thrown.
+	 */
 	@Override
-	protected void read(DataInput input) throws IOException {
+	protected void read(@Nonnull DataInput input) throws IOException {
 		final byte byteValue = input.readByte();
 		dataBits = toEnum(byteValue);
 
 	}
 
+	/**
+	 * Transforms the given data bits byte value, as defined by RFC2217 to an {@link DataBits}
+	 * value.
+	 */
+	@Nonnull
 	private DataBits toEnum(final byte dataBits) throws IOException {
 		switch (dataBits) {
 			case 5:
@@ -101,12 +115,16 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 		throw new IOException("Unexpected dataBits value: " + dataBits);
 	}
 
+	/**
+	 * Writes this coontrol command into the given {@code output}.
+	 */
 	@Override
-	public void write(DataOutput output) throws IOException {
+	public void write(@Nonnull DataOutput output) throws IOException {
 		output.writeByte(toByte(dataBits));
 	}
 
-	private int toByte(DataBits dataBits) {
+	/** Transforms this given {@link DataBits}-value to its corresponding RFC2217 specific value */
+	private int toByte(@Nonnull DataBits dataBits) {
 		switch (dataBits) {
 			case DATABITS_5:
 				return 5;
@@ -123,10 +141,11 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Returns the preferred datasize.
+	 * Returns {@link DataBits}-value of this control command.
 	 * 
-	 * @return the dataSize, greater or equal to one
+	 * @return never <code>null</code>
 	 */
+	@Nonnull
 	public DataBits getDataBits() {
 		return dataBits;
 	}
@@ -152,7 +171,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "DataBitsControlCmd [dataBits=" + dataBits + "]";
