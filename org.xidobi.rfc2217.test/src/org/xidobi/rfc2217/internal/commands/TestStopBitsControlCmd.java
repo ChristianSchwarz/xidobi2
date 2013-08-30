@@ -140,4 +140,32 @@ public class TestStopBitsControlCmd {
 		cmd = new StopBitsControlCmd(buffer(6).toDataInput());
 		cmd.write(output);
 	}
+	/**
+	 * Checks whether the commands equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void equalCommands() throws Exception {
+		StopBitsControlCmd cmd =   new StopBitsControlCmd(STOPBITS_1_5);
+		StopBitsControlCmd cmd2 =   new StopBitsControlCmd(STOPBITS_1_5);
+		assertThat(cmd.equals(cmd2),is(true));
+	}
+	/**
+	 * Checks whether the commands not equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void notEqualCommands() throws Exception {
+		StopBitsControlCmd cmd =   new StopBitsControlCmd(STOPBITS_1_5);
+		StopBitsControlCmd cmd2 =  new StopBitsControlCmd(STOPBITS_1);
+		assertThat(cmd.equals(cmd2), is(false));
+	}
+	/**
+	 * Checks whether the String command is correct.
+	 */
+	@Test
+	public void commandToString() throws Exception {
+		StopBitsControlCmd cmd =   new StopBitsControlCmd(STOPBITS_1_5);
+		assertThat(cmd.toString(), is("StopBitsControlCmd [stopBits=STOPBITS_1_5]"));
+	}
 }

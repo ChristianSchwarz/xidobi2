@@ -5,6 +5,8 @@ import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.Parity.PARITY_MARK;
+import static org.xidobi.Parity.PARITY_ODD;
 import static testtools.MessageBuilder.buffer;
 
 import java.io.DataInput;
@@ -75,5 +77,38 @@ public class TestSignaturControlCmd {
 		cmd = new SignaturControlCmd("version 1.0");
 		cmd.write(output);
 		verify(output).writeChars("version 1.0");
+	}
+
+	/**
+	 * Checks whether the commands equal.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void equalCommands() throws Exception {
+		SignaturControlCmd cmd = new SignaturControlCmd("version 1.0");
+		SignaturControlCmd cmd2 = new SignaturControlCmd("version 1.0");
+		assertThat(cmd.equals(cmd2), is(true));
+	}
+
+	/**
+	 * Checks whether the commands not equal.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void notEqualCommands() throws Exception {
+		SignaturControlCmd cmd = new SignaturControlCmd("version 1.0");
+		SignaturControlCmd cmd2 = new SignaturControlCmd("version 2.0");
+		assertThat(cmd.equals(cmd2), is(false));
+	}
+
+	/**
+	 * Checks whether the String command is correct.
+	 */
+	@Test
+	public void commandToString() throws Exception {
+		SignaturControlCmd cmd = new SignaturControlCmd("version 1.0");
+		assertThat(cmd.toString(), is("SignaturControlCmd [signatur=version 1.0]"));
 	}
 }

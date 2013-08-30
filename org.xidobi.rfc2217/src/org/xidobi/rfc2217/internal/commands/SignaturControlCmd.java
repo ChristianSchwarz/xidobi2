@@ -60,4 +60,34 @@ public class SignaturControlCmd extends AbstractControlCmd {
 		output.writeChars(signatur);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((signatur == null) ? 0 : signatur.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SignaturControlCmd other = (SignaturControlCmd) obj;
+		if (signatur == null) {
+			if (other.signatur != null)
+				return false;
+		} else if (!signatur.equals(other.signatur))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "SignaturControlCmd [signatur=" + signatur + "]";
+	}
+
 }

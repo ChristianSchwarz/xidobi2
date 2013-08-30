@@ -14,6 +14,8 @@ import java.io.IOException;
 
 import javax.annotation.Nonnegative;
 
+import com.google.common.base.Objects.ToStringHelper;
+
 /**
  * <code>IAC SB COM-PORT-OPTION SET-BAUD <value(4)> IAC SE</code><br />
  * This command is sent by the client to the access server to set the baud rate of the com port. The
@@ -98,4 +100,9 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "BaudrateControlCmd [baudrate=" + baudrate + "]";
+	}
+	
 }

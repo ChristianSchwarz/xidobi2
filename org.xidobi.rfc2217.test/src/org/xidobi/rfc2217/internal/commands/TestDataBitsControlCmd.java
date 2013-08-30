@@ -181,5 +181,34 @@ public class TestDataBitsControlCmd {
 		cmd = new DataBitsControlCmd(buffer(10).toDataInput());
 		cmd.write(output);
 	}
+	
+	/**
+	 * Checks whether the commands equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void equalCommands() throws Exception {
+		DataBitsControlCmd cmd =   new DataBitsControlCmd(DATABITS_5);
+		DataBitsControlCmd cmd2 =   new DataBitsControlCmd(DATABITS_5);
+		assertThat(cmd.equals(cmd2),is(true));
+	}
+	/**
+	 * Checks whether the commands not equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void notEqualCommands() throws Exception {
+		DataBitsControlCmd cmd =   new DataBitsControlCmd(DATABITS_5);
+		DataBitsControlCmd cmd2 =   new DataBitsControlCmd(DATABITS_6);
+		assertThat(cmd.equals(cmd2), is(false));
+	}
+	/**
+	 * Checks whether the String command is correct.
+	 */
+	@Test
+	public void commandToString() throws Exception {
+		DataBitsControlCmd cmd =   new DataBitsControlCmd(DATABITS_5);
+		assertThat(cmd.toString(), is("DataBitsControlCmd [dataBits=DATABITS_5]"));
+	}
 
 }

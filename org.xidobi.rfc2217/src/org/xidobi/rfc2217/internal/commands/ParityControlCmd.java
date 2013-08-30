@@ -136,5 +136,9 @@ public class ParityControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "ParityControlCmd [parity=" + parity + "]";
+	}
 }

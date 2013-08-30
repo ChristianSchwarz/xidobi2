@@ -152,5 +152,9 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "DataBitsControlCmd [dataBits=" + dataBits + "]";
+	}
 }

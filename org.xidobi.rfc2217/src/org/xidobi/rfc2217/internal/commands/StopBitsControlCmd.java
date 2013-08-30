@@ -126,4 +126,9 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "StopBitsControlCmd [stopBits=" + stopBits + "]";
+	}
+
 }

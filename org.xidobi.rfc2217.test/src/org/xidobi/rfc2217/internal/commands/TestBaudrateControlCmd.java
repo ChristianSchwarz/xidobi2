@@ -7,7 +7,7 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -99,4 +99,30 @@ public class TestBaudrateControlCmd {
 
 		orderedVerification.verify(output).writeInt(1600); // The baudrate
 	}
+	/**
+	 * Checks whether the commands equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void equalCommands() throws Exception {
+		BaudrateControlCmd cmd2 =  new BaudrateControlCmd(1600);
+		assertThat(cmd.equals(cmd2),is(true));
+	}
+	/**
+	 * Checks whether the commands not equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void notEqualCommands() throws Exception {
+		BaudrateControlCmd cmd2 = new BaudrateControlCmd(1601);
+		assertThat(cmd.equals(cmd2), is(false));
+	}
+	/**
+	 * Checks whether the String command is correct.
+	 */
+	@Test
+	public void commandToString() throws Exception {
+		assertThat(cmd.toString(), is("BaudrateControlCmd [baudrate=1600]"));
+	}
+
 }

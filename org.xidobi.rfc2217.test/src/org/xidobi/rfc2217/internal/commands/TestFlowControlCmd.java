@@ -10,6 +10,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.DataBits.DATABITS_5;
+import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
@@ -58,7 +60,7 @@ public class TestFlowControlCmd {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNull() {
-		new DataBitsControlCmd((DataBits) null);
+		new FlowControlCmd((FlowControl) null);
 	}
 
 	/**
@@ -211,6 +213,36 @@ public class TestFlowControlCmd {
 
 		cmd = new FlowControlCmd(buffer(-3).toDataInput());
 		cmd.write(output);
+	}
+	
+	
+	/**
+	 * Checks whether the commands equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void equalCommands() throws Exception {
+		FlowControlCmd cmd =   new FlowControlCmd(FLOWCONTROL_RTSCTS_IN);
+		FlowControlCmd cmd2 =   new FlowControlCmd(FLOWCONTROL_RTSCTS_IN);
+		assertThat(cmd.equals(cmd2),is(true));
+	}
+	/**
+	 * Checks whether the commands not equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void notEqualCommands() throws Exception {
+		FlowControlCmd cmd =   new FlowControlCmd(FLOWCONTROL_NONE);
+		FlowControlCmd cmd2 =   new FlowControlCmd(FLOWCONTROL_RTSCTS_IN_OUT);
+		assertThat(cmd.equals(cmd2), is(false));
+	}
+	/**
+	 * Checks whether the String command is correct.
+	 */
+	@Test
+	public void commandToString() throws Exception {
+		FlowControlCmd cmd =   new FlowControlCmd(FLOWCONTROL_XONXOFF_IN_OUT);
+		assertThat(cmd.toString(), is("FlowControlCmd [flowControl=FLOWCONTROL_XONXOFF_IN_OUT]"));
 	}
 
 }

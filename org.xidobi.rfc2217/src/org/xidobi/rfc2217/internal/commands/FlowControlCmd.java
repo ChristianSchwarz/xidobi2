@@ -163,5 +163,9 @@ public class FlowControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "FlowControlCmd [flowControl=" + flowControl + "]";
+	}
 }

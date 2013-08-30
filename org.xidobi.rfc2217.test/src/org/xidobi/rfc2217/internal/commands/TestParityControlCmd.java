@@ -10,6 +10,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
 import static org.xidobi.Parity.PARITY_EVEN;
 import static org.xidobi.Parity.PARITY_MARK;
 import static org.xidobi.Parity.PARITY_NONE;
@@ -188,5 +192,34 @@ public class TestParityControlCmd {
 
 		cmd = new ParityControlCmd(buffer(6).toDataInput());
 		cmd.write(output);
+	}
+	
+	/**
+	 * Checks whether the commands equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void equalCommands() throws Exception {
+		ParityControlCmd cmd =   new ParityControlCmd(PARITY_MARK);
+		ParityControlCmd cmd2 =   new ParityControlCmd(PARITY_MARK);
+		assertThat(cmd.equals(cmd2),is(true));
+	}
+	/**
+	 * Checks whether the commands not equal.
+	 * @throws Exception
+	 */
+	@Test
+	public void notEqualCommands() throws Exception {
+		ParityControlCmd cmd =   new ParityControlCmd(PARITY_MARK);
+		ParityControlCmd cmd2 =   new ParityControlCmd(PARITY_ODD);
+		assertThat(cmd.equals(cmd2), is(false));
+	}
+	/**
+	 * Checks whether the String command is correct.
+	 */
+	@Test
+	public void commandToString() throws Exception {
+		ParityControlCmd cmd =   new ParityControlCmd(PARITY_MARK);
+		assertThat(cmd.toString(), is("ParityControlCmd [parity=PARITY_MARK]"));
 	}
 }
