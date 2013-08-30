@@ -7,13 +7,10 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
-import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
 import static org.xidobi.Parity.PARITY_EVEN;
 import static org.xidobi.Parity.PARITY_MARK;
 import static org.xidobi.Parity.PARITY_NONE;
@@ -21,6 +18,7 @@ import static org.xidobi.Parity.PARITY_ODD;
 import static org.xidobi.Parity.PARITY_SPACE;
 import static testtools.MessageBuilder.buffer;
 
+import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -171,55 +169,59 @@ public class TestParityControlCmd {
 	}
 
 	/**
-	 * When the parity is invalid, an {@link IOException} should be thrown.
+	 *
 	 */
 	@Test
 	@SuppressWarnings("unused")
 	public void read_invalidParity() throws IOException {
-		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected parity value: 6");
-
-		new ParityControlCmd(buffer(6).toDataInput());
-	}
-
-	/**
-	 * When the parity is invalid, an {@link IOException} should be thrown.
-	 */
-	@Test
-	public void write_invalidParity() throws IOException {
-		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected parity value: 6");
-
 		cmd = new ParityControlCmd(buffer(6).toDataInput());
 		cmd.write(output);
+		verify(output).writeByte(6);
 	}
-	
+
+	/**
+	 * When the parity {@link #read(DataInput)} decoded value, has no corresponding {@link Parity}
+	 * value, should be return a <code>null</code> value.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void dataBits_null() throws Exception {
+		cmd = new ParityControlCmd(buffer(6).toDataInput());
+		cmd.write(output);
+		assertThat(cmd.getParity(), is(nullValue()));
+	}
+
 	/**
 	 * Checks whether the commands equal.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void equalCommands() throws Exception {
-		ParityControlCmd cmd =   new ParityControlCmd(PARITY_MARK);
-		ParityControlCmd cmd2 =   new ParityControlCmd(PARITY_MARK);
-		assertThat(cmd.equals(cmd2),is(true));
+		ParityControlCmd cmd = new ParityControlCmd(PARITY_MARK);
+		ParityControlCmd cmd2 = new ParityControlCmd(PARITY_MARK);
+		assertThat(cmd.equals(cmd2), is(true));
 	}
+
 	/**
 	 * Checks whether the commands not equal.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void notEqualCommands() throws Exception {
-		ParityControlCmd cmd =   new ParityControlCmd(PARITY_MARK);
-		ParityControlCmd cmd2 =   new ParityControlCmd(PARITY_ODD);
+		ParityControlCmd cmd = new ParityControlCmd(PARITY_MARK);
+		ParityControlCmd cmd2 = new ParityControlCmd(PARITY_ODD);
 		assertThat(cmd.equals(cmd2), is(false));
 	}
+
 	/**
 	 * Checks whether the String command is correct.
 	 */
 	@Test
 	public void commandToString() throws Exception {
-		ParityControlCmd cmd =   new ParityControlCmd(PARITY_MARK);
-		assertThat(cmd.toString(), is("ParityControlCmd [parity=PARITY_MARK]"));
+		ParityControlCmd cmd = new ParityControlCmd(PARITY_MARK);
+		assertThat(cmd.toString(), is("ParityControlCmd [parity=4]"));
 	}
 }

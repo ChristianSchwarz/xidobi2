@@ -9,6 +9,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.xidobi.DataBits;
 import org.xidobi.StopBits;
 
 //@formatter:off
@@ -34,9 +35,9 @@ import org.xidobi.StopBits;
  */
 //@formatter:on
 public class StopBitsControlCmd extends AbstractControlCmd {
-	
+
 	/** The stop bits */
-	private StopBits stopBits;
+	private byte stopBits;
 
 	/**
 	 * Creates a new {@link StopBitsControlCmd}-Request using the given stop bits.
@@ -48,7 +49,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 		super(SET_STOPSIZE_REQ);
 		if (stopBits == null)
 			throw new IllegalArgumentException("The parameter >stopBits< must not be null");
-		this.stopBits = stopBits;
+		this.stopBits = toByte(stopBits);
 	}
 
 	/**
@@ -66,14 +67,14 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 
 	@Override
 	protected void read(DataInput input) throws IOException {
-		byte byteValue = input.readByte();
-		StopBits stopBits = toEnum(byteValue);
-		this.stopBits = stopBits;
+		stopBits = input.readByte();
+		if(stopBits<0 || stopBits>127)
+			throw new IOException("Unexpected stopBits value: "+stopBits);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.writeByte(toByte(stopBits));
+		output.writeByte(stopBits);
 	}
 
 	/**
@@ -82,20 +83,14 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 * @return the stop bits
 	 */
 	public StopBits getStopBits() {
-		return stopBits;
+		return toEnum(stopBits);
 	}
 
 	/**
-	 * Returns the {@link StopBits} belonging to the assigned byte value.
-	 * 
-	 * @param stopbits
-	 *            the input byte value
-	 * @return the {@link StopBits} belonging to the assigned byte value
-	 * 
-	 * @throws IOException
-	 *             when there was no {@link StopBits} found to the assigned byte value
+	 * Transforms the given stop bits byte value, as defined by RFC2217 to an {@link StopBits}
+	 * value.
 	 */
-	private StopBits toEnum(final byte stopBits) throws IOException {
+	private StopBits toEnum(final byte stopBits) {
 		switch (stopBits) {
 			case 1:
 				return STOPBITS_1;
@@ -104,7 +99,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 			case 3:
 				return STOPBITS_2;
 		}
-		throw new IOException("Unexpected stopBits value: " + stopBits);
+		return null;
 	}
 
 	/**
@@ -117,7 +112,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 *             when there was no byte value found to the assigned {@link StopBits}
 	 */
-	private int toByte(StopBits stopBits) {
+	private byte toByte(StopBits stopBits) {
 		switch (stopBits) {
 			case STOPBITS_1:
 				return 1;
@@ -133,7 +128,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((stopBits == null) ? 0 : stopBits.hashCode());
+		result = prime * result + stopBits;
 		return result;
 	}
 
@@ -155,5 +150,6 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	public String toString() {
 		return "StopBitsControlCmd [stopBits=" + stopBits + "]";
 	}
+
 
 }

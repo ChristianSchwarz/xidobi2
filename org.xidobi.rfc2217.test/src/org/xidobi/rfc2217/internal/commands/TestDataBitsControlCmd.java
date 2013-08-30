@@ -7,7 +7,8 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.DataBits.DATABITS_5;
@@ -17,6 +18,7 @@ import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.DataBits.DATABITS_9;
 import static testtools.MessageBuilder.buffer;
 
+import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -171,44 +173,59 @@ public class TestDataBitsControlCmd {
 	}
 
 	/**
-	 * When the dataBits is invalid, an {@link IOException} should be thrown.
+	 * 
 	 */
 	@Test
 	public void write_invalidDataBits() throws IOException {
-		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected dataBits value: 10");
-
 		cmd = new DataBitsControlCmd(buffer(10).toDataInput());
 		cmd.write(output);
+		verify(output).writeByte(10); 
 	}
-	
+
+	/**
+	 * When the databits {@link #read(DataInput)} decoded value, has no corresponding
+	 * {@link DataBits} value, should be return a <code>null</code> value.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void dataBits_null() throws Exception {
+		cmd = new DataBitsControlCmd(buffer(10).toDataInput());
+		cmd.write(output);
+		assertThat(cmd.getDataBits(), is(nullValue()));
+	}
+
 	/**
 	 * Checks whether the commands equal.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void equalCommands() throws Exception {
-		DataBitsControlCmd cmd =   new DataBitsControlCmd(DATABITS_5);
-		DataBitsControlCmd cmd2 =   new DataBitsControlCmd(DATABITS_5);
-		assertThat(cmd.equals(cmd2),is(true));
+		DataBitsControlCmd cmd = new DataBitsControlCmd(DATABITS_5);
+		DataBitsControlCmd cmd2 = new DataBitsControlCmd(DATABITS_5);
+		assertThat(cmd.equals(cmd2), is(true));
 	}
+
 	/**
 	 * Checks whether the commands not equal.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void notEqualCommands() throws Exception {
-		DataBitsControlCmd cmd =   new DataBitsControlCmd(DATABITS_5);
-		DataBitsControlCmd cmd2 =   new DataBitsControlCmd(DATABITS_6);
+		DataBitsControlCmd cmd = new DataBitsControlCmd(DATABITS_5);
+		DataBitsControlCmd cmd2 = new DataBitsControlCmd(DATABITS_6);
 		assertThat(cmd.equals(cmd2), is(false));
 	}
+
 	/**
 	 * Checks whether the String command is correct.
 	 */
 	@Test
 	public void commandToString() throws Exception {
-		DataBitsControlCmd cmd =   new DataBitsControlCmd(DATABITS_5);
-		assertThat(cmd.toString(), is("DataBitsControlCmd [dataBits=DATABITS_5]"));
+		DataBitsControlCmd cmd = new DataBitsControlCmd(DATABITS_5);
+		assertThat(cmd.toString(), is("DataBitsControlCmd [dataBits=5]"));
 	}
 
 }

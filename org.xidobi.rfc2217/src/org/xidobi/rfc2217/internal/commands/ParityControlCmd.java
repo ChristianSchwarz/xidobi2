@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
+import org.xidobi.DataBits;
 import org.xidobi.Parity;
 
 //@formatter:off
@@ -47,7 +48,8 @@ import org.xidobi.Parity;
 public class ParityControlCmd extends AbstractControlCmd {
 
 	/** The parity. */
-	private Parity parity;
+	@Nonnull
+	private byte parity;
 
 	/**
 	 * Creates a new {@link ParityControlCmd}-Request using the given parity.
@@ -59,44 +61,41 @@ public class ParityControlCmd extends AbstractControlCmd {
 		super(SET_PARITY_REQ);
 		if (parity == null)
 			throw new IllegalArgumentException("The parameter >parity< must not be null");
-		this.parity = parity;
+		this.parity = toByte(parity);
 	}
 
 	/**
 	 * Creates a new {@link ParityControlCmd}-Response, that is decoded from the given <i>input</i>.
 	 * 
 	 * @param input
-	 *         the input where the command must be read from, must not be <code>null</code>
+	 *            the input where the command must be read from, must not be <code>null</code>
 	 * @throws IOException
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public ParityControlCmd(@Nonnull DataInput input) throws IOException {
 		super(SET_PARITY_RESP, input);
 	}
-
+	/**
+	 * Decodes the {@link Parity} value from the first byte of the <i>input</i>. The values 0-127
+	 * are supported, if any other value is read an {@link IOException} will be thrown.
+	 */
 	@Override
 	protected void read(DataInput input) throws IOException {
-		final byte byteValue = input.readByte();
-		Parity parity = toEnum(byteValue);
-		this.parity = parity;
+		parity = input.readByte();
+		if (parity < 0 || parity > 127)
+			throw new IOException("Unexpected dataBits value: " + parity);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.writeByte(toByte(parity));
+		output.writeByte(parity);
 	}
 
 	/**
-	 * Returns the {@link Parity} belonging to the assigned byte value.
-	 * 
-	 * @param parity
-	 *            the input byte value
-	 * @return the {@link Parity} belonging to the assigned byte value
-	 * 
-	 * @throws IOException
-	 *             when there was no {@link Parity} found to the assigned byte value
+	 * Transforms the given data bits byte value, as defined by RFC2217 to an {@link DataBits}
+	 * value.
 	 */
-	private Parity toEnum(final byte parity) throws IOException {
+	private Parity toEnum(final byte parity) {
 		switch (parity) {
 			case 1:
 				return PARITY_NONE;
@@ -109,7 +108,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 			case 5:
 				return PARITY_SPACE;
 		}
-		throw new IOException("Unexpected parity value: " + parity);
+		return null;
 	}
 
 	/**
@@ -122,7 +121,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 *             when there was no byte value found to the assigned {@link Parity}
 	 */
-	private int toByte(Parity parity) {
+	private byte toByte(Parity parity) {
 		switch (parity) {
 			case PARITY_NONE:
 				return 1;
@@ -144,14 +143,14 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 * @return the parity
 	 */
 	public Parity getParity() {
-		return parity;
+		return toEnum(parity);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((parity == null) ? 0 : parity.hashCode());
+		result = prime * result + parity;
 		return result;
 	}
 
@@ -173,4 +172,5 @@ public class ParityControlCmd extends AbstractControlCmd {
 	public String toString() {
 		return "ParityControlCmd [parity=" + parity + "]";
 	}
+
 }

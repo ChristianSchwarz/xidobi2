@@ -6,20 +6,22 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.DataBits;
-
 import static org.xidobi.DataBits.DATABITS_5;
 import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.DataBits.DATABITS_7;
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.DataBits.DATABITS_9;
-import static org.xidobi.rfc2217.internal.RFC2217.*;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import org.xidobi.DataBits;
 
 //@formatter:off
 /**
@@ -51,7 +53,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 * The Data Bits value of this control command
 	 */
 	@Nonnull
-	private DataBits dataBits;
+	private byte dataBits;
 
 	/**
 	 * Creates a new {@link DataBitsControlCmd}-Request using the given data bits.
@@ -65,8 +67,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 		super(SET_DATASIZE_REQ);
 		if (dataBits == null)
 			throw new IllegalArgumentException("Parameter >dataBits< must not be null!");
-
-		this.dataBits = dataBits;
+		this.dataBits = toByte(dataBits);
 
 	}
 
@@ -84,13 +85,15 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Decodes the {@link DataBits} value from the first byte of the <i>input</i>. The values 5-9
+	 * Decodes the {@link DataBits} value from the first byte of the <i>input</i>. The values 0-127
 	 * are supported, if any other value is read an {@link IOException} will be thrown.
 	 */
 	@Override
 	protected void read(@Nonnull DataInput input) throws IOException {
-		final byte byteValue = input.readByte();
-		dataBits = toEnum(byteValue);
+		dataBits = input.readByte();
+
+		if (dataBits < 0 || dataBits > 127)
+			throw new IOException("Unexpected dataBits value: " + dataBits);
 
 	}
 
@@ -99,7 +102,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 * value.
 	 */
 	@Nonnull
-	private DataBits toEnum(final byte dataBits) throws IOException {
+	private DataBits toEnum(final byte dataBits) {
 		switch (dataBits) {
 			case 5:
 				return DATABITS_5;
@@ -112,7 +115,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			case 9:
 				return DATABITS_9;
 		}
-		throw new IOException("Unexpected dataBits value: " + dataBits);
+		return null;
 	}
 
 	/**
@@ -120,11 +123,11 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	@Override
 	public void write(@Nonnull DataOutput output) throws IOException {
-		output.writeByte(toByte(dataBits));
+		output.writeByte(dataBits);
 	}
 
 	/** Transforms this given {@link DataBits}-value to its corresponding RFC2217 specific value */
-	private int toByte(@Nonnull DataBits dataBits) {
+	private byte toByte(@Nonnull DataBits dataBits) {
 		switch (dataBits) {
 			case DATABITS_5:
 				return 5;
@@ -143,18 +146,19 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	/**
 	 * Returns {@link DataBits}-value of this control command.
 	 * 
-	 * @return never <code>null</code>
+	 * @return <code>null</code>, when {@link #read(DataInput)} decoded data bits value has no
+	 *         corresponding {@link DataBits} value
 	 */
-	@Nonnull
+	@CheckForNull
 	public DataBits getDataBits() {
-		return dataBits;
+		return toEnum(dataBits);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dataBits == null) ? 0 : dataBits.hashCode());
+		result = prime * result + dataBits;
 		return result;
 	}
 

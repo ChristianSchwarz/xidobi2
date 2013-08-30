@@ -30,6 +30,7 @@ import org.xidobi.DataBits;
 import org.xidobi.Parity;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
+import org.xidobi.StopBits;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 
 import testtools.ByteBuffer;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.StopBits.STOPBITS_1;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
@@ -313,6 +315,32 @@ public class TestRfc2217SerialPort {
 
 		exception.expect(IOException.class);
 		exception.expectMessage("The parity setting was refused (" + PARITY_NONE + ")!");
+
+		await(open);
+	}
+	
+	/**
+	 * If the access server refuse to accept com-port-options, the telnet client must be
+	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
+	 * apply the serial settings on the access server.
+	 * 
+	 */
+	@Test(timeout = 5000)
+	public void open_failedStopbitsRefused() throws Throwable {
+		final int bauds = PORT_SETTINGS.getBauds();
+		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
+		accessServerSends(dataBitsResponse(8)).when(telnetClient).sendSubnegotiation(dataBitsRequest(8));
+		accessServerSends(parityResponse(1)).when(telnetClient).sendSubnegotiation(parityRequest(1));
+		accessServerSends(stopBitsResponse(4)).when(telnetClient).sendSubnegotiation(stopbitsRequest(1));
+
+		open = openAsync(port, PORT_SETTINGS);
+
+		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
+		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("The stop bits setting was refused (" + STOPBITS_1 + ")!");
 
 		await(open);
 	}
