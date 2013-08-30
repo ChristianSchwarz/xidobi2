@@ -20,6 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.xidobi.FlowControl;
@@ -45,7 +46,7 @@ import org.xidobi.FlowControl;
 public class FlowControlCmd extends AbstractControlCmd {
 
 	/** The preferred flowcontrol. */
-	private FlowControl flowControl;
+	private byte flowControl;
 
 	/**
 	 * Creates a new {@link FlowControlCmd}.
@@ -58,7 +59,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 		if (flowControl == null)
 			throw new IllegalArgumentException("The parameter >flowControl< must not be null");
 		checkForRTSCTSOut_XonXoffOut(flowControl);
-		this.flowControl = flowControl;
+		this.flowControl = toByte(flowControl);
 	}
 
 	/**
@@ -73,25 +74,31 @@ public class FlowControlCmd extends AbstractControlCmd {
 		super(SET_CONTROL_RESP, input);
 	}
 
+	/**
+	 * Decodes the {@link FlowControl} value from the first byte of the <i>input</i>. The values
+	 * 0-127 are supported, if any other value is read an {@link IOException} will be thrown.
+	 */
 	@Override
-	protected void read(DataInput input) throws IOException {
-		final byte byteValue = input.readByte();
-		FlowControl flowControl = toEnum(byteValue);
-		this.flowControl = flowControl;
+	protected void read(@Nonnull DataInput input) throws IOException {
+		flowControl = input.readByte();
+		if (flowControl < 0 || flowControl > 4)
+			throw new IOException("Unexpected flowControl value: " + flowControl);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.writeByte(toByte(flowControl));
+		output.writeByte(flowControl);
 	}
 
 	/**
-	 * Returns the flowcontrol.
+	 * Returns {@link FlowControl}-value of this control command.
 	 * 
-	 * @return the flowControl
+	 * @return <code>null</code>, when {@link #read(DataInput)} decoded flow control value has no
+	 *         corresponding {@link FlowControl} value
 	 */
+	@CheckForNull
 	public FlowControl getFlowControl() {
-		return flowControl;
+		return toEnum(flowControl);
 	}
 
 	/**
@@ -120,7 +127,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 *             when there was no {@link FlowControl} found to the assigned byte value
 	 */
-	private FlowControl toEnum(final byte flowControl) throws IOException {
+	private FlowControl toEnum(final byte flowControl) {
 		switch (flowControl) {
 			case 1:
 				return FLOWCONTROL_NONE;
@@ -133,7 +140,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 			case 16:
 				return FLOWCONTROL_RTSCTS_IN;
 		}
-		throw new IOException("Unexpected flowControl value: " + flowControl);
+		return null;
 	}
 
 	/**
@@ -146,7 +153,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 *             when there was no byte value found to the assigned {@link FlowControl}
 	 */
-	private int toByte(FlowControl flowControl) {
+	private byte toByte(FlowControl flowControl) {
 		switch (flowControl) {
 			case FLOWCONTROL_NONE:
 				return 1;
@@ -164,11 +171,20 @@ public class FlowControlCmd extends AbstractControlCmd {
 		throw new IllegalStateException("Unexpected flowControl value:" + flowControl);
 	}
 
+	public void setFlowControl(byte flowControl) {
+		this.flowControl = flowControl;
+	}
+
+	@Override
+	public String toString() {
+		return "FlowControlCmd [flowControl=" + flowControl + "]";
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((flowControl == null) ? 0 : flowControl.hashCode());
+		result = prime * result + flowControl;
 		return result;
 	}
 
@@ -186,8 +202,5 @@ public class FlowControlCmd extends AbstractControlCmd {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return "FlowControlCmd [flowControl=" + flowControl + "]";
-	}
+
 }
