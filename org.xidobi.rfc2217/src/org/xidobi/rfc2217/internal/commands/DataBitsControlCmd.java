@@ -50,6 +50,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	/**
 	 * The Data Bits value of this control command
 	 */
+	@Nonnull
 	private DataBits dataBits;
 
 	/**
@@ -87,7 +88,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 * are supported, if any other value is read an {@link IOException} will be thrown.
 	 */
 	@Override
-	protected void read(DataInput input) throws IOException {
+	protected void read(@Nonnull DataInput input) throws IOException {
 		final byte byteValue = input.readByte();
 		dataBits = toEnum(byteValue);
 
@@ -97,6 +98,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 * Transforms the given data bits byte value, as defined by RFC2217 to an {@link DataBits}
 	 * value.
 	 */
+	@Nonnull
 	private DataBits toEnum(final byte dataBits) throws IOException {
 		switch (dataBits) {
 			case 5:
@@ -117,12 +119,12 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 * Writes this coontrol command into the given {@code output}.
 	 */
 	@Override
-	public void write(DataOutput output) throws IOException {
+	public void write(@Nonnull DataOutput output) throws IOException {
 		output.writeByte(toByte(dataBits));
 	}
 
 	/** Transforms this given {@link DataBits}-value to its corresponding RFC2217 specific value */
-	private int toByte(DataBits dataBits) {
+	private int toByte(@Nonnull DataBits dataBits) {
 		switch (dataBits) {
 			case DATABITS_5:
 				return 5;
