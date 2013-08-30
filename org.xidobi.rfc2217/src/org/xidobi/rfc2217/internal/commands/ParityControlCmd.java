@@ -21,27 +21,38 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.Parity;
 
+//@formatter:off
 /**
  * <code>IAC SB COM-PORT-OPTION SET-PARITY &lt;value&gt; IAC SE</code><br />
  * This command is sent by the client to the access server to set the parity. The command can also
  * be sent to query the current parity. The value is one octet (byte).<br />
  * The value is an index into the following value table: <br />
- * Value Parity [1] 0 Request Current Data Size 1 NONE 2 ODD 3 EVEN 4 MARK 5 SPACE 6-127 Available
- * for Future Use
+ * 
+ * <table border="1">
+    	<tr><th> Value</th><th> Parity</th></tr>
+        <tr><td> 0 </td><td> Request Current Data Size </td></tr>
+        <tr><td> 1 </td><td> NONE	</td></tr>
+        <tr><td> 2 </td><td> ODD	</td></tr>
+        <tr><td> 3 </td><td> EVEN	</td></tr>
+        <tr><td> 4 </td><td> MARK</td></tr>
+    </table>
+ * 
+ * 
  * 
  * @author Peter-René Jeschke
  * @author Konrad Schulz
  */
+//@formatter:on
 public class ParityControlCmd extends AbstractControlCmd {
 
-	/** The preferred parity. */
+	/** The parity. */
 	private Parity parity;
 
 	/**
-	 * Creates a new {@link ParityControlCmd}.
+	 * Creates a new {@link ParityControlCmd}-Request using the given parity.
 	 * 
 	 * @param parity
-	 *            the preferred parity for this message, must not be <code>null</code>
+	 *            the parity for this message, must not be <code>null</code>
 	 */
 	public ParityControlCmd(@Nonnull Parity parity) {
 		super(SET_PARITY_REQ);
@@ -51,12 +62,12 @@ public class ParityControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Reads a new {@link ParityControlCmd}.
+	 * Creates a new {@link ParityControlCmd}-Response, that is decoded from the given <i>input</i>.
 	 * 
 	 * @param input
-	 *            the input where the command schould be read from, must not be
-	 *            {@link NullPointerException}
+	 *         the input where the command must be read from, must not be <code>null</code>
 	 * @throws IOException
+	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public ParityControlCmd(@Nonnull DataInput input) throws IOException {
 		super(SET_PARITY_REQ, input);
@@ -74,6 +85,16 @@ public class ParityControlCmd extends AbstractControlCmd {
 		output.writeByte(toByte(parity));
 	}
 
+	/**
+	 * Returns the {@link Parity} belonging to the assigned byte value.
+	 * 
+	 * @param parity
+	 *            the input byte value
+	 * @return the {@link Parity} belonging to the assigned byte value
+	 * 
+	 * @throws IOException
+	 *             when there was no {@link Parity} found to the assigned byte value
+	 */
 	private Parity toEnum(final byte parity) throws IOException {
 		switch (parity) {
 			case 1:
@@ -90,6 +111,16 @@ public class ParityControlCmd extends AbstractControlCmd {
 		throw new IOException("Unexpected parity value: " + parity);
 	}
 
+	/**
+	 * Returns the byte value belonging to the assigned {@link Parity}.
+	 * 
+	 * @param parity
+	 *            the {@link Parity} that needs to be translated for the output byte value
+	 * @return the byte value belonging to the assigned {@link Parity}
+	 * 
+	 * @throws IOException
+	 *             when there was no byte value found to the assigned {@link Parity}
+	 */
 	private int toByte(Parity parity) {
 		switch (parity) {
 			case PARITY_NONE:
@@ -136,7 +167,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ParityControlCmd [parity=" + parity + "]";

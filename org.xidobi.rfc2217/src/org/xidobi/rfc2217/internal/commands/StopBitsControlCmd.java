@@ -11,34 +11,38 @@ import java.io.IOException;
 
 import org.xidobi.StopBits;
 
+//@formatter:off
 /**
  * 
  * This command is sent by the client to the access server to set the number of stop bits. The
  * command can also be sent to query the current stop bit size. The value is one octet (byte). The
  * value is an index into the following value table:
  * 
- * <pre>
- * Value		Stop Bit Size 
- *     0		Request Current Data Size 
- *     1		1
- *     2		2
- *     3		1.5
- * 4-127		Available for Future Use
- * </pre>
+ * 
+ * 	<table border="1">
+    	<tr><th> Value</th><th> Stop Bit Size </th></tr>
+        <tr><td> 0 </td><td> Request Current Data Size </td></tr>
+        <tr><td> 1 </td><td> 1	</td></tr>
+        <tr><td> 2 </td><td> 2	</td></tr>
+        <tr><td> 3 </td><td> 1.5</td></tr>
+        <tr><td> 4-127 </td><td> Available for Future Use </td></tr>
+    </table>
+   
  * 
  * @author Christin Nitsche
  * @author Konrad Schulz
  */
-
+//@formatter:on
 public class StopBitsControlCmd extends AbstractControlCmd {
-
+	
+	/** The stop bits */
 	private StopBits stopBits;
 
 	/**
-	 * Creates a new {@link StopBitsControlCmd}.
+	 * Creates a new {@link StopBitsControlCmd}-Request using the given stop bits.
 	 * 
-	 * @param commandCode
-	 *            the preferred stopsize, greater or equal to one.
+	 * @param stopbits
+	 *            the stopbits, greater or equal to one.
 	 */
 	public StopBitsControlCmd(StopBits stopBits) {
 		super(SET_STOPSIZE_REQ);
@@ -48,10 +52,11 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Creates a new {@link StopBitsControlCmd}.
+	 * Creates a new {@link StopBitsControlCmd}-Response, that is decoded from the given
+	 * <i>input</i>.
 	 * 
 	 * @param input
-	 *            used to decode the content of the command, must not be <code>null</code>
+	 *            the input where the command must be read from, must not be <code>null</code>
 	 * @throws IOException
 	 *             if the message is malformed or the underlying media can't be read
 	 */
@@ -72,7 +77,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Returns the preferred stop bits.
+	 * Returns the stop bits.
 	 * 
 	 * @return the stop bits
 	 */
@@ -80,6 +85,16 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 		return stopBits;
 	}
 
+	/**
+	 * Returns the {@link StopBits} belonging to the assigned byte value.
+	 * 
+	 * @param stopbits
+	 *            the input byte value
+	 * @return the {@link StopBits} belonging to the assigned byte value
+	 * 
+	 * @throws IOException
+	 *             when there was no {@link StopBits} found to the assigned byte value
+	 */
 	private StopBits toEnum(final byte stopBits) throws IOException {
 		switch (stopBits) {
 			case 1:
@@ -92,6 +107,16 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 		throw new IOException("Unexpected stopBits value: " + stopBits);
 	}
 
+	/**
+	 * Returns the byte value belonging to the assigned {@link StopBits}.
+	 * 
+	 * @param stopBits
+	 *            the {@link StopBits} that needs to be translated for the output byte value
+	 * @return the byte value belonging to the assigned {@link StopBits}
+	 * 
+	 * @throws IOException
+	 *             when there was no byte value found to the assigned {@link StopBits}
+	 */
 	private int toByte(StopBits stopBits) {
 		switch (stopBits) {
 			case STOPBITS_1:
