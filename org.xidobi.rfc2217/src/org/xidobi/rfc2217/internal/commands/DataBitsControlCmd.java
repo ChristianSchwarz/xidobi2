@@ -19,7 +19,7 @@ import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.DataBits.DATABITS_7;
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.DataBits.DATABITS_9;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.*;
 
 //@formatter:off
 /**
@@ -27,18 +27,15 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
  * This command is sent by the client to the access server to set the data bit size. The command can
  * also be sent to query the current data bit size. The value is one octet (byte). The value is an
  * index into the following value table:
- 
  * 
- * <table border="1">
-  <tr><th>Value</th><th>Data Bit Size</th></tr>
-  <tr><td>0</td><td>Request Current Data Bits</td>
-  <tr><td>1</td><td></td></tr>
-  <tr><td>2</td><td></td></tr>
-  <tr><td>3</td><td></td></tr>
-  <tr><td>4</td><td></td></tr>
-  
-</table>
-
+ * <table>
+ * <tr><th>Value</th><th>Data Bit Size</th></tr>
+ * <tr><td>0</td><td>Request Current Data Bits</td>
+ * <tr><td>1</td><td></td></tr>
+ * <tr><td>2</td><td></td></tr>
+ * <tr><td>3</td><td></td></tr>
+ * <tr><td>4</td><td></td></tr>
+ * </table>
  * 
  * @author Peter-René Jeschke
  */
@@ -75,7 +72,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public DataBitsControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_DATASIZE_REQ, input);
+		super(SET_DATASIZE_RESP, input);
 	}
 
 	@Override
@@ -152,7 +149,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "DataBitsControlCmd [dataBits=" + dataBits + "]";

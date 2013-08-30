@@ -6,15 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_OUT;
-import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN;
-import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
-import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_REQ;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -23,6 +14,16 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.FlowControl;
 
+import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_RESP;
+
 //@formatter:off
 /**
  * IAC SB COM-PORT-OPTION SET-CONTROL <value> IAC SE
@@ -30,8 +31,8 @@ import org.xidobi.FlowControl;
        special com port options. The command can also be sent to query
        the current option value. The value is one octet (byte). The
        value is an index into the following value table:
-	<table border="1">
-    	<tr><th> Value Control Commands </th></tr>
+	<table>
+    	<tr><th>Value</th><th>Control Commands </th></tr>
         <tr><td> 0 </td><td> Request Com Port Flow Control Setting (outbound/both) 	</td></tr>
         <tr><td> 1 </td><td> Use No Flow Control (outbound/both) 					</td></tr>
         <tr><td> 2 </td><td> Use XON/XOFF Flow Control (outbound/both) 				</td></tr>
@@ -68,7 +69,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 */
 	public FlowControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_CONTROL_REQ, input);
+		super(SET_CONTROL_RESP, input);
 	}
 
 	@Override

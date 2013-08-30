@@ -1,10 +1,11 @@
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
 
 /**
  * This command may be sent by either the client or the access server to exchange signature
@@ -37,7 +38,7 @@ public class SignaturControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public SignaturControlCmd(DataInput input) throws IOException {
-		super(SIGNATURE_REQ, input);
+		super(SIGNATURE_RESP, input);
 	}
 
 	/**
