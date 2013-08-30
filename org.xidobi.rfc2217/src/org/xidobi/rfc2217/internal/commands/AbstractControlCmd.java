@@ -52,7 +52,9 @@ public abstract class AbstractControlCmd {
 	 */
 	AbstractControlCmd(	int commandCode,
 						@Nonnull DataInput input) throws IOException {
-		this(commandCode);
+		if (commandCode < 100 || commandCode > 112)
+			throw new IllegalArgumentException("The command codem must be in the range [0..12]! Got: " + commandCode);
+		this.commandCode = (byte) commandCode;
 		read(input);
 	}
 
