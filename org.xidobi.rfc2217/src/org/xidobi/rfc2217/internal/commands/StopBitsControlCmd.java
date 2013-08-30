@@ -3,7 +3,7 @@ package org.xidobi.rfc2217.internal.commands;
 import static org.xidobi.StopBits.STOPBITS_1;
 import static org.xidobi.StopBits.STOPBITS_1_5;
 import static org.xidobi.StopBits.STOPBITS_2;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -61,7 +61,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public StopBitsControlCmd(DataInput input) throws IOException {
-		super(SET_STOPSIZE_REQ, input);
+		super(SET_STOPSIZE_RESP, input);
 	}
 
 	@Override
