@@ -25,7 +25,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	 */
 	public SerialConnectionImpl(@Nonnull Rfc2217SerialPort parent,
 								@Nonnull TelnetClient telnetClient) {
-		super(parent, new ReaderImpl(telnetClient.getInputStream()), new WriterImpl());
+		super(parent, new ReaderImpl(telnetClient.getInputStream()), new WriterImpl(telnetClient.getOutputStream()));
 	}
 
 }
