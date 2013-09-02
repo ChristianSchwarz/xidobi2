@@ -32,11 +32,11 @@ import org.xidobi.FlowControl;
  *     the current option value. The value is one octet (byte). The
  *     value is an index into the following value table:
  *	<table>
- *   	<tr><th>Value</th><th>Control Commands </th></tr>
- *       <tr><td> 0 </td><td> Request Com Port Flow Control Setting (outbound/both) </td></tr>
- *       <tr><td> 1 </td><td> Use No Flow Control (outbound/both) 					</td></tr>
- *       <tr><td> 2 </td><td> Use XON/XOFF Flow Control (outbound/both) 			</td></tr>
- *       <tr><td> 3 </td><td> Use HARDWARE Flow Control (outbound/both) 			</td></tr>
+ *   	<tr><th>Value	</th><th>Control Commands 										</th></tr>
+ *      <tr><td> 0 		</td><td> Request Com Port Flow Control Setting (outbound/both) </td></tr>
+ *      <tr><td> 1		</td><td> Use No Flow Control (outbound/both) 					</td></tr>
+ *      <tr><td> 2 		</td><td> Use XON/XOFF Flow Control (outbound/both) 			</td></tr>
+ *      <tr><td> 3		</td><td> Use HARDWARE Flow Control (outbound/both) 			</td></tr>
  *   </table>
  * 
  * @author Konrad Schulz
