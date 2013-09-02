@@ -72,8 +72,10 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Creates a new {@link DataBitsControlCmd}-Response, that is decoded from the given
-	 * <i>input</i>.
+	 * 
+	 * 
+	 * Decodes the {@link DataBits} value from the first byte of the <i>input</i>. The values 0-127
+	 * are supported, if any other value is read an {@link IOException} will be thrown.
 	 * 
 	 * @param input
 	 *            used to decode the content of the command, must not be <code>null</code>
@@ -81,20 +83,11 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public DataBitsControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_DATASIZE_RESP, input);
-	}
-
-	/**
-	 * Decodes the {@link DataBits} value from the first byte of the <i>input</i>. The values 0-127
-	 * are supported, if any other value is read an {@link IOException} will be thrown.
-	 */
-	@Override
-	protected void read(@Nonnull DataInput input) throws IOException {
+		super(SET_DATASIZE_RESP);
 		dataBits = input.readByte();
-
+		
 		if (dataBits < 0 || dataBits > 127)
 			throw new IOException("Unexpected dataBits value: " + dataBits);
-
 	}
 
 	/**
@@ -146,7 +139,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	/**
 	 * Returns {@link DataBits}-value of this control command.
 	 * 
-	 * @return <code>null</code>, when {@link #read(DataInput)} decoded data bits value has no
+	 * @return <code>null</code>, when the decoded data bits value has no
 	 *         corresponding {@link DataBits} value
 	 */
 	@CheckForNull

@@ -50,17 +50,12 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 */
 	public BaudrateControlCmd(DataInput input) throws IOException {
-		super(SET_BAUDRATE_RESP, input);
-	}
-
-	@Override
-	protected void read(DataInput input) throws IOException {
-		int baudrate = input.readInt();
+		super(SET_BAUDRATE_RESP);
+		
+		baudrate = input.readInt();
 
 		if (baudrate < 1)
 			throw new IOException("The received baudrate is invalid! Expected a value greater or equal to 1, got: >" + baudrate + "<");
-
-		this.baudrate = baudrate;
 	}
 
 	@Override

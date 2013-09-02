@@ -65,7 +65,8 @@ public class ParityControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Creates a new {@link ParityControlCmd}-Response, that is decoded from the given <i>input</i>.
+	 * Decodes the {@link Parity} value from the first byte of the <i>input</i>. The values 0-127
+	 * are supported, if any other value is read an {@link IOException} will be thrown.
 	 * 
 	 * @param input
 	 *            the input where the command must be read from, must not be <code>null</code>
@@ -73,14 +74,8 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public ParityControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_PARITY_RESP, input);
-	}
-	/**
-	 * Decodes the {@link Parity} value from the first byte of the <i>input</i>. The values 0-127
-	 * are supported, if any other value is read an {@link IOException} will be thrown.
-	 */
-	@Override
-	protected void read(DataInput input) throws IOException {
+		super(SET_PARITY_RESP);
+
 		parity = input.readByte();
 		if (parity < 0 || parity > 127)
 			throw new IOException("Unexpected dataBits value: " + parity);

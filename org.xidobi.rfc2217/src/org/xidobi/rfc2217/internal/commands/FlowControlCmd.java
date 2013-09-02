@@ -63,23 +63,15 @@ public class FlowControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Creates a new {@link DataBitsControlCmd}-Response, that is decoded from the given
-	 * <i>input</i>.
+	 * Decodes the {@link FlowControl} value from the first byte of the <i>input</i>. The values
+	 * 0-127 are supported, if any other value is read an {@link IOException} will be thrown.
 	 * 
 	 * @param input
 	 *            the input where the command must be read from, must not be <code>null</code>
 	 * @throws IOException
 	 */
 	public FlowControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_CONTROL_RESP, input);
-	}
-
-	/**
-	 * Decodes the {@link FlowControl} value from the first byte of the <i>input</i>. The values
-	 * 0-127 are supported, if any other value is read an {@link IOException} will be thrown.
-	 */
-	@Override
-	protected void read(@Nonnull DataInput input) throws IOException {
+		super(SET_CONTROL_RESP);
 		flowControl = input.readByte();
 		if (flowControl < 0 || flowControl > 127)
 			throw new IOException("Unexpected flowControl value: " + flowControl);

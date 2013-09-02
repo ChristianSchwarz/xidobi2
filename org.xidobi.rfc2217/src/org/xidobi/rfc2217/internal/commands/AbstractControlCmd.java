@@ -6,11 +6,8 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import javax.annotation.Nonnull;
 
 import org.xidobi.rfc2217.internal.RFC2217;
 
@@ -22,7 +19,7 @@ import org.xidobi.rfc2217.internal.RFC2217;
  */
 public abstract class AbstractControlCmd {
 
-	private byte commandCode;
+	private final byte commandCode;
 
 	/**
 	 * This constructor is used by subclasses to create a new message.
@@ -32,43 +29,11 @@ public abstract class AbstractControlCmd {
 	 * @exception IllegalArgumentException if  {@code 0 > commandCode > 12}
 	 */
 	AbstractControlCmd(int commandCode) {
-		if (commandCode < 0 || commandCode > 12)
-			throw new IllegalArgumentException("The command codem must be in the range [0..12]! Got: " + commandCode);
+		if (!((commandCode >= 0 && commandCode <= 12) || (commandCode >= 100 || commandCode <= 112)))
+			throw new IllegalArgumentException("The command code must be in the range [0..12] or [100..112]! Got: " + commandCode);
 		this.commandCode = (byte) commandCode;
 	}
 
-	/**
-	 * This constructor is used by subclasses to decode the message.
-	 * <p>
-	 * Implementation Note: The constructor call will delegate {@link #read(DataInput)} to
-	 * {@link #read(DataInput)} in order to decode the content.
-	 * 
-	 * @param commandCode
-	 *            the code of this command
-	 * @param input
-	 *            used to decode the content
-	 * @throws IOException
-	 *             if the message is malformed or the underlying media can't be read
-	 */
-	AbstractControlCmd(	int commandCode,
-						@Nonnull DataInput input) throws IOException {
-		if (commandCode < 100 || commandCode > 112)
-			throw new IllegalArgumentException("The command codem must be in the range [0..12]! Got: " + commandCode);
-		this.commandCode = (byte) commandCode;
-		read(input);
-	}
-
-	/**
-	 * Subclasses implement this method to decode the content of this command. The given input
-	 * starts at the beginning of the response specific content. That means after the command
-	 * specific identifier.
-	 * 
-	 * @param input
-	 *            used to decode the content
-	 * @throws IOException
-	 *             if the message is malformed or the underlying media can't be read
-	 */
-	protected abstract void read(DataInput input) throws IOException;
 
 	/**
 	 * Subclasses implement this method to encode the contents of this command.
