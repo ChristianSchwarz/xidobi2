@@ -398,29 +398,7 @@ public class TestBasicSerialConnection {
 		assertThat(port.isClosed(), is(true));
 	}
 
-	/**
-	 * Verifies that {@link AbstractSerialConnection#portClosedException()} returns an
-	 * {@link IOException} with a message 'Port ??? is closed!'.
-	 */
-	@Test
-	public void portClosedException() {
-		IOException result = port.portClosedException();
-
-		assertThat(result, is(notNullValue()));
-		assertThat(result.getMessage(), is("Port COM1 was closed!"));
-	}
-
-	/**
-	 * Verifies that {@link AbstractSerialConnection#portClosedException(String)} returns an
-	 * {@link IOException} with a message 'Port ??? is closed!' and an additional message.
-	 */
-	@Test
-	public void portClosedException_withMessage() {
-		IOException result = port.portClosedException("Additional message.");
-
-		assertThat(result, is(notNullValue()));
-		assertThat(result.getMessage(), is("Port COM1 was closed! Additional message."));
-	}
+	
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
