@@ -6,22 +6,7 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.DataBits.DATABITS_5;
-import static org.xidobi.DataBits.DATABITS_6;
-import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
-import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_OUT;
-import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN;
-import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
-import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
-import static testtools.MessageBuilder.buffer;
-
+import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -30,8 +15,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.xidobi.DataBits;
 import org.xidobi.FlowControl;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
+import static org.junit.Assert.assertThat;
+import static testtools.MessageBuilder.buffer;
 
 /**
  * Tests the class {@link FlowControlCmd}.
@@ -58,7 +59,7 @@ public class TestFlowControlCmd {
 	 * When a <code>null</code> flowControl is supplied to the constructor, an
 	 * {@link IllegalArgumentException} must be thrown.
 	 */
-	@SuppressWarnings("unused")
+	
 	@Test(expected = IllegalArgumentException.class)
 	public void new_withNull() {
 		new FlowControlCmd((FlowControl) null);
@@ -68,7 +69,7 @@ public class TestFlowControlCmd {
 	 * When {@link FlowControl#FLOWCONTROL_RTSCTS_OUT} is supplied to the constructor, an
 	 * {@link IllegalArgumentException} must be thrown.
 	 */
-	@SuppressWarnings("unused")
+	
 	@Test
 	public void new_with_RTSCTS_out() {
 		exception.expect(IllegalArgumentException.class);
@@ -81,7 +82,7 @@ public class TestFlowControlCmd {
 	 * When {@link FlowControl#FLOWCONTROL_XONXOFF_OUT} is supplied to the constructor, an
 	 * {@link IllegalArgumentException} must be thrown.
 	 */
-	@SuppressWarnings("unused")
+	
 	@Test
 	public void new_with_XONXOFF_out() {
 		exception.expect(IllegalArgumentException.class);

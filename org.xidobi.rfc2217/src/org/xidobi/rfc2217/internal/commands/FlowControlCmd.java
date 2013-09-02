@@ -58,7 +58,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 		super(SET_CONTROL_REQ);
 		if (flowControl == null)
 			throw new IllegalArgumentException("The parameter >flowControl< must not be null");
-		checkForRTSCTSOut_XonXoffOut(flowControl);
+		checkFlowControl(flowControl);
 		this.flowControl = toByte(flowControl);
 	}
 
@@ -107,14 +107,11 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * @param flowControl
 	 *            the flowcontrol to check
 	 */
-	private void checkForRTSCTSOut_XonXoffOut(FlowControl flowControl) {
-		FlowControl control = null;
+	private void checkFlowControl(FlowControl flowControl) {
 		if (flowControl == FLOWCONTROL_RTSCTS_OUT)
-			control = FLOWCONTROL_RTSCTS_IN_OUT;
-		else if (flowControl == FLOWCONTROL_XONXOFF_OUT)
-			control = FLOWCONTROL_XONXOFF_IN_OUT;
-		if (control != null)
-			throw new IllegalArgumentException("The parameter >flowControl< must not be " + flowControl + ", use " + control + " instead.");
+			throw new IllegalArgumentException("The parameter >flowControl< must not be " + FLOWCONTROL_RTSCTS_OUT + ", use " + FLOWCONTROL_RTSCTS_IN_OUT + " instead.");
+		if (flowControl == FLOWCONTROL_XONXOFF_OUT)
+			throw new IllegalArgumentException("The parameter >flowControl< must not be " + FLOWCONTROL_XONXOFF_OUT + ", use " + FLOWCONTROL_XONXOFF_IN_OUT + " instead.");
 	}
 
 	/**
