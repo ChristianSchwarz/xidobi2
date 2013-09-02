@@ -7,6 +7,7 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -214,7 +215,19 @@ public class TestFlowControlCmd {
 		cmd = new FlowControlCmd(buffer(-3).toDataInput());
 		cmd.write(output);
 	}
-	
+
+	/**
+	 * When the databits {@link #read(DataInput)} decoded value, has no corresponding
+	 * {@link FlowControl} value, should be return a <code>null</code> value.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void getFlowControl_null() throws Exception {
+		cmd = new FlowControlCmd(buffer(10).toDataInput());
+		cmd.write(output);
+		assertThat(cmd.getFlowControl(), is(nullValue()));
+	}
 	
 	/**
 	 * Checks whether the commands equal.
@@ -242,7 +255,7 @@ public class TestFlowControlCmd {
 	@Test
 	public void commandToString() throws Exception {
 		FlowControlCmd cmd =   new FlowControlCmd(FLOWCONTROL_XONXOFF_IN_OUT);
-		assertThat(cmd.toString(), is("FlowControlCmd [flowControl=FLOWCONTROL_XONXOFF_IN_OUT]"));
+		assertThat(cmd.toString(), is("FlowControlCmd [flowControl=2]"));
 	}
 
 }

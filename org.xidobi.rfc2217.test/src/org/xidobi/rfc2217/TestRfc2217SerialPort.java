@@ -26,8 +26,11 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.Stubber;
+import org.xidobi.DataBits;
+import org.xidobi.Parity;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
+import org.xidobi.StopBits;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 
 import testtools.ByteBuffer;
@@ -37,27 +40,29 @@ import static java.net.InetSocketAddress.createUnresolved;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
-
+import static org.xidobi.DataBits.DATABITS_8;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.StopBits.STOPBITS_1;
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
 import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
 import static org.apache.commons.net.telnet.TelnetOption.BINARY;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-
 import static org.junit.Assert.assertThat;
 import static testtools.MessageBuilder.baudRateResponse;
 import static testtools.MessageBuilder.dataBitsResponse;
+import static testtools.MessageBuilder.flowControlResponse;
+import static testtools.MessageBuilder.parityResponse;
+import static testtools.MessageBuilder.stopBitsResponse;
 
 /**
  * Tests the class {@link Rfc2217SerialPort}
@@ -173,12 +178,15 @@ public class TestRfc2217SerialPort {
 	 * apply the serial settings on the access server.
 	 * 
 	 */
-	@Test(timeout = 500)
+	@Test(timeout = 5000)
 	public void open() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
 
 		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(9600));
 		accessServerSends(dataBitsResponse(8)).when(telnetClient).sendSubnegotiation(dataBitsRequest(8));
+		accessServerSends(parityResponse(1)).when(telnetClient).sendSubnegotiation(parityRequest(1));
+		accessServerSends(stopBitsResponse(1)).when(telnetClient).sendSubnegotiation(stopbitsRequest(1));
+		accessServerSends(flowControlResponse(1)).when(telnetClient).sendSubnegotiation(flowControlRequest(1));
 
 		open = openAsync(port, PORT_SETTINGS);
 
@@ -246,7 +254,6 @@ public class TestRfc2217SerialPort {
 	@Test(timeout = 500)
 	public void open_failedBaudRateRefused() throws Throwable {
 		final int bauds = PORT_SETTINGS.getBauds();
-
 		accessServerSends(baudRateResponse(bauds + 10)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
 
 		open = openAsync(port, PORT_SETTINGS);
@@ -260,12 +267,91 @@ public class TestRfc2217SerialPort {
 
 		await(open);
 	}
+	
+	
+	/**
+	 * If the access server refuse to accept com-port-options, the telnet client must be
+	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
+	 * apply the serial settings on the access server.
+	 * 
+	 */
+	@Test(timeout = 500)
+	public void open_failedDataBitsRefused() throws Throwable {
+		final int bauds = PORT_SETTINGS.getBauds();
+		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
+		
+		accessServerSends(dataBitsResponse(10)).when(telnetClient).sendSubnegotiation(dataBitsRequest(8));
+
+		open = openAsync(port, PORT_SETTINGS);
+
+		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
+		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("The data bits setting was refused (" + DATABITS_8 + ")!");
+
+		await(open);
+	}
+	
+	/**
+	 * If the access server refuse to accept com-port-options, the telnet client must be
+	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
+	 * apply the serial settings on the access server.
+	 * 
+	 */
+	@Test(timeout = 500)
+	public void open_failedParityRefused() throws Throwable {
+		final int bauds = PORT_SETTINGS.getBauds();
+		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
+		accessServerSends(dataBitsResponse(8)).when(telnetClient).sendSubnegotiation(dataBitsRequest(8));
+		accessServerSends(parityResponse(4)).when(telnetClient).sendSubnegotiation(parityRequest(1));
+
+		open = openAsync(port, PORT_SETTINGS);
+
+		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
+		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("The parity setting was refused (" + PARITY_NONE + ")!");
+
+		await(open);
+	}
+	
+	/**
+	 * If the access server refuse to accept com-port-options, the telnet client must be
+	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
+	 * apply the serial settings on the access server.
+	 * 
+	 */
+	@Test(timeout = 5000)
+	public void open_failedStopbitsRefused() throws Throwable {
+		final int bauds = PORT_SETTINGS.getBauds();
+		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(bauds));
+		accessServerSends(dataBitsResponse(8)).when(telnetClient).sendSubnegotiation(dataBitsRequest(8));
+		accessServerSends(parityResponse(1)).when(telnetClient).sendSubnegotiation(parityRequest(1));
+		accessServerSends(stopBitsResponse(4)).when(telnetClient).sendSubnegotiation(stopbitsRequest(1));
+
+		open = openAsync(port, PORT_SETTINGS);
+
+		accessServerSendsNegotiation(RECEIVED_DO, COM_PORT_OPTION);
+		accessServerSendsNegotiation(RECEIVED_DO, BINARY);
+		accessServerSendsNegotiation(RECEIVED_WILL, BINARY);
+
+		exception.expect(IOException.class);
+		exception.expectMessage("The stop bits setting was refused (" + STOPBITS_1 + ")!");
+
+		await(open);
+	}
+
+
 
 	// /////////////////////////////// Utility-Methods
 	// ////////////////////////////////////////////////////////////////////////////
 	/** emulates the behaviour of the access server sending an negotiation */
 	private void accessServerSendsNegotiation(int negotiationCode, int optionCode) throws TimeoutException {
-		TelnetNotificationHandler handler = awaitValue(notificationHandler, 200);
+		TelnetNotificationHandler handler = awaitValue(notificationHandler, 2000);
 		handler.receivedNegotiation(negotiationCode, optionCode);
 	}
 
@@ -316,6 +402,18 @@ public class TestRfc2217SerialPort {
 	private int[] baudRateRequest(int bauds) {
 		return MessageBuilder.baudRateRequest(bauds).toIntArray();
 	}
+	
+	private int[] parityRequest(int parity) {
+		return MessageBuilder.parityRequest(parity).toIntArray();
+	}
+	
+	private int[] stopbitsRequest(int stopbits) {
+		return MessageBuilder.stopBitsRequest(stopbits).toIntArray();
+	}
+	
+	private int[] flowControlRequest(int flowControl) {
+		return MessageBuilder.flowControlRequest(flowControl).toIntArray();
+	}
 
 	private final class TestableRfc2217Port extends Rfc2217SerialPort {
 
@@ -356,6 +454,7 @@ public class TestRfc2217SerialPort {
 		Callable<SerialConnection> task = new Callable<SerialConnection>() {
 
 			public SerialConnection call() throws Exception {
+	
 				try {
 					return port.open(portSettings);
 				}

@@ -1,6 +1,7 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.xidobi.DataBits;
 import org.xidobi.StopBits;
 
 /**
@@ -117,29 +119,30 @@ public class TestStopBitsControlCmd {
 		verify(output).writeByte(3);
 	}
 
+	
 	/**
-	 * When the parity is invalid, an {@link IOException} should be thrown.
-	 */
-	@Test
-	@SuppressWarnings("unused")
-	public void read_invalidStopBits() throws IOException {
-		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected stopBits value: 6");
-
-		new StopBitsControlCmd(buffer(6).toDataInput());
-	}
-
-	/**
-	 * When the parity is invalid, an {@link IOException} should be thrown.
+	 * 
 	 */
 	@Test
 	public void write_invalidStopBits() throws IOException {
-		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected stopBits value: 6");
-
-		cmd = new StopBitsControlCmd(buffer(6).toDataInput());
+		cmd = new StopBitsControlCmd(buffer(10).toDataInput());
 		cmd.write(output);
+		verify(output).writeByte(10); 
 	}
+
+	/**
+	 * When the stopbits {@link #read(DataInput)} decoded value, has no corresponding
+	 * {@link StopBits} value, should be return a <code>null</code> value.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void stopBits_null() throws Exception {
+		cmd = new StopBitsControlCmd(buffer(10).toDataInput());
+		cmd.write(output);
+		assertThat(cmd.getStopBits(), is(nullValue()));
+	}
+	
 	/**
 	 * Checks whether the commands equal.
 	 * @throws Exception
@@ -166,6 +169,6 @@ public class TestStopBitsControlCmd {
 	@Test
 	public void commandToString() throws Exception {
 		StopBitsControlCmd cmd =   new StopBitsControlCmd(STOPBITS_1_5);
-		assertThat(cmd.toString(), is("StopBitsControlCmd [stopBits=STOPBITS_1_5]"));
+		assertThat(cmd.toString(), is("StopBitsControlCmd [stopBits=2]"));
 	}
 }
