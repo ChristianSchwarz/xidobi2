@@ -14,21 +14,18 @@ import org.xidobi.spi.BasicSerialConnection;
 
 /**
  * @author Christian Schwarz
- *
  */
 public class SerialConnectionImpl extends BasicSerialConnection {
 
-
-	
 	/**
-	 * @param parent the serial port, must not be <code>null</code>
+	 * @param parent
+	 *            the serial port, must not be <code>null</code>
 	 * @param reader
 	 * @param writer
 	 */
-	public SerialConnectionImpl(	@Nonnull Rfc2217SerialPort parent,
-									@Nonnull TelnetClient telnetClient) {
-		super(parent, new ReaderImpl(telnetClient.getInputStream()), new WriterImpl());
+	public SerialConnectionImpl(@Nonnull Rfc2217SerialPort parent,
+								@Nonnull TelnetClient telnetClient) {
+		super(parent, new ReaderImpl(telnetClient.getInputStream()), new WriterImpl(telnetClient.getOutputStream()));
 	}
-	
-	
+
 }
