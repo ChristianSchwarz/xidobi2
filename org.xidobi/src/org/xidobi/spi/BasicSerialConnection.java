@@ -15,17 +15,17 @@
  */
 package org.xidobi.spi;
 
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
+
+import static org.xidobi.spi.IoExceptions.portClosedException;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 /**
  * A basic implementation of the {@link SerialConnection} to provide synchonisation and proper
@@ -204,42 +204,8 @@ public class BasicSerialConnection implements SerialConnection {
 	 */
 	private void ensurePortIsOpen() throws IOException {
 		if (isClosed)
-			throw portClosedException();
+			throw portClosedException(port.getPortName());
 	}
 
-	/**
-	 * Returns a new {@link IOException} indicating that the port is closed. Subclasses may use this
-	 * to throw a consitent {@link IOException}, if a closed port was detected.
-	 * <p>
-	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw
-	 * an {@link IOException} if the port is closed. Overriding it may have consequences to the
-	 * caller.
-	 * 
-	 * @return a new {@link IOException}, never <code>null</code>
-	 */
-	@Nonnull
-	protected IOException portClosedException() {
-		return portClosedException(null);
-	}
-
-	/**
-	 * Returns a new {@link IOException} indicating that the port is closed. Subclasses may use this
-	 * to throw a consitent {@link IOException}, if a closed port was detected.
-	 * <p>
-	 * <b>NOTE:</b> This method is also used by {@link #read()} and {@link #write(byte[])} to throw
-	 * an {@link IOException} if the port is closed. Overriding it may have consequences to the
-	 * caller.
-	 * 
-	 * @param message
-	 *            error description, may be <code>null</code>
-	 * @return a new {@link IOException}, never <code>null</code>
-	 */
-	@Nonnull
-	protected IOException portClosedException(@Nullable String message) {
-		if (message == null)
-			message = "";
-		else
-			message = " " + message;
-		return new IOException("Port " + port.getPortName() + " was closed!" + message);
-	}
+	
 }

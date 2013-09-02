@@ -15,6 +15,20 @@
  */
 package org.xidobi;
 
+import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+
+import org.xidobi.spi.IoExceptions;
+import org.xidobi.spi.IoOperation;
+import org.xidobi.spi.NativeCodeException;
+import org.xidobi.structs.DWORD;
+import org.xidobi.structs.OVERLAPPED;
+
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_BAD_COMMAND;
 import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
@@ -25,19 +39,6 @@ import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
-
-import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
-import org.xidobi.spi.IoOperation;
-import org.xidobi.spi.NativeCodeException;
-import org.xidobi.structs.DWORD;
-import org.xidobi.structs.OVERLAPPED;
 
 /**
  * Abstract class for I/O operations.
@@ -247,11 +248,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	 */
 	@Nonnull
 	protected final IOException portClosedException(@Nullable String message) {
-		if (message == null)
-			message = "";
-		else
-			message = " " + message;
-		return new IOException("Port " + port.getPortName() + " was closed!" + message);
+		return IoExceptions.portClosedException(port.getPortName() , message);
 	}
 
 	/** {@inheritDoc} */
