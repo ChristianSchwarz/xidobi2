@@ -115,8 +115,8 @@ public class Rfc2217SerialPort implements SerialPort {
 			awaitNegotiation(telnetClient);
 
 			sendPortSettings(telnetClient, settings);
-			
-			description =requestSignature();
+
+			description = requestSignature();
 
 			return new SerialConnectionImpl(this, telnetClient);
 		}
@@ -199,11 +199,11 @@ public class Rfc2217SerialPort implements SerialPort {
 	 *             if the access server refused to set one of the properties.
 	 */
 	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) throws IOException {
-		sendAndValidate(new BaudrateControlCmd(settings.getBauds()), 	"The baud rate setting was refused (" + settings.getBauds() + ")!");
+		sendAndValidate(new BaudrateControlCmd(settings.getBauds()), "The baud rate setting was refused (" + settings.getBauds() + ")!");
 		sendAndValidate(new DataBitsControlCmd(settings.getDataBits()), "The data bits setting was refused (" + settings.getDataBits() + ")!");
-		sendAndValidate(new ParityControlCmd(settings.getParity()), 	"The parity setting was refused (" + settings.getParity() + ")!");
+		sendAndValidate(new ParityControlCmd(settings.getParity()), "The parity setting was refused (" + settings.getParity() + ")!");
 		sendAndValidate(new StopBitsControlCmd(settings.getStopBits()), "The stop bits setting was refused (" + settings.getStopBits() + ")!");
-		sendAndValidate(new FlowControlCmd(settings.getFlowControl()), 	"The flowControl setting was refused (" + settings.getFlowControl() + ")!");
+		sendAndValidate(new FlowControlCmd(settings.getFlowControl()), "The flowControl setting was refused (" + settings.getFlowControl() + ")!");
 	}
 
 	/**
@@ -287,8 +287,7 @@ public class Rfc2217SerialPort implements SerialPort {
 
 	@Override
 	public String toString() {
-		return "Rfc2217SerialPort [accessServerAddress=" + accessServer.getHostString()+":"+accessServer.getPort() + ", description=" + getDescription() + "]";
+		return "Rfc2217SerialPort [accessServerAddress=" + accessServer.getHostString() + ":" + accessServer.getPort() + ", description=" + getDescription() + "]";
 	}
 
-	
 }
