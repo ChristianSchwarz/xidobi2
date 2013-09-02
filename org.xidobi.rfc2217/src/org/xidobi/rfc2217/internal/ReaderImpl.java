@@ -7,19 +7,43 @@
 package org.xidobi.rfc2217.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import org.xidobi.spi.Reader;
+import org.xidobi.utils.Throwables;
+
+import static java.lang.System.arraycopy;
 
 /**
  * @author Christian Schwarz
- *
+ * 
  */
 final class ReaderImpl implements Reader {
-	public void dispose() {}
+	private InputStream inputStream;
+
+	/**
+	 * @param inputStream
+	 */
+	public ReaderImpl(InputStream inputStream) {
+		this.inputStream = inputStream;}
+
+	public byte[] read() throws IOException {
+		
+			
+		byte[] buffer = new byte[4096];
+		
+		final int readBytes = inputStream.read(buffer);
+		if (readBytes==buffer.length)
+			return buffer;
+		
+		byte[] result = new byte[readBytes];
+		arraycopy(buffer, 0, result, 0, readBytes);
+		
+		return result;
+	}
 
 	public void close() throws IOException {}
 
-	public byte[] read() throws IOException {
-		return null;
-	}
+	public void dispose() {}
 }
