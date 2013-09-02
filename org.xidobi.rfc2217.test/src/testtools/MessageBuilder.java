@@ -21,6 +21,8 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
 
 /**
  * Provides static methods to build com port control messages in binary form.
@@ -119,6 +121,15 @@ public class MessageBuilder {
 		.putByte(flowControl);
 	}
 
+	public static ByteBuffer signatureResponse(String signatue){
+		return buildComPortCommand(SIGNATURE_RESP)//
+			.putBytes(signatue);
+	}
+	
+	public static ByteBuffer signatureRequest(String signatue){
+		return buildComPortCommand(SIGNATURE_REQ)//
+			.putBytes(signatue);
+	}
 
 	/**
 	 * Creates a new byte-buffer, containing a pre build com port option header and the given

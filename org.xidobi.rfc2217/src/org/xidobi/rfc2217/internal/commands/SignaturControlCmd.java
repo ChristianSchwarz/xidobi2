@@ -22,7 +22,7 @@ public class SignaturControlCmd extends AbstractControlCmd {
 
 	private String signatur;
 
-	SignaturControlCmd(String signatur) throws IOException {
+	public SignaturControlCmd(String signatur) throws IOException {
 		super(SIGNATURE_REQ);
 		if (signatur == null)
 			throw new IllegalArgumentException("The parameter >signatur< must not be null");
@@ -37,7 +37,7 @@ public class SignaturControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 *             if the message is malformed or the underlying media can't be read
 	 */
-	public SignaturControlCmd(DataInput input) throws IOException {
+	SignaturControlCmd(DataInput input) throws IOException {
 		super(SIGNATURE_RESP, input);
 	}
 

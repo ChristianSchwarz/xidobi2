@@ -95,42 +95,12 @@ public class IntegrationTest {
 
 	/**
 	 * 
-	 */
-	@Test
-	
-	public void testName() throws Exception {
-		TelnetClient telnetClient = new TelnetClient();
-		telnetClient.setReaderThread(true);
-		telnetClient.addOptionHandler(new BinaryOptionHandler());
-		telnetClient.addOptionHandler(new ComPortOptionHandler(processor,errorHandler));
-		telnetClient.registerNotifHandler(new NegotiationListener());
-		telnetClient.registerInputListener(new TelnetInputListener() {
-
-			public void telnetInputAvailable() {
-				System.out.println("telnetInputAvailable");
-			}
-		});
-
-		System.out.println("connect");
-		telnetClient.connect("192.168.98.31");
-		sleep(1000);
-
-		//9600baud
-		int[] baudRateCmd = {COM_PORT_OPTION,SET_BAUDRATE_REQ,0,0,0x25,0x80};
-		telnetClient.sendSubnegotiation(baudRateCmd);
-		sleep(1000);
-
-		telnetClient.disconnect();
-	}
-
-	/**
-	 * 
 */
 	@Test
-	@Ignore
 	public void testNam2e() throws Exception {
 		port = new Rfc2217SerialPort(createUnresolved("192.168.98.31", 23));
 		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
+		System.out.println(connection.getPort());
 	}
 
 }
