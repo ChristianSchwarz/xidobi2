@@ -6,13 +6,13 @@
  */
 package org.xidobi.rfc2217.internal;
 
+import static java.lang.System.arraycopy;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.xidobi.spi.Reader;
-
-import static java.lang.System.arraycopy;
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 /**
  * Implementation for read-operations.
@@ -44,13 +44,18 @@ final class ReaderImpl implements Reader {
 		if (readBytes == buffer.length)
 			return buffer;
 
+		if (readBytes == -1)
+			throw new IOException("End of stream was detected while reading from TCP.");
+
 		byte[] result = new byte[readBytes];
 		arraycopy(buffer, 0, result, 0, readBytes);
 
 		return result;
 	}
 
-	public void performActionBeforeConnectionClosed() throws IOException {}
+	public void performActionBeforeConnectionClosed() throws IOException {
+	}
 
-	public void performActionAfterConnectionClosed() {}
+	public void performActionAfterConnectionClosed() {
+	}
 }

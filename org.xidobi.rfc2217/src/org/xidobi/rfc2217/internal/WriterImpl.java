@@ -14,26 +14,38 @@ import java.io.OutputStream;
 import org.xidobi.spi.Writer;
 
 /**
+ * Writer-implementation for a telnet-connection.
+ * 
  * @author Christian Schwarz
- *
+ * @author Peter-René Jeschke
  */
+@SuppressWarnings("restriction")
 final class WriterImpl implements Writer {
+
+	/** The outputstream that belongs to the connection. */
 	private OutputStream outputStream;
 
 	/**
+	 * Creates a new Writer.
+	 * 
 	 * @param outputStream
+	 *            the outputstream that belongs to the connection, must not be <code>null</code>
 	 */
 	public WriterImpl(OutputStream outputStream) {
 		this.outputStream = checkArgumentNotNull(outputStream, "outputStream");
 
 	}
-	
+
 	public void write(byte[] data) throws IOException {
+		checkArgumentNotNull(data, "data");
 		outputStream.write(data);
+		outputStream.flush();
 	}
-	public void performActionBeforeConnectionClosed() throws IOException {}
 
-	public void performActionAfterConnectionClosed() {}
+	public void performActionBeforeConnectionClosed() throws IOException {
+	}
 
-	
+	public void performActionAfterConnectionClosed() {
+	}
+
 }
