@@ -15,9 +15,9 @@ import org.xidobi.spi.Writer;
  *
  */
 final class WriterImpl implements Writer {
-	public void close() throws IOException {}
+	public void performActionBeforeConnectionClosed() throws IOException {}
 
-	public void dispose() {}
+	public void performActionAfterConnectionClosed() {}
 
 	public void write(byte[] data) throws IOException {}
 }

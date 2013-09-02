@@ -655,7 +655,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void close() throws Exception {
-		writer.close();
+		writer.performActionBeforeConnectionClosed();
 
 		verify(os).CloseHandle(EVENT_HANDLE);
 	}
@@ -667,7 +667,7 @@ public class TestWriterImpl {
 	 */
 	@Test
 	public void dispose() {
-		writer.dispose();
+		writer.performActionAfterConnectionClosed();
 
 		verify(os).free(PTR_BYTES_TRANSFERRED);
 		verify(os).free(PTR_OVERLAPPED);

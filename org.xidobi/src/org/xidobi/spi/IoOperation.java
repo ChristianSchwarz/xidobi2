@@ -15,34 +15,40 @@
  */
 package org.xidobi.spi;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 /**
  * Interface for I/O operations, which are used by {@link BasicSerialConnection}.
  * <p>
- * For read and write operations please use the corresponding interfaces {@link Reader} and
+ * NOTE: This interface is not intendet to be implemented or extended by clients. It is primary used
+ * aggreagte common methods used by both sub-interfaces {@link Reader} and {@link Writer}.
  * {@link Writer}.
  * 
+ * @author Christian Schwarz
  * @author Tobias Breﬂler
  * 
  * @see BasicSerialConnection
  * @see Reader
  * @see Writer
+ * 
+ * @noreference This interface is not intended to be referenced by clients.
  */
-public interface IoOperation extends Closeable {
+public interface IoOperation {
 
 	/**
-	 * The implementation must close native handles, that are made by this I/O operation. In order
-	 * to dispose resources, please see {@link #dispose()}.
+	 * This method is the first called in the "close"-sequence of
+	 * {@link BasicSerialConnection#close()}. It is guaranteed that it will be called only once when
+	 * {@link BasicSerialConnection#close()} is invoked.
 	 * <p>
-	 * This method will be called by {@link BasicSerialConnection#close()} if the port is not
-	 * closed.
+	 * 
+	 * The implementation normally closes native handles, that where aquired by this I/O operation.
 	 * <p>
 	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
 	 * port is currently open!
+	 * @throws IOException if an I/O-Operation failed
+	 * 
 	 */
-	void close() throws IOException;
+	void performActionBeforeConnectionClosed() throws IOException;
 
 	/**
 	 * The implementation must dispose all resources that was allocated by this I/O operation.
@@ -53,6 +59,6 @@ public interface IoOperation extends Closeable {
 	 * <b>IMPORTANT:</b> Dont call this method yourself! Otherwise there is no guaratee that the
 	 * port is currently open!
 	 */
-	void dispose();
+	void performActionAfterConnectionClosed();
 
 }

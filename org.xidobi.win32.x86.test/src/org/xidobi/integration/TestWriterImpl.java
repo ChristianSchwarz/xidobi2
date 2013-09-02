@@ -86,7 +86,7 @@ public class TestWriterImpl extends AbstractIntegrationTest {
 	@After
 	@SuppressWarnings("javadoc")
 	public void tearDown() throws Exception {
-		writer.close();
+		writer.performActionBeforeConnectionClosed();
 		OS.CloseHandle(handle);
 	}
 

@@ -154,7 +154,7 @@ public class TestIoOperationImpl {
 		when(os.CloseHandle(eventHandle)).thenReturn(true);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
-		operation.close();
+		operation.performActionBeforeConnectionClosed();
 
 		verify(os).CloseHandle(eventHandle);
 	}
@@ -175,7 +175,7 @@ public class TestIoOperationImpl {
 		exception.expect(NativeCodeException.class);
 		exception.expectMessage("CloseHandle failed unexpected!");
 
-		operation.close();
+		operation.performActionBeforeConnectionClosed();
 	}
 
 	/**
@@ -188,7 +188,7 @@ public class TestIoOperationImpl {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
 
-		operation.dispose();
+		operation.performActionAfterConnectionClosed();
 
 		verify(os).free(ptrOverlapped);
 		verify(os).free(ptrBytesTransferred);
@@ -204,12 +204,12 @@ public class TestIoOperationImpl {
 	public void dispose_2x() throws Exception {
 		when(os.CreateEventA(0, true, false, null)).thenReturn(eventHandle);
 		operation = new _IoOperation(port, os, PORT_HANDLE);
-		operation.dispose();
+		operation.performActionAfterConnectionClosed();
 
 		exception.expect(IllegalStateException.class);
 
 		try {
-			operation.dispose();
+			operation.performActionAfterConnectionClosed();
 		}
 		finally {
 			verify(os, times(1)).free(ptrOverlapped);

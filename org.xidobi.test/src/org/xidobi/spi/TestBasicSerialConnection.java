@@ -111,11 +111,11 @@ public class TestBasicSerialConnection {
 
 		port.close();
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -129,11 +129,11 @@ public class TestBasicSerialConnection {
 
 		port.close();
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -145,14 +145,14 @@ public class TestBasicSerialConnection {
 	public void close_closeOfReaderThrowsIOException() throws Exception {
 		exception.expect(is(IO_EXCEPTION));
 
-		doThrow(IO_EXCEPTION).when(reader).close();
+		doThrow(IO_EXCEPTION).when(reader).performActionBeforeConnectionClosed();
 		port.close();
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -164,14 +164,14 @@ public class TestBasicSerialConnection {
 	public void close_disposeOfReaderThrowsNativeCodeException() throws Exception {
 		exception.expect(is(NATIVE_CODE_EXCEPTION));
 
-		doThrow(NATIVE_CODE_EXCEPTION).when(reader).dispose();
+		doThrow(NATIVE_CODE_EXCEPTION).when(reader).performActionAfterConnectionClosed();
 		port.close();
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -183,14 +183,14 @@ public class TestBasicSerialConnection {
 	public void close_closeOfWriterThrowsIOException() throws Exception {
 		exception.expect(is(IO_EXCEPTION));
 
-		doThrow(IO_EXCEPTION).when(writer).close();
+		doThrow(IO_EXCEPTION).when(writer).performActionBeforeConnectionClosed();
 		port.close();
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -202,14 +202,14 @@ public class TestBasicSerialConnection {
 	public void close_disposeOfWriterThrowsNativeCodeException() throws Exception {
 		exception.expect(is(NATIVE_CODE_EXCEPTION));
 
-		doThrow(NATIVE_CODE_EXCEPTION).when(writer).dispose();
+		doThrow(NATIVE_CODE_EXCEPTION).when(writer).performActionAfterConnectionClosed();
 		port.close();
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -224,11 +224,11 @@ public class TestBasicSerialConnection {
 		doThrow(NATIVE_CODE_EXCEPTION).when(portInternal).closeInternal();
 		port.close();
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -300,11 +300,11 @@ public class TestBasicSerialConnection {
 		}
 		catch (IOException ignore) {}
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -321,11 +321,11 @@ public class TestBasicSerialConnection {
 		}
 		catch (NativeCodeException ignore) {}
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -369,11 +369,11 @@ public class TestBasicSerialConnection {
 		}
 		catch (IOException ignore) {}
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 
@@ -390,11 +390,11 @@ public class TestBasicSerialConnection {
 		}
 		catch (NativeCodeException ignore) {}
 
-		verify(reader).close();
-		verify(writer).close();
+		verify(reader).performActionBeforeConnectionClosed();
+		verify(writer).performActionBeforeConnectionClosed();
 		verify(portInternal).closeInternal();
-		verify(reader).dispose();
-		verify(writer).dispose();
+		verify(reader).performActionAfterConnectionClosed();
+		verify(writer).performActionAfterConnectionClosed();
 		assertThat(port.isClosed(), is(true));
 	}
 

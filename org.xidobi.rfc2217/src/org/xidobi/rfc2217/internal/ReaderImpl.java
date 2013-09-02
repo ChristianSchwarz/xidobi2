@@ -43,7 +43,7 @@ final class ReaderImpl implements Reader {
 		return result;
 	}
 
-	public void close() throws IOException {}
+	public void performActionBeforeConnectionClosed() throws IOException {}
 
-	public void dispose() {}
+	public void performActionAfterConnectionClosed() {}
 }

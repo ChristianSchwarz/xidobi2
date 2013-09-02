@@ -144,7 +144,7 @@ public class BasicSerialConnection implements SerialConnection {
 			//@formatter:off
 			try {
 				// close the reader and writer
-				closeReaderAndWriter();
+				onPreCloseReaderAndWriter();
 			} finally { try {
 				// close system dependent resources
 				closeInternal();
@@ -161,22 +161,22 @@ public class BasicSerialConnection implements SerialConnection {
 	}
 
 	/** Closes the read and write operations. */
-	private void closeReaderAndWriter() throws IOException {
+	private void onPreCloseReaderAndWriter() throws IOException {
 		try {
-			reader.close();
+			reader.performActionBeforeConnectionClosed();
 		}
 		finally {
-			writer.close();
+			writer.performActionBeforeConnectionClosed();
 		}
 	}
 
 	/** Disposes the resources of the read and write operations. */
 	private void disposeReaderAndWriter() {
 		try {
-			reader.dispose();
+			reader.performActionAfterConnectionClosed();
 		}
 		finally {
-			writer.dispose();
+			writer.performActionAfterConnectionClosed();
 		}
 	}
 

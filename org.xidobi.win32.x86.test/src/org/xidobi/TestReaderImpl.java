@@ -967,7 +967,7 @@ public class TestReaderImpl {
 	@Test
 	public void close() throws Exception {
 
-		reader.close();
+		reader.performActionBeforeConnectionClosed();
 
 		verify(os).CloseHandle(DUMMY_EVENT_HANDLE);
 	}
@@ -980,7 +980,7 @@ public class TestReaderImpl {
 	@Test
 	public void dispose() throws Exception {
 
-		reader.dispose();
+		reader.performActionAfterConnectionClosed();
 
 		verify(os).free(PTR_BYTES_TRANSFERRED);
 		verify(os).free(PTR_OVERLAPPED);

@@ -197,7 +197,7 @@ public abstract class IoOperationImpl implements IoOperation {
 
 	/** {@inheritDoc} */
 	@OverridingMethodsMustInvokeSuper
-	public void close() throws IOException {
+	public void performActionBeforeConnectionClosed() throws IOException {
 		checkIfClosedOrDisposed();
 
 		// Close handle for overlapped event
@@ -252,7 +252,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	}
 
 	/** {@inheritDoc} */
-	public final void dispose() {
+	public final void performActionAfterConnectionClosed() {
 		//@formatter:off
 		disposeLock.lock();
 		try { 

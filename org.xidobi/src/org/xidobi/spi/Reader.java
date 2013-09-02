@@ -20,11 +20,13 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 /**
- * This interface is implemented by service provider to read from a serial port.
+ * This interface is implemented by service provider to read from a serial port. The Lifecyle of a
+ * {@link Reader} is controlled by the {@link BasicSerialConnection} it is attached to.
  * 
  * @author Christian Schwarz
  * 
  * @see BasicSerialConnection
+ * @noreference This interface is not intended to be referenced by clients.
  */
 public interface Reader extends IoOperation {
 
