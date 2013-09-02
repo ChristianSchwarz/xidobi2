@@ -15,11 +15,11 @@
  */
 package org.xidobi.structs;
 
+import org.xidobi.WinApi;
+
 import static org.xidobi.WinApi.NULL;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-
-import org.xidobi.WinApi;
 
 /**
  * A pointer to an allocated memory on the heap.

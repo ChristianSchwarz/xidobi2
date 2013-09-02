@@ -15,6 +15,15 @@
  */
 package org.xidobi;
 
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.xidobi.spi.NativeCodeException;
+import org.xidobi.structs.DCB;
+import org.xidobi.utils.Throwables;
+
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
 import static org.xidobi.WinApi.EV_RXCHAR;
@@ -28,15 +37,6 @@ import static org.xidobi.WinApi.PURGE_TXCLEAR;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newIOException;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
-
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.xidobi.spi.NativeCodeException;
-import org.xidobi.structs.DCB;
-import org.xidobi.utils.Throwables;
 
 /**
  * {@link SerialPort} to open a serial port.

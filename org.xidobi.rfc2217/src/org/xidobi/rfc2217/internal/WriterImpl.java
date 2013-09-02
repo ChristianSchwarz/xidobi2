@@ -6,12 +6,12 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.xidobi.spi.Writer;
+
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 /**
  * @author Christian Schwarz

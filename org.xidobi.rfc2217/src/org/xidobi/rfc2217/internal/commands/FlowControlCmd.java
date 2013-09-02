@@ -6,6 +6,15 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import org.xidobi.FlowControl;
+
 import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
@@ -15,15 +24,6 @@ import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
 import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_RESP;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
-import org.xidobi.FlowControl;
 
 //@formatter:off
 /**

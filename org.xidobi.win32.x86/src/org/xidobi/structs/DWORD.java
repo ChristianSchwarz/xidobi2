@@ -15,9 +15,9 @@
  */
 package org.xidobi.structs;
 
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-
 import org.xidobi.WinApi;
+
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 /**
  * Pointer to a DWORD in C.

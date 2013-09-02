@@ -15,19 +15,19 @@
  */
 package org.xidobi;
 
-import static org.xidobi.WinApi.ERROR_IO_PENDING;
-import static org.xidobi.WinApi.WAIT_ABANDONED;
-import static org.xidobi.WinApi.WAIT_FAILED;
-import static org.xidobi.WinApi.WAIT_OBJECT_0;
-import static org.xidobi.WinApi.WAIT_TIMEOUT;
-import static org.xidobi.utils.Throwables.newNativeCodeException;
-
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Writer;
+
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
+import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 /**
  * Implementation for write operations.

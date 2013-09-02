@@ -6,14 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.Parity.PARITY_EVEN;
-import static org.xidobi.Parity.PARITY_MARK;
-import static org.xidobi.Parity.PARITY_NONE;
-import static org.xidobi.Parity.PARITY_ODD;
-import static org.xidobi.Parity.PARITY_SPACE;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -22,6 +14,14 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.DataBits;
 import org.xidobi.Parity;
+
+import static org.xidobi.Parity.PARITY_EVEN;
+import static org.xidobi.Parity.PARITY_MARK;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.Parity.PARITY_ODD;
+import static org.xidobi.Parity.PARITY_SPACE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
 
 //@formatter:off
 /**

@@ -15,14 +15,14 @@
  */
 package org.xidobi.integration;
 
-import static org.xidobi.SerialPortSettings.from9600bauds8N1;
-
 import org.junit.Test;
 import org.xidobi.OS;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortFinderImpl;
 import org.xidobi.WinApi;
+
+import static org.xidobi.SerialPortSettings.from9600bauds8N1;
 
 /**
  * Integration test for class {@link OS}.

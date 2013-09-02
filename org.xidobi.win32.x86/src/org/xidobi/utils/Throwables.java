@@ -15,18 +15,18 @@
  */
 package org.xidobi.utils;
 
-import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
-import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
-import static org.xidobi.WinApi.LANG_NEUTRAL;
-import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
 import org.xidobi.WinApi;
 import org.xidobi.spi.NativeCodeException;
+
+import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
+import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
+import static org.xidobi.WinApi.LANG_NEUTRAL;
+import static org.xidobi.WinApi.SUBLANG_NEUTRAL;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 /**
  * Some utilities which helps to create exceptions.

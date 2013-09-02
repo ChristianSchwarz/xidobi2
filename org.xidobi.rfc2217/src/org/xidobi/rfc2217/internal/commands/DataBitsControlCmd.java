@@ -6,14 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.DataBits.DATABITS_5;
-import static org.xidobi.DataBits.DATABITS_6;
-import static org.xidobi.DataBits.DATABITS_7;
-import static org.xidobi.DataBits.DATABITS_8;
-import static org.xidobi.DataBits.DATABITS_9;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -22,6 +14,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.xidobi.DataBits;
+
+import static org.xidobi.DataBits.DATABITS_5;
+import static org.xidobi.DataBits.DATABITS_6;
+import static org.xidobi.DataBits.DATABITS_7;
+import static org.xidobi.DataBits.DATABITS_8;
+import static org.xidobi.DataBits.DATABITS_9;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
 
 //@formatter:off
 /**

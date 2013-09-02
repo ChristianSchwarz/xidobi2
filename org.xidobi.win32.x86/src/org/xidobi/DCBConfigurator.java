@@ -15,6 +15,10 @@
  */
 package org.xidobi;
 
+import javax.annotation.Nonnull;
+
+import org.xidobi.structs.DCB;
+
 import static org.xidobi.StopBits.STOPBITS_1_5;
 import static org.xidobi.StopBits.STOPBITS_2;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
@@ -31,10 +35,6 @@ import static org.xidobi.structs.DCB.RTS_CONTROL_ENABLE;
 import static org.xidobi.structs.DCB.RTS_CONTROL_HANDSHAKE;
 import static org.xidobi.structs.DCB.SPACEPARITY;
 import static org.xidobi.structs.DCB.TWOSTOPBITS;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.structs.DCB;
 
 /**
  * Configures the native {@link DCB} with the values from the {@link SerialPortSettings}.

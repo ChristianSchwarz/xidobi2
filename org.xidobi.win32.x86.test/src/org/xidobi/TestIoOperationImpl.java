@@ -15,12 +15,6 @@
  */
 package org.xidobi;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +23,13 @@ import org.mockito.Mock;
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.OVERLAPPED;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
 
 /**
  * Test for {@link IoOperationImpl}

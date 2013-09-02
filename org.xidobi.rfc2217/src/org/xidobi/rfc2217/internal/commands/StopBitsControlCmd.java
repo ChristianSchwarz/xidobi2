@@ -1,16 +1,16 @@
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.StopBits.STOPBITS_1;
-import static org.xidobi.StopBits.STOPBITS_1_5;
-import static org.xidobi.StopBits.STOPBITS_2;
-import static org.xidobi.rfc2217.internal.RFC2217.*;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.xidobi.DataBits;
 import org.xidobi.StopBits;
+
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
 
 //@formatter:off
 /**

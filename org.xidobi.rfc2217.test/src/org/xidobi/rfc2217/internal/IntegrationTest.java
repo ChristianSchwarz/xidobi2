@@ -9,11 +9,8 @@ package org.xidobi.rfc2217.internal;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.commons.net.telnet.TelnetInputListener;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -24,13 +21,9 @@ import org.xidobi.rfc2217.Rfc2217SerialPort;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.DecoderErrorHandler;
 
-import static java.lang.Thread.sleep;
 import static java.net.InetSocketAddress.createUnresolved;
 
 import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
 
 /**
  * @author Christian Schwarz

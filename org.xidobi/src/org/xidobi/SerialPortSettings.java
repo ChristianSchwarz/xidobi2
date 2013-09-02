@@ -15,16 +15,16 @@
  */
 package org.xidobi;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
 import static org.xidobi.Parity.PARITY_NONE;
 import static org.xidobi.StopBits.STOPBITS_1;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
 /**
  * Specifies the control settings for a serial port.

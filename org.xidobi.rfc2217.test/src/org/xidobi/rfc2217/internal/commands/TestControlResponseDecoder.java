@@ -6,16 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.apache.commons.net.telnet.TelnetOption.BINARY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static testtools.MessageBuilder.baudRateResponse;
-import static testtools.MessageBuilder.buffer;
-import static testtools.MessageBuilder.dataBitsResponse;
-import static testtools.MessageBuilder.parityResponse;
-
 import java.io.IOException;
 
 import org.apache.commons.net.telnet.TelnetOption;
@@ -24,6 +14,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
+
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+
+import static testtools.MessageBuilder.baudRateResponse;
+import static testtools.MessageBuilder.buffer;
+import static testtools.MessageBuilder.dataBitsResponse;
+import static testtools.MessageBuilder.parityResponse;
 
 /**
  * Tests class {@link ControlResponseDecoder}

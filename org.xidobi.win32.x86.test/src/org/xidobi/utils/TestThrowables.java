@@ -15,17 +15,6 @@
  */
 package org.xidobi.utils;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
-import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
-
 import java.io.IOException;
 
 import org.hamcrest.CustomTypeSafeMatcher;
@@ -37,6 +26,21 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.xidobi.WinApi;
 import org.xidobi.spi.NativeCodeException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.WinApi.FORMAT_MESSAGE_FROM_SYSTEM;
+import static org.xidobi.WinApi.FORMAT_MESSAGE_IGNORE_INSERTS;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests class {@link Throwables}.

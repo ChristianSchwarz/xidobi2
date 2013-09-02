@@ -6,7 +6,6 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import java.net.InetSocketAddress;
 
 
 

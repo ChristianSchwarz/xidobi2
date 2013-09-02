@@ -39,7 +39,7 @@ final class ReaderImpl implements Reader {
 	public byte[] read() throws IOException {
 
 		byte[] buffer = new byte[4096];
-
+		
 		final int readBytes = inputStream.read(buffer);
 		if (readBytes == buffer.length)
 			return buffer;

@@ -6,13 +6,14 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.rfc2217.internal.RFC2217.*;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import javax.annotation.Nonnegative;
+
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
 
 /**
  * <code>IAC SB COM-PORT-OPTION SET-BAUD <value(4)> IAC SE</code>

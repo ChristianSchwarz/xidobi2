@@ -15,28 +15,6 @@
  */
 package org.xidobi;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
-import static org.xidobi.WinApi.ERROR_BAD_COMMAND;
-import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
-import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
-import static org.xidobi.WinApi.ERROR_IO_PENDING;
-import static org.xidobi.WinApi.ERROR_NOT_READY;
-import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
-import static org.xidobi.WinApi.EV_RXCHAR;
-import static org.xidobi.WinApi.WAIT_ABANDONED;
-import static org.xidobi.WinApi.WAIT_FAILED;
-import static org.xidobi.WinApi.WAIT_OBJECT_0;
-import static org.xidobi.WinApi.WAIT_TIMEOUT;
-
 import java.io.IOException;
 
 import org.junit.Before;
@@ -52,6 +30,32 @@ import org.xidobi.structs.DWORD;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
+import static org.xidobi.WinApi.ERROR_BAD_COMMAND;
+import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
+import static org.xidobi.WinApi.ERROR_INVALID_HANDLE;
+import static org.xidobi.WinApi.ERROR_IO_PENDING;
+import static org.xidobi.WinApi.ERROR_NOT_READY;
+import static org.xidobi.WinApi.ERROR_OPERATION_ABORTED;
+import static org.xidobi.WinApi.EV_RXCHAR;
+import static org.xidobi.WinApi.WAIT_ABANDONED;
+import static org.xidobi.WinApi.WAIT_FAILED;
+import static org.xidobi.WinApi.WAIT_OBJECT_0;
+import static org.xidobi.WinApi.WAIT_TIMEOUT;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link ReaderImpl}.

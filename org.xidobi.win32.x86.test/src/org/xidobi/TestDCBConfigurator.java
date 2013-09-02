@@ -15,10 +15,16 @@
  */
 package org.xidobi;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
+import org.xidobi.structs.DCB;
+
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.xidobi.DataBits.DATABITS_5;
 import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.DataBits.DATABITS_7;
@@ -47,12 +53,9 @@ import static org.xidobi.structs.DCB.RTS_CONTROL_ENABLE;
 import static org.xidobi.structs.DCB.RTS_CONTROL_HANDSHAKE;
 import static org.xidobi.structs.DCB.SPACEPARITY;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.xidobi.structs.DCB;
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link DCBConfigurator}.

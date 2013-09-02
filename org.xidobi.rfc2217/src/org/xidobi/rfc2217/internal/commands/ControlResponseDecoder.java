@@ -9,9 +9,6 @@ package org.xidobi.rfc2217.internal.commands;
 import java.io.DataInput;
 import java.io.IOException;
 
-import org.xidobi.rfc2217.Rfc2217SerialPort;
-import org.xidobi.rfc2217.internal.RFC2217;
-
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_RESP;

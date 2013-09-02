@@ -15,13 +15,27 @@
  */
 package org.xidobi;
 
+import java.io.IOException;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
+import org.xidobi.spi.NativeCodeException;
+import org.xidobi.structs.DWORD;
+import org.xidobi.structs.INT;
+import org.xidobi.structs.OVERLAPPED;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_BAD_COMMAND;
 import static org.xidobi.WinApi.ERROR_GEN_FAILURE;
@@ -34,18 +48,6 @@ import static org.xidobi.WinApi.WAIT_ABANDONED;
 import static org.xidobi.WinApi.WAIT_FAILED;
 import static org.xidobi.WinApi.WAIT_OBJECT_0;
 import static org.xidobi.WinApi.WAIT_TIMEOUT;
-
-import java.io.IOException;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.xidobi.spi.NativeCodeException;
-import org.xidobi.structs.DWORD;
-import org.xidobi.structs.INT;
-import org.xidobi.structs.OVERLAPPED;
 
 /**
  * Tests the class {@link WriterImpl}

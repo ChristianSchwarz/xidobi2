@@ -15,10 +15,6 @@
  */
 package org.xidobi.integration;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.xidobi.OS;
@@ -26,6 +22,11 @@ import org.xidobi.WinApi;
 import org.xidobi.structs.DWORD;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.Pointer;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Integration test for classes {@link Pointer}, {@link NativeByteArray} and other Java
