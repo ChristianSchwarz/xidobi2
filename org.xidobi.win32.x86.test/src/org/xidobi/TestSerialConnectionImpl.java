@@ -15,10 +15,20 @@
  */
 package org.xidobi;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
+import org.xidobi.spi.NativeCodeException;
+import org.xidobi.structs.DWORD;
+import org.xidobi.structs.OVERLAPPED;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
 import static org.xidobi.WinApi.EV_RXCHAR;
@@ -30,15 +40,6 @@ import static org.xidobi.WinApi.PURGE_RXABORT;
 import static org.xidobi.WinApi.PURGE_RXCLEAR;
 import static org.xidobi.WinApi.PURGE_TXABORT;
 import static org.xidobi.WinApi.PURGE_TXCLEAR;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.xidobi.spi.NativeCodeException;
-import org.xidobi.structs.DWORD;
-import org.xidobi.structs.OVERLAPPED;
 
 /**
  * Tests the class {@link SerialConnectionImpl}.

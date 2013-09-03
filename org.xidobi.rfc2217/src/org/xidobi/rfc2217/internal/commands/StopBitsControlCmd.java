@@ -1,16 +1,18 @@
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.StopBits.STOPBITS_1;
-import static org.xidobi.StopBits.STOPBITS_1_5;
-import static org.xidobi.StopBits.STOPBITS_2;
-import static org.xidobi.rfc2217.internal.RFC2217.*;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.xidobi.DataBits;
+import javax.annotation.Nonnull;
+
 import org.xidobi.StopBits;
+
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
 
 //@formatter:off
 /**
@@ -42,10 +44,10 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	/**
 	 * Creates a new {@link StopBitsControlCmd}-Request using the given stop bits.
 	 * 
-	 * @param stopbits
+	 * @param stopBits
 	 *            the stopbits, greater or equal to one.
 	 */
-	public StopBitsControlCmd(StopBits stopBits) {
+	public StopBitsControlCmd(@Nonnull StopBits stopBits) {
 		super(SET_STOPSIZE_REQ);
 		if (stopBits == null)
 			throw new IllegalArgumentException("The parameter >stopBits< must not be null");
@@ -62,11 +64,7 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public StopBitsControlCmd(DataInput input) throws IOException {
-		super(SET_STOPSIZE_RESP, input);
-	}
-
-	@Override
-	protected void read(DataInput input) throws IOException {
+		super(SET_STOPSIZE_RESP);
 		stopBits = input.readByte();
 		if(stopBits<0 || stopBits>127)
 			throw new IOException("Unexpected stopBits value: "+stopBits);

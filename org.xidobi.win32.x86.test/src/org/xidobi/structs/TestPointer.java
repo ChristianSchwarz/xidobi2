@@ -15,20 +15,23 @@
  */
 package org.xidobi.structs;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.WinApi.NULL;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.WinApi;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.WinApi.NULL;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link Pointer}

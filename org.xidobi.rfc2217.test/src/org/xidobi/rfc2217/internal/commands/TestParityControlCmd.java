@@ -6,18 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.Parity.PARITY_EVEN;
-import static org.xidobi.Parity.PARITY_MARK;
-import static org.xidobi.Parity.PARITY_NONE;
-import static org.xidobi.Parity.PARITY_ODD;
-import static org.xidobi.Parity.PARITY_SPACE;
-import static testtools.MessageBuilder.buffer;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -28,6 +16,21 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.Parity;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.Parity.PARITY_EVEN;
+import static org.xidobi.Parity.PARITY_MARK;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.Parity.PARITY_ODD;
+import static org.xidobi.Parity.PARITY_SPACE;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
+import static org.junit.Assert.assertThat;
+import static testtools.MessageBuilder.buffer;
 
 /**
  * Tests the class {@link ParityControlCmd}.

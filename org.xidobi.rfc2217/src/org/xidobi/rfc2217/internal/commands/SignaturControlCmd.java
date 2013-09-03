@@ -38,9 +38,16 @@ public class SignaturControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	SignaturControlCmd(DataInput input) throws IOException {
-		super(SIGNATURE_RESP, input);
+		super(SIGNATURE_RESP);
+		
+		signatur = input.readLine();
 	}
 
+	@Override
+	public void write(DataOutput output) throws IOException {
+		output.writeChars(signatur);
+	}
+	
 	/**
 	 * Returns the preferred signatur.
 	 * 
@@ -48,17 +55,6 @@ public class SignaturControlCmd extends AbstractControlCmd {
 	 */
 	public String getSignatur() {
 		return signatur;
-	}
-
-	@Override
-	protected void read(DataInput input) throws IOException {
-		String signatur = input.readLine();
-		this.signatur = signatur;
-	}
-
-	@Override
-	public void write(DataOutput output) throws IOException {
-		output.writeChars(signatur);
 	}
 
 	@Override

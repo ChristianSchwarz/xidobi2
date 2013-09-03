@@ -6,14 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.Parity.PARITY_EVEN;
-import static org.xidobi.Parity.PARITY_MARK;
-import static org.xidobi.Parity.PARITY_NONE;
-import static org.xidobi.Parity.PARITY_ODD;
-import static org.xidobi.Parity.PARITY_SPACE;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -22,6 +14,14 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.DataBits;
 import org.xidobi.Parity;
+
+import static org.xidobi.Parity.PARITY_EVEN;
+import static org.xidobi.Parity.PARITY_MARK;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.Parity.PARITY_ODD;
+import static org.xidobi.Parity.PARITY_SPACE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
 
 //@formatter:off
 /**
@@ -65,7 +65,8 @@ public class ParityControlCmd extends AbstractControlCmd {
 	}
 
 	/**
-	 * Creates a new {@link ParityControlCmd}-Response, that is decoded from the given <i>input</i>.
+	 * Decodes the {@link Parity} value from the first byte of the <i>input</i>. The values 0-127
+	 * are supported, if any other value is read an {@link IOException} will be thrown.
 	 * 
 	 * @param input
 	 *            the input where the command must be read from, must not be <code>null</code>
@@ -73,14 +74,8 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 *             if the message is malformed or the underlying media can't be read
 	 */
 	public ParityControlCmd(@Nonnull DataInput input) throws IOException {
-		super(SET_PARITY_RESP, input);
-	}
-	/**
-	 * Decodes the {@link Parity} value from the first byte of the <i>input</i>. The values 0-127
-	 * are supported, if any other value is read an {@link IOException} will be thrown.
-	 */
-	@Override
-	protected void read(DataInput input) throws IOException {
+		super(SET_PARITY_RESP);
+
 		parity = input.readByte();
 		if (parity < 0 || parity > 127)
 			throw new IOException("Unexpected dataBits value: " + parity);

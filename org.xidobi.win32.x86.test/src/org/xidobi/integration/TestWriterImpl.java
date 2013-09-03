@@ -15,16 +15,6 @@
  */
 package org.xidobi.integration;
 
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.OS.OS;
-import static org.xidobi.SerialPortSettings.from9600bauds8N1;
-import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
-import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.WinApi.GENERIC_READ;
-import static org.xidobi.WinApi.GENERIC_WRITE;
-import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
-import static org.xidobi.WinApi.OPEN_EXISTING;
-
 import java.io.IOException;
 
 import org.junit.After;
@@ -37,6 +27,17 @@ import org.xidobi.SerialPort;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.WriterImpl;
 import org.xidobi.structs.DCB;
+
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.OS.OS;
+import static org.xidobi.SerialPortSettings.from9600bauds8N1;
+import static org.xidobi.WinApi.FILE_FLAG_NO_BUFFERING;
+import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
+import static org.xidobi.WinApi.GENERIC_READ;
+import static org.xidobi.WinApi.GENERIC_WRITE;
+import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
+import static org.xidobi.WinApi.OPEN_EXISTING;
 
 /**
  * Integration test for class {@link WriterImpl}.

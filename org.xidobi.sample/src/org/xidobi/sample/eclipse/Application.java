@@ -15,13 +15,6 @@
  */
 package org.xidobi.sample.eclipse;
 
-import static java.lang.Integer.MAX_VALUE;
-import static java.util.concurrent.Executors.newScheduledThreadPool;
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.xidobi.SerialPortSettings.from9600bauds8N1;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,6 +27,13 @@ import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortFinder;
 import org.xidobi.SerialPortProvider;
+
+import static java.lang.Integer.MAX_VALUE;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.xidobi.SerialPortSettings.from9600bauds8N1;
 
 /**
  * This class controls all aspects of the application's execution.

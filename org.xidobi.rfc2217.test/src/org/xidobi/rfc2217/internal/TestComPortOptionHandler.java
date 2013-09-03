@@ -27,9 +27,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.is;

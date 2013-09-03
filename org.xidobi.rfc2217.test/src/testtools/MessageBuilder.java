@@ -8,8 +8,6 @@ package testtools;
 
 import javax.annotation.Nonnegative;
 
-import org.xidobi.rfc2217.internal.RFC2217;
-
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;

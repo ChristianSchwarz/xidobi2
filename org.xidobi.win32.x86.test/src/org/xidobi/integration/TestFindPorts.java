@@ -15,12 +15,6 @@
  */
 package org.xidobi.integration;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.xidobi.OS.OS;
-
 import java.util.Set;
 
 import org.hamcrest.CustomTypeSafeMatcher;
@@ -28,6 +22,14 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import org.xidobi.SerialPort;
 import org.xidobi.SerialPortFinderImpl;
+
+import static org.xidobi.OS.OS;
+
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Integration test for class {@link SerialPortFinderImpl}.

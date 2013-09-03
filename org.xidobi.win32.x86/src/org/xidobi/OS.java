@@ -15,9 +15,6 @@
  */
 package org.xidobi;
 
-import static java.lang.System.loadLibrary;
-import static java.lang.Thread.currentThread;
-
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -33,6 +30,9 @@ import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
 import org.xidobi.structs.NativeByteArray;
 import org.xidobi.structs.OVERLAPPED;
+
+import static java.lang.System.loadLibrary;
+import static java.lang.Thread.currentThread;
 
 /**
  * This class contains one-to-one mappings of native methods used by the OS to control serial ports.

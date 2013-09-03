@@ -15,13 +15,14 @@
  */
 package org.xidobi.spi;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link Preconditions}

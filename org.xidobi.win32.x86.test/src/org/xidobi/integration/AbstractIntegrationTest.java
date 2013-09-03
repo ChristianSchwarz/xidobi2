@@ -15,15 +15,16 @@
  */
 package org.xidobi.integration;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.util.Properties;
 
 import org.junit.Before;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Abstract class for integration tests, which provides available serial ports that can be

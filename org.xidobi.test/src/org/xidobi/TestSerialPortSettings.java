@@ -15,9 +15,10 @@
  */
 package org.xidobi;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+import org.xidobi.SerialPortSettings.SerialPortSettingsBuilder;
+
 import static org.xidobi.DataBits.DATABITS_5;
 import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.DataBits.DATABITS_8;
@@ -30,9 +31,10 @@ import static org.xidobi.StopBits.STOPBITS_1;
 import static org.xidobi.StopBits.STOPBITS_1_5;
 import static org.xidobi.StopBits.STOPBITS_2;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.xidobi.SerialPortSettings.SerialPortSettingsBuilder;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link SerialPortSettings}.

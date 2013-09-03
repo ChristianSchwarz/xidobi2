@@ -12,6 +12,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.io.IOException;
 
 import org.junit.After;
+import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,6 +20,11 @@ import org.junit.rules.ExpectedException;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.Rfc2217SerialPort;
+
+
+import static java.net.InetSocketAddress.createUnresolved;
+
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Christian Schwarz

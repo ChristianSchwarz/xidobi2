@@ -6,14 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -24,6 +16,16 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.rules.ExpectedException.none;
 
 /**
  * Tests the class {@link BaudrateControlCmd}.

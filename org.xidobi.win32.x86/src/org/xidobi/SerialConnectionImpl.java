@@ -15,6 +15,14 @@
  */
 package org.xidobi;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
+
+import javax.annotation.Nonnull;
+
+import org.xidobi.spi.BasicSerialConnection;
+import org.xidobi.spi.NativeCodeException;
+
 import static java.lang.Thread.sleep;
 import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
 import static org.xidobi.WinApi.ERROR_BAD_COMMAND;
@@ -34,14 +42,6 @@ import static org.xidobi.WinApi.PURGE_TXABORT;
 import static org.xidobi.WinApi.PURGE_TXCLEAR;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 import static org.xidobi.utils.Throwables.newNativeCodeException;
-
-import java.io.IOException;
-import java.io.InterruptedIOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.spi.BasicSerialConnection;
-import org.xidobi.spi.NativeCodeException;
 
 /**
  * Implementation of the interface {@link SerialConnection} for Windows (32-bit) on x86 platforms.

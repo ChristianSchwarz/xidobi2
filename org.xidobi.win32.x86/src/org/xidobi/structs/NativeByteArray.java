@@ -15,12 +15,12 @@
  */
 package org.xidobi.structs;
 
-import static org.xidobi.spi.Preconditions.checkArgument;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import org.xidobi.WinApi;
+
+import static org.xidobi.spi.Preconditions.checkArgument;
 
 /**
  * Java representation of a byte array in C.

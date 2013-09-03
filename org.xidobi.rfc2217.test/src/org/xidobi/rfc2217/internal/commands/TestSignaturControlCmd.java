@@ -1,14 +1,5 @@
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.Parity.PARITY_MARK;
-import static org.xidobi.Parity.PARITY_ODD;
-import static testtools.MessageBuilder.buffer;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -18,11 +9,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.cglib.core.Converter;
 
-import testtools.ByteBuffer;
-import testtools.MessageBuilder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static testtools.MessageBuilder.buffer;
 
 /**
  * Tests the class {@link SignaturControlCmd}

@@ -15,27 +15,6 @@
  */
 package org.xidobi;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.WinApi.ERROR_NO_MORE_ITEMS;
-import static org.xidobi.WinApi.ERROR_SUCCESS;
-import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
-import static org.xidobi.WinApi.KEY_READ;
-
 import java.util.Set;
 
 import org.hamcrest.CustomTypeSafeMatcher;
@@ -50,6 +29,31 @@ import org.mockito.stubbing.Answer;
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.structs.HKEY;
 import org.xidobi.structs.INT;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+import static org.xidobi.WinApi.ERROR_NO_MORE_ITEMS;
+import static org.xidobi.WinApi.ERROR_SUCCESS;
+import static org.xidobi.WinApi.HKEY_LOCAL_MACHINE;
+import static org.xidobi.WinApi.KEY_READ;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the class {@link SerialPortFinderImpl}.

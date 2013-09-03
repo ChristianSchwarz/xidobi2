@@ -43,8 +43,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.Parity.PARITY_NONE;
 import static org.xidobi.StopBits.STOPBITS_1;

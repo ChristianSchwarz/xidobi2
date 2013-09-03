@@ -6,13 +6,14 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.rfc2217.internal.RFC2217.*;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import javax.annotation.Nonnegative;
+
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
 
 /**
  * <code>IAC SB COM-PORT-OPTION SET-BAUD <value(4)> IAC SE</code>
@@ -49,17 +50,12 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 * @throws IOException
 	 */
 	public BaudrateControlCmd(DataInput input) throws IOException {
-		super(SET_BAUDRATE_RESP, input);
-	}
-
-	@Override
-	protected void read(DataInput input) throws IOException {
-		int baudrate = input.readInt();
+		super(SET_BAUDRATE_RESP);
+		
+		baudrate = input.readInt();
 
 		if (baudrate < 1)
 			throw new IOException("The received baudrate is invalid! Expected a value greater or equal to 1, got: >" + baudrate + "<");
-
-		this.baudrate = baudrate;
 	}
 
 	@Override

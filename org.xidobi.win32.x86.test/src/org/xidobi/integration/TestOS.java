@@ -15,12 +15,13 @@
  */
 package org.xidobi.integration;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.xidobi.OS;
 import org.xidobi.WinApi;
+
+import static org.hamcrest.Matchers.is;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * Integration test for class {@link OS}.
