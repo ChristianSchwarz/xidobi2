@@ -6,72 +6,24 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import static java.net.InetSocketAddress.createUnresolved;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.commons.net.telnet.TelnetInputListener;
-import org.apache.commons.net.telnet.TelnetNotificationHandler;
+import java.io.IOException;
+
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.Rfc2217SerialPort;
-import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
-import org.xidobi.rfc2217.internal.ComPortOptionHandler.DecoderErrorHandler;
-
-import static java.lang.Thread.sleep;
-import static java.net.InetSocketAddress.createUnresolved;
-
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
 
 /**
  * @author Christian Schwarz
- * 
  */
 public class IntegrationTest {
-
-	/**
-	 * @author Christian Schwarz
-	 * 
-	 */
-	private final class NegotiationListener implements TelnetNotificationHandler {
-		public void receivedNegotiation(int negotiation_code, int option_code) {
-
-			String txt = null;
-
-			switch (negotiation_code) {
-				case TelnetNotificationHandler.RECEIVED_DO:
-					txt = "DO " + option_code;
-					break;
-				case TelnetNotificationHandler.RECEIVED_DONT:
-					txt = "DONT " + option_code;
-					break;
-				case TelnetNotificationHandler.RECEIVED_WILL:
-					txt = "WILL " + option_code;
-					break;
-				case TelnetNotificationHandler.RECEIVED_WONT:
-					txt = "WONT " + option_code;
-					break;
-				case TelnetNotificationHandler.RECEIVED_COMMAND:
-					txt = "COMMAND " + option_code;
-					break;
-			}
-
-			System.out.println(txt);
-			System.out.flush();
-		}
-	}
-
-	private ReentrantLock lock = new ReentrantLock();
-	private Condition negotiationReceived = lock.newCondition();
 
 	/** needed to verifiy exception */
 	@Rule
@@ -81,26 +33,72 @@ public class IntegrationTest {
 
 	private Rfc2217SerialPort port;
 
-	@Mock
 	private SerialConnection connection;
-	@Mock
-	private CommandProcessor processor;
-	@Mock
-	private DecoderErrorHandler errorHandler;
 
 	@Before
 	public void setUp() {
 		initMocks(this);
 	}
 
+	@After
+	public void tearDown() throws IOException {
+		connection.close();
+	}
+
 	/**
 	 * 
-*/
+	 */
 	@Test
 	public void testNam2e() throws Exception {
 		port = new Rfc2217SerialPort(createUnresolved("192.168.98.31", 23));
 		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
 		System.out.println(connection.getPort());
+
+		connection.write("Hallo!".getBytes());
+	}
+
+	/**
+	 * When a message is to be sent after the port is closed, an {@link IOException} should be
+	 * thrown.
+	 */
+	@Test
+	public void write_portIsClosed() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Port RFC2217@192.168.98.31:23 was closed!");
+
+		port = new Rfc2217SerialPort(createUnresolved("192.168.98.31", 23));
+		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
+
+		connection.close();
+		connection.write(new byte[0]);
+	}
+
+	/**
+	 * When the user tries to read after the port is closed, an {@link IOException} should be
+	 * thrown.
+	 */
+	@Test
+	public void read_portIsClosed() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Port RFC2217@192.168.98.31:23 was closed!");
+
+		port = new Rfc2217SerialPort(createUnresolved("192.168.98.31", 23));
+		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
+
+		connection.close();
+		connection.read();
+	}
+
+	/**
+	 * Wenn when, then.
+	 */
+	@Test
+	public void name() throws IOException {
+		port = new Rfc2217SerialPort(createUnresolved("192.168.200.111", 10001));
+		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
+
+		while (true)
+			System.out.println(new String(connection.read()));
 	}
 
 }
