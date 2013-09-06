@@ -70,4 +70,13 @@ public interface SerialConnection extends Closeable {
 	@Nonnull
 	SerialPort getPort();
 
+	/**
+	 * Closes this serial connection and releases any system resources associated with it. If the
+	 * serial connection is already closed then invoking this method has no effect.
+	 * 
+	 * @throws IOException
+	 *             if an I/O error occurs
+	 */
+	public void close() throws IOException;
+
 }
