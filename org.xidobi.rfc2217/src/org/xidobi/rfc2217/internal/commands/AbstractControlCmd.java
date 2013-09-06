@@ -12,28 +12,30 @@ import java.io.IOException;
 import org.xidobi.rfc2217.internal.RFC2217;
 
 /**
- * Baseclass for configuration commands.
+ * Baseclass for configuration commands defined in <a
+ * href="https://www.ietf.org/rfc/rfc2217.txt">RFC 2217</a>.
  * 
  * @author Christian Schwarz
  * @author Peter-René Jeschke
  */
 public abstract class AbstractControlCmd {
 
+	/** The code for the command. */
 	private final byte commandCode;
 
 	/**
 	 * This constructor is used by subclasses to create a new message.
 	 * 
 	 * @param commandCode
-	 *            the code of this command
-	 * @exception IllegalArgumentException if  {@code 0 > commandCode > 12}
+	 *            the code of this command, must either be between [0..12] or [100..112]
+	 * @exception IllegalArgumentException
+	 *                if the commandCode is neither between [0..12] nor [100..112]
 	 */
 	AbstractControlCmd(int commandCode) {
-		if (!((commandCode >= 0 && commandCode <= 12) || (commandCode >= 100 || commandCode <= 112)))
+		if (!((commandCode >= 0 && commandCode <= 12) || (commandCode >= 100 && commandCode <= 112)))
 			throw new IllegalArgumentException("The command code must be in the range [0..12] or [100..112]! Got: " + commandCode);
 		this.commandCode = (byte) commandCode;
 	}
-
 
 	/**
 	 * Subclasses implement this method to encode the contents of this command.
