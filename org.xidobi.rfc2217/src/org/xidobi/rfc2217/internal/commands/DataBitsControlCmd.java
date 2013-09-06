@@ -14,6 +14,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.xidobi.DataBits;
+import org.xidobi.spi.Preconditions;
 
 import static org.xidobi.DataBits.DATABITS_5;
 import static org.xidobi.DataBits.DATABITS_6;
@@ -22,6 +23,7 @@ import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.DataBits.DATABITS_9;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 //@formatter:off
 /**
@@ -120,8 +122,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 
 	/** Transforms this given {@link DataBits}-value to its corresponding RFC2217 specific value */
 	private byte toByte(@Nonnull DataBits dataBits) {
-		if (dataBits==null)
-			return 0;
+		checkArgumentNotNull(dataBits, "dataBits");
 		switch (dataBits) {
 			case DATABITS_5:
 				return 5;
