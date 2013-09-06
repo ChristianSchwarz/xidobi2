@@ -15,26 +15,28 @@
  */
 package org.xidobi.spi;
 
-import java.io.IOException;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mock;
-import org.xidobi.SerialConnection;
-import org.xidobi.SerialPort;
-
 import static junit.framework.Assert.fail;
-
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import static org.hamcrest.Matchers.is;
+import java.io.IOException;
 
-import static org.junit.Assert.assertThat;
+import org.hamcrest.CustomTypeSafeMatcher;
+import org.hamcrest.Matcher;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.xidobi.SerialConnection;
+import org.xidobi.SerialPort;
 
 /**
  * Tests the class {@link BasicSerialConnection}
@@ -45,7 +47,7 @@ import static org.junit.Assert.assertThat;
 public class TestBasicSerialConnection {
 
 	/** constant for better readability */
-	private static final IOException IO_EXCEPTION = new IOException();
+	private static final IOException IO_EXCEPTION = new IOException("exception");
 	private static final NativeCodeException NATIVE_CODE_EXCEPTION = new NativeCodeException("exception");
 
 	private static final byte[] BYTES = {};
@@ -332,6 +334,36 @@ public class TestBasicSerialConnection {
 	}
 
 	/**
+	 * When the port is closed while writing and a NativeCodeException is thrown, an exception
+	 * should be thrown that mentions that the port was closed with the {@link NativeCodeException}
+	 * as suppressed exception.
+	 */
+	@Test
+	public void write_closingPortWhileWritingThrowingNativeCodeException() throws IOException {
+		exception.expect(anIOExceptionWithSuppressedException(NativeCodeException.class, "exception"));
+		exception.expectMessage("Port COM1 was closed!");
+
+		doAnswer(throwExceptionAfterClosing(NATIVE_CODE_EXCEPTION)).when(writer).write(BYTES);
+
+		port.write(BYTES);
+	}
+
+	/**
+	 * When the port is closed while writing and an {@link IOException} is thrown, an exception
+	 * should be thrown that mentions that the port was closed with the {@link IOException} as
+	 * suppressed exception.
+	 */
+	@Test
+	public void write_closingPortWhileWritingThrowingIOException() throws IOException {
+		exception.expect(anIOExceptionWithSuppressedException(IOException.class, "exception"));
+		exception.expectMessage("Port COM1 was closed!");
+
+		doAnswer(throwExceptionAfterClosing(IO_EXCEPTION)).when(writer).write(BYTES);
+
+		port.write(BYTES);
+	}
+
+	/**
 	 * Verifies that an {@link IOException} is thrown when the port is closed.
 	 */
 	@Test
@@ -400,7 +432,35 @@ public class TestBasicSerialConnection {
 		assertThat(port.isClosed(), is(true));
 	}
 
-	
+	/**
+	 * When the port is closed while reading and a NativeCodeException is thrown, an exception
+	 * should be thrown that mentions that the port was closed with the {@link NativeCodeException}
+	 * as suppressed exception.
+	 */
+	@Test
+	public void read_closingPortWhileReadingThrowingNativeCodeException() throws IOException {
+		exception.expect(anIOExceptionWithSuppressedException(NativeCodeException.class, "exception"));
+		exception.expectMessage("Port COM1 was closed!");
+
+		doAnswer(throwExceptionAfterClosing(NATIVE_CODE_EXCEPTION)).when(reader).read();
+
+		port.read();
+	}
+
+	/**
+	 * When the port is closed while reading and an {@link IOException} is thrown, an exception
+	 * should be thrown that mentions that the port was closed with the {@link IOException} as
+	 * suppressed exception.
+	 */
+	@Test
+	public void read_closingPortWhileReading() throws IOException {
+		exception.expect(anIOExceptionWithSuppressedException(IOException.class, "exception"));
+		exception.expectMessage("Port COM1 was closed!");
+
+		doAnswer(throwExceptionAfterClosing(IO_EXCEPTION)).when(reader).read();
+
+		port.read();
+	}
 
 	// Utilities for this Testclass ///////////////////////////////////////////////////////////
 
@@ -416,5 +476,36 @@ public class TestBasicSerialConnection {
 		protected void closeInternal() throws IOException {
 			portInternal.closeInternal();
 		}
+	}
+
+	/**
+	 * Matches an exception that can also have an suppressed Exception.
+	 */
+	private Matcher<IOException> anIOExceptionWithSuppressedException(final Class<? extends Throwable> suppressedException, final String suppressedMessage) {
+		return new CustomTypeSafeMatcher<IOException>("An IOException with a suppressed exception of type >" + suppressedException.getName() + "< and the message >" + suppressedMessage + "<") {
+
+			@Override
+			protected boolean matchesSafely(IOException item) {
+				for (Throwable throwable : item.getSuppressed()) {
+					if (throwable.getClass().equals(suppressedException) && throwable.getMessage().contains(suppressedMessage))
+						return true;
+				}
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Throws the given exception and closes the port afterwards.
+	 */
+	private Answer<Void> throwExceptionAfterClosing(final Exception exception) {
+		return new Answer<Void>() {
+
+			@Override
+			public Void answer(InvocationOnMock invocation) throws Throwable {
+				port.close();
+				throw exception;
+			}
+		};
 	}
 }

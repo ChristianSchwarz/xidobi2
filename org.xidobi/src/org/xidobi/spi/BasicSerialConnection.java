@@ -15,6 +15,9 @@
  */
 package org.xidobi.spi;
 
+import static org.xidobi.spi.IoExceptions.portClosedException;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
+
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -23,9 +26,6 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
-
-import static org.xidobi.spi.IoExceptions.portClosedException;
-import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 /**
  * A basic implementation of the {@link SerialConnection} to provide synchonisation and proper
@@ -43,12 +43,23 @@ public class BasicSerialConnection implements SerialConnection {
 	private final SerialPort port;
 
 	/**
+	 * 
+	 * The internal state of this connection
+	 *
+	 */
+	private static enum State {
+		OPEN,
+		CLOSING,
+		CLOSED
+	}
+
+	/**
 	 * <ul>
 	 * <li> <code>true</code> if this port is closed ({@link #close()} was called)
 	 * <li> <code>false</code> if this port is open
 	 * </ul>
 	 */
-	private volatile boolean isClosed;
+	private volatile State state = State.OPEN;
 
 	/** Ensures that {@link #close()} can only called by one thread at a time. */
 	@Nonnull
@@ -70,7 +81,6 @@ public class BasicSerialConnection implements SerialConnection {
 	 *            read operation, must not be <code>null</code>
 	 * @param writer
 	 *            write operation, must not be <code>null</code>
-	 * 
 	 * @exception IllegalArgumentException
 	 *                if {@code portHandle==null}
 	 */
@@ -101,15 +111,11 @@ public class BasicSerialConnection implements SerialConnection {
 			writer.write(data);
 		}
 		catch (NativeCodeException e) {
-			// NOTE: If a NativeCodeException is thrown, the port must be closed in order to dispose
-			// all resources.
-			close();
+			closePortOrThrowCloseException(e);
 			throw e;
 		}
 		catch (IOException e) {
-			// NOTE: If a IOException is thrown, the port must be closed in order to dispose
-			// all resources.
-			close();
+			closePortOrThrowCloseException(e);
 			throw e;
 		}
 	}
@@ -122,25 +128,35 @@ public class BasicSerialConnection implements SerialConnection {
 			return reader.read();
 		}
 		catch (NativeCodeException e) {
-			// NOTE: If a NativeCodeException is thrown, the port must be closed in order to dispose
-			// all resources.
-			close();
+			closePortOrThrowCloseException(e);
 			throw e;
 		}
 		catch (IOException e) {
-			// NOTE: If a IOException is thrown, the port must be closed in order to dispose
-			// all resources.
-			close();
+			closePortOrThrowCloseException(e);
 			throw e;
 		}
+	}
+
+	/**
+	 * Closes this connection if it is open, otherwise an {@link IOException} will be thrown indication that the connection is closed or closing.
+	 * 
+	 * @param e will be added to the {@link IOException} as suppressed
+	 * @throws IOException if the connection is not open
+	 */
+	private void closePortOrThrowCloseException(Exception e) throws IOException {
+		throwExceptionIfPortIsNotOpen(e);
+		close();
 	}
 
 	/** {@inheritDoc} */
 	public final void close() throws IOException {
 		closeLock.lock();
+
 		try {
-			if (isClosed)
+			if (state != State.OPEN)
 				return;
+			state = State.CLOSING;
+
 			//@formatter:off
 			try {
 				// close the reader and writer
@@ -155,7 +171,7 @@ public class BasicSerialConnection implements SerialConnection {
 			// @formatter:on
 		}
 		finally {
-			isClosed = true;
+			state = State.CLOSED;
 			closeLock.unlock();
 		}
 	}
@@ -189,11 +205,12 @@ public class BasicSerialConnection implements SerialConnection {
 	 * @throws IOException
 	 *             if some I/O error uccurs
 	 */
-	protected void closeInternal() throws IOException {}
+	protected void closeInternal() throws IOException {
+	}
 
 	/** {@inheritDoc} */
 	public final boolean isClosed() {
-		return isClosed;
+		return state == State.CLOSED;
 	}
 
 	/**
@@ -203,9 +220,22 @@ public class BasicSerialConnection implements SerialConnection {
 	 *             if this port is closed
 	 */
 	private void ensurePortIsOpen() throws IOException {
-		if (isClosed)
-			throw portClosedException(port.getPortName());
+		throwExceptionIfPortIsNotOpen(null);
 	}
 
-	
+	/**
+	 * Throw an {@link IOException} if this port is closed.
+	 * 
+	 * @throws IOException
+	 *             if this port is closed
+	 */
+	private void throwExceptionIfPortIsNotOpen(Exception suppressedException) throws IOException {
+		if (state != State.OPEN) {
+			IOException closeException = portClosedException(port.getPortName());
+			if (suppressedException != null)
+				closeException.addSuppressed(suppressedException);
+			throw closeException;
+		}
+	}
+
 }
