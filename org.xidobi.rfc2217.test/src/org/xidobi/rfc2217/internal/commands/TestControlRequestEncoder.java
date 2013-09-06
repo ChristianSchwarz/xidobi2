@@ -58,14 +58,16 @@ public class TestControlRequestEncoder {
 	}
 
 	/**
-	 * When an message is passed to encoded the given message, the 
+	 * When an message is passed to encoded the given message, the resulting binary form must start
+	 * with  the com-port-option (44) followed by the command-code (in this case the dummy
+	 * number 99) and lasty the content of the given message (in this case 1,2,3). 
 	 */
 	@Test
 	public void encode_message() throws Exception {
 		doAnswer(writeToDataOutput(1, 2, 3)).when(message).write(any(DataOutput.class));
-		
-		when(message.getCommandCode()).thenReturn((byte)99);
-		
+
+		when(message.getCommandCode()).thenReturn((byte) 99);
+
 		int[] bytes = ControlRequestEncoder.encode(message);
 		assertThat(bytes, is(new int[] { 44, 99, 1, 2, 3 }));
 	}
