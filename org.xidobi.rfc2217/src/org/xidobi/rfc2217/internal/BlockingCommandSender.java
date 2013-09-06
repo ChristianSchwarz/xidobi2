@@ -6,9 +6,6 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,26 +17,38 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.xidobi.rfc2217.internal.ComPortOptionHandler.CommandProcessor;
 import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
+import org.xidobi.rfc2217.internal.commands.ControlCmd;
 
-import static org.xidobi.rfc2217.internal.ArrayUtil.toIntArray;
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+import static org.xidobi.rfc2217.internal.commands.ControlRequestEncoder.encode;
 
 /**
- * Used to send and receive com port control command in a blocking manner. 
+ * Used to send and receive com port control command in a blocking manner.
+ * <p>
+ * 
+ * 
  * @author Christian Schwarz
  * 
  */
 public class BlockingCommandSender implements CommandProcessor {
 
-	private final Map<Class<?>, AbstractControlCmd> responses = new HashMap<Class<?>, AbstractControlCmd>();
+	/**
+	 * contains the last received reponse of a type
+	 * <ul>
+	 * <li><b>Key:</b> the type of the response
+	 * <li><b>Value:</b>the last received response
+	 * </ul>
+	 */
+	private final Map<Class<? extends AbstractControlCmd>, AbstractControlCmd> responses = new HashMap<Class<? extends AbstractControlCmd>, AbstractControlCmd>();
 	/** */
 	private final ConditionalGuard guard = new ConditionalGuard();
 
 	private TelnetClient telnetClient;
-	
+
 	/**
 	 * Creates a new instance, using the given {@link TelnetClient}.
-	 * @param telnetClient used to send control commands
+	 * 
+	 * @param telnetClient
+	 *            used to send control commands
 	 */
 	public BlockingCommandSender(TelnetClient telnetClient) {
 		this.telnetClient = telnetClient;
@@ -49,19 +58,21 @@ public class BlockingCommandSender implements CommandProcessor {
 	 * Sends the given Control Command and returns the response. An {@link IOException} will be
 	 * thrown if an I/O Error occured while writing or an receive timeout was detected.
 	 * 
-	 * @param req the control command to be send
+	 * @param req
+	 *            the control command to be send
 	 * @return the response
-	 * @throws IOException if an I/O Error occured while writing or an receive timeout was detected
+	 * @throws IOException
+	 *             if an I/O Error occured while writing or an receive timeout was detected
 	 */
 	@SuppressWarnings("unchecked")
 	@Nonnull
-	public <T extends AbstractControlCmd> T send(T req) throws IOException {
+	public <T extends ControlCmd> T send(T req) throws IOException {
 		removeResponse(req.getClass());
 		sendCmd(req);
 		final T resp = (T) awaitResponse(req.getClass());
-		
-		if (resp==null)
-			throw new IOException("Response-Timeout: No response received for command:"+ req);
+
+		if (resp == null)
+			throw new IOException("Response-Timeout: No response received for command:" + req);
 		return resp;
 	}
 
@@ -69,7 +80,7 @@ public class BlockingCommandSender implements CommandProcessor {
 	 * Waits 1 second for the control command of the given type and returns it. If nothing was
 	 * received within this time <code>null</code> will be returned.
 	 */
-	private <T extends AbstractControlCmd> T awaitResponse(final Class<T> commandType) {
+	private <T extends ControlCmd> T awaitResponse(final Class<T> commandType) {
 		final AtomicReference<T> resp = new AtomicReference<T>();
 		Condition condition = new Condition() {
 
@@ -80,7 +91,7 @@ public class BlockingCommandSender implements CommandProcessor {
 			}
 		};
 
-		guard.awaitUninterruptibly(condition, 1000);
+		guard.awaitUninterruptibly(condition, 3000);
 
 		return resp.get();
 	}
@@ -91,13 +102,8 @@ public class BlockingCommandSender implements CommandProcessor {
 	 * @throws IOException
 	 *             if an I/O error occurs while writing the message
 	 */
-	protected void sendCmd(AbstractControlCmd message) throws IOException {
-		ByteArrayOutputStream bo = new ByteArrayOutputStream();
-		DataOutput output = new DataOutputStream(bo);
-		output.writeByte(COM_PORT_OPTION);
-		output.writeByte(message.getCommandCode());
-		message.write(output);
-		int[] bytes = toIntArray(bo.toByteArray());
+	protected void sendCmd(ControlCmd message) throws IOException {
+		int[] bytes = encode(message);
 		telnetClient.sendSubnegotiation(bytes);
 	}
 
@@ -106,7 +112,7 @@ public class BlockingCommandSender implements CommandProcessor {
 	 * <code>null</code> will be returned if no Control Command was removed.
 	 */
 	@SuppressWarnings("unchecked")
-	private <T extends AbstractControlCmd> T removeResponse(final Class<T> commandType) {
+	private <T extends ControlCmd> T removeResponse(final Class<T> commandType) {
 		return (T) responses.remove(commandType);
 
 	}
@@ -121,7 +127,4 @@ public class BlockingCommandSender implements CommandProcessor {
 		responses.put(response.getClass(), response);
 		guard.signalAll();
 	}
-
-	
-
 }

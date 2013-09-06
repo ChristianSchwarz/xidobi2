@@ -6,6 +6,8 @@
  */
 package org.xidobi.rfc2217.internal;
 
+import static com.google.common.io.Closeables.closeQuietly;
+import static java.lang.Integer.toHexString;
 import static java.net.InetSocketAddress.createUnresolved;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -22,8 +24,14 @@ import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.Rfc2217SerialPort;
 
 
-import static java.net.InetSocketAddress.createUnresolved;
 
+
+
+
+
+import com.google.common.io.Closeables;
+
+import static java.net.InetSocketAddress.createUnresolved;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
@@ -48,7 +56,7 @@ public class IntegrationTest {
 
 	@After
 	public void tearDown() throws IOException {
-		connection.close();
+		closeQuietly(connection);
 	}
 
 	/**
@@ -97,14 +105,25 @@ public class IntegrationTest {
 
 	/**
 	 * Wenn when, then.
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void name() throws IOException {
+	public void name() throws IOException, InterruptedException {
 		port = new Rfc2217SerialPort(createUnresolved("192.168.200.111", 10001));
 		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
 
-		while (true)
-			System.out.println(new String(connection.read()));
+		while (true){
+			byte[] data=connection.read();
+			String x = "";
+			for (byte b : data) {
+				String hex = toHexString(b & 0xff);
+				if (hex.length()==1)
+					hex = "0"+hex;
+				x+=hex+" ";
+			}
+			System.out.println(x);
+			Thread.sleep(1000);
+		}
 	}
 
 }

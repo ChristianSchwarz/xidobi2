@@ -28,6 +28,7 @@ import org.xidobi.rfc2217.internal.NegotiationHandler;
 import org.xidobi.rfc2217.internal.SerialConnectionImpl;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.BaudrateControlCmd;
+import org.xidobi.rfc2217.internal.commands.ControlCmd;
 import org.xidobi.rfc2217.internal.commands.DataBitsControlCmd;
 import org.xidobi.rfc2217.internal.commands.FlowControlCmd;
 import org.xidobi.rfc2217.internal.commands.ParityControlCmd;
@@ -222,7 +223,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	 *             content (to indicate that the operation was successfull)
 	 */
 	private void sendAndValidate(final AbstractControlCmd req, final String errorMessage) throws IOException {
-		AbstractControlCmd resp = commandSender.send(req);
+		ControlCmd resp = commandSender.send(req);
 		if (!resp.equals(req))
 			throw new IOException(errorMessage);
 	}

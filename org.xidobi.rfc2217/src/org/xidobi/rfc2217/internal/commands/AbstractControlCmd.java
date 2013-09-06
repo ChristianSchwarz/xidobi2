@@ -17,7 +17,7 @@ import org.xidobi.rfc2217.internal.RFC2217;
  * @author Christian Schwarz
  * @author Peter-René Jeschke
  */
-public abstract class AbstractControlCmd {
+public abstract class AbstractControlCmd implements ControlCmd {
 
 	private final byte commandCode;
 

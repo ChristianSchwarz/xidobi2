@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
@@ -73,17 +74,19 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	@Override
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
-
+		System.err.println("<-"+Arrays.toString(toByteArray(suboptionData, suboptionLength)));
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
 		AbstractControlCmd resp;
 		try {
 			resp = decoder.decode(input);
 		}
 		catch (IOException e) {
+			System.err.println(e.getMessage());
 			errorHandler.onDecoderError(e);
 			return null;
 		}
 		commandProcessor.onResponseReceived(resp);
+		System.err.println(resp);
 
 		return null;
 	}

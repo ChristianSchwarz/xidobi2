@@ -65,8 +65,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
-		if (dataBits == null)
-			throw new IllegalArgumentException("Parameter >dataBits< must not be null!");
+		
 		this.dataBits = toByte(dataBits);
 
 	}
@@ -121,6 +120,8 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 
 	/** Transforms this given {@link DataBits}-value to its corresponding RFC2217 specific value */
 	private byte toByte(@Nonnull DataBits dataBits) {
+		if (dataBits==null)
+			return 0;
 		switch (dataBits) {
 			case DATABITS_5:
 				return 5;
