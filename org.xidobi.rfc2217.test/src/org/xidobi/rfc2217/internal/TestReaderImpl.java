@@ -15,6 +15,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -78,8 +79,21 @@ public class TestReaderImpl {
 		exception.expectMessage("End of stream was detected while reading from TCP.");
 
 		when(input.read(any(byte[].class))).thenAnswer(readIntoBuffer(-1));
-		byte[] emptyArray = new byte[0];
-		assertThat(reader.read(), is(emptyArray));
+		reader.read();
+	}
+
+	/**
+	 * When the inputstream throws an {@link InterruptedIOException} while reading, the reader
+	 * should throw an {@link IOException} indicating that the telnet-connection was closed.
+	 */
+	@Test
+	public void read_streamThrowsInterruptedIOException() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Port");
+
+		when(input.read(any(byte[].class))).thenThrow(new InterruptedIOException("Fatal thread interruption during read."));
+
+		reader.read();
 	}
 
 	/**
