@@ -84,12 +84,12 @@ public class TestReaderImpl {
 
 	/**
 	 * When the inputstream throws an {@link InterruptedIOException} while reading, the reader
-	 * should throw an {@link IOException} indicating that the telnet-connection was closed.
+	 * should forward it to the caller.
 	 */
 	@Test
 	public void read_streamThrowsInterruptedIOException() throws IOException {
-		exception.expect(IOException.class);
-		exception.expectMessage("Port");
+		exception.expect(InterruptedIOException.class);
+		exception.expectMessage("Fatal thread interruption during read");
 
 		when(input.read(any(byte[].class))).thenThrow(new InterruptedIOException("Fatal thread interruption during read."));
 

@@ -7,6 +7,8 @@
 package org.xidobi.rfc2217;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -23,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.Stubber;
@@ -41,10 +44,12 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.Mockito.when;
 
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.Parity.PARITY_NONE;
 import static org.xidobi.StopBits.STOPBITS_1;
@@ -183,6 +188,8 @@ public class TestRfc2217SerialPort {
 	 */
 	@Test(timeout = 5000)
 	public void open() throws Throwable {
+		when(telnetClient.getInputStream()).thenReturn(mock(InputStream.class));
+		when(telnetClient.getOutputStream()).thenReturn(mock(OutputStream.class));
 		final int bauds = PORT_SETTINGS.getBauds();
 
 		accessServerSends(baudRateResponse(bauds)).when(telnetClient).sendSubnegotiation(baudRateRequest(9600));
