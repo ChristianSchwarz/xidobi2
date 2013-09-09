@@ -32,7 +32,7 @@ import org.xidobi.rfc2217.internal.commands.ControlCmd;
 import org.xidobi.rfc2217.internal.commands.DataBitsControlCmd;
 import org.xidobi.rfc2217.internal.commands.FlowControlCmd;
 import org.xidobi.rfc2217.internal.commands.ParityControlCmd;
-import org.xidobi.rfc2217.internal.commands.SignaturControlCmd;
+import org.xidobi.rfc2217.internal.commands.SignatureControlCmd;
 import org.xidobi.rfc2217.internal.commands.StopBitsControlCmd;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
@@ -211,8 +211,8 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * @throws IOException
 	 */
 	private String requestSignature() throws IOException {
-		SignaturControlCmd sigResp = commandSender.send(new SignaturControlCmd(""));
-		return sigResp.getSignatur();
+		SignatureControlCmd sigResp = commandSender.send(new SignatureControlCmd(""));
+		return sigResp.getSignature();
 	}
 
 	/**
