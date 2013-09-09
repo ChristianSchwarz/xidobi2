@@ -26,6 +26,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 
+import com.google.common.testing.EqualsTester;
+
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,6 +37,7 @@ import static org.hamcrest.Matchers.is;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
+import static testtools.MessageBuilder.buffer;
 
 /**
  * Tests the class {@link BaudrateControlCmd}.
@@ -111,23 +114,23 @@ public class TestBaudrateControlCmd {
 		orderedVerification.verify(output).writeInt(1600); // The baudrate
 	}
 	/**
-	 * Checks whether the commands equal.
+	 * Checks the equals/hashCode contract.
+	 *  
 	 * @throws Exception
 	 */
+	//@formatter:off
 	@Test
-	public void equalCommands() throws Exception {
-		BaudrateControlCmd cmd2 =  new BaudrateControlCmd(1600);
-		assertThat(cmd.equals(cmd2),is(true));
+	public void equalsHashCode() throws Exception {
+		new EqualsTester()
+		.addEqualityGroup(new BaudrateControlCmd(9600),
+		                  new BaudrateControlCmd(9600))
+		.addEqualityGroup(new BaudrateControlCmd(4800))
+		.addEqualityGroup(new BaudrateControlCmd(1200),
+		                  new BaudrateControlCmd(buffer().putInt(1200).toDataInput()))
+		.testEquals();
 	}
-	/**
-	 * Checks whether the commands not equal.
-	 * @throws Exception
-	 */
-	@Test
-	public void notEqualCommands() throws Exception {
-		BaudrateControlCmd cmd2 = new BaudrateControlCmd(1601);
-		assertThat(cmd.equals(cmd2), is(false));
-	}
+	//@formatter:on
+	
 	/**
 	 * Checks whether the String command is correct.
 	 */
