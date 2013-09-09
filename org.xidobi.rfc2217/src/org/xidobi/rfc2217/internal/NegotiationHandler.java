@@ -17,7 +17,6 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
 
-
 /**
  * This class is used to await notifications during the negotiation phase of a telnet session.
  * <p>
@@ -25,11 +24,9 @@ import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
  * Otherwise this class is not able to work as expected! the reason is that it is otherwise not
  * possible to track option negotiations.
  * 
- * 
  * @author Christian Schwarz
- * 
  */
-public class NegotiationHandler  {
+public class NegotiationHandler {
 
 	/**
 	 * Listen for option negotiations. Accepted and refused options are stored to dedicated
@@ -58,19 +55,18 @@ public class NegotiationHandler  {
 			negotiationChange.signalAll();
 		}
 	};
-	
 
-	/** contains the options that the access server is willing to send*/
+	/** contains the options that the access server is willing to send */
 	private final Set<Integer> willingToSend = new HashSet<Integer>();
-	/** contains the options that the access server refused to send*/
+	/** contains the options that the access server refused to send */
 	private final Set<Integer> refusedToSend = new HashSet<Integer>();
-	/** contains the options that the access server is willing to accept*/
+	/** contains the options that the access server is willing to accept */
 	private final Set<Integer> willingToAccept = new HashSet<Integer>();
-	/** contains the options that the access server refused to accept*/
+	/** contains the options that the access server refused to accept */
 	private final Set<Integer> refusedToAccept = new HashSet<Integer>();
 
 	private final ConditionalGuard negotiationChange = new ConditionalGuard();
-	
+
 	/**
 	 * @param telnetClient
 	 *            the Telnet Client to be observed
@@ -85,10 +81,10 @@ public class NegotiationHandler  {
 	}
 
 	/**
-	 * Waits until the given option is accepted (Telnet:WILL) or refused (Telnet:WONT) by the access server or an timeout
-	 * occures. Nothing happens if within the given time the access server acknoledged that it is
-	 * willing to send the option. If an timeout occures or the access server denied to send the
-	 * option an {@link IOException} will be thrown.
+	 * Waits until the given option is accepted (Telnet:WILL) or refused (Telnet:WONT) by the access
+	 * server or an timeout occures. Nothing happens if within the given time the access server
+	 * acknoledged that it is willing to send the option. If an timeout occures or the access server
+	 * denied to send the option an {@link IOException} will be thrown.
 	 * 
 	 * @param optionCode
 	 *            the code of the option to wait for, in the range [1..255]
@@ -98,11 +94,12 @@ public class NegotiationHandler  {
 	 */
 	public void awaitSendOptionNegotiation(final int optionCode, long negotiationTimeout) throws IOException {
 		Condition acceptStatus = new Condition() {
+
 			public boolean isSatisfied() {
 				return willingToSend.contains(optionCode) || refusedToSend.contains(optionCode);
 			}
 		};
-	
+
 		final boolean timeout = !negotiationChange.awaitUninterruptibly(acceptStatus, negotiationTimeout);
 		if (timeout)
 			throw new IOException("The access server timed out to negotiate option: " + optionCode + "!");
@@ -111,10 +108,10 @@ public class NegotiationHandler  {
 	}
 
 	/**
-	 * Waits until the given option is accepted (Telnet:DO) or refused (Telnet:DONT) by the access server or an timeout
-	 * occures. Nothing happens if within the given time the access server acknoledged that it is
-	 * willing to accept the option. If an timeout occures or the access server denied to accept the
-	 * option an {@link IOException} will be thrown.
+	 * Waits until the given option is accepted (Telnet:DO) or refused (Telnet:DONT) by the access
+	 * server or an timeout occures. Nothing happens if within the given time the access server
+	 * acknoledged that it is willing to accept the option. If an timeout occures or the access
+	 * server denied to accept the option an {@link IOException} will be thrown.
 	 * 
 	 * @param optionCode
 	 *            the code of the option to wait for, in the range [1..255]
@@ -124,6 +121,7 @@ public class NegotiationHandler  {
 	 */
 	public void awaitAcceptOptionNegotiation(final int optionCode, @Nonnegative long negotiationTimeout) throws IOException {
 		Condition acceptStatus = new Condition() {
+
 			public boolean isSatisfied() {
 				return willingToAccept.contains(optionCode) || refusedToAccept.contains(optionCode);
 			}

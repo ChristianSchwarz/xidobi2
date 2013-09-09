@@ -6,15 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
-import org.xidobi.FlowControl;
-
 import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
@@ -24,6 +15,15 @@ import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
 import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_RESP;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import org.xidobi.FlowControl;
 
 //@formatter:off
 /**
@@ -112,7 +112,6 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * @param flowControl
 	 *            the input byte value
 	 * @return the {@link FlowControl} belonging to the assigned byte value
-	 * 
 	 * @throws IOException
 	 *             when there was no {@link FlowControl} found to the assigned byte value
 	 */
@@ -138,7 +137,6 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 * @param flowControl
 	 *            the {@link FlowControl} that needs to be translated for the output byte value
 	 * @return the byte value belonging to the assigned {@link FlowControl}
-	 * 
 	 * @throws IOException
 	 *             when there was no byte value found to the assigned {@link FlowControl}
 	 */
@@ -160,8 +158,6 @@ public class FlowControlCmd extends AbstractControlCmd {
 		throw new IllegalStateException("Unexpected flowControl value:" + flowControl);
 	}
 
-	
-
 	public void setFlowControl(byte flowControl) {
 		this.flowControl = flowControl;
 	}
@@ -170,7 +166,6 @@ public class FlowControlCmd extends AbstractControlCmd {
 	public String toString() {
 		return "FlowControlCmd [flowControl=" + flowControl + "]";
 	}
-
 
 	@Override
 	public int hashCode() {
@@ -193,6 +188,5 @@ public class FlowControlCmd extends AbstractControlCmd {
 			return false;
 		return true;
 	}
-
 
 }

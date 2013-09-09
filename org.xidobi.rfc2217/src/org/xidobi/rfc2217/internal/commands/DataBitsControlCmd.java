@@ -66,12 +66,12 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
+
 		this.dataBits = toByte(dataBits);
+
 	}
 
 	/**
-	 * 
-	 * 
 	 * Decodes the {@link DataBits} value from the first byte of the <i>input</i>. The values 0-127
 	 * are supported, if any other value is read an {@link IOException} will be thrown.
 	 * 

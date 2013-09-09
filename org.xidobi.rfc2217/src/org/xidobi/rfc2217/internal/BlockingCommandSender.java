@@ -6,6 +6,8 @@
  */
 package org.xidobi.rfc2217.internal;
 
+import static org.xidobi.rfc2217.internal.commands.ControlRequestEncoder.encode;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,15 +21,11 @@ import org.xidobi.rfc2217.internal.ConditionalGuard.Condition;
 import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlCmd;
 
-import static org.xidobi.rfc2217.internal.commands.ControlRequestEncoder.encode;
-
 /**
  * Used to send and receive com port control command in a blocking manner.
  * <p>
  * 
- * 
  * @author Christian Schwarz
- * 
  */
 public class BlockingCommandSender implements CommandProcessor {
 

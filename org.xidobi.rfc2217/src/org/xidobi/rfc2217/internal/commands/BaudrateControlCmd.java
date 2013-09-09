@@ -6,18 +6,17 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 import javax.annotation.Nonnegative;
 
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
-
 /**
- * <code>IAC SB COM-PORT-OPTION SET-BAUD <value(4)> IAC SE</code>
- * <br>
+ * <code>IAC SB COM-PORT-OPTION SET-BAUD <value(4)> IAC SE</code> <br>
  * This command is sent by the client to the access server to set the baud rate of the com port. The
  * value is four octets (4 bytes). The value is represented in network standard format. The value is
  * the baud rate being requested. A special case is the value 0. If the value is zero the client is
@@ -35,7 +34,6 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 * 
 	 * @param baudrate
 	 *            the baudrate, must be greater than 0
-	 * 
 	 */
 	public BaudrateControlCmd(@Nonnegative int baudrate) {
 		super(SET_BAUDRATE_REQ);
@@ -51,7 +49,7 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	 */
 	public BaudrateControlCmd(DataInput input) throws IOException {
 		super(SET_BAUDRATE_RESP);
-		
+
 		baudrate = input.readInt();
 
 		if (baudrate < 1)
@@ -99,5 +97,5 @@ public class BaudrateControlCmd extends AbstractControlCmd {
 	public String toString() {
 		return "BaudrateControlCmd [baudrate=" + baudrate + "]";
 	}
-	
+
 }

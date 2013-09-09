@@ -6,9 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import java.io.DataInput;
-import java.io.IOException;
-
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_RESP;
@@ -16,6 +13,9 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
+
+import java.io.DataInput;
+import java.io.IOException;
 
 /**
  * Decodes com port option responses of the access server.
