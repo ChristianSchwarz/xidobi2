@@ -1,5 +1,16 @@
 package org.xidobi.rfc2217.internal.commands;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
+import static testtools.MessageBuilder.buffer;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -11,27 +22,13 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.StopBits;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.xidobi.StopBits.STOPBITS_1;
-import static org.xidobi.StopBits.STOPBITS_1_5;
-import static org.xidobi.StopBits.STOPBITS_2;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-
-import static org.junit.Assert.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static testtools.MessageBuilder.buffer;
-
 /**
  * Tests the class {@link StopBitsControlCmd}.
  * 
  * @author Christin Nitsche
  * @author Konrad Schulz
+ * @author Peter-René Jeschke
  */
-@SuppressWarnings("javadoc")
 public class TestStopBitsControlCmd {
 
 	@Rule
@@ -43,7 +40,7 @@ public class TestStopBitsControlCmd {
 	private DataOutput output;
 
 	@Before
-	public void setUp() throws IOException {
+	public void setUp() {
 		initMocks(this);
 	}
 
@@ -122,7 +119,6 @@ public class TestStopBitsControlCmd {
 		verify(output).writeByte(3);
 	}
 
-	
 	/**
 	 * 
 	 */
@@ -130,7 +126,7 @@ public class TestStopBitsControlCmd {
 	public void write_invalidStopBits() throws IOException {
 		cmd = new StopBitsControlCmd(buffer(10).toDataInput());
 		cmd.write(output);
-		verify(output).writeByte(10); 
+		verify(output).writeByte(10);
 	}
 
 	/**
@@ -145,33 +141,49 @@ public class TestStopBitsControlCmd {
 		cmd.write(output);
 		assertThat(cmd.getStopBits(), is(nullValue()));
 	}
-	
+
 	/**
 	 * Checks whether the commands equal.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void equalCommands() throws Exception {
-		StopBitsControlCmd cmd =   new StopBitsControlCmd(STOPBITS_1_5);
-		StopBitsControlCmd cmd2 =   new StopBitsControlCmd(STOPBITS_1_5);
-		assertThat(cmd.equals(cmd2),is(true));
+		StopBitsControlCmd cmd = new StopBitsControlCmd(STOPBITS_1_5);
+		StopBitsControlCmd cmd2 = new StopBitsControlCmd(STOPBITS_1_5);
+		assertThat(cmd.equals(cmd2), is(true));
 	}
+
 	/**
 	 * Checks whether the commands not equal.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void notEqualCommands() throws Exception {
-		StopBitsControlCmd cmd =   new StopBitsControlCmd(STOPBITS_1_5);
-		StopBitsControlCmd cmd2 =  new StopBitsControlCmd(STOPBITS_1);
+		StopBitsControlCmd cmd = new StopBitsControlCmd(STOPBITS_1_5);
+		StopBitsControlCmd cmd2 = new StopBitsControlCmd(STOPBITS_1);
 		assertThat(cmd.equals(cmd2), is(false));
 	}
+
 	/**
 	 * Checks whether the String command is correct.
 	 */
 	@Test
 	public void commandToString() throws Exception {
-		StopBitsControlCmd cmd =   new StopBitsControlCmd(STOPBITS_1_5);
+		StopBitsControlCmd cmd = new StopBitsControlCmd(STOPBITS_1_5);
 		assertThat(cmd.toString(), is("StopBitsControlCmd [stopBits=2]"));
+	}
+
+	/**
+	 * When an invalid value for the stop-bits is in the DataInput, an {@link IOException} is
+	 * expected.
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void invalidStopBits() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Unexpected stopBits value: -1");
+		new StopBitsControlCmd(buffer(-1).toDataInput());
 	}
 }

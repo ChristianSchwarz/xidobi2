@@ -78,7 +78,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 
 		parity = input.readByte();
 		if (parity < 0 || parity > 127)
-			throw new IOException("Unexpected dataBits value: " + parity);
+			throw new IOException("Unexpected parity value: " + parity);
 	}
 
 	@Override
