@@ -19,17 +19,14 @@ import org.xidobi.Parity;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
-
 import static org.xidobi.Parity.PARITY_EVEN;
 import static org.xidobi.Parity.PARITY_MARK;
 import static org.xidobi.Parity.PARITY_NONE;
 import static org.xidobi.Parity.PARITY_ODD;
 import static org.xidobi.Parity.PARITY_SPACE;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static testtools.MessageBuilder.buffer;
 
 /**
@@ -60,10 +57,24 @@ public class TestParityControlCmd {
 	 */
 	@SuppressWarnings("unused")
 	@Test
-	public void new_withNegativeDatasize() {
+	public void new_withNegativeParity() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The parameter >parity< must not be null");
 		new ParityControlCmd((Parity) null);
+	}
+
+	/**
+	 * When the parity value from the input is negative or greater than 127, an {@link IOException}
+	 * must be thrown.
+	 * 
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void new_withIllegalParity() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Unexpected parity value: -1");
+		new ParityControlCmd(buffer(-1).toDataInput());
 	}
 
 	/**
@@ -175,7 +186,6 @@ public class TestParityControlCmd {
 	 *
 	 */
 	@Test
-	@SuppressWarnings("unused")
 	public void read_invalidParity() throws IOException {
 		cmd = new ParityControlCmd(buffer(6).toDataInput());
 		cmd.write(output);
