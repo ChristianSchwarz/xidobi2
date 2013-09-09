@@ -66,7 +66,7 @@ public class TestSignatureControlCmd {
 	@Test
 	public void new_withNull() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The parameter >signatur< must not be null");
+		exception.expectMessage("The parameter >signature< must not be null");
 		new SignatureControlCmd((String) null);
 	}
 
@@ -107,7 +107,7 @@ public class TestSignatureControlCmd {
 	public void write_signaturWithOnlyIac() throws Exception {
 		cmd = new SignatureControlCmd(iac);
 		cmd.write(output);
-		verify(output).writeChars(iac);
+		verify(output).writeChars(iac+iac);
 	}
 
 	/**
