@@ -1,12 +1,19 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 22.08.2013 09:28:36
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package testtools;
-
-import javax.annotation.Nonnegative;
 
 import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_BAUDRATE_REQ;
@@ -22,16 +29,18 @@ import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
 import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
 
+import javax.annotation.Nonnegative;
+
 /**
  * Provides static methods to build com port control messages in binary form.
  * 
  * @author Christian Schwarz
- * 
  */
 public class MessageBuilder {
 
 	/** This class is not intendet to be instanciated! */
-	private MessageBuilder() {}
+	private MessageBuilder() {
+	}
 
 	/**
 	 * Creates the binary form of a "set baud command" request message, using the given baud rate.
@@ -91,42 +100,46 @@ public class MessageBuilder {
 	 *            <li>3 EVEN
 	 *            <li>4 MARK
 	 *            </ul>
-	 * 
 	 * @return the binary form
 	 */
 	public static ByteBuffer parityResponse(int parity) {
 		return buildComPortCommand(SET_PARITY_RESP)//
 		.putByte(parity);
 	}
+
 	public static ByteBuffer parityRequest(int parity) {
 		return buildComPortCommand(SET_PARITY_REQ)//
 		.putByte(parity);
 	}
+
 	public static ByteBuffer stopBitsRequest(int stopbits) {
 		return buildComPortCommand(SET_STOPSIZE_REQ)//
 		.putByte(stopbits);
 	}
+
 	public static ByteBuffer stopBitsResponse(int stopbits) {
 		return buildComPortCommand(SET_STOPSIZE_RESP)//
 		.putByte(stopbits);
 	}
+
 	public static ByteBuffer flowControlRequest(int flowControl) {
 		return buildComPortCommand(SET_CONTROL_REQ)//
 		.putByte(flowControl);
 	}
+
 	public static ByteBuffer flowControlResponse(int flowControl) {
 		return buildComPortCommand(SET_CONTROL_RESP)//
 		.putByte(flowControl);
 	}
 
-	public static ByteBuffer signatureResponse(String signatue){
+	public static ByteBuffer signatureResponse(String signatue) {
 		return buildComPortCommand(SIGNATURE_RESP)//
-			.putBytes(signatue);
+		.putBytes(signatue);
 	}
-	
-	public static ByteBuffer signatureRequest(String signatue){
+
+	public static ByteBuffer signatureRequest(String signatue) {
 		return buildComPortCommand(SIGNATURE_REQ)//
-			.putBytes(signatue);
+		.putBytes(signatue);
 	}
 
 	/**

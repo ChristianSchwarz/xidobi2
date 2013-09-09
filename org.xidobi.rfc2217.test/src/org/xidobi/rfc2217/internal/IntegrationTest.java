@@ -1,8 +1,17 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 19.08.2013 11:31:13
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.rfc2217.internal;
 
@@ -14,8 +23,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.io.IOException;
 
 import org.junit.After;
-import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -23,19 +32,11 @@ import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.Rfc2217SerialPort;
 
-
-
-
-
-
-
-import com.google.common.io.Closeables;
-
-import static java.net.InetSocketAddress.createUnresolved;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 /**
+ * Integrationtest for the RFC2217-implementation.
+ * 
  * @author Christian Schwarz
+ * @author Peter-René Jeschke
  */
 public class IntegrationTest {
 
@@ -55,7 +56,7 @@ public class IntegrationTest {
 	}
 
 	@After
-	public void tearDown() throws IOException {
+	public void tearDown() {
 		closeQuietly(connection);
 	}
 
@@ -103,23 +104,20 @@ public class IntegrationTest {
 		connection.read();
 	}
 
-	/**
-	 * Wenn when, then.
-	 * @throws InterruptedException 
-	 */
 	@Test
+	@Ignore
 	public void name() throws IOException, InterruptedException {
-		port = new Rfc2217SerialPort(createUnresolved("192.168.200.111", 10001));
+		port = new Rfc2217SerialPort(createUnresolved("192.168.200.81", 23));
 		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
 
-		while (true){
-			byte[] data=connection.read();
+		while (true) {
+			byte[] data = connection.read();
 			String x = "";
 			for (byte b : data) {
 				String hex = toHexString(b & 0xff);
-				if (hex.length()==1)
-					hex = "0"+hex;
-				x+=hex+" ";
+				if (hex.length() == 1)
+					hex = "0" + hex;
+				x += hex + " ";
 			}
 			System.out.println(x);
 			Thread.sleep(1000);

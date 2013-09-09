@@ -1,4 +1,25 @@
+/*
+ * Copyright 2013 Gemtec GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.xidobi.rfc2217.internal.commands;
+
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -7,12 +28,6 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.xidobi.StopBits;
-
-import static org.xidobi.StopBits.STOPBITS_1;
-import static org.xidobi.StopBits.STOPBITS_1_5;
-import static org.xidobi.StopBits.STOPBITS_2;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
 
 //@formatter:off
 /**
@@ -66,8 +81,8 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	public StopBitsControlCmd(DataInput input) throws IOException {
 		super(SET_STOPSIZE_RESP);
 		stopBits = input.readByte();
-		if(stopBits<0 || stopBits>127)
-			throw new IOException("Unexpected stopBits value: "+stopBits);
+		if (stopBits < 0 || stopBits > 127)
+			throw new IOException("Unexpected stopBits value: " + stopBits);
 	}
 
 	@Override
@@ -106,7 +121,6 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 * @param stopBits
 	 *            the {@link StopBits} that needs to be translated for the output byte value
 	 * @return the byte value belonging to the assigned {@link StopBits}
-	 * 
 	 * @throws IOException
 	 *             when there was no byte value found to the assigned {@link StopBits}
 	 */
@@ -148,6 +162,5 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	public String toString() {
 		return "StopBitsControlCmd [stopBits=" + stopBits + "]";
 	}
-
 
 }

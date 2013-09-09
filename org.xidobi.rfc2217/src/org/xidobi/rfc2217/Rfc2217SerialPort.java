@@ -1,10 +1,22 @@
 /*
+ * Copyright 2013 Gemtec GmbH
  *
- * Copyright Gemtec GmbH 2009-2013
- * Erstellt am: 14.08.2013 09:02:05
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.rfc2217;
+
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,14 +47,10 @@ import org.xidobi.rfc2217.internal.commands.ParityControlCmd;
 import org.xidobi.rfc2217.internal.commands.SignatureControlCmd;
 import org.xidobi.rfc2217.internal.commands.StopBitsControlCmd;
 
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.apache.commons.net.telnet.TelnetOption.BINARY;
-
 /**
  * Implements the client side of the RFC2217 serial over telnet protocol as {@link SerialPort}.
  * 
  * @author Christian Schwarz
- * 
  */
 public class Rfc2217SerialPort implements SerialPort {
 
@@ -78,7 +86,6 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * 
 	 * @param accessServer
 	 *            the adress of the Access Server
-	 * 
 	 * @exception IllegalArgumentException
 	 *                if <code>null</code> is passed
 	 */
@@ -91,9 +98,7 @@ public class Rfc2217SerialPort implements SerialPort {
 
 	/**
 	 * Opens this serial port by establihing a Telnet session with the access server, defined in the
-	 * constructor.
-	 * 
-	 * {@inheritDoc}
+	 * constructor. {@inheritDoc}
 	 * 
 	 * @throws IOException
 	 *             if the port cannot be opened, this may occure if ...
@@ -113,9 +118,9 @@ public class Rfc2217SerialPort implements SerialPort {
 		TelnetClient telnetClient = initTelnetClient();
 		try {
 			connect(telnetClient);
-			awaitNegotiation(telnetClient);
+			awaitNegotiation();
 
-			sendPortSettings(telnetClient, settings);
+			sendPortSettings(settings);
 
 			description = requestSignature();
 
@@ -186,7 +191,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * connection was closed, the negotiation phase timed out or at least one option is not
 	 * supported by the access server.
 	 */
-	private void awaitNegotiation(@Nonnull TelnetClient telnetClient) throws IOException {
+	private void awaitNegotiation() throws IOException {
 
 		negotiationHandler.awaitAcceptOptionNegotiation(COM_PORT_OPTION, negotiationTimeout);
 		negotiationHandler.awaitAcceptOptionNegotiation(BINARY, negotiationTimeout);
@@ -199,7 +204,7 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * @throws IOException
 	 *             if the access server refused to set one of the properties.
 	 */
-	private void sendPortSettings(TelnetClient telnetClient, SerialPortSettings settings) throws IOException {
+	private void sendPortSettings(SerialPortSettings settings) throws IOException {
 		sendAndValidate(new BaudrateControlCmd(settings.getBauds()), "The baud rate setting was refused (" + settings.getBauds() + ")!");
 		sendAndValidate(new DataBitsControlCmd(settings.getDataBits()), "The data bits setting was refused (" + settings.getDataBits() + ")!");
 		sendAndValidate(new ParityControlCmd(settings.getParity()), "The parity setting was refused (" + settings.getParity() + ")!");
@@ -276,7 +281,6 @@ public class Rfc2217SerialPort implements SerialPort {
 	 * @param milliSeconds
 	 *            the milli seconds until all options must be negotiated or refused by the access
 	 *            server
-	 * 
 	 * @see #open(SerialPortSettings)
 	 */
 	public void setNegotiationTimeout(@Nonnegative long milliSeconds) {

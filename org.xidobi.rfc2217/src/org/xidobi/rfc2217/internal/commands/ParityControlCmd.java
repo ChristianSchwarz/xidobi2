@@ -1,10 +1,27 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 23.08.2013 08:26:50
- * Erstellt von: Peter-René Jeschke
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.rfc2217.internal.commands;
+
+import static org.xidobi.Parity.PARITY_EVEN;
+import static org.xidobi.Parity.PARITY_MARK;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.Parity.PARITY_ODD;
+import static org.xidobi.Parity.PARITY_SPACE;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -14,14 +31,6 @@ import javax.annotation.Nonnull;
 
 import org.xidobi.DataBits;
 import org.xidobi.Parity;
-
-import static org.xidobi.Parity.PARITY_EVEN;
-import static org.xidobi.Parity.PARITY_MARK;
-import static org.xidobi.Parity.PARITY_NONE;
-import static org.xidobi.Parity.PARITY_ODD;
-import static org.xidobi.Parity.PARITY_SPACE;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
 
 //@formatter:off
 /**
@@ -78,7 +87,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 
 		parity = input.readByte();
 		if (parity < 0 || parity > 127)
-			throw new IOException("Unexpected dataBits value: " + parity);
+			throw new IOException("Unexpected parity value: " + parity);
 	}
 
 	@Override
@@ -112,7 +121,6 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 * @param parity
 	 *            the {@link Parity} that needs to be translated for the output byte value
 	 * @return the byte value belonging to the assigned {@link Parity}
-	 * 
 	 * @throws IOException
 	 *             when there was no byte value found to the assigned {@link Parity}
 	 */

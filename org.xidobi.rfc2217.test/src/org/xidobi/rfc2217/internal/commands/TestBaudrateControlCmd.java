@@ -1,8 +1,17 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 22.08.2013 12:45:13
- * Erstellt von: Peter-René Jeschke
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.rfc2217.internal.commands;
 
@@ -17,6 +26,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 
+import com.google.common.testing.EqualsTester;
+
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -26,6 +37,7 @@ import static org.hamcrest.Matchers.is;
 
 import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
+import static testtools.MessageBuilder.buffer;
 
 /**
  * Tests the class {@link BaudrateControlCmd}.
@@ -102,23 +114,23 @@ public class TestBaudrateControlCmd {
 		orderedVerification.verify(output).writeInt(1600); // The baudrate
 	}
 	/**
-	 * Checks whether the commands equal.
+	 * Checks the equals/hashCode contract.
+	 *  
 	 * @throws Exception
 	 */
+	//@formatter:off
 	@Test
-	public void equalCommands() throws Exception {
-		BaudrateControlCmd cmd2 =  new BaudrateControlCmd(1600);
-		assertThat(cmd.equals(cmd2),is(true));
+	public void equalsHashCode() throws Exception {
+		new EqualsTester()
+		.addEqualityGroup(new BaudrateControlCmd(9600),
+		                  new BaudrateControlCmd(9600))
+		.addEqualityGroup(new BaudrateControlCmd(4800))
+		.addEqualityGroup(new BaudrateControlCmd(1200),
+		                  new BaudrateControlCmd(buffer().putInt(1200).toDataInput()))
+		.testEquals();
 	}
-	/**
-	 * Checks whether the commands not equal.
-	 * @throws Exception
-	 */
-	@Test
-	public void notEqualCommands() throws Exception {
-		BaudrateControlCmd cmd2 = new BaudrateControlCmd(1601);
-		assertThat(cmd.equals(cmd2), is(false));
-	}
+	//@formatter:on
+	
 	/**
 	 * Checks whether the String command is correct.
 	 */

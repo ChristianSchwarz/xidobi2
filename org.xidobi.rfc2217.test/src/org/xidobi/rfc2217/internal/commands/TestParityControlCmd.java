@@ -1,10 +1,31 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 23.08.2013 15:02:21
- * Erstellt von: Peter-René Jeschke
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.rfc2217.internal.commands;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.Parity.PARITY_EVEN;
+import static org.xidobi.Parity.PARITY_MARK;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.Parity.PARITY_ODD;
+import static org.xidobi.Parity.PARITY_SPACE;
+import static testtools.MessageBuilder.buffer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -16,21 +37,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.Parity;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import static org.xidobi.Parity.PARITY_EVEN;
-import static org.xidobi.Parity.PARITY_MARK;
-import static org.xidobi.Parity.PARITY_NONE;
-import static org.xidobi.Parity.PARITY_ODD;
-import static org.xidobi.Parity.PARITY_SPACE;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-
-import static org.junit.Assert.assertThat;
-import static testtools.MessageBuilder.buffer;
 
 /**
  * Tests the class {@link ParityControlCmd}.
@@ -50,7 +56,7 @@ public class TestParityControlCmd {
 	private DataOutput output;
 
 	@Before
-	public void setup() throws IOException {
+	public void setup() {
 		initMocks(this);
 	}
 
@@ -60,10 +66,24 @@ public class TestParityControlCmd {
 	 */
 	@SuppressWarnings("unused")
 	@Test
-	public void new_withNegativeDatasize() {
+	public void new_withNull() {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The parameter >parity< must not be null");
 		new ParityControlCmd((Parity) null);
+	}
+
+	/**
+	 * When the parity value from the input is negative or greater than 127, an {@link IOException}
+	 * must be thrown.
+	 * 
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void new_withIllegalParity() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Unexpected parity value: -1");
+		new ParityControlCmd(buffer(-1).toDataInput());
 	}
 
 	/**
@@ -175,7 +195,6 @@ public class TestParityControlCmd {
 	 *
 	 */
 	@Test
-	@SuppressWarnings("unused")
 	public void read_invalidParity() throws IOException {
 		cmd = new ParityControlCmd(buffer(6).toDataInput());
 		cmd.write(output);
@@ -189,10 +208,22 @@ public class TestParityControlCmd {
 	 * @throws Exception
 	 */
 	@Test
-	public void dataBits_null() throws Exception {
+	public void parity_null() throws Exception {
 		cmd = new ParityControlCmd(buffer(6).toDataInput());
 		cmd.write(output);
 		assertThat(cmd.getParity(), is(nullValue()));
+	}
+
+	/**
+	 * If an invalid parity value is read from the input, an {@link IOException} is expected.
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void parity_invalidValue() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Unexpected parity value: -1");
+
+		new ParityControlCmd(buffer(-1).toDataInput());
 	}
 
 	/**

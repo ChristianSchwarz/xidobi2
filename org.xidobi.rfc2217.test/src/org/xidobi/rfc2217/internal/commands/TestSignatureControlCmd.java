@@ -1,4 +1,26 @@
+/*
+ * Copyright 2013 Gemtec GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.xidobi.rfc2217.internal.commands;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static testtools.MessageBuilder.buffer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -10,18 +32,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.rules.ExpectedException.none;
-import static testtools.MessageBuilder.buffer;
-
 /**
  * Tests the class {@link SignatureControlCmd}
  * 
  * @author Christin Nitsche
- * 
  */
 public class TestSignatureControlCmd {
 
@@ -36,10 +50,11 @@ public class TestSignatureControlCmd {
 	private DataInput input;
 
 	private String iac;
+
 	@Before
 	public void setUp() throws IOException {
 		initMocks(this);
-		iac = Character.toString((char)255);
+		iac = Character.toString((char) 255);
 	}
 
 	/**
@@ -51,15 +66,15 @@ public class TestSignatureControlCmd {
 	@Test
 	public void new_withNull() throws Exception {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The parameter >signature< must not be null");
+		exception.expectMessage("The parameter >signatur< must not be null");
 		new SignatureControlCmd((String) null);
 	}
 
 	/**
-	 * Checks whether the signature is read correctly.
+	 * Checks whether the signatur is read correctly.
 	 */
 	@Test
-	public void read_Signature() throws Exception {
+	public void read_Signatur() throws Exception {
 		cmd = new SignatureControlCmd(buffer().putBytes("version 1.0").toDataInput());
 		assertThat(cmd.getSignature(), is("version 1.0"));
 	}
@@ -68,57 +83,53 @@ public class TestSignatureControlCmd {
 	 * Check whether the encoded message is correct.
 	 */
 	@Test
-	public void write_signature() throws Exception {
+	public void write_signatur() throws Exception {
 		cmd = new SignatureControlCmd("version 1.0");
 		cmd.write(output);
 		verify(output).writeChars("version 1.0");
 	}
 
 	/**
-	 * Checks whether the signature is read correctly,when an IAC present .If an IAC character appears
-	 * in the text it must be translated to IAC-IAC to avoid conflict with the IAC which terminates
-	 * the command.
+	 * Checks whether the signatur is read correctly, when an IAC present. If an IAC character
+	 * appears in the text it must be translated to IAC-IAC.
 	 */
 	@Test
-	public void read_signatuerWithOnlyIac() throws Exception {
+	public void read_SignaturWithOnlyIac() throws Exception {
 		cmd = new SignatureControlCmd(buffer().putBytes(iac).toDataInput());
-		assertThat(cmd.getSignature(), is(iac+iac));
+		assertThat(cmd.getSignature(), is(iac + iac));
 	}
 
 	/**
-	 * Check whether the encoded message is correct, when an IAC present .If an IAC character appears
-	 * in the text it must be translated to IAC-IAC to avoid conflict with the IAC which terminates
-	 * the command.
+	 * Check whether the encoded message is correct, when an IAC present.If an IAC character appears
+	 * in the text it must be translated to IAC-IAC.
 	 */
 	@Test
-	public void write_signatureWithOnlyIac() throws Exception {
+	public void write_signaturWithOnlyIac() throws Exception {
 		cmd = new SignatureControlCmd(iac);
 		cmd.write(output);
-		verify(output).writeChars(iac+iac);
-	}
-	/**
-	 * Checks whether the signatur is read correctly,when an IAC present .If an IAC character appears
-	 * in the text it must be translated to IAC-IAC to avoid conflict with the IAC which terminates
-	 * the command.
-	 */
-	@Test
-	public void read_SignatureWithIac() throws Exception {
-		cmd = new SignatureControlCmd(buffer().putBytes("version"+iac+"1.0"+iac).toDataInput());
-		assertThat(cmd.getSignature(), is("version"+iac+iac+"1.0"+iac+iac));
+		verify(output).writeChars(iac);
 	}
 
 	/**
-	 * Check whether the encoded message is correct, when an IAC present .If an IAC character appears
-	 * in the text it must be translated to IAC-IAC to avoid conflict with the IAC which terminates
-	 * the command.
+	 * Checks whether the signatur is read correctly, when an IAC present.If an IAC character
+	 * appears in the text it must be translated to IAC-IAC.
 	 */
 	@Test
-	public void write_signatureWithIac() throws Exception {
-		cmd = new SignatureControlCmd("version"+iac+"1.0"+iac);
-		cmd.write(output);
-		verify(output).writeChars("version"+iac+iac+"1.0"+iac+iac);
+	public void read_SignaturWithIac() throws Exception {
+		cmd = new SignatureControlCmd(buffer().putBytes("version" + iac + "1.0" + iac).toDataInput());
+		assertThat(cmd.getSignature(), is("version" + iac + iac + "1.0" + iac + iac));
 	}
-	
+
+	/**
+	 * Check whether the encoded message is correct, when an IAC present.If an IAC character appears
+	 * in the text it must be translated to IAC-IAC.
+	 */
+	@Test
+	public void write_signaturWithIac() throws Exception {
+		cmd = new SignatureControlCmd("version" + iac + "1.0" + iac);
+		cmd.write(output);
+		verify(output).writeChars("version" + iac + iac + "1.0" + iac + iac);
+	}
 
 	/**
 	 * Checks whether the commands equal.
