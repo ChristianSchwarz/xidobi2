@@ -57,6 +57,20 @@ public class TestStopBitsControlCmd {
 	}
 
 	/**
+	 * When the stopBit value from the input is negative or greater than 127, an {@link IOException}
+	 * must be thrown.
+	 * 
+	 * @throws IOException
+	 */
+	@SuppressWarnings("unused")
+	@Test
+	public void new_withIllegalStopBits() throws IOException {
+		exception.expect(IOException.class);
+		exception.expectMessage("Unexpected stopBits value: -1");
+		new StopBitsControlCmd(buffer(-1).toDataInput());
+	}
+
+	/**
 	 * Checks whether the stopBit is read correctly, {@link StopBits#STOPBITS_1}.
 	 */
 	@Test
