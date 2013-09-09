@@ -1,10 +1,52 @@
 /*
- * Copyright Gemtec GmbH 2009-2013
+ * Copyright 2013 Gemtec GmbH
  *
- * Erstellt am: 16.08.2013 10:18:45
- * Erstellt von: Christian Schwarz 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.xidobi.rfc2217;
+
+import static java.lang.Thread.sleep;
+import static java.net.InetSocketAddress.createUnresolved;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
+import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
+import static org.apache.commons.net.telnet.TelnetOption.BINARY;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.DataBits.DATABITS_8;
+import static org.xidobi.Parity.PARITY_NONE;
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+import static testtools.MessageBuilder.baudRateResponse;
+import static testtools.MessageBuilder.dataBitsResponse;
+import static testtools.MessageBuilder.flowControlResponse;
+import static testtools.MessageBuilder.parityResponse;
+import static testtools.MessageBuilder.signatureRequest;
+import static testtools.MessageBuilder.signatureResponse;
+import static testtools.MessageBuilder.stopBitsResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +67,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.Stubber;
@@ -35,48 +76,11 @@ import org.xidobi.rfc2217.internal.ComPortOptionHandler;
 
 import testtools.ByteBuffer;
 import testtools.MessageBuilder;
-import static java.lang.Thread.sleep;
-import static java.net.InetSocketAddress.createUnresolved;
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.xidobi.DataBits.DATABITS_8;
-import static org.xidobi.Parity.PARITY_NONE;
-import static org.xidobi.StopBits.STOPBITS_1;
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DO;
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_DONT;
-import static org.apache.commons.net.telnet.TelnetNotificationHandler.RECEIVED_WILL;
-import static org.apache.commons.net.telnet.TelnetOption.BINARY;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-
-import static org.junit.Assert.assertThat;
-import static testtools.MessageBuilder.baudRateResponse;
-import static testtools.MessageBuilder.dataBitsResponse;
-import static testtools.MessageBuilder.flowControlResponse;
-import static testtools.MessageBuilder.parityResponse;
-import static testtools.MessageBuilder.signatureRequest;
-import static testtools.MessageBuilder.signatureResponse;
-import static testtools.MessageBuilder.stopBitsResponse;
 
 /**
  * Tests the class {@link Rfc2217SerialPort}
  * 
  * @author Christian Schwarz
- * 
  */
 @SuppressWarnings("javadoc")
 public class TestRfc2217SerialPort {
@@ -184,7 +188,6 @@ public class TestRfc2217SerialPort {
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
 	 * apply the serial settings on the access server.
-	 * 
 	 */
 	@Test(timeout = 5000)
 	public void open() throws Throwable {
@@ -243,7 +246,6 @@ public class TestRfc2217SerialPort {
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
 	 * apply the serial settings on the access server.
-	 * 
 	 */
 	@Test(timeout = 500)
 	public void open_failedComOptionRefused() throws Throwable {
@@ -260,7 +262,6 @@ public class TestRfc2217SerialPort {
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
 	 * apply the serial settings on the access server.
-	 * 
 	 */
 	@Test(timeout = 500)
 	public void open_failedBaudRateRefused() throws Throwable {
@@ -283,7 +284,6 @@ public class TestRfc2217SerialPort {
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
 	 * apply the serial settings on the access server.
-	 * 
 	 */
 	@Test(timeout = 500)
 	public void open_failedDataBitsRefused() throws Throwable {
@@ -308,7 +308,6 @@ public class TestRfc2217SerialPort {
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
 	 * apply the serial settings on the access server.
-	 * 
 	 */
 	@Test(timeout = 500)
 	public void open_failedParityRefused() throws Throwable {
@@ -333,7 +332,6 @@ public class TestRfc2217SerialPort {
 	 * If the access server refuse to accept com-port-options, the telnet client must be
 	 * disconnected an an {@link IOException} must be thrown. The com-port-option is required to
 	 * apply the serial settings on the access server.
-	 * 
 	 */
 	@Test(timeout = 5000)
 	public void open_failedStopbitsRefused() throws Throwable {
