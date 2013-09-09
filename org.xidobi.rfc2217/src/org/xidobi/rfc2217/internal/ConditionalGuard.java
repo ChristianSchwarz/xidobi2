@@ -6,18 +6,17 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import static java.lang.Math.max;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * @author Christian Schwarz
- * 
  */
-public class ConditionalGuard  {
+public class ConditionalGuard {
 
 	/** This lock guards the {@link #change}-Condition */
 	private final Lock lock = new ReentrantLock();
@@ -26,7 +25,8 @@ public class ConditionalGuard  {
 	private final java.util.concurrent.locks.Condition change = lock.newCondition();
 
 	/** This interface is used to implement the specific behavior of will accept and will send */
-	public static interface Condition {
+	public interface Condition {
+
 		boolean isSatisfied();
 
 	}
@@ -35,7 +35,7 @@ public class ConditionalGuard  {
 	 * Returns <code>true</code> if the loop finished because the option was accepted return
 	 * <code>false</code> if an timeout was detected.
 	 */
-	public boolean awaitUninterruptibly(Condition condition, long timeoutMs)  {
+	public boolean awaitUninterruptibly(Condition condition, long timeoutMs) {
 		long startTime = currentTimeMillis();
 
 		long remainingTime = timeoutMs;

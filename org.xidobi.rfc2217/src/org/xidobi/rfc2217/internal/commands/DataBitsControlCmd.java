@@ -6,16 +6,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
-import org.xidobi.DataBits;
-import org.xidobi.spi.Preconditions;
-
 import static org.xidobi.DataBits.DATABITS_5;
 import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.DataBits.DATABITS_7;
@@ -24,6 +14,15 @@ import static org.xidobi.DataBits.DATABITS_9;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_DATASIZE_RESP;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import org.xidobi.DataBits;
 
 //@formatter:off
 /**
@@ -67,14 +66,12 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
-		
+
 		this.dataBits = toByte(dataBits);
 
 	}
 
 	/**
-	 * 
-	 * 
 	 * Decodes the {@link DataBits} value from the first byte of the <i>input</i>. The values 0-127
 	 * are supported, if any other value is read an {@link IOException} will be thrown.
 	 * 
@@ -86,7 +83,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	public DataBitsControlCmd(@Nonnull DataInput input) throws IOException {
 		super(SET_DATASIZE_RESP);
 		dataBits = input.readByte();
-		
+
 		if (dataBits < 0 || dataBits > 127)
 			throw new IOException("Unexpected dataBits value: " + dataBits);
 	}
@@ -141,8 +138,8 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	/**
 	 * Returns {@link DataBits}-value of this control command.
 	 * 
-	 * @return <code>null</code>, when the decoded data bits value has no
-	 *         corresponding {@link DataBits} value
+	 * @return <code>null</code>, when the decoded data bits value has no corresponding
+	 *         {@link DataBits} value
 	 */
 	@CheckForNull
 	public DataBits getDataBits() {

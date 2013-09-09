@@ -1,5 +1,8 @@
 package org.xidobi.rfc2217.internal;
 
+import static org.xidobi.rfc2217.internal.ArrayUtil.toByteArray;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -14,31 +17,32 @@ import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import static org.xidobi.rfc2217.internal.ArrayUtil.toByteArray;
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-
 /**
  * Handles the RFC 2217 telnet COM-PORT-OPTION.
  * 
  * @see <a href="http://tools.ietf.org/html/rfc2217">RFC 2217</a>
+ * @author Christian Schwarz
  */
 public class ComPortOptionHandler extends SimpleOptionHandler {
 
-	/** Call back that is implemented to process received responses*/
+	/** Call back that is implemented to process received responses */
 	@SuppressWarnings("javadoc")
-	public static interface CommandProcessor {
+	public interface CommandProcessor {
+
 		/** Will be called when a control command reponse was received */
 		void onResponseReceived(AbstractControlCmd response);
 	}
-	public static interface DecoderErrorHandler{
-		/** Will be called when a message could not be decoded.	 */
+
+	public interface DecoderErrorHandler {
+
+		/** Will be called when a message could not be decoded. */
 		void onDecoderError(IOException e);
 	}
 
 	/** The processor will be notified when a command response was received */
 	@Nonnull
 	private final CommandProcessor commandProcessor;
-	
+
 	/** Used to decode response */
 	@Nonnull
 	private final ControlResponseDecoder decoder;
@@ -46,19 +50,17 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 	private DecoderErrorHandler errorHandler;
 
 	/**
-	 * 
 	 * @param commandProcessor
 	 */
 	public ComPortOptionHandler(CommandProcessor commandProcessor,
-		                     	DecoderErrorHandler errorHandler) {
-		this(commandProcessor,errorHandler, new ControlResponseDecoder());
+								DecoderErrorHandler errorHandler) {
+		this(commandProcessor, errorHandler, new ControlResponseDecoder());
 	}
 
 	@VisibleForTesting
 	ComPortOptionHandler(	CommandProcessor commandProcessor,
-	                     	DecoderErrorHandler errorHandler,
-							ControlResponseDecoder decoder
-							) {
+							DecoderErrorHandler errorHandler,
+							ControlResponseDecoder decoder) {
 		super(COM_PORT_OPTION, true, false, true, false);
 		if (commandProcessor == null)
 			throw new IllegalArgumentException("Parameter >commandProcessor< must not be null!");
@@ -74,7 +76,7 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	@Override
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
-		System.err.println("<-"+Arrays.toString(toByteArray(suboptionData, suboptionLength)));
+		System.err.println("<-" + Arrays.toString(toByteArray(suboptionData, suboptionLength)));
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
 		AbstractControlCmd resp;
 		try {
@@ -96,5 +98,4 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 		return new DataInputStream(new ByteArrayInputStream(toByteArray(suboptionData, suboptionLength)));
 	}
 
-	
 }

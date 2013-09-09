@@ -1,5 +1,11 @@
 package org.xidobi.rfc2217.internal.commands;
 
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -7,12 +13,6 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.xidobi.StopBits;
-
-import static org.xidobi.StopBits.STOPBITS_1;
-import static org.xidobi.StopBits.STOPBITS_1_5;
-import static org.xidobi.StopBits.STOPBITS_2;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
 
 //@formatter:off
 /**
@@ -66,8 +66,8 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	public StopBitsControlCmd(DataInput input) throws IOException {
 		super(SET_STOPSIZE_RESP);
 		stopBits = input.readByte();
-		if(stopBits<0 || stopBits>127)
-			throw new IOException("Unexpected stopBits value: "+stopBits);
+		if (stopBits < 0 || stopBits > 127)
+			throw new IOException("Unexpected stopBits value: " + stopBits);
 	}
 
 	@Override
@@ -106,7 +106,6 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 * @param stopBits
 	 *            the {@link StopBits} that needs to be translated for the output byte value
 	 * @return the byte value belonging to the assigned {@link StopBits}
-	 * 
 	 * @throws IOException
 	 *             when there was no byte value found to the assigned {@link StopBits}
 	 */
@@ -148,6 +147,5 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	public String toString() {
 		return "StopBitsControlCmd [stopBits=" + stopBits + "]";
 	}
-
 
 }

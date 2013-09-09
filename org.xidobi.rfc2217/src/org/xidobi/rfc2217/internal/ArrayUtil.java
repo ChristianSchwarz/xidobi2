@@ -8,13 +8,13 @@ package org.xidobi.rfc2217.internal;
 
 /**
  * @author Christian Schwarz
- * 
  */
 @SuppressWarnings("javadoc")
 public class ArrayUtil {
 
 	/** This class is not intended to be instanciated */
-	private ArrayUtil() {}
+	private ArrayUtil() {
+	}
 
 	/** Transforms the given byte[] to an int[] by coping all bytes into it. */
 	public static int[] toIntArray(byte[] bytes) {
@@ -25,10 +25,9 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * 
 	 * Transforms the given int[] to an byte[]. Only the byte of lowest order will be copied, higher
-	 * ordered bytes of an int will be ignored, e.g. {@code int[]{0x102} will be converted to
-	 * {@code byte[]{0x02}
+	 * ordered bytes of an int will be ignored, e.g. {@code int[] 0x102} will be converted to
+	 * {@code byte[] 0x02}
 	 */
 	public static byte[] toByteArray(int[] bytes, int length) {
 		byte[] result = new byte[length];

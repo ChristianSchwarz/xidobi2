@@ -13,7 +13,6 @@ import org.xidobi.rfc2217.internal.RFC2217;
 
 /**
  * @author Christian Schwarz
- *
  */
 public interface ControlCmd {
 
