@@ -20,12 +20,12 @@ import static org.junit.rules.ExpectedException.none;
 import static testtools.MessageBuilder.buffer;
 
 /**
- * Tests the class {@link SignaturControlCmd}
+ * Tests the class {@link SignatureControlCmd}
  * 
  * @author Christin Nitsche
  * 
  */
-public class TestSignaturControlCmd {
+public class TestSignatureControlCmd {
 
 	@Rule
 	public ExpectedException exception = none();
@@ -33,7 +33,7 @@ public class TestSignaturControlCmd {
 	@Mock
 	private DataOutput output;
 
-	private SignaturControlCmd cmd;
+	private SignatureControlCmd cmd;
 	@Mock
 	private DataInput input;
 
@@ -52,7 +52,7 @@ public class TestSignaturControlCmd {
 	public void new_withNull() throws Exception {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage("The parameter >signatur< must not be null");
-		new SignaturControlCmd((String) null);
+		new SignatureControlCmd((String) null);
 	}
 
 	/**
@@ -60,8 +60,8 @@ public class TestSignaturControlCmd {
 	 */
 	@Test
 	public void read_Signatur() throws Exception {
-		cmd = new SignaturControlCmd(buffer().putBytes("version 1.0").toDataInput());
-		assertThat(cmd.getSignatur(), is("version 1.0"));
+		cmd = new SignatureControlCmd(buffer().putBytes("version 1.0").toDataInput());
+		assertThat(cmd.getSignature(), is("version 1.0"));
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class TestSignaturControlCmd {
 	 */
 	@Test
 	public void write_signatur() throws Exception {
-		cmd = new SignaturControlCmd("version 1.0");
+		cmd = new SignatureControlCmd("version 1.0");
 		cmd.write(output);
 		verify(output).writeChars("version 1.0");
 	}
@@ -81,8 +81,8 @@ public class TestSignaturControlCmd {
 	 */
 	@Test
 	public void equalCommands() throws Exception {
-		SignaturControlCmd cmd = new SignaturControlCmd("version 1.0");
-		SignaturControlCmd cmd2 = new SignaturControlCmd("version 1.0");
+		SignatureControlCmd cmd = new SignatureControlCmd("version 1.0");
+		SignatureControlCmd cmd2 = new SignatureControlCmd("version 1.0");
 		assertThat(cmd.equals(cmd2), is(true));
 	}
 
@@ -93,8 +93,8 @@ public class TestSignaturControlCmd {
 	 */
 	@Test
 	public void notEqualCommands() throws Exception {
-		SignaturControlCmd cmd = new SignaturControlCmd("version 1.0");
-		SignaturControlCmd cmd2 = new SignaturControlCmd("version 2.0");
+		SignatureControlCmd cmd = new SignatureControlCmd("version 1.0");
+		SignatureControlCmd cmd2 = new SignatureControlCmd("version 2.0");
 		assertThat(cmd.equals(cmd2), is(false));
 	}
 
@@ -103,7 +103,7 @@ public class TestSignaturControlCmd {
 	 */
 	@Test
 	public void commandToString() throws Exception {
-		SignaturControlCmd cmd = new SignaturControlCmd("version 1.0");
-		assertThat(cmd.toString(), is("SignaturControlCmd [signatur=version 1.0]"));
+		SignatureControlCmd cmd = new SignatureControlCmd("version 1.0");
+		assertThat(cmd.toString(), is("SignatureControlCmd [signature=version 1.0]"));
 	}
 }

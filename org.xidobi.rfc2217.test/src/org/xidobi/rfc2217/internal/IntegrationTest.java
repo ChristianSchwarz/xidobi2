@@ -14,25 +14,14 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.io.IOException;
 
 import org.junit.After;
-import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xidobi.SerialConnection;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.rfc2217.Rfc2217SerialPort;
-
-
-
-
-
-
-
-import com.google.common.io.Closeables;
-
-import static java.net.InetSocketAddress.createUnresolved;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Christian Schwarz
@@ -55,7 +44,7 @@ public class IntegrationTest {
 	}
 
 	@After
-	public void tearDown() throws IOException {
+	public void tearDown() {
 		closeQuietly(connection);
 	}
 
@@ -103,23 +92,20 @@ public class IntegrationTest {
 		connection.read();
 	}
 
-	/**
-	 * Wenn when, then.
-	 * @throws InterruptedException 
-	 */
 	@Test
+	@Ignore
 	public void name() throws IOException, InterruptedException {
-		port = new Rfc2217SerialPort(createUnresolved("192.168.200.111", 10001));
+		port = new Rfc2217SerialPort(createUnresolved("192.168.200.81", 23));
 		connection = port.open(SerialPortSettings.from9600bauds8N1().create());
 
-		while (true){
-			byte[] data=connection.read();
+		while (true) {
+			byte[] data = connection.read();
 			String x = "";
 			for (byte b : data) {
 				String hex = toHexString(b & 0xff);
-				if (hex.length()==1)
-					hex = "0"+hex;
-				x+=hex+" ";
+				if (hex.length() == 1)
+					hex = "0" + hex;
+				x += hex + " ";
 			}
 			System.out.println(x);
 			Thread.sleep(1000);

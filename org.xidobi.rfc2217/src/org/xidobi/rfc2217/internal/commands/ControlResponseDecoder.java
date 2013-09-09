@@ -51,7 +51,7 @@ public class ControlResponseDecoder {
 			case SET_CONTROL_RESP:
 				return new FlowControlCmd(input);
 			case SIGNATURE_RESP:
-				return new SignaturControlCmd(input);
+				return new SignatureControlCmd(input);
 		}
 
 		throw new IOException("Unknown command option! Got: " + command);
