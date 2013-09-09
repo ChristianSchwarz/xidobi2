@@ -115,7 +115,7 @@ public class TestControlResponseDecoder {
 	@Test
 	public void decode_signature() throws IOException {
 		resp = decoder.decode(signatureResponse("Signature").toDataInput());
-		assertThat(resp, is(instanceOf(SignaturControlCmd.class)));
+		assertThat(resp, is(instanceOf(SignatureControlCmd.class)));
 	}
 
 	/**

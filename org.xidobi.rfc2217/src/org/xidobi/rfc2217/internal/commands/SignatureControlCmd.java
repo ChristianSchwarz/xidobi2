@@ -1,11 +1,13 @@
 package org.xidobi.rfc2217.internal.commands;
 
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
+import javax.annotation.Nonnull;
 
 /**
  * This command may be sent by either the client or the access server to exchange signature
@@ -16,52 +18,51 @@ import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
  * translated to IAC-IAC to avoid conflict with the IAC which terminates the command.
  * 
  * @author Christin Nitsche
- * 
  */
-public class SignaturControlCmd extends AbstractControlCmd {
+public class SignatureControlCmd extends AbstractControlCmd {
 
-	private String signatur;
+	private String signature;
 
-	public SignaturControlCmd(String signatur) throws IOException {
+	public SignatureControlCmd(@Nonnull String signature) {
 		super(SIGNATURE_REQ);
-		if (signatur == null)
+		if (signature == null)
 			throw new IllegalArgumentException("The parameter >signatur< must not be null");
-		this.signatur = signatur;
+		this.signature = signature;
 	}
 
 	/**
-	 * Creates a new {@link SignaturControlCmd}
+	 * Creates a new {@link SignatureControlCmd}
 	 * 
 	 * @param input
 	 *            used to decode the content of the command, must not be <code>null</code>
 	 * @throws IOException
 	 *             if the message is malformed or the underlying media can't be read
 	 */
-	SignaturControlCmd(DataInput input) throws IOException {
+	SignatureControlCmd(DataInput input) throws IOException {
 		super(SIGNATURE_RESP);
-		
-		signatur = input.readLine();
+
+		signature = input.readLine();
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.writeChars(signatur);
+		output.writeChars(signature);
 	}
-	
+
 	/**
 	 * Returns the preferred signatur.
 	 * 
 	 * @return
 	 */
-	public String getSignatur() {
-		return signatur;
+	public String getSignature() {
+		return signature;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((signatur == null) ? 0 : signatur.hashCode());
+		result = prime * result + ((signature == null) ? 0 : signature.hashCode());
 		return result;
 	}
 
@@ -73,18 +74,18 @@ public class SignaturControlCmd extends AbstractControlCmd {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SignaturControlCmd other = (SignaturControlCmd) obj;
-		if (signatur == null) {
-			if (other.signatur != null)
+		SignatureControlCmd other = (SignatureControlCmd) obj;
+		if (signature == null) {
+			if (other.signature != null)
 				return false;
-		} else if (!signatur.equals(other.signatur))
+		} else if (!signature.equals(other.signature))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "SignaturControlCmd [signatur=" + signatur + "]";
+		return "SignatureControlCmd [signature=" + signature + "]";
 	}
 
 }
