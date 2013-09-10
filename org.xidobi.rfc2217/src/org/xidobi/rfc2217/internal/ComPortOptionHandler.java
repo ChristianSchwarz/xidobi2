@@ -91,7 +91,7 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	@Override
 	public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
-		System.err.println("<-" + Arrays.toString(toByteArray(suboptionData, suboptionLength)));
+		
 		DataInput input = createDataInputFrom(suboptionData, suboptionLength);
 		AbstractControlCmd resp;
 		try {
@@ -103,7 +103,6 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 			return null;
 		}
 		commandProcessor.onResponseReceived(resp);
-		System.err.println(resp);
 
 		return null;
 	}
