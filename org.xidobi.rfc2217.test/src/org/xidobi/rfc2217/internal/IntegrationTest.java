@@ -38,6 +38,7 @@ import org.xidobi.rfc2217.Rfc2217SerialPort;
  * @author Christian Schwarz
  * @author Peter-René Jeschke
  */
+@Ignore
 public class IntegrationTest {
 
 	/** needed to verifiy exception */
