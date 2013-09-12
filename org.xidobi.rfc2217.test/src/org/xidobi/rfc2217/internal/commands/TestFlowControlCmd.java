@@ -77,7 +77,7 @@ public class TestFlowControlCmd {
 	@Test
 	public void new_with_RTSCTS_out() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The parameter >flowControl< must not be FLOWCONTROL_RTSCTS_OUT, use FLOWCONTROL_RTSCTS_IN_OUT instead.");
+		exception.expectMessage("Argument >flowControl< is invalid! FLOWCONTROL_RTSCTS_OUT is not allowed, use FLOWCONTROL_RTSCTS_IN_OUT instead.");
 
 		new FlowControlCmd(FLOWCONTROL_RTSCTS_OUT);
 	}
@@ -89,7 +89,7 @@ public class TestFlowControlCmd {
 	@Test
 	public void new_with_XONXOFF_out() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The parameter >flowControl< must not be FLOWCONTROL_XONXOFF_OUT, use FLOWCONTROL_XONXOFF_IN_OUT instead.");
+		exception.expectMessage("Argument >flowControl< is invalid! FLOWCONTROL_XONXOFF_OUT is not allowed, use FLOWCONTROL_XONXOFF_IN_OUT instead.");
 
 		new FlowControlCmd(FLOWCONTROL_XONXOFF_OUT);
 	}
@@ -265,15 +265,4 @@ public class TestFlowControlCmd {
 		FlowControlCmd cmd = new FlowControlCmd(FLOWCONTROL_XONXOFF_IN_OUT);
 		assertThat(cmd.toString(), is("FlowControlCmd [flowControl=2]"));
 	}
-
-	/**
-	 * Checks wether the setter works correct.
-	 */
-	@Test
-	public void setFlowControl() {
-		FlowControlCmd cmd = new FlowControlCmd(FLOWCONTROL_XONXOFF_IN_OUT);
-		cmd.setFlowControl((byte) 1);
-		assertThat(cmd.getFlowControl(), is(FLOWCONTROL_NONE));
-	}
-
 }

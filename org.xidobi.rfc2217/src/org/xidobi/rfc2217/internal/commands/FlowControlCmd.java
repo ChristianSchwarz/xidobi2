@@ -15,6 +15,15 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
+import org.xidobi.FlowControl;
+
 import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
@@ -24,15 +33,8 @@ import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
 import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_OUT;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_CONTROL_RESP;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
-import org.xidobi.FlowControl;
+import static org.xidobi.spi.Preconditions.checkArgument;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 //@formatter:off
 /**
@@ -54,8 +56,32 @@ import org.xidobi.FlowControl;
 //@formatter:on
 public class FlowControlCmd extends AbstractControlCmd {
 
-	/** The preferred flowcontrol. */
-	private byte flowControl;
+	/** The flowcontrol value of this control command, as defined in RFC2217. */
+	private final byte flowControlRfc2217;
+	/**
+	 * The flowcontrol value of this control command, as defined in xidobi, or <code>null</code> if
+	 * no equivalent mapping to {@link #flowControlRfc2217} exist
+	 */
+	private final FlowControl flowControlXidobi;
+
+	private final static BiMap<FlowControl, Byte> MAP = new BiMap<FlowControl, Byte>() {
+		{
+			put(FLOWCONTROL_NONE, (byte) 1);
+
+			put(FLOWCONTROL_XONXOFF_OUT, (byte) 2);
+			put(FLOWCONTROL_XONXOFF_IN_OUT, (byte) 2);
+			// ^ don't change the order of these two lines above, otherwise the correct mapping will
+			// be broken
+
+			put(FLOWCONTROL_RTSCTS_OUT, (byte) 3);
+			put(FLOWCONTROL_RTSCTS_IN_OUT, (byte) 3);
+			// ^ don't change the order of these two lines above, otherwise the correct mapping will
+			// be broken
+
+			put(FLOWCONTROL_XONXOFF_IN, (byte) 15);
+			put(FLOWCONTROL_RTSCTS_IN, (byte) 16);
+		}
+	};
 
 	/**
 	 * Creates a new {@link FlowControlCmd}.
@@ -65,10 +91,17 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 */
 	public FlowControlCmd(FlowControl flowControl) {
 		super(SET_CONTROL_REQ);
-		if (flowControl == null)
-			throw new IllegalArgumentException("The parameter >flowControl< must not be null");
-		checkFlowControl(flowControl);
-		this.flowControl = toByte(flowControl);
+		checkArgumentNotNull(flowControl, "flowControl");
+		checkArgument(flowControl != FLOWCONTROL_RTSCTS_OUT, "flowControl", FLOWCONTROL_RTSCTS_OUT + " is not allowed, use " + FLOWCONTROL_RTSCTS_IN_OUT + " instead.");
+		checkArgument(flowControl != FLOWCONTROL_XONXOFF_OUT, "flowControl", FLOWCONTROL_XONXOFF_OUT + " is not allowed, use " + FLOWCONTROL_XONXOFF_IN_OUT + " instead.");
+
+		final Byte f = MAP.getRfc2217Equivalent(flowControl);
+		if (f == null)
+			throw new IllegalStateException("Unexpected flowControl value:" + flowControl);
+		this.flowControlRfc2217 = f;
+
+		flowControlXidobi = flowControl;
+
 	}
 
 	/**
@@ -81,14 +114,15 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 */
 	public FlowControlCmd(@Nonnull DataInput input) throws IOException {
 		super(SET_CONTROL_RESP);
-		flowControl = input.readByte();
-		if (flowControl < 0 || flowControl > 127)
-			throw new IOException("Unexpected Flow Control value: " + flowControl);
+		flowControlRfc2217 = input.readByte();
+		if (flowControlRfc2217 < 0 || flowControlRfc2217 > 127)
+			throw new IOException("Unexpected Flow Control value: " + flowControlRfc2217);
+		flowControlXidobi = MAP.getXidobiEquivalent(flowControlRfc2217);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.writeByte(flowControl);
+		output.writeByte(flowControlRfc2217);
 	}
 
 	/**
@@ -99,88 +133,19 @@ public class FlowControlCmd extends AbstractControlCmd {
 	 */
 	@CheckForNull
 	public FlowControl getFlowControl() {
-		return toEnum(flowControl);
-	}
-
-	/**
-	 * Checks the flowcontrol for the illegal arguments rts/cts out and xon/xoff out.
-	 * 
-	 * @param flowControl
-	 *            the flowcontrol to check
-	 */
-	private void checkFlowControl(FlowControl flowControl) {
-		if (flowControl == FLOWCONTROL_RTSCTS_OUT)
-			throw new IllegalArgumentException("The parameter >flowControl< must not be " + FLOWCONTROL_RTSCTS_OUT + ", use " + FLOWCONTROL_RTSCTS_IN_OUT + " instead.");
-		if (flowControl == FLOWCONTROL_XONXOFF_OUT)
-			throw new IllegalArgumentException("The parameter >flowControl< must not be " + FLOWCONTROL_XONXOFF_OUT + ", use " + FLOWCONTROL_XONXOFF_IN_OUT + " instead.");
-	}
-
-	/**
-	 * Returns the {@link FlowControl} belonging to the assigned byte value.
-	 * 
-	 * @param flowControl
-	 *            the input byte value
-	 * @return the {@link FlowControl} belonging to the assigned byte value
-	 * @throws IOException
-	 *             when there was no {@link FlowControl} found to the assigned byte value
-	 */
-	private FlowControl toEnum(final byte flowControl) {
-		switch (flowControl) {
-			case 1:
-				return FLOWCONTROL_NONE;
-			case 2:
-				return FLOWCONTROL_XONXOFF_IN_OUT;
-			case 3:
-				return FLOWCONTROL_RTSCTS_IN_OUT;
-			case 15:
-				return FLOWCONTROL_XONXOFF_IN;
-			case 16:
-				return FLOWCONTROL_RTSCTS_IN;
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the byte value belonging to the assigned {@link FlowControl}.
-	 * 
-	 * @param flowControl
-	 *            the {@link FlowControl} that needs to be translated for the output byte value
-	 * @return the byte value belonging to the assigned {@link FlowControl}
-	 * @throws IOException
-	 *             when there was no byte value found to the assigned {@link FlowControl}
-	 */
-	private byte toByte(FlowControl flowControl) {
-		switch (flowControl) {
-			case FLOWCONTROL_NONE:
-				return 1;
-			case FLOWCONTROL_XONXOFF_IN_OUT:
-			case FLOWCONTROL_XONXOFF_OUT:
-				return 2;
-			case FLOWCONTROL_RTSCTS_IN_OUT:
-			case FLOWCONTROL_RTSCTS_OUT:
-				return 3;
-			case FLOWCONTROL_XONXOFF_IN:
-				return 15;
-			case FLOWCONTROL_RTSCTS_IN:
-				return 16;
-		}
-		throw new IllegalStateException("Unexpected flowControl value:" + flowControl);
-	}
-
-	public void setFlowControl(byte flowControl) {
-		this.flowControl = flowControl;
+		return flowControlXidobi;
 	}
 
 	@Override
 	public String toString() {
-		return "FlowControlCmd [flowControl=" + flowControl + "]";
+		return "FlowControlCmd [flowControl=" + flowControlRfc2217 + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + flowControl;
+		result = prime * result + flowControlRfc2217;
 		return result;
 	}
 
@@ -193,7 +158,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 		if (getClass() != obj.getClass())
 			return false;
 		FlowControlCmd other = (FlowControlCmd) obj;
-		if (flowControl != other.flowControl)
+		if (flowControlRfc2217 != other.flowControlRfc2217)
 			return false;
 		return true;
 	}
