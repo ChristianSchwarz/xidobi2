@@ -25,7 +25,7 @@ public class BiMap<T_Xidobi, T_Rfc2217> {
 	 * @param xidobiValue
 	 * @param rfc2217Value
 	 */
-	final void addEquivalents(@Nullable T_Xidobi xidobiValue,@Nullable T_Rfc2217 rfc2217Value){
+	final void put(@Nullable T_Xidobi xidobiValue,@Nullable T_Rfc2217 rfc2217Value){
 		mapXidobiToRfc2217.put(xidobiValue, rfc2217Value);
 		mapRfc2217ToXidobi.put(rfc2217Value, xidobiValue);
 	}

@@ -44,7 +44,7 @@ public class TestBiMap {
 	 */
 	@Test
 	public void getRfc2217Equivalent_null()  {
-		map.addEquivalents(null, -1);
+		map.put(null, -1);
 		
 		assertThat(map.getRfc2217Equivalent(null),is(-1));
 	}
@@ -56,7 +56,7 @@ public class TestBiMap {
 	 */
 	@Test
 	public void getXidobiEquivalent_null()  {
-		map.addEquivalents("-", null);
+		map.put("-", null);
 		
 		assertThat(map.getXidobiEquivalent(null),is("-"));
 	}
