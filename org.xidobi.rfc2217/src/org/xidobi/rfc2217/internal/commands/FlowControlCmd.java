@@ -93,13 +93,8 @@ public class FlowControlCmd extends AbstractControlCmd {
 		checkArgument(flowControl != FLOWCONTROL_RTSCTS_OUT, "flowControl", FLOWCONTROL_RTSCTS_OUT + " is not allowed, use " + FLOWCONTROL_RTSCTS_IN_OUT + " instead.");
 		checkArgument(flowControl != FLOWCONTROL_XONXOFF_OUT, "flowControl", FLOWCONTROL_XONXOFF_OUT + " is not allowed, use " + FLOWCONTROL_XONXOFF_IN_OUT + " instead.");
 
-		final Byte f = MAP.getRfc2217Equivalent(flowControl);
-		if (f == null)
-			throw new IllegalStateException("Unexpected flowControl value:" + flowControl);
-		this.flowControlRfc2217 = f;
-
 		flowControlXidobi = flowControl;
-
+		flowControlRfc2217 = MAP.getRfc2217Equivalent(flowControl);
 	}
 
 	/**

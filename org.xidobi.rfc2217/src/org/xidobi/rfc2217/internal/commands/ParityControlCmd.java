@@ -22,7 +22,6 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.xidobi.Parity;
-import org.xidobi.spi.Preconditions;
 
 import static org.xidobi.Parity.PARITY_EVEN;
 import static org.xidobi.Parity.PARITY_MARK;
@@ -81,11 +80,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 		super(SET_PARITY_REQ);
 		checkArgumentNotNull(parity,"parity");
 		
-		Byte p = MAP.getRfc2217Equivalent(parity);
-		if (p == null)
-			throw new IllegalStateException("Unexpected parity value:" + parity);
-		
-		this.parity = p;
+		this.parity = MAP.getRfc2217Equivalent(parity);
 	}
 
 	/**

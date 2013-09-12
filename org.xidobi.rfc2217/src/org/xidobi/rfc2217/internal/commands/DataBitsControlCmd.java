@@ -86,13 +86,9 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
 		checkArgumentNotNull(dataBits, "dataBits");
-		final Byte d = MAP.getRfc2217Equivalent(dataBits);
-		if (d==null)
-			throw new IllegalStateException("Unexpected dataBits value:" + dataBits);
 		
-		this.dataBitsRfc2217 = d;
-		this.dataBitsXidobi = dataBits;
-
+		dataBitsRfc2217 =  MAP.getRfc2217Equivalent(dataBits);;
+		dataBitsXidobi = dataBits;
 	}
 
 	/**
