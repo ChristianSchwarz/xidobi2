@@ -66,11 +66,11 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	private final DataBits dataBitsXidobi;
 
 	private final static BiMap<DataBits,Byte> MAP = new BiMap<DataBits, Byte>(){{
-		addEquivalents(DATABITS_5, (byte)5);
-		addEquivalents(DATABITS_6, (byte)6);
-		addEquivalents(DATABITS_7, (byte)7);
-		addEquivalents(DATABITS_8, (byte)8);
-		addEquivalents(DATABITS_9, (byte)9);
+		put(DATABITS_5, (byte)5);
+		put(DATABITS_6, (byte)6);
+		put(DATABITS_7, (byte)7);
+		put(DATABITS_8, (byte)8);
+		put(DATABITS_9, (byte)9);
 	}};
 	
 	/**
