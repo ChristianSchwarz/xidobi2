@@ -68,7 +68,7 @@ public class TestParityControlCmd {
 	@Test
 	public void new_withNull() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The parameter >parity< must not be null");
+		exception.expectMessage("Argument >parity< must not be null");
 		new ParityControlCmd((Parity) null);
 	}
 

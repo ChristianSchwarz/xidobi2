@@ -15,6 +15,15 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import org.xidobi.Parity;
+import org.xidobi.spi.Preconditions;
+
 import static org.xidobi.Parity.PARITY_EVEN;
 import static org.xidobi.Parity.PARITY_MARK;
 import static org.xidobi.Parity.PARITY_NONE;
@@ -22,15 +31,7 @@ import static org.xidobi.Parity.PARITY_ODD;
 import static org.xidobi.Parity.PARITY_SPACE;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_REQ;
 import static org.xidobi.rfc2217.internal.RFC2217.SET_PARITY_RESP;
-
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
-import org.xidobi.DataBits;
-import org.xidobi.Parity;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 //@formatter:off
 /**
@@ -60,6 +61,16 @@ public class ParityControlCmd extends AbstractControlCmd {
 	@Nonnull
 	private byte parity;
 
+	//@formatter:off
+	private final static BiMap<Parity, Byte> MAP = new BiMap<Parity, Byte>() {{
+		put(PARITY_NONE,	(byte) 1);
+		put(PARITY_ODD,		(byte) 2);
+		put(PARITY_EVEN,	(byte) 3);
+		put(PARITY_MARK,	(byte) 4);
+		put(PARITY_SPACE,	(byte) 5);
+	}};
+	//@formatter:on
+
 	/**
 	 * Creates a new {@link ParityControlCmd}-Request using the given parity.
 	 * 
@@ -68,9 +79,13 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 */
 	public ParityControlCmd(@Nonnull Parity parity) {
 		super(SET_PARITY_REQ);
-		if (parity == null)
-			throw new IllegalArgumentException("The parameter >parity< must not be null");
-		this.parity = toByte(parity);
+		checkArgumentNotNull(parity,"parity");
+		
+		Byte p = MAP.getRfc2217Equivalent(parity);
+		if (p == null)
+			throw new IllegalStateException("Unexpected parity value:" + parity);
+		
+		this.parity = p;
 	}
 
 	/**
@@ -94,51 +109,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 	public void write(DataOutput output) throws IOException {
 		output.writeByte(parity);
 	}
-
-	/**
-	 * Transforms the given data bits byte value, as defined by RFC2217 to an {@link DataBits}
-	 * value.
-	 */
-	private Parity toEnum(final byte parity) {
-		switch (parity) {
-			case 1:
-				return PARITY_NONE;
-			case 2:
-				return PARITY_ODD;
-			case 3:
-				return PARITY_EVEN;
-			case 4:
-				return PARITY_MARK;
-			case 5:
-				return PARITY_SPACE;
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the byte value belonging to the assigned {@link Parity}.
-	 * 
-	 * @param parity
-	 *            the {@link Parity} that needs to be translated for the output byte value
-	 * @return the byte value belonging to the assigned {@link Parity}
-	 * @throws IOException
-	 *             when there was no byte value found to the assigned {@link Parity}
-	 */
-	private byte toByte(Parity parity) {
-		switch (parity) {
-			case PARITY_NONE:
-				return 1;
-			case PARITY_ODD:
-				return 2;
-			case PARITY_EVEN:
-				return 3;
-			case PARITY_MARK:
-				return 4;
-			case PARITY_SPACE:
-				return 5;
-		}
-		throw new IllegalStateException("Unexpected parity value:" + parity);
-	}
+	
 
 	/**
 	 * Returns the parity.
@@ -146,7 +117,7 @@ public class ParityControlCmd extends AbstractControlCmd {
 	 * @return the parity
 	 */
 	public Parity getParity() {
-		return toEnum(parity);
+		return MAP.getXidobiEquivalent(parity);
 	}
 
 	@Override
