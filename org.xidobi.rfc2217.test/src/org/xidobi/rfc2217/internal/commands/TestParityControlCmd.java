@@ -64,7 +64,6 @@ public class TestParityControlCmd {
 	 * When a <code>null</code> parity is supplied to the constructor, an
 	 * {@link IllegalArgumentException} must be thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_withNull() {
 		exception.expect(IllegalArgumentException.class);
@@ -78,7 +77,6 @@ public class TestParityControlCmd {
 	 * 
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_withIllegalParity() throws IOException {
 		exception.expect(IOException.class);
