@@ -26,9 +26,11 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.DataBits;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
+import com.google.common.testing.EqualsTester;
 
+import static org.mockito.Mockito.verify;
+
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.xidobi.DataBits.DATABITS_5;
 import static org.xidobi.DataBits.DATABITS_6;
 import static org.xidobi.DataBits.DATABITS_7;
@@ -208,28 +210,24 @@ public class TestDataBitsControlCmd {
 	}
 
 	/**
-	 * Checks whether the commands equal.
-	 * 
+	 * Checks the equals/hashCode contract.
+	 *  
 	 * @throws Exception
 	 */
+	//@formatter:off
 	@Test
-	public void equalCommands() throws Exception {
-		DataBitsControlCmd cmd = new DataBitsControlCmd(DATABITS_5);
-		DataBitsControlCmd cmd2 = new DataBitsControlCmd(DATABITS_5);
-		assertThat(cmd.equals(cmd2), is(true));
+	public void equalsHashCode() throws Exception {
+		new EqualsTester()
+		.addEqualityGroup(new DataBitsControlCmd(DATABITS_7),
+		                  new DataBitsControlCmd(DATABITS_7))
+		.addEqualityGroup(new DataBitsControlCmd(DATABITS_5))
+		.addEqualityGroup(new DataBitsControlCmd(DATABITS_8),
+		                  new DataBitsControlCmd(buffer().putByte(8).toDataInput()))
+		.addEqualityGroup(new DataBitsControlCmd(buffer().putByte(12).toDataInput()),
+		                  new DataBitsControlCmd(buffer().putByte(12).toDataInput()))
+		.testEquals();
 	}
-
-	/**
-	 * Checks whether the commands not equal.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void notEqualCommands() throws Exception {
-		DataBitsControlCmd cmd = new DataBitsControlCmd(DATABITS_5);
-		DataBitsControlCmd cmd2 = new DataBitsControlCmd(DATABITS_6);
-		assertThat(cmd.equals(cmd2), is(false));
-	}
+	//@formatter:on
 
 	/**
 	 * Checks whether the String command is correct.
