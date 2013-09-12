@@ -12,31 +12,39 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * Used by {@link AbstractControlCmd} implementations to map xidobi and rfc2217 bidirectional
+ * Used by {@link AbstractControlCmd} implementations to map equivalent xidobi and rfc2217 values in
+ * a bi-directional way.
+ * 
  * @author Christian Schwarz
- *
+ * @param <T_Xidobi>
+ *            the type the xidobi value
+ * @param <T_Rfc2217>
+ *            the type of the equivalent RFC2217 value
+ * 
  */
 public class BiMap<T_Xidobi, T_Rfc2217> {
 
 	private Map<T_Xidobi, T_Rfc2217> mapXidobiToRfc2217 = new HashMap<T_Xidobi, T_Rfc2217>();
 	private Map<T_Rfc2217, T_Xidobi> mapRfc2217ToXidobi = new HashMap<T_Rfc2217, T_Xidobi>();
+
 	/**
-	 * Adds a mapping of an equivalen xidobi-RFC2217 value pair. 
+	 * Adds a mapping of an equivalen xidobi-RFC2217 value pair.
+	 * 
 	 * @param xidobiValue
 	 * @param rfc2217Value
 	 */
-	final void put(@Nullable T_Xidobi xidobiValue,@Nullable T_Rfc2217 rfc2217Value){
+	final void put(@Nullable T_Xidobi xidobiValue, @Nullable T_Rfc2217 rfc2217Value) {
 		mapXidobiToRfc2217.put(xidobiValue, rfc2217Value);
 		mapRfc2217ToXidobi.put(rfc2217Value, xidobiValue);
 	}
-	
-	/** Returns the equivalent xidobi value of the given RFC2217 value, or null	 */
-	final T_Xidobi getXidobiEquivalent(T_Rfc2217 value){
+
+	/** Returns the equivalent xidobi value of the given RFC2217 value, or null */
+	final T_Xidobi getXidobiEquivalent(T_Rfc2217 value) {
 		return mapRfc2217ToXidobi.get(value);
 	}
-	
-	/** Returns the equivalent RFC2217 value of the given xidobi value, or null	 */
-	final T_Rfc2217 getRfc2217Equivalent(T_Xidobi value){
+
+	/** Returns the equivalent RFC2217 value of the given xidobi value, or null */
+	final T_Rfc2217 getRfc2217Equivalent(T_Xidobi value) {
 		return mapXidobiToRfc2217.get(value);
 	}
 }
