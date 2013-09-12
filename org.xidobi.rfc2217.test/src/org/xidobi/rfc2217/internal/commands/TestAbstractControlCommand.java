@@ -38,7 +38,7 @@ public class TestAbstractControlCommand {
 
 	@Rule
 	public ExpectedException exception = none();
-	private AbstractControlCmd<String, Integer> cmd;
+	private AbstractControlCmd cmd;
 
 	@Before
 	public void setUp() {
@@ -104,53 +104,8 @@ public class TestAbstractControlCommand {
 		assertThat(cmd.getCommandCode(), is((byte) 10));
 	}
 
-	/**
-	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to RFC2217
-	 * value. This ist mostly used to indicate a possible bug of the class that extends
-	 * {@link AbstractControlCmd}.
-	 */
-	@Test
-	public void getRfc2217Equivalent_notMapped()  {
-
-		assertThat(cmd.getRfc2217Equivalent("this a not mapped value"),is(nullValue()));
-	}
-	
-	/**
-	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to RFC2217
-	 * value. This ist mostly used to indicate a possible bug of the class that extends
-	 * {@link AbstractControlCmd}.
-	 */
-	@Test
-	public void getRfc2217Equivalent_null()  {
-		cmd.addEquivalents(null, -1);
-		
-		assertThat(cmd.getRfc2217Equivalent(null),is(-1));
-	}
-	
-	/**
-	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to RFC2217
-	 * value. This ist mostly used to indicate a possible bug of the class that extends
-	 * {@link AbstractControlCmd}.
-	 */
-	@Test
-	public void getXidobiEquivalent_null()  {
-		cmd.addEquivalents("-", null);
-		
-		assertThat(cmd.getXidobiEquivalent(null),is("-"));
-	}
-	
-	/**
-	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to a xidobi
-	 * value. This ist mostly used to indicate a possible bug of the class that extends
-	 * {@link AbstractControlCmd}.
-	 */
-	@Test
-	public void getXidobiEquivalent_notMapped()  {
-		assertThat(cmd.getXidobiEquivalent(null),is(nullValue()));
-	}
-
 	// ///////////////////////////////////////////////////////////////////////////////
-	private class AbstractControlCmdImpl extends AbstractControlCmd<String, Integer> {
+	private class AbstractControlCmdImpl extends AbstractControlCmd {
 
 		AbstractControlCmdImpl(int commandCode) {
 			super(commandCode);

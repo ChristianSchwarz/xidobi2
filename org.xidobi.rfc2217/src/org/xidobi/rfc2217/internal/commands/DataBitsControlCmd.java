@@ -57,7 +57,7 @@ import org.xidobi.DataBits;
  */
 
 //@formatter:on
-public class DataBitsControlCmd extends AbstractControlCmd<DataBits,Byte> {
+public class DataBitsControlCmd extends AbstractControlCmd {
 
 	/** The Data Bits value of this control command as defined in RFC2217 */
 	private final byte dataBitsRfc2217;
@@ -65,13 +65,14 @@ public class DataBitsControlCmd extends AbstractControlCmd<DataBits,Byte> {
 	@Nonnull
 	private final DataBits dataBitsXidobi;
 
-	{
+	private final static BiMap<DataBits,Byte> MAP = new BiMap<DataBits, Byte>(){{
 		addEquivalents(DATABITS_5, (byte)5);
 		addEquivalents(DATABITS_6, (byte)6);
 		addEquivalents(DATABITS_7, (byte)7);
 		addEquivalents(DATABITS_8, (byte)8);
 		addEquivalents(DATABITS_9, (byte)9);
-	}
+	}};
+	
 	/**
 	 * Creates a new {@link DataBitsControlCmd}-Request using the given data bits.
 	 * 
@@ -83,7 +84,7 @@ public class DataBitsControlCmd extends AbstractControlCmd<DataBits,Byte> {
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
 		checkArgumentNotNull(dataBits, "dataBits");
-		final Byte d = getRfc2217Equivalent(dataBits);
+		final Byte d = MAP.getRfc2217Equivalent(dataBits);
 		if (d==null)
 			throw new IllegalStateException("Unexpected dataBits value:" + dataBits);
 		
@@ -107,10 +108,8 @@ public class DataBitsControlCmd extends AbstractControlCmd<DataBits,Byte> {
 		if (dataBitsRfc2217 < 0 || dataBitsRfc2217 > 127)
 			throw new IOException("Unexpected dataBits value: " + dataBitsRfc2217);
 
-		dataBitsXidobi = getXidobiEquivalent(dataBitsRfc2217);
+		dataBitsXidobi = MAP.getXidobiEquivalent(dataBitsRfc2217);
 	}
-
-	
 
 	/**
 	 * Writes this coontrol command into the given {@code output}.
@@ -119,10 +118,6 @@ public class DataBitsControlCmd extends AbstractControlCmd<DataBits,Byte> {
 	public void write(@Nonnull DataOutput output) throws IOException {
 		output.writeByte(dataBitsRfc2217);
 	}
-
-	
-		
-	
 
 	/**
 	 * Returns {@link DataBits}-value of this control command.
