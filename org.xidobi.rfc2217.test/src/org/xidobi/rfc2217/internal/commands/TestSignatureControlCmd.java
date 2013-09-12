@@ -16,10 +16,14 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
+
 import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
+
 import static org.mockito.Mockito.verify;
+
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.Parity.PARITY_SPACE;
 import static testtools.MessageBuilder.buffer;
 
 import java.io.DataInput;
@@ -31,6 +35,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+
+import com.google.common.testing.EqualsTester;
 
 /**
  * Tests the class {@link SignatureControlCmd}
@@ -71,15 +77,6 @@ public class TestSignatureControlCmd {
 	}
 
 	/**
-	 * Checks whether the signatur is read correctly.
-	 */
-	@Test
-	public void read_Signatur() throws Exception {
-		cmd = new SignatureControlCmd(buffer().putBytes("version 1.0").toDataInput());
-		assertThat(cmd.getSignature(), is("version 1.0"));
-	}
-
-	/**
 	 * Check whether the encoded message is correct.
 	 */
 	@Test
@@ -87,16 +84,6 @@ public class TestSignatureControlCmd {
 		cmd = new SignatureControlCmd("version 1.0");
 		cmd.write(output);
 		verify(output).writeChars("version 1.0");
-	}
-
-	/**
-	 * Checks whether the signatur is read correctly, when an IAC present. If an IAC character
-	 * appears in the text it must be translated to IAC-IAC.
-	 */
-	@Test
-	public void read_SignaturWithOnlyIac() throws Exception {
-		cmd = new SignatureControlCmd(buffer().putBytes(iac).toDataInput());
-		assertThat(cmd.getSignature(), is(iac + iac));
 	}
 
 	/**
@@ -111,16 +98,6 @@ public class TestSignatureControlCmd {
 	}
 
 	/**
-	 * Checks whether the signatur is read correctly, when an IAC present.If an IAC character
-	 * appears in the text it must be translated to IAC-IAC.
-	 */
-	@Test
-	public void read_SignaturWithIac() throws Exception {
-		cmd = new SignatureControlCmd(buffer().putBytes("version" + iac + "1.0" + iac).toDataInput());
-		assertThat(cmd.getSignature(), is("version" + iac + iac + "1.0" + iac + iac));
-	}
-
-	/**
 	 * Check whether the encoded message is correct, when an IAC present.If an IAC character appears
 	 * in the text it must be translated to IAC-IAC.
 	 */
@@ -132,28 +109,64 @@ public class TestSignatureControlCmd {
 	}
 
 	/**
-	 * Checks whether the commands equal.
-	 * 
-	 * @throws Exception
+	 * Checks whether the signatur is read correctly.
 	 */
 	@Test
-	public void equalCommands() throws Exception {
-		SignatureControlCmd cmd = new SignatureControlCmd("version 1.0");
-		SignatureControlCmd cmd2 = new SignatureControlCmd("version 1.0");
-		assertThat(cmd.equals(cmd2), is(true));
+	public void read_Signatur() throws Exception {
+		cmd = new SignatureControlCmd(buffer().putBytes("version 1.0").toDataInput());
+		assertThat(cmd.getSignature(), is("version 1.0"));
 	}
 
 	/**
-	 * Checks whether the commands not equal.
-	 * 
-	 * @throws Exception
+	 * When no bytes are contained in the {@link DataInput} the content must be a empty string
+	 * @throws IOException 
 	 */
 	@Test
-	public void notEqualCommands() throws Exception {
-		SignatureControlCmd cmd = new SignatureControlCmd("version 1.0");
-		SignatureControlCmd cmd2 = new SignatureControlCmd("version 2.0");
-		assertThat(cmd.equals(cmd2), is(false));
+	public void read_empty() throws IOException{
+		final DataInput emptyInput = buffer().toDataInput();
+		cmd = new SignatureControlCmd(emptyInput);
+		assertThat(cmd.getSignature(), is(""));
 	}
+	
+	/**
+	 * Checks whether the signatur is read correctly, when an IAC present. If an IAC character
+	 * appears in the text it must be translated to IAC-IAC.
+	 */
+	@Test
+	public void read_signaturWithOneIac() throws Exception {
+		cmd = new SignatureControlCmd(buffer().putBytes(iac).toDataInput());
+		assertThat(cmd.getSignature(), is(iac));
+	}
+
+	/**
+	 * Checks whether the signatur is read correctly, when an IAC present.If an IAC character
+	 * appears in the text it must be translated to IAC-IAC.
+	 */
+	@Test
+	public void read_signaturWithIac() throws Exception {
+		cmd = new SignatureControlCmd(buffer().putBytes(iac + iac).toDataInput());
+		assertThat(cmd.getSignature(), is(iac));
+	}
+
+	/**
+	 * Checks the equals/hashCode contract.
+	 *  
+	 * @throws Exception
+	 */
+	//@formatter:off
+	@Test
+	public void equalsHashCode() throws Exception {
+		new EqualsTester()
+		.addEqualityGroup(new SignatureControlCmd(""),
+		                  new SignatureControlCmd(""),
+		                  new SignatureControlCmd(buffer().toDataInput()),
+		                  new SignatureControlCmd(buffer().toDataInput()))
+			                  
+		.addEqualityGroup(new SignatureControlCmd(buffer().putByte(111).toDataInput()),
+		                  new SignatureControlCmd(buffer().putByte(111).toDataInput()))
+		.testEquals();
+	}
+	//@formatter:on
 
 	/**
 	 * Checks whether the String command is correct.

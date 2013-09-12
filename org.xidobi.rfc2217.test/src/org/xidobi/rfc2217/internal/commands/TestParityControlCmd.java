@@ -17,9 +17,16 @@ package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+
 import static org.junit.Assert.assertThat;
+
 import static org.mockito.Mockito.verify;
+
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
+import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN;
+import static org.xidobi.FlowControl.FLOWCONTROL_XONXOFF_IN_OUT;
 import static org.xidobi.Parity.PARITY_EVEN;
 import static org.xidobi.Parity.PARITY_MARK;
 import static org.xidobi.Parity.PARITY_NONE;
@@ -37,6 +44,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.Parity;
+
+import com.google.common.testing.EqualsTester;
 
 /**
  * Tests the class {@link ParityControlCmd}.
@@ -224,28 +233,24 @@ public class TestParityControlCmd {
 	}
 
 	/**
-	 * Checks whether the commands equal.
-	 * 
+	 * Checks the equals/hashCode contract.
+	 *  
 	 * @throws Exception
 	 */
+	//@formatter:off
 	@Test
-	public void equalCommands() throws Exception {
-		ParityControlCmd cmd = new ParityControlCmd(PARITY_MARK);
-		ParityControlCmd cmd2 = new ParityControlCmd(PARITY_MARK);
-		assertThat(cmd.equals(cmd2), is(true));
+	public void equalsHashCode() throws Exception {
+		new EqualsTester()
+		.addEqualityGroup(new ParityControlCmd(PARITY_SPACE),
+		                  new ParityControlCmd(PARITY_SPACE),
+		                  new ParityControlCmd(buffer().putByte(5).toDataInput()),
+		                  new ParityControlCmd(buffer().putByte(5).toDataInput()))
+			                  
+		.addEqualityGroup(new ParityControlCmd(buffer().putByte(111).toDataInput()),
+		                  new ParityControlCmd(buffer().putByte(111).toDataInput()))
+		.testEquals();
 	}
-
-	/**
-	 * Checks whether the commands not equal.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void notEqualCommands() throws Exception {
-		ParityControlCmd cmd = new ParityControlCmd(PARITY_MARK);
-		ParityControlCmd cmd2 = new ParityControlCmd(PARITY_ODD);
-		assertThat(cmd.equals(cmd2), is(false));
-	}
+	//@formatter:on
 
 	/**
 	 * Checks whether the String command is correct.

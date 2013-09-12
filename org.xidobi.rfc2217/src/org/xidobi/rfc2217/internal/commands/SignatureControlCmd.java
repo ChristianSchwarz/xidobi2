@@ -15,14 +15,15 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
-
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.EOFException;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SIGNATURE_RESP;
 
 /**
  * This command may be sent by either the client or the access server to exchange signature
@@ -37,7 +38,7 @@ import javax.annotation.Nonnull;
  */
 public class SignatureControlCmd extends AbstractControlCmd {
 
-	private String signature;
+	private final String signature;
 
 	/** Telnet commands */
 	private final static int IAC = 255;
@@ -47,7 +48,6 @@ public class SignatureControlCmd extends AbstractControlCmd {
 		if (signature == null)
 			throw new IllegalArgumentException("The parameter >signature< must not be null");
 		this.signature = signature;
-
 	}
 
 	/**
@@ -60,13 +60,21 @@ public class SignatureControlCmd extends AbstractControlCmd {
 	 */
 	SignatureControlCmd(DataInput input) throws IOException {
 		super(SIGNATURE_RESP);
-		signature = input.readLine();
+
+		String escaped = "";
+		try {
+			while (true)
+				escaped += (char) input.readUnsignedByte();
+		}
+		catch (EOFException ignore) {}
+
+		signature = unescapeIAC(escaped);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		translateIAC();
-		output.writeChars(signature);
+
+		output.writeChars(escapeIAC(signature));
 	}
 
 	/**
@@ -75,7 +83,6 @@ public class SignatureControlCmd extends AbstractControlCmd {
 	 * @return
 	 */
 	public String getSignature() {
-		translateIAC();
 		return signature;
 	}
 
@@ -83,19 +90,20 @@ public class SignatureControlCmd extends AbstractControlCmd {
 	 * If an IAC character appears in the text it must be translated to IAC-IAC to avoid conflict
 	 * with the IAC which terminates the command.
 	 */
-	private void translateIAC() {
-		String s = new String();
+	private String escapeIAC(String signature) {
 		String iacString = Character.toString((char) IAC);
-		if (signature.contains(iacString)) {
-			String[] split = signature.split(iacString);
-			if (split.length > 0) {
-				for (int i = 0; i < split.length; i++) {
-					s += split[i] + iacString + iacString;
-				}
-				signature = s;
-			} else
-				signature = signature + signature;
-		}
+		return signature.replace(iacString, iacString + iacString);
+
+	}
+
+	/**
+	 * If an IAC character appears in the text it must be translated to IAC-IAC to avoid conflict
+	 * with the IAC which terminates the command.
+	 */
+	private String unescapeIAC(String signature) {
+		String iacString = Character.toString((char) IAC);
+		return signature.replace(iacString + iacString, iacString);
+
 	}
 
 	@Override
@@ -127,5 +135,4 @@ public class SignatureControlCmd extends AbstractControlCmd {
 	public String toString() {
 		return "SignatureControlCmd [signature=" + signature + "]";
 	}
-
 }
