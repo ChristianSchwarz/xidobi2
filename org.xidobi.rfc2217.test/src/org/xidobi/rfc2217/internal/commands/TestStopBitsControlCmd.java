@@ -63,11 +63,10 @@ public class TestStopBitsControlCmd {
 	 * When a <code>null</code> stopBit is supplied to the constructor, an
 	 * {@link IllegalArgumentException} must be thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_withNullStopBits() {
 		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("The parameter >stopBits< must not be null");
+		exception.expectMessage("Argument >stopBits< must not be null");
 		new StopBitsControlCmd((StopBits) null);
 	}
 
@@ -77,7 +76,6 @@ public class TestStopBitsControlCmd {
 	 * 
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_withIllegalStopBits() throws IOException {
 		exception.expect(IOException.class);
@@ -208,7 +206,6 @@ public class TestStopBitsControlCmd {
 	 * When an invalid value for the stop-bits is in the DataInput, an {@link IOException} is
 	 * expected.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void invalidStopBits() throws IOException {
 		exception.expect(IOException.class);

@@ -215,7 +215,6 @@ public class TestParityControlCmd {
 	/**
 	 * If an invalid parity value is read from the input, an {@link IOException} is expected.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void parity_invalidValue() throws IOException {
 		exception.expect(IOException.class);

@@ -15,12 +15,6 @@
  */
 package org.xidobi.rfc2217.internal.commands;
 
-import static org.xidobi.StopBits.STOPBITS_1;
-import static org.xidobi.StopBits.STOPBITS_1_5;
-import static org.xidobi.StopBits.STOPBITS_2;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
-import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -28,6 +22,13 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.xidobi.StopBits;
+
+import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_1_5;
+import static org.xidobi.StopBits.STOPBITS_2;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_REQ;
+import static org.xidobi.rfc2217.internal.RFC2217.SET_STOPSIZE_RESP;
+import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 //@formatter:off
 /**
@@ -54,19 +55,29 @@ import org.xidobi.StopBits;
 public class StopBitsControlCmd extends AbstractControlCmd {
 
 	/** The stop bits */
-	private byte stopBits;
+	private final byte stopBitsRfc2217;
+	private final StopBits stopBitsXidobi;
+	
+	//@formatter:off
+	private final static BiMap<StopBits, Byte> MAP = new BiMap<StopBits, Byte>() {{
+		put(STOPBITS_1,		(byte) 1);
+		put(STOPBITS_1_5,	(byte) 2);
+		put(STOPBITS_2,		(byte) 3);
+	}};
+	//@formatter:on
+	
 
 	/**
 	 * Creates a new {@link StopBitsControlCmd}-Request using the given stop bits.
 	 * 
 	 * @param stopBits
-	 *            the stopbits, greater or equal to one.
+	 *            the stopbits
 	 */
 	public StopBitsControlCmd(@Nonnull StopBits stopBits) {
 		super(SET_STOPSIZE_REQ);
-		if (stopBits == null)
-			throw new IllegalArgumentException("The parameter >stopBits< must not be null");
-		this.stopBits = toByte(stopBits);
+		checkArgumentNotNull(stopBits, "stopBits"); 
+		stopBitsXidobi = stopBits;
+		stopBitsRfc2217 = MAP.getRfc2217Equivalent(stopBits);
 	}
 
 	/**
@@ -80,14 +91,15 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 */
 	public StopBitsControlCmd(DataInput input) throws IOException {
 		super(SET_STOPSIZE_RESP);
-		stopBits = input.readByte();
-		if (stopBits < 0 || stopBits > 127)
-			throw new IOException("Unexpected stopBits value: " + stopBits);
+		stopBitsRfc2217 = input.readByte();
+		if (stopBitsRfc2217 < 0 || stopBitsRfc2217 > 127)
+			throw new IOException("Unexpected stopBits value: " + stopBitsRfc2217);
+		stopBitsXidobi = MAP.getXidobiEquivalent(stopBitsRfc2217);
 	}
 
 	@Override
 	public void write(DataOutput output) throws IOException {
-		output.writeByte(stopBits);
+		output.writeByte(stopBitsRfc2217);
 	}
 
 	/**
@@ -96,51 +108,14 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	 * @return the stop bits
 	 */
 	public StopBits getStopBits() {
-		return toEnum(stopBits);
-	}
-
-	/**
-	 * Transforms the given stop bits byte value, as defined by RFC2217 to an {@link StopBits}
-	 * value.
-	 */
-	private StopBits toEnum(final byte stopBits) {
-		switch (stopBits) {
-			case 1:
-				return STOPBITS_1;
-			case 2:
-				return STOPBITS_1_5;
-			case 3:
-				return STOPBITS_2;
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the byte value belonging to the assigned {@link StopBits}.
-	 * 
-	 * @param stopBits
-	 *            the {@link StopBits} that needs to be translated for the output byte value
-	 * @return the byte value belonging to the assigned {@link StopBits}
-	 * @throws IOException
-	 *             when there was no byte value found to the assigned {@link StopBits}
-	 */
-	private byte toByte(StopBits stopBits) {
-		switch (stopBits) {
-			case STOPBITS_1:
-				return 1;
-			case STOPBITS_1_5:
-				return 2;
-			case STOPBITS_2:
-				return 3;
-		}
-		throw new IllegalStateException("Unexpected stopBits value:" + stopBits);
+		return stopBitsXidobi;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + stopBits;
+		result = prime * result + stopBitsRfc2217;
 		return result;
 	}
 
@@ -153,14 +128,14 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 		if (getClass() != obj.getClass())
 			return false;
 		StopBitsControlCmd other = (StopBitsControlCmd) obj;
-		if (stopBits != other.stopBits)
+		if (stopBitsRfc2217 != other.stopBitsRfc2217)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "StopBitsControlCmd [stopBits=" + stopBits + "]";
+		return "StopBitsControlCmd [stopBits=" + stopBitsRfc2217 + "]";
 	}
 
 }
