@@ -65,6 +65,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	@Nonnull
 	private final DataBits dataBitsXidobi;
 
+	//@formatter:off
 	private final static BiMap<DataBits,Byte> MAP = new BiMap<DataBits, Byte>(){{
 		put(DATABITS_5, (byte)5);
 		put(DATABITS_6, (byte)6);
@@ -72,6 +73,7 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 		put(DATABITS_8, (byte)8);
 		put(DATABITS_9, (byte)9);
 	}};
+	//@formatter:on
 	
 	/**
 	 * Creates a new {@link DataBitsControlCmd}-Request using the given data bits.
