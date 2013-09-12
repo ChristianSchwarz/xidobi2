@@ -71,12 +71,12 @@ public class FlowControlCmd extends AbstractControlCmd {
 		put(FLOWCONTROL_XONXOFF_OUT,	(byte) 2);
 		put(FLOWCONTROL_XONXOFF_IN_OUT,	(byte) 2);
 		// ^ don't change the order of these two lines above, otherwise the correct mapping will be broken
+		put(FLOWCONTROL_XONXOFF_IN,		(byte) 15);
+
 
 		put(FLOWCONTROL_RTSCTS_OUT,		(byte) 3);
 		put(FLOWCONTROL_RTSCTS_IN_OUT,	(byte) 3);
 		// ^ don't change the order of these two lines above, otherwise the correct mapping will be broken
-
-		put(FLOWCONTROL_XONXOFF_IN,		(byte) 15);
 		put(FLOWCONTROL_RTSCTS_IN,		(byte) 16);
 	}};
 	//@formatter:on

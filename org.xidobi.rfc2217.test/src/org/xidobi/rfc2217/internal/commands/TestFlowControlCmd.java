@@ -17,9 +17,15 @@ package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+
 import static org.junit.Assert.assertThat;
+
 import static org.mockito.Mockito.verify;
+
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.xidobi.DataBits.DATABITS_5;
+import static org.xidobi.DataBits.DATABITS_7;
+import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN;
 import static org.xidobi.FlowControl.FLOWCONTROL_RTSCTS_IN_OUT;
@@ -39,6 +45,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.xidobi.FlowControl;
+
+import com.google.common.testing.EqualsTester;
 
 /**
  * Tests the class {@link FlowControlCmd}.
@@ -234,28 +242,34 @@ public class TestFlowControlCmd {
 	}
 
 	/**
-	 * Checks whether the commands equal.
-	 * 
+	 * Checks the equals/hashCode contract.
+	 *  
 	 * @throws Exception
 	 */
+	//@formatter:off
 	@Test
-	public void equalCommands() throws Exception {
-		FlowControlCmd cmd = new FlowControlCmd(FLOWCONTROL_RTSCTS_IN);
-		FlowControlCmd cmd2 = new FlowControlCmd(FLOWCONTROL_RTSCTS_IN);
-		assertThat(cmd.equals(cmd2), is(true));
-	}
+	public void equalsHashCode() throws Exception {
+		new EqualsTester()
+		.addEqualityGroup(new FlowControlCmd(FLOWCONTROL_XONXOFF_IN_OUT),
+		                  new FlowControlCmd(FLOWCONTROL_XONXOFF_IN_OUT),
+		                  new FlowControlCmd(buffer().putByte(2).toDataInput()),
+		                  new FlowControlCmd(buffer().putByte(2).toDataInput()))
+		                  
+		.addEqualityGroup(new FlowControlCmd(FLOWCONTROL_RTSCTS_IN_OUT),
+                          new FlowControlCmd(FLOWCONTROL_RTSCTS_IN_OUT),
+                          new FlowControlCmd(buffer().putByte(3).toDataInput()),
+                          new FlowControlCmd(buffer().putByte(3).toDataInput()))
+		                  
+		.addEqualityGroup(new FlowControlCmd(FLOWCONTROL_NONE))
 
-	/**
-	 * Checks whether the commands not equal.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void notEqualCommands() throws Exception {
-		FlowControlCmd cmd = new FlowControlCmd(FLOWCONTROL_NONE);
-		FlowControlCmd cmd2 = new FlowControlCmd(FLOWCONTROL_RTSCTS_IN_OUT);
-		assertThat(cmd.equals(cmd2), is(false));
+		.addEqualityGroup(new FlowControlCmd(FLOWCONTROL_XONXOFF_IN))
+		
+			                  
+		.addEqualityGroup(new FlowControlCmd(buffer().putByte(111).toDataInput()),
+		                  new FlowControlCmd(buffer().putByte(111).toDataInput()))
+		.testEquals();
 	}
+	//@formatter:on
 
 	/**
 	 * Checks whether the String command is correct.
