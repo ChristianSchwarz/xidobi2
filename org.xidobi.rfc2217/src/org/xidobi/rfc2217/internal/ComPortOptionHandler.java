@@ -15,14 +15,10 @@
  */
 package org.xidobi.rfc2217.internal;
 
-import static org.xidobi.rfc2217.internal.ArrayUtil.toByteArray;
-import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
@@ -31,6 +27,9 @@ import org.xidobi.rfc2217.internal.commands.AbstractControlCmd;
 import org.xidobi.rfc2217.internal.commands.ControlResponseDecoder;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import static org.xidobi.rfc2217.internal.ArrayUtil.toByteArray;
+import static org.xidobi.rfc2217.internal.RFC2217.COM_PORT_OPTION;
 
 /**
  * Handles the RFC 2217 telnet COM-PORT-OPTION.
@@ -66,6 +65,7 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 
 	/**
 	 * @param commandProcessor
+	 * @param errorHandler 
 	 */
 	public ComPortOptionHandler(CommandProcessor commandProcessor,
 								DecoderErrorHandler errorHandler) {
@@ -98,7 +98,6 @@ public class ComPortOptionHandler extends SimpleOptionHandler {
 			resp = decoder.decode(input);
 		}
 		catch (IOException e) {
-			System.err.println(e.getMessage());
 			errorHandler.onDecoderError(e);
 			return null;
 		}
