@@ -35,6 +35,7 @@ public class Preconditions {
 	 * <pre>
 	 *  String arg1="xy", arg2=null; 
 	 * 	checkNotNull(arg1,"arg1") -> returns "xy";
+	 * 
 	 * 	checkNotNull(arg2,"arg1") -> throws an IllegalArgumentException("Argument >arg1< must not be null!");
 	 * </pre>
 	 * 
@@ -57,7 +58,9 @@ public class Preconditions {
 	 * 
 	 * <pre>
 	 *  int[] array = {1,2,3};
+	 *  
 	 *  checkArgument(array.length<5,"array"); -> pass 
+	 *  
 	 *  checkArgument(array.length>5,"array"); -> throws an IllegalArgumentException("Argument >array< is invalid!");
 	 * </pre>
 	 * 
@@ -78,14 +81,19 @@ public class Preconditions {
 	 * 
 	 * <pre>
 	 *  int[] array = {1,2,3};
+	 *  
 	 *  checkArgument(array.length<5,"array","Expected less than 5 elements!"); 
 	 *    -> pass 
+	 *    
 	 *  checkArgument(array.length>5,null,null); 
 	 *    -> throws an IllegalArgumentException;
+	 *    
 	 *  checkArgument(array.length>5,null,"Expected more than 5 elements!"); 
 	 *    -> throws an IllegalArgumentException -> "Expected more than 5 elements";
+	 *    
 	 *  checkArgument(array.length>5,"array",null); 
 	 *    -> throws an IllegalArgumentException("Argument >array< is invalid!);
+	 *    
 	 *  checkArgument(array.length>5,"array","Expected more than 5 elements!"); 
 	 *    -> throws an IllegalArgumentException("Argument >array< is invalid! Expected more than 5 elements!");
 	 * </pre>
