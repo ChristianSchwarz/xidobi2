@@ -59,11 +59,11 @@ import org.xidobi.DataBits;
 //@formatter:on
 public class DataBitsControlCmd extends AbstractControlCmd {
 
-	/**
-	 * The Data Bits value of this control command
-	 */
+	/** The Data Bits value of this control command as defined in RFC2217 */
+	private final byte dataBitsRfc2217;
+	/** The Data Bits value of this control command, <code>null</code> if there is no equivalent to the {@link #dataBitsRfc2217}-value*/
 	@Nonnull
-	private byte dataBits;
+	private final DataBits dataBitsXidobi;
 
 	/**
 	 * Creates a new {@link DataBitsControlCmd}-Request using the given data bits.
@@ -75,8 +75,9 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
-
-		this.dataBits = toByte(dataBits);
+		checkArgumentNotNull(dataBits, "dataBits");
+		this.dataBitsRfc2217 = toByte(dataBits);
+		this.dataBitsXidobi = dataBits;
 
 	}
 
@@ -91,10 +92,11 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	public DataBitsControlCmd(@Nonnull DataInput input) throws IOException {
 		super(SET_DATASIZE_RESP);
-		dataBits = input.readByte();
+		dataBitsRfc2217 = input.readByte();
+		if (dataBitsRfc2217 < 0 || dataBitsRfc2217 > 127)
+			throw new IOException("Unexpected dataBits value: " + dataBitsRfc2217);
 
-		if (dataBits < 0 || dataBits > 127)
-			throw new IOException("Unexpected dataBits value: " + dataBits);
+		dataBitsXidobi = toEnum(dataBitsRfc2217);
 	}
 
 	/**
@@ -123,12 +125,11 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	@Override
 	public void write(@Nonnull DataOutput output) throws IOException {
-		output.writeByte(dataBits);
+		output.writeByte(dataBitsRfc2217);
 	}
 
 	/** Transforms this given {@link DataBits}-value to its corresponding RFC2217 specific value */
 	private byte toByte(@Nonnull DataBits dataBits) {
-		checkArgumentNotNull(dataBits, "dataBits");
 		switch (dataBits) {
 			case DATABITS_5:
 				return 5;
@@ -152,14 +153,14 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	 */
 	@CheckForNull
 	public DataBits getDataBits() {
-		return toEnum(dataBits);
+		return dataBitsXidobi;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + dataBits;
+		result = prime * result + dataBitsRfc2217;
 		return result;
 	}
 
@@ -172,13 +173,13 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 		if (getClass() != obj.getClass())
 			return false;
 		DataBitsControlCmd other = (DataBitsControlCmd) obj;
-		if (dataBits != other.dataBits)
+		if (dataBitsRfc2217 != other.dataBitsRfc2217)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "DataBitsControlCmd [dataBits=" + dataBits + "]";
+		return "DataBitsControlCmd [dataBits=" + dataBitsRfc2217 + "]";
 	}
 }
