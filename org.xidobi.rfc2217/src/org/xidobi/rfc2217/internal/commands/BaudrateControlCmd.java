@@ -33,7 +33,7 @@ import javax.annotation.Nonnegative;
  * 
  * @author Peter-René Jeschke
  */
-public class BaudrateControlCmd extends AbstractControlCmd {
+public class BaudrateControlCmd extends AbstractControlCmd<Void,Void> {
 
 	/** The preferred baudrate. */
 	private int baudrate;

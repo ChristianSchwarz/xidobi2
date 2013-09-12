@@ -83,7 +83,7 @@ public class FlowControlCmd extends AbstractControlCmd {
 		super(SET_CONTROL_RESP);
 		flowControl = input.readByte();
 		if (flowControl < 0 || flowControl > 127)
-			throw new IOException("Unexpected flowControl value: " + flowControl);
+			throw new IOException("Unexpected Flow Control value: " + flowControl);
 	}
 
 	@Override

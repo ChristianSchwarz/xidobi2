@@ -57,7 +57,7 @@ import org.xidobi.DataBits;
  */
 
 //@formatter:on
-public class DataBitsControlCmd extends AbstractControlCmd {
+public class DataBitsControlCmd extends AbstractControlCmd<DataBits,Byte> {
 
 	/** The Data Bits value of this control command as defined in RFC2217 */
 	private final byte dataBitsRfc2217;
@@ -65,6 +65,13 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	@Nonnull
 	private final DataBits dataBitsXidobi;
 
+	{
+		addEquivalents(DATABITS_5, (byte)5);
+		addEquivalents(DATABITS_6, (byte)6);
+		addEquivalents(DATABITS_7, (byte)7);
+		addEquivalents(DATABITS_8, (byte)8);
+		addEquivalents(DATABITS_9, (byte)9);
+	}
 	/**
 	 * Creates a new {@link DataBitsControlCmd}-Request using the given data bits.
 	 * 
@@ -76,7 +83,11 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 	public DataBitsControlCmd(@Nonnull DataBits dataBits) {
 		super(SET_DATASIZE_REQ);
 		checkArgumentNotNull(dataBits, "dataBits");
-		this.dataBitsRfc2217 = toByte(dataBits);
+		final Byte d = getRfc2217Equivalent(dataBits);
+		if (d==null)
+			throw new IllegalStateException("Unexpected dataBits value:" + dataBits);
+		
+		this.dataBitsRfc2217 = d;
 		this.dataBitsXidobi = dataBits;
 
 	}
@@ -96,29 +107,10 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 		if (dataBitsRfc2217 < 0 || dataBitsRfc2217 > 127)
 			throw new IOException("Unexpected dataBits value: " + dataBitsRfc2217);
 
-		dataBitsXidobi = toEnum(dataBitsRfc2217);
+		dataBitsXidobi = getXidobiEquivalent(dataBitsRfc2217);
 	}
 
-	/**
-	 * Transforms the given data bits byte value, as defined by RFC2217 to an {@link DataBits}
-	 * value.
-	 */
-	@Nonnull
-	private DataBits toEnum(final byte dataBits) {
-		switch (dataBits) {
-			case 5:
-				return DATABITS_5;
-			case 6:
-				return DATABITS_6;
-			case 7:
-				return DATABITS_7;
-			case 8:
-				return DATABITS_8;
-			case 9:
-				return DATABITS_9;
-		}
-		return null;
-	}
+	
 
 	/**
 	 * Writes this coontrol command into the given {@code output}.
@@ -128,22 +120,9 @@ public class DataBitsControlCmd extends AbstractControlCmd {
 		output.writeByte(dataBitsRfc2217);
 	}
 
-	/** Transforms this given {@link DataBits}-value to its corresponding RFC2217 specific value */
-	private byte toByte(@Nonnull DataBits dataBits) {
-		switch (dataBits) {
-			case DATABITS_5:
-				return 5;
-			case DATABITS_6:
-				return 6;
-			case DATABITS_7:
-				return 7;
-			case DATABITS_8:
-				return 8;
-			case DATABITS_9:
-				return 9;
-		}
-		throw new IllegalStateException("Unexpected dataBits value:" + dataBits);
-	}
+	
+		
+	
 
 	/**
 	 * Returns {@link DataBits}-value of this control command.

@@ -207,9 +207,9 @@ public class TestFlowControlCmd {
 	 * When the dataBits is invalid, an {@link IOException} must be thrown.
 	 */
 	@Test
-	public void read_invalidDataBits() throws IOException {
+	public void read_invalidFlowControl() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected flowControl value: -3");
+		exception.expectMessage("Unexpected Flow Control value: -3");
 
 		cmd = new FlowControlCmd(buffer(-3).toDataInput());
 	}
@@ -220,7 +220,7 @@ public class TestFlowControlCmd {
 	@Test
 	public void write_invalidFlowControl() throws IOException {
 		exception.expect(IOException.class);
-		exception.expectMessage("Unexpected flowControl value: -3");
+		exception.expectMessage("Unexpected Flow Control value: -3");
 
 		cmd = new FlowControlCmd(buffer(-3).toDataInput());
 		cmd.write(output);

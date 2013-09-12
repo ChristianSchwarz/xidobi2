@@ -16,12 +16,15 @@
 package org.xidobi.rfc2217.internal.commands;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
 import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
 
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,28 +36,18 @@ import org.junit.rules.ExpectedException;
  */
 public class TestAbstractControlCommand {
 
-	private class AbstractControlCmdImpl extends AbstractControlCmd {
-
-		/**
-		 * @param commandCode
-		 */
-		AbstractControlCmdImpl(int commandCode) {
-			super(commandCode);
-		}
-
-		@Override
-		public void write(DataOutput output) throws IOException {
-		}
-
-	}
-
 	@Rule
 	public ExpectedException exception = none();
+	private AbstractControlCmd<String, Integer> cmd;
+
+	@Before
+	public void setUp() {
+		cmd = new AbstractControlCmdImpl(10);
+	}
 
 	/**
 	 * When the commandCode is smaller than 0, an {@link IllegalArgumentException} is expected.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_negativeCommandCode() {
 		exception.expect(IllegalArgumentException.class);
@@ -65,7 +58,6 @@ public class TestAbstractControlCommand {
 	/**
 	 * When the commandCode is between [0..12], no exception should be thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_commandCodeBetween0and12() {
 		for (int i = 0; i <= 12; i++) {
@@ -77,7 +69,6 @@ public class TestAbstractControlCommand {
 	 * When the commandCode is between 12 and 100, an {@link IllegalArgumentException} should be
 	 * thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_invalidCommandCode() {
 		exception.expect(IllegalArgumentException.class);
@@ -88,18 +79,16 @@ public class TestAbstractControlCommand {
 	/**
 	 * When the commandCode is between 100 and 112, no exception should be thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_commandCodeBetween100And112() {
-		for (int i = 100; i <= 112; i++) {
+		for (int i = 100; i <= 112; i++)
 			new AbstractControlCmdImpl(i);
-		}
+
 	}
 
 	/**
 	 * When the commandCode is too high, an {@link IllegalArgumentException} should be thrown.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	public void new_commandCodeTooHigh() {
 		exception.expect(IllegalArgumentException.class);
@@ -112,7 +101,63 @@ public class TestAbstractControlCommand {
 	 */
 	@Test
 	public void getCommandCode() {
-		byte result = new AbstractControlCmdImpl(10).getCommandCode();
-		assertThat(result, is((byte) 10));
+		assertThat(cmd.getCommandCode(), is((byte) 10));
+	}
+
+	/**
+	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to RFC2217
+	 * value. This ist mostly used to indicate a possible bug of the class that extends
+	 * {@link AbstractControlCmd}.
+	 */
+	@Test
+	public void getRfc2217Equivalent_notMapped()  {
+
+		assertThat(cmd.getRfc2217Equivalent("this a not mapped value"),is(nullValue()));
+	}
+	
+	/**
+	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to RFC2217
+	 * value. This ist mostly used to indicate a possible bug of the class that extends
+	 * {@link AbstractControlCmd}.
+	 */
+	@Test
+	public void getRfc2217Equivalent_null()  {
+		cmd.addEquivalents(null, -1);
+		
+		assertThat(cmd.getRfc2217Equivalent(null),is(-1));
+	}
+	
+	/**
+	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to RFC2217
+	 * value. This ist mostly used to indicate a possible bug of the class that extends
+	 * {@link AbstractControlCmd}.
+	 */
+	@Test
+	public void getXidobiEquivalent_null()  {
+		cmd.addEquivalents("-", null);
+		
+		assertThat(cmd.getXidobiEquivalent(null),is("-"));
+	}
+	
+	/**
+	 * An {@link IllegalArgumentException} must be thrown if a value has no mapping to a xidobi
+	 * value. This ist mostly used to indicate a possible bug of the class that extends
+	 * {@link AbstractControlCmd}.
+	 */
+	@Test
+	public void getXidobiEquivalent_notMapped()  {
+		assertThat(cmd.getXidobiEquivalent(null),is(nullValue()));
+	}
+
+	// ///////////////////////////////////////////////////////////////////////////////
+	private class AbstractControlCmdImpl extends AbstractControlCmd<String, Integer> {
+
+		AbstractControlCmdImpl(int commandCode) {
+			super(commandCode);
+		}
+
+		@Override
+		public void write(DataOutput output) throws IOException {}
+
 	}
 }
