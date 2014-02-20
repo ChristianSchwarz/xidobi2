@@ -20,6 +20,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.transaction.xa.Xid;
 
 import org.xidobi.StopBits;
 
@@ -61,8 +62,8 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 	//@formatter:off
 	private final static BiMap<StopBits, Byte> MAP = new BiMap<StopBits, Byte>() {{
 		put(STOPBITS_1,		(byte) 1);
-		put(STOPBITS_1_5,	(byte) 2);
-		put(STOPBITS_2,		(byte) 3);
+		put(STOPBITS_2,		(byte) 2);
+		put(STOPBITS_1_5,	(byte) 3);
 	}};
 	//@formatter:on
 	
@@ -135,7 +136,19 @@ public class StopBitsControlCmd extends AbstractControlCmd {
 
 	@Override
 	public String toString() {
-		return "StopBitsControlCmd [stopBits=" + stopBitsRfc2217 + "]";
+		String stopBits = null;
+		switch (stopBitsXidobi) {
+			case STOPBITS_1:
+				stopBits ="1";
+				break;
+			case STOPBITS_1_5:
+				stopBits ="1.5";
+				break;
+			case STOPBITS_2:
+				stopBits = "2";
+				break;
+		}				
+		return "StopBitsControlCmd [stopBits=" + stopBits + "]";
 	}
 
 }

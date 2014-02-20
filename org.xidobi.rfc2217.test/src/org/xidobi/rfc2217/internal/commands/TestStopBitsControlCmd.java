@@ -98,7 +98,7 @@ public class TestStopBitsControlCmd {
 	 */
 	@Test
 	public void read_stopBits_1_5() throws IOException {
-		cmd = new StopBitsControlCmd(buffer(2).toDataInput());
+		cmd = new StopBitsControlCmd(buffer(3).toDataInput());
 
 		assertThat(cmd.getStopBits(), is(STOPBITS_1_5));
 	}
@@ -108,7 +108,7 @@ public class TestStopBitsControlCmd {
 	 */
 	@Test
 	public void read_stopBits_2() throws IOException {
-		cmd = new StopBitsControlCmd(buffer(3).toDataInput());
+		cmd = new StopBitsControlCmd(buffer(2).toDataInput());
 
 		assertThat(cmd.getStopBits(), is(STOPBITS_2));
 	}
@@ -132,7 +132,7 @@ public class TestStopBitsControlCmd {
 		cmd = new StopBitsControlCmd(STOPBITS_1_5);
 		cmd.write(output);
 
-		verify(output).writeByte(2);
+		verify(output).writeByte(3);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class TestStopBitsControlCmd {
 		cmd = new StopBitsControlCmd(STOPBITS_2);
 		cmd.write(output);
 
-		verify(output).writeByte(3);
+		verify(output).writeByte(2);
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class TestStopBitsControlCmd {
 	@Test
 	public void commandToString() throws Exception {
 		StopBitsControlCmd cmd = new StopBitsControlCmd(STOPBITS_1_5);
-		assertThat(cmd.toString(), is("StopBitsControlCmd [stopBits=2]"));
+		assertThat(cmd.toString(), is("StopBitsControlCmd [stopBits=1.5]"));
 	}
 
 	/**
