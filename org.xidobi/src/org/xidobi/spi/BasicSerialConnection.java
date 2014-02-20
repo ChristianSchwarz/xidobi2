@@ -45,7 +45,7 @@ public class BasicSerialConnection implements SerialConnection {
 	/**
 	 * 
 	 * The internal state of this connection
-	 *
+	 * 
 	 */
 	private static enum State {
 		OPEN,
@@ -138,10 +138,13 @@ public class BasicSerialConnection implements SerialConnection {
 	}
 
 	/**
-	 * Closes this connection if it is open, otherwise an {@link IOException} will be thrown indication that the connection is closed or closing.
+	 * Closes this connection if it is open, otherwise an {@link IOException} will be thrown
+	 * indication that the connection is closed or closing.
 	 * 
-	 * @param e will be added to the {@link IOException} as suppressed
-	 * @throws IOException if the connection is not open
+	 * @param e
+	 *            will be added to the {@link IOException} as suppressed
+	 * @throws IOException
+	 *             if the connection is not open
 	 */
 	private void closePortOrThrowCloseException(Exception e) throws IOException {
 		throwExceptionIfPortIsNotOpen(e);
@@ -205,8 +208,7 @@ public class BasicSerialConnection implements SerialConnection {
 	 * @throws IOException
 	 *             if some I/O error uccurs
 	 */
-	protected void closeInternal() throws IOException {
-	}
+	protected void closeInternal() throws IOException {}
 
 	/** {@inheritDoc} */
 	public final boolean isClosed() {
@@ -230,12 +232,19 @@ public class BasicSerialConnection implements SerialConnection {
 	 *             if this port is closed
 	 */
 	private void throwExceptionIfPortIsNotOpen(Exception suppressedException) throws IOException {
-		if (state != State.OPEN) {
-			IOException closeException = portClosedException(port.getPortName());
-			if (suppressedException != null)
-				closeException.addSuppressed(suppressedException);
-			throw closeException;
-		}
+		if (state == State.OPEN)
+			return;
+
+		String suppressedMsg = null;
+		if (suppressedException != null)
+			suppressedMsg = suppressedException.getMessage();
+		
+		IOException closeException = portClosedException(port.getPortName(), suppressedMsg);
+		if (suppressedException != null)
+			closeException.addSuppressed(suppressedException);
+		
+		throw closeException;
+
 	}
 
 }

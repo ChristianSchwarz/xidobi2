@@ -62,6 +62,6 @@ public class IoExceptions {
 			portName="";
 		else
 			portName= portName+" ";
-		return new IOException("Port " + portName + "was closed!" + message);
+		return new IOException("Port " + portName + "was closed! Cause:" + message);
 	}
 }
