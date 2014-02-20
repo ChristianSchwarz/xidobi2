@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: xidobi RFC2217 support
 Bundle-SymbolicName: org.xidobi.rfc2217
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 0.0.2.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.xidobi.rfc2217,
  org.xidobi.rfc2217.internal;x-friends:="eu.gemtec.apache.mina.transport.serial.xidobi.rfc2217.test"

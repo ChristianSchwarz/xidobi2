@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: xidobi RFC2217 Tests
 Bundle-SymbolicName: org.xidobi.rfc2217.test
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 0.0.2.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Fragment-Host: org.xidobi.rfc2217;bundle-version="[0.0.1,1.0.0)"
 Require-Bundle: org.xidobi;bundle-version="0.0.1",

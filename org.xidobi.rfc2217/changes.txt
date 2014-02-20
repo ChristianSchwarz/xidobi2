@@ -1,0 +1,4 @@
+0.0.2 (20.02.2014)
+ - Bugfix: The RFC2212 values for Stopbits 2 & 1.5 were twisted
+
+0.0.1
