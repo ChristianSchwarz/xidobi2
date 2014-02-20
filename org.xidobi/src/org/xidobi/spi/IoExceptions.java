@@ -56,12 +56,14 @@ public class IoExceptions {
 		if (message == null)
 			message = "";
 		else
-			message = " " + message;
+			message = " Cause: " + message;
 		
 		if (portName==null)
 			portName="";
 		else
 			portName= portName+" ";
-		return new IOException("Port " + portName + "was closed! Cause:" + message);
+		
+		
+		return new IOException("Port " + portName + "was closed!" + message);
 	}
 }

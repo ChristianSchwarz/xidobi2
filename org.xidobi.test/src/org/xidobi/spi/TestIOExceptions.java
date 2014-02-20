@@ -55,6 +55,6 @@ public class TestIOExceptions {
 		IOException result = IoExceptions.portClosedException("COM1","Additional message.");
 
 		assertThat(result, is(notNullValue()));
-		assertThat(result.getMessage(), is("Port COM1 was closed! Additional message."));
+		assertThat(result.getMessage(), is("Port COM1 was closed! Cause: Additional message."));
 	}
 }
