@@ -1,0 +1,4 @@
+0.0.2 (21.02.2014)
+  - Improved Errormessages
+  - added changes.txt
+  

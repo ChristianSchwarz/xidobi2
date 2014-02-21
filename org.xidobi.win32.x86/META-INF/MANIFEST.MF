@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: xidobi for Windows (32bit) x86
 Bundle-SymbolicName: org.xidobi.win32.x86;singleton:=true
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 0.0.2.qualifier
 Bundle-Vendor: xidobi.org
 Fragment-Host: org.xidobi;bundle-version="[0.0.1,1.0.0)"
 Bundle-NativeCode: lib/xidobi.dll; osname=win32; processor=x86
