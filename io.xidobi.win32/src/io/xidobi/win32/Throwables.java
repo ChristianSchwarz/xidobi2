@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.xidobi.utils;
+package io.xidobi.win32;
 
 
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;

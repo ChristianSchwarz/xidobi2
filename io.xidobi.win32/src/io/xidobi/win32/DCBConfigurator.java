@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.xidobi.utils;
+package io.xidobi.win32;
 
 import static org.xidobi.StopBits.STOPBITS_1_5;
 import static org.xidobi.StopBits.STOPBITS_2;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-import static org.xidobi.structs.DCB.DTR_CONTROL_DISABLE;
-import static org.xidobi.structs.DCB.DTR_CONTROL_ENABLE;
-import static org.xidobi.structs.DCB.EVENPARITY;
-import static org.xidobi.structs.DCB.MARKPARITY;
-import static org.xidobi.structs.DCB.NOPARITY;
-import static org.xidobi.structs.DCB.ODDPARITY;
-import static org.xidobi.structs.DCB.ONE5STOPBITS;
-import static org.xidobi.structs.DCB.ONESTOPBIT;
-import static org.xidobi.structs.DCB.RTS_CONTROL_DISABLE;
-import static org.xidobi.structs.DCB.RTS_CONTROL_ENABLE;
-import static org.xidobi.structs.DCB.RTS_CONTROL_HANDSHAKE;
-import static org.xidobi.structs.DCB.SPACEPARITY;
-import static org.xidobi.structs.DCB.TWOSTOPBITS;
 
 import javax.annotation.Nonnull;
 
-import org.xidobi.structs.DCB;
+import org.xidobi.DataBits;
+import org.xidobi.SerialPortSettings;
+import org.xidobi.StopBits;
 
+import com.sun.jna.platform.win32.WinBase.DCB;
+import static com.sun.jna.platform.win32.WinBase.DCB.*;
 /**
  * Configures the native {@link DCB} with the values from the {@link SerialPortSettings}.
  * Additionally it verifies the settings to be valid.

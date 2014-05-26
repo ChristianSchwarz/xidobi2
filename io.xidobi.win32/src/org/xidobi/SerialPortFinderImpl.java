@@ -3,29 +3,27 @@ package org.xidobi;
 import static com.sun.jna.Native.getLastError;
 import static com.sun.jna.platform.win32.Advapi32Util.registryGetStringValue;
 import static com.sun.jna.platform.win32.Kernel32Util.formatMessageFromLastErrorCode;
+import static com.sun.jna.platform.win32.SetupApi.DICS_FLAG_GLOBAL;
+import static com.sun.jna.platform.win32.SetupApi.GUID_DEVINTERFACE_COMPORT;
 import static com.sun.jna.platform.win32.WinBase.INVALID_HANDLE_VALUE;
 import static com.sun.jna.platform.win32.WinNT.KEY_QUERY_VALUE;
 import static com.sun.jna.platform.win32.WinNT.REG_SZ;
-import static io.xidobi.win32.SetupApi.DICS_FLAG_GLOBAL;
-import static io.xidobi.win32.SetupApi.DIGCF_DEVICEINTERFACE;
-import static io.xidobi.win32.SetupApi.DIGCF_PRESENT;
-import static io.xidobi.win32.SetupApi.DIREG_DEV;
-import static io.xidobi.win32.SetupApi.GUID_DEVINTERFACE_COMPORT;
-import static io.xidobi.win32.SetupApi.SPDRP_DEVICEDESC;
-import io.xidobi.win32.SetupApi;
-import io.xidobi.win32.SetupApi.SP_DEVINFO_DATA;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-
-import org.xidobi.SerialPort;
-import org.xidobi.SerialPortFinder;
+import java.util.WeakHashMap;
 
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.platform.win32.Advapi32;
+import com.sun.jna.platform.win32.SetupApi;
+
+import static com.sun.jna.platform.win32.SetupApi.*;
+
+import com.sun.jna.platform.win32.SetupApi.SP_DEVINFO_DATA;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.ptr.IntByReference;
@@ -35,7 +33,30 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 	private final static SetupApi setupApi = SetupApi.INSTANCE;
 	private final static Advapi32 advapi32 = Advapi32.INSTANCE;
 
-	public static void main(String[] args) throws UnsupportedEncodingException {
+	private final Map<String,SerialPort> ports = new WeakHashMap<String, SerialPort>();
+	
+	@Override
+	public SerialPort get(String portName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Set<SerialPort> getAll() {
+		//PortName -> Description
+		Map<String, String> portDescs = readPortnamesAndDescription();
+		
+		
+		for(Entry<String,String> portDesc : portDescs.entrySet()){
+			String portName = portDesc.getValue();
+			ports.containsKey(portName);
+		}
+		System.out.println(ports);
+//		return null;
+
+	}
+
+	private Map<String, String> readPortnamesAndDescription() {
 		Map<String, String> ports = new HashMap();
 
 		HANDLE hDevInfoSet = getComPortInfoSetHandle();
@@ -60,8 +81,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		} finally {
 			setupApi.SetupDiDestroyDeviceInfoList(hDevInfoSet);
 		}
-		System.out.println(ports);
-
+		return ports;
 	}
 
 	private static SP_DEVINFO_DATA getDeviceInfoData(HANDLE hDevInfoSet, int index) {
@@ -87,7 +107,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 
 	private static String getPortName(HANDLE hDevInfoSet, SP_DEVINFO_DATA devInfo) {
 		// Get the registry key which stores the ports settings
-		HKEY hDeviceKey = setupApi.SetupDiOpenDevRegKey(hDevInfoSet, devInfo, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
+		HKEY hDeviceKey = setupApi.SetupDiOpenDevRegKey(hDevInfoSet, devInfo, DICS_FLAG_GLOBAL, 0, SetupApi.DIREG_DEV, KEY_QUERY_VALUE);
 		if (hDeviceKey == INVALID_HANDLE_VALUE)
 			return null;
 
@@ -116,15 +136,7 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 
 	}
 
-	@Override
-	public Set<SerialPort> getAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
-	@Override
-	public SerialPort get(String portName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 }

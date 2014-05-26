@@ -1,28 +1,29 @@
-package org.xidobi;
+package io.xidobi.win32;
 
-import static org.xidobi.WinApi.ERROR_ACCESS_DENIED;
-import static org.xidobi.WinApi.ERROR_FILE_NOT_FOUND;
-import static org.xidobi.WinApi.EV_RXCHAR;
-import static org.xidobi.WinApi.FILE_FLAG_OVERLAPPED;
-import static org.xidobi.WinApi.GENERIC_READ;
-import static org.xidobi.WinApi.GENERIC_WRITE;
-import static org.xidobi.WinApi.INVALID_HANDLE_VALUE;
-import static org.xidobi.WinApi.OPEN_EXISTING;
-import static org.xidobi.WinApi.PURGE_RXCLEAR;
-import static org.xidobi.WinApi.PURGE_TXCLEAR;
+
+import static com.sun.jna.platform.win32.WinBase.*;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
-import static org.xidobi.utils.Throwables.newIOException;
-import static org.xidobi.utils.Throwables.newNativeCodeException;
 
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.xidobi.SerialConnection;
+import org.xidobi.SerialPort;
+import org.xidobi.SerialPortSettings;
 import org.xidobi.spi.NativeCodeException;
-import org.xidobi.structs.DCB;
-import org.xidobi.utils.Throwables;
 
+import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinBase.DCB;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
+
+import static com.sun.jna.platform.win32.WinBase.*;
+import static com.sun.jna.platform.win32.Kernel32.*;
+import static com.sun.jna.platform.win32.Kernel32.*;
+import static io.xidobi.win32.Throwables.newIOException;
+import static io.xidobi.win32.Throwables.newNativeCodeException;
 /**
  * {@link SerialPort} to open a serial port.
  * 
@@ -35,7 +36,7 @@ public class SerialPortImpl implements SerialPort {
 
 	/** the native Win32-API, never <code>null</code> */
 	@Nonnull
-	private final WinApi os;
+	private final Kernel32  os;
 
 	/** the name of this port, eg. "COM1", never <code>null</code> */
 	@Nonnull
@@ -84,7 +85,7 @@ public class SerialPortImpl implements SerialPort {
 							@Nullable String description,
 							@Nonnull DCBConfigurator configurator) {
 		this.portName = checkArgumentNotNull(portName, "portName");
-		this.os = checkArgumentNotNull(os, "os");
+		this.os = Kernel32.INSTANCE;
 		this.configurator = checkArgumentNotNull(configurator, "configurator");
 		this.description = description;
 	}
@@ -94,7 +95,7 @@ public class SerialPortImpl implements SerialPort {
 	public SerialConnection open(@Nonnull SerialPortSettings settings) throws IOException {
 		checkArgumentNotNull(settings, "settings");
 
-		final int handle = tryOpen(portName);
+		final HANDLE handle = tryOpen(portName);
 		try {
 			applySettings(handle, settings);
 			clearIOBuffers(handle);
@@ -119,8 +120,8 @@ public class SerialPortImpl implements SerialPort {
 	 * @throws IOException
 	 *             if the port is already open or does not exist
 	 */
-	private int tryOpen(final String portName) throws IOException {
-		int handle = os.CreateFileA("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
+	private HANDLE tryOpen(final String portName) throws IOException {
+		HANDLE handle = os.CreateFile("\\\\.\\" + portName, GENERIC_READ | GENERIC_WRITE, 0, null, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, null);
 
 		if (handle != INVALID_HANDLE_VALUE)
 			return handle;
@@ -142,7 +143,7 @@ public class SerialPortImpl implements SerialPort {
 	 * @throws IOException
 	 *             if it was not possible to apply the settings e.g. if they are invalid
 	 */
-	private void applySettings(final int handle, final SerialPortSettings settings) throws IOException {
+	private void applySettings(final HANDLE handle, final SerialPortSettings settings) throws IOException {
 		final DCB dcb = new DCB();
 
 		if (!os.GetCommState(handle, dcb))
@@ -161,7 +162,7 @@ public class SerialPortImpl implements SerialPort {
 	 * @param handle
 	 *            the handle of the port to clear
 	 */
-	private void clearIOBuffers(final int handle) {
+	private void clearIOBuffers(final HANDLE handle) {
 		if (os.PurgeComm(handle, PURGE_RXCLEAR | PURGE_TXCLEAR))
 			return;
 		throw Throwables.newNativeCodeException("PurgeComm failed!", os.GetLastError());
@@ -172,7 +173,7 @@ public class SerialPortImpl implements SerialPort {
 	 * 
 	 * @param portHandle
 	 */
-	private void registerRxEvent(int portHandle) {
+	private void registerRxEvent(HANDLE portHandle) {
 		if (os.SetCommMask(portHandle, EV_RXCHAR))
 			return;
 
