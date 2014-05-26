@@ -21,10 +21,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * Interface for classes which can find serial ports that are installed on the system.
- * <b>IMPORTANT</b> Platform integrators must provide an implementation of this interface! The
- * implementing class must be named {@code org.xidobi.SerialPortFinderImpl}, in order to be
- * instantiable for the {@link SerialPortProvider}!
+ * Interface for classes which can find serial ports that are installed on the
+ * system.
+ * <p>
+ * <b>IMPORTANT</b> Platform integrators must provide an implementation of this
+ * interface! The implementing class must be named
+ * {@code org.xidobi.SerialPortFinderImpl}, in order to be instantiable for the
+ * {@link SerialPortProvider}!
  * 
  * @author Tobias Breﬂler
  * 
@@ -34,20 +37,22 @@ import javax.annotation.Nonnull;
 public interface SerialPortFinder {
 
 	/**
-	 * Returns a {@link Set} with all serial ports that are installed on the system.
+	 * Returns a {@link Set} with all serial ports that are installed on the
+	 * system.
 	 * 
-	 * @return a {@link Set} with serial ports or an empty {@link Set} if no ports are available,
-	 *         but never <code>null</code>
+	 * @return a {@link Set} with serial ports or an empty {@link Set} if no
+	 *         ports are available, but never <code>null</code>
 	 */
 	@Nonnull
 	Set<SerialPort> getAll();
 
 	/**
-	 * Returns the serial port with the given {@code portName} if it exists, otherwise
-	 * <code>null</code>.
+	 * Returns the serial port with the given {@code portName} if it exists,
+	 * otherwise <code>null</code>.
 	 * 
 	 * @param portName
-	 *            the name of the serial port (e.g. "COM1" or "tty0"), must not be <code>null</code>
+	 *            the name of the serial port (e.g. "COM1" or "tty0"), must not
+	 *            be <code>null</code>
 	 * @return the serial port or <code>null</code>, if the port not exists
 	 * 
 	 * @exception IllegalArgumentException
