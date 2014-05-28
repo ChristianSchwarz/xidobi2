@@ -15,10 +15,14 @@
  */
 package org.xidobi;
 
+import static org.xidobi.DataBits.DATABITS_5;
+import static org.xidobi.DataBits.DATABITS_6;
+import static org.xidobi.DataBits.DATABITS_7;
 import static org.xidobi.DataBits.DATABITS_8;
 import static org.xidobi.FlowControl.FLOWCONTROL_NONE;
 import static org.xidobi.Parity.PARITY_NONE;
 import static org.xidobi.StopBits.STOPBITS_1;
+import static org.xidobi.StopBits.STOPBITS_2;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
@@ -80,7 +84,8 @@ public class SerialPortSettings {
 		private boolean dtr = true;
 
 		/** Creates a builder for serial port settings. */
-		private SerialPortSettingsBuilder() {}
+		private SerialPortSettingsBuilder() {
+		}
 
 		/**
 		 * Sets the baud rate.
@@ -99,8 +104,8 @@ public class SerialPortSettings {
 		/**
 		 * Sets the data bits to the given value.
 		 * <p>
-		 * <i><b>Hint:</b> Under Windows the use of 5 data bits with 2 stop bits is an invalid
-		 * combination, as is 6, 7, or 8 data bits with 1.5 stop bits.</i>
+		 * <i><b>Hint:</b> Under Windows the use of 5 data bits with 2 stop bits is an invalid combination, as is 6, 7,
+		 * or 8 data bits with 1.5 stop bits.</i>
 		 * 
 		 * @param dataBits
 		 *            the data bits, must not be <code>null</code>
@@ -115,8 +120,8 @@ public class SerialPortSettings {
 		/**
 		 * Sets the stop bits to the given value.
 		 * <p>
-		 * <i><b>Hint:</b> Under Windows the use of 5 data bits with 2 stop bits is an invalid
-		 * combination, as is 6, 7, or 8 data bits with 1.5 stop bits.</i>
+		 * <i><b>Hint:</b> Under Windows the use of 5 data bits with 2 stop bits is an invalid combination, as is 6, 7,
+		 * or 8 data bits with 1.5 stop bits.</i>
 		 * 
 		 * @param stopBits
 		 *            the stop bits, must not be <code>null</code>
@@ -217,14 +222,15 @@ public class SerialPortSettings {
 
 	/**
 	 * Creates a serial port setting with the given values.
+	 * 
+	 * @exception IllegalArgumentException
+	 *                Under Windows the use of 5 data bits with 2 stop bits is an invalid combination, as is 6, 7, or 8
+	 *                data bits with 1.5 stop bits.
 	 */
-	private SerialPortSettings(	@Nonnegative int bauds,
-								@Nonnull DataBits dataBits,
-								@Nonnull StopBits stopBits,
-								@Nonnull Parity parity,
-								@Nonnull FlowControl flowControl,
-								boolean rts,
-								boolean dtr) {
+	private SerialPortSettings(@Nonnegative int bauds, @Nonnull DataBits dataBits, @Nonnull StopBits stopBits, @Nonnull Parity parity, @Nonnull FlowControl flowControl, boolean rts, boolean dtr) {
+		checkArgument(!(dataBits==DATABITS_5 && stopBits==STOPBITS_2),"The use of 5 data bits with 2 stop bits is an invalid combination!");
+		checkArgument(!((dataBits==DATABITS_6 || dataBits==DATABITS_7 || dataBits==DATABITS_8) && stopBits==StopBits.STOPBITS_1_5),"The use of 6, 7, or 8 data bits with 1.5 stop bits is an invalid combination!");
+		
 		this.bauds = bauds;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;
@@ -235,8 +241,8 @@ public class SerialPortSettings {
 	}
 
 	/**
-	 * Creates a builder for the serial port settings. The initial values of the port settings are
-	 * 8/N/1 with 9600 bauds:
+	 * Creates a builder for the serial port settings. The initial values of the port settings are 8/N/1 with 9600
+	 * bauds:
 	 * <ul>
 	 * <li>bauds = 9600</li>
 	 * <li>data bits = 8</li>
@@ -320,5 +326,10 @@ public class SerialPortSettings {
 	 */
 	public boolean isDTR() {
 		return dtr;
+	}
+
+	@Override
+	public String toString() {
+		return "SerialPortSettings [bauds=" + bauds + ", dataBits=" + dataBits + ", stopBits=" + stopBits + ", parity=" + parity + ", flowControl=" + flowControl + ", rts=" + rts + ", dtr=" + dtr + "]";
 	}
 }

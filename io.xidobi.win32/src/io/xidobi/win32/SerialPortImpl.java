@@ -1,7 +1,19 @@
 package io.xidobi.win32;
 
 
-import static com.sun.jna.platform.win32.WinBase.*;
+import static com.sun.jna.platform.win32.WinBase.EV_RXCHAR;
+import static com.sun.jna.platform.win32.WinBase.INVALID_HANDLE_VALUE;
+import static com.sun.jna.platform.win32.WinBase.PURGE_RXCLEAR;
+import static com.sun.jna.platform.win32.WinBase.PURGE_TXCLEAR;
+import static com.sun.jna.platform.win32.WinError.ERROR_ACCESS_DENIED;
+import static com.sun.jna.platform.win32.WinError.ERROR_FILE_NOT_FOUND;
+import static com.sun.jna.platform.win32.WinNT.FILE_FLAG_OVERLAPPED;
+import static com.sun.jna.platform.win32.WinNT.GENERIC_READ;
+import static com.sun.jna.platform.win32.WinNT.GENERIC_WRITE;
+import static com.sun.jna.platform.win32.WinNT.OPEN_EXISTING;
+import static io.xidobi.win32.DCBConfigurator.DCB_CONFIGURATOR;
+import static io.xidobi.win32.Throwables.newIOException;
+import static io.xidobi.win32.Throwables.newNativeCodeException;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 import java.io.IOException;
@@ -15,15 +27,8 @@ import org.xidobi.SerialPortSettings;
 import org.xidobi.spi.NativeCodeException;
 
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.DCB;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
-
-import static com.sun.jna.platform.win32.WinBase.*;
-import static com.sun.jna.platform.win32.Kernel32.*;
-import static com.sun.jna.platform.win32.Kernel32.*;
-import static io.xidobi.win32.Throwables.newIOException;
-import static io.xidobi.win32.Throwables.newNativeCodeException;
 /**
  * {@link SerialPort} to open a serial port.
  * 
@@ -33,6 +38,8 @@ import static io.xidobi.win32.Throwables.newNativeCodeException;
  * @see SerialPort
  */
 public class SerialPortImpl implements SerialPort {
+
+	
 
 	/** the native Win32-API, never <code>null</code> */
 	@Nonnull
@@ -65,7 +72,7 @@ public class SerialPortImpl implements SerialPort {
 	 */
 	public SerialPortImpl(	@Nonnull String portName,
 							@Nullable String description) {
-		this(portName, description, new DCBConfigurator());
+		this(portName, description,  DCB_CONFIGURATOR);
 	}
 
 	/**
@@ -152,7 +159,7 @@ public class SerialPortImpl implements SerialPort {
 		configurator.configureDCB(dcb, settings);
 
 		if (!os.SetCommState(handle, dcb))
-			throw lastError("Unable to set the control settings (" + portName + ")!");
+			throw lastError("Unable to set the control settings (" + portName + ")!\r\n "+settings+"\r\n "+dcb);
 	}
 
 	/**
@@ -200,6 +207,23 @@ public class SerialPortImpl implements SerialPort {
 		return description;
 	}
 
+	@Override
+	public int hashCode() {
+		return portName.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SerialPortImpl other = (SerialPortImpl) obj;
+		return portName.equals(other.portName);
+	}
+	
 	@Override
 	public String toString() {
 		return "SerialPortImpl [portName=" + getPortName() + ", description=" + getDescription() + "]";
