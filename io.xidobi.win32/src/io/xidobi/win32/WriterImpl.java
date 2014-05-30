@@ -29,6 +29,7 @@ import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Writer;
 
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * Implementation for write operations.
@@ -39,7 +40,7 @@ import com.sun.jna.platform.win32.Kernel32;
 public class WriterImpl extends IoOperationImpl implements Writer {
 
 	/** Write timeout in milliseconds */
-	private int writeTimeout = 2000;
+	private int writeTimeout = 20000;
 
 	/**
 	 * Creates a new write operation.
@@ -65,13 +66,14 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 
 			resetOverlappedEventHandle();
 
+			IntByReference numberWritten = new IntByReference();
 			// write data to serial port
-			boolean succeed = os.WriteFile(handle, data, data.length, numberOfBytesTransferred, overlapped);
+			boolean succeed = os.WriteFile(handle, data, data.length, numberWritten, overlapped);
 
 			if (succeed) {
 				// the write operation succeeded immediately
-				if (numberOfBytesTransferred.getValue() != data.length)
-					throw new NativeCodeException("WriteFile returned an unexpected number of transferred bytes! Transferred: " + numberOfBytesTransferred.getValue() + ", expected: " + data.length);
+				if (numberWritten.getValue() != data.length)
+					throw new NativeCodeException("WriteFile returned an unexpected number of transferred bytes! Transferred: " + numberWritten.getValue() + ", expected: " + data.length);
 				return;
 			}
 
@@ -83,13 +85,7 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 			int waitResult = os.WaitForSingleObject(overlapped.hEvent, writeTimeout);
 			switch (waitResult) {
 				case WAIT_OBJECT_0: // IO operation has finished
-					if (!os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true))
-						handleNativeError("GetOverlappedResult", os.GetLastError());
-
-					// verify that the number of transferred bytes is equal to the data length that
-					// was written:
-					if (numberOfBytesTransferred.getValue() != data.length)
-						throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + numberOfBytesTransferred.getValue() + ", expected: " + data.length);
+					handleWriteFinished(data);
 					return;
 				case WAIT_TIMEOUT:
 					// I/O operation has timed out
@@ -105,6 +101,17 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 		finally {
 			disposeLock.unlock();
 		}
+	}
+
+	private void handleWriteFinished(byte[] data) throws IOException {
+		IntByReference bytesWritten = new IntByReference();
+		if (!os.GetOverlappedResult(handle, overlapped, bytesWritten, true))
+			handleNativeError("GetOverlappedResult", os.GetLastError());
+
+		// verify that the number of transferred bytes is equal to the data length that
+		// was written:
+		if (bytesWritten.getValue() != data.length)
+			throw new NativeCodeException("GetOverlappedResult returned an unexpected number of transferred bytes! Transferred: " + bytesWritten.getValue() + ", expected: " + data.length);
 	}
 
 }

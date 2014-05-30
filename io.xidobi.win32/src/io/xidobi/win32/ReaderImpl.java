@@ -29,13 +29,11 @@ import java.nio.ByteBuffer;
 
 import javax.annotation.Nonnull;
 
-import org.xidobi.SerialPort;
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Reader;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
-import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 
@@ -161,7 +159,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 		// create a new read buffer
 		ByteBuffer readBuffer = ByteBuffer.allocate(numberOfBytesToRead);
 
-		boolean readFileResult = os.ReadFile(handle, readBuffer, numberOfBytesToRead, numberOfBytesTransferred, overlapped);
+		boolean readFileResult = os.ReadFile(handle, readBuffer, numberOfBytesToRead, new IntByReference(), overlapped);
 		if (readFileResult)
 			// the read operation succeeded immediatly
 			return readBuffer.array();
@@ -188,16 +186,17 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	}
 
 	private byte[] getOverlappedResult(int numberOfBytesToRead, ByteBuffer readBuffer) throws IOException {
-		boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, numberOfBytesTransferred, true);
+		IntByReference bytesRead = new IntByReference();
+		boolean overlappedResult = os.GetOverlappedResult(handle, overlapped, bytesRead, true);
 		if (!overlappedResult)
 			handleNativeError("GetOverlappedResult", os.GetLastError());
 
 		// verify that the number of read bytes is equal to the number of
 		// available
 		// bytes:
-		int bytesRead = numberOfBytesTransferred.getValue();
-		if (bytesRead != numberOfBytesToRead)
-			throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead + ", expected: " + numberOfBytesToRead);
+
+		if (bytesRead.getValue() != numberOfBytesToRead)
+			throw new NativeCodeException("GetOverlappedResult returned an unexpected number of read bytes! Read: " + bytesRead.getValue() + ", expected: " + numberOfBytesToRead);
 		byte[] array = readBuffer.array();
 		return array;
 	}

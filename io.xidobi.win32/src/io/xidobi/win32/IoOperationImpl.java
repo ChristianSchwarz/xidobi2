@@ -65,8 +65,7 @@ public abstract class IoOperationImpl implements IoOperation {
 	/** the native handle of the serial port */
 	protected final HANDLE handle;
 
-	/** Receives the number of bytes that are read or written. */
-	protected final IntByReference numberOfBytesTransferred;
+
 	/** Overlapped */
 	protected final OVERLAPPED overlapped;
 
@@ -110,7 +109,6 @@ public abstract class IoOperationImpl implements IoOperation {
 
 		// initialize shared resources:
 		overlapped = newOverlapped(os);
-		numberOfBytesTransferred = new IntByReference();
 	}
 
 	/** Creates a new overlapped with an event object. */
