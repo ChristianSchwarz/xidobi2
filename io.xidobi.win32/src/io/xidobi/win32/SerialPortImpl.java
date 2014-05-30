@@ -11,7 +11,6 @@ import static com.sun.jna.platform.win32.WinNT.FILE_FLAG_OVERLAPPED;
 import static com.sun.jna.platform.win32.WinNT.GENERIC_READ;
 import static com.sun.jna.platform.win32.WinNT.GENERIC_WRITE;
 import static com.sun.jna.platform.win32.WinNT.OPEN_EXISTING;
-import static io.xidobi.win32.DCBConfigurator.DCB_CONFIGURATOR;
 import static io.xidobi.win32.Throwables.newIOException;
 import static io.xidobi.win32.Throwables.newNativeCodeException;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
@@ -72,7 +71,7 @@ public class SerialPortImpl implements SerialPort {
 	 */
 	public SerialPortImpl(	@Nonnull String portName,
 							@Nullable String description) {
-		this(portName, description,  DCB_CONFIGURATOR);
+		this(portName, description, new  DCBConfigurator());
 	}
 
 	/**
@@ -152,12 +151,10 @@ public class SerialPortImpl implements SerialPort {
 	 */
 	private void applySettings(final HANDLE handle, final SerialPortSettings settings) throws IOException {
 		final DCB dcb = new DCB();
-
 		if (!os.GetCommState(handle, dcb))
 			throw lastError("Unable to retrieve the current control settings for port (" + portName + ")!");
-
 		configurator.configureDCB(dcb, settings);
-
+		
 		if (!os.SetCommState(handle, dcb))
 			throw lastError("Unable to set the control settings (" + portName + ")!\r\n "+settings+"\r\n "+dcb);
 	}

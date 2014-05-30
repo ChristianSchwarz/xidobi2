@@ -46,15 +46,14 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 public class SerialConnectionImpl extends BasicSerialConnection {
 
 	/**
-	 * Specifies how often the port should be re-open in order to determine if the port is actualy
-	 * closed.
+	 * Specifies how often the port should be re-open in order to determine if the port is actualy closed.
 	 */
 	private static final int TERMINATION_POLL_INTERVAL = 200;
 
 	/** the native Win32-API */
-	private Kernel32 os;
+	private final Kernel32 os;
 	/** the native handle of the serial port */
-	private HANDLE handle;
+	private final HANDLE handle;
 
 	/**
 	 * @param port
@@ -64,10 +63,8 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	 * @param handle
 	 *            the native handle of the serial port
 	 */
-	public SerialConnectionImpl(@Nonnull SerialPort port,
-								@Nonnull Kernel32 os,
-								HANDLE handle) {
-		super(port, new ReaderImpl(port, os, handle), new WriterImpl(port, os, handle));
+	public SerialConnectionImpl(@Nonnull SerialPort port, @Nonnull Kernel32 os, HANDLE handle) {
+		super(port, new ReaderImpl(port.getPortName(), os, handle), new WriterImpl(port.getPortName(), os, handle));
 
 		this.os = os;
 		this.handle = handle;
@@ -75,19 +72,25 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 
 	@Override
 	protected void closeInternal() throws IOException {
-		//@formatter:off
+		// @formatter:off
 		try {
 			cancelIO();
-		} finally {	try {
-			purgeComm();
-		} finally {	try {
-			releaseWaitCommEvent();
-		} finally {	try {
-			closePortHandle(handle);
 		} finally {
-			awaitCloseTermination();
-		}}}}
-		//@formatter:on
+			try {
+				purgeComm();
+			} finally {
+				try {
+					releaseWaitCommEvent();
+				} finally {
+					try {
+						closePortHandle(handle);
+					} finally {
+						awaitCloseTermination();
+					}
+				}
+			}
+		}
+		// @formatter:on
 	}
 
 	/** Cancels all pending I/O operations. */
@@ -98,8 +101,8 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	}
 
 	/**
-	 * Discards all characters from the output or input buffer of a specified communications
-	 * resource and terminates pending read or write operations.
+	 * Discards all characters from the output or input buffer of a specified communications resource and terminates
+	 * pending read or write operations.
 	 */
 	private void purgeComm() {
 		boolean purgeCommResult = os.PurgeComm(handle, PURGE_RXABORT | PURGE_TXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
@@ -108,10 +111,9 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	}
 
 	/**
-	 * <b>IMPORTANT:</b> Releases the <code>WaitCommEvent</code> function. This is necessary,
-	 * because the asynchronous <code>WaitCommEvent</code>, doesn't return immediatly on
-	 * <code>WAIT_FAILED</code>. It can cause a memory access violation error, because the resources
-	 * are disposed too early.
+	 * <b>IMPORTANT:</b> Releases the <code>WaitCommEvent</code> function. This is necessary, because the asynchronous
+	 * <code>WaitCommEvent</code>, doesn't return immediatly on <code>WAIT_FAILED</code>. It can cause a memory access
+	 * violation error, because the resources are disposed too early.
 	 */
 	private void releaseWaitCommEvent() {
 		boolean setCommMaskResult = os.SetCommMask(handle, EV_RXCHAR);
@@ -123,7 +125,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	private void closePortHandle(HANDLE handle) {
 		boolean closeHandleResult = os.CloseHandle(handle);
 		if (!closeHandleResult)
-			throw newNativeCodeException( "CloseHandle failed unexpected!", os.GetLastError());
+			throw newNativeCodeException("CloseHandle failed unexpected!", os.GetLastError());
 	}
 
 	/** Awaits the termination of all pending I/O operations. */
@@ -147,15 +149,16 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 			}
 			int lastError = os.GetLastError();
 			switch (lastError) {
-				case ERROR_ACCESS_DENIED:
-					// the port is currently busy, we must wait and poll again
-					sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
-					continue;
-				case ERROR_FILE_NOT_FOUND:
-					// the port couldn't been found, maybe the hardware was removed
-					return;
+			case ERROR_ACCESS_DENIED:
+				// the port is currently busy, we must wait and poll again
+				sleepUninterruptibly(TERMINATION_POLL_INTERVAL);
+				continue;
+			case ERROR_FILE_NOT_FOUND:
+				// the port couldn't been found, maybe the hardware was removed
+				return;
+			default:
+				throw newNativeCodeException("Couldn't wait for close termination! CreateFileA failed unexpected!", lastError);
 			}
-			throw newNativeCodeException( "Couldn't wait for close termination! CreateFileA failed unexpected!", lastError);
 		}
 	}
 
@@ -163,8 +166,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	private void sleepUninterruptibly(int duration) throws IOException {
 		try {
 			sleep(duration);
-		}
-		catch (InterruptedException e) {
+		} catch (InterruptedException e) {
 			throw new InterruptedIOException(e.getMessage());
 		}
 	}
@@ -172,8 +174,7 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	/**
 	 * Handles the native error.
 	 * <p>
-	 * This method throws a {@link NativeCodeException}, if the given error code is none of the
-	 * following:
+	 * This method throws a {@link NativeCodeException}, if the given error code is none of the following:
 	 * <ul>
 	 * <li>{@link WinApi#ERROR_INVALID_HANDLE ERROR_INVALID_HANDLE}
 	 * <li>{@link WinApi#ERROR_OPERATION_ABORTED ERROR_OPERATION_ABORTED}
@@ -193,15 +194,15 @@ public class SerialConnectionImpl extends BasicSerialConnection {
 	protected final void handleNativeError(@Nonnull String nativeMethodName, int errorCode) {
 		checkArgumentNotNull(nativeMethodName, "nativeMethodName");
 		switch (errorCode) {
-			case  ERROR_INVALID_HANDLE:
-			case ERROR_OPERATION_ABORTED:
-			case ERROR_GEN_FAILURE:
-			case ERROR_NOT_READY:
-			case ERROR_BAD_COMMAND:
-			case ERROR_ACCESS_DENIED:
-				return;
-			default:
-				throw newNativeCodeException( nativeMethodName + " failed unexpected!", errorCode);
+		case ERROR_INVALID_HANDLE:
+		case ERROR_OPERATION_ABORTED:
+		case ERROR_GEN_FAILURE:
+		case ERROR_NOT_READY:
+		case ERROR_BAD_COMMAND:
+		case ERROR_ACCESS_DENIED:
+			return;
+		default:
+			throw newNativeCodeException(nativeMethodName + " failed unexpected!", errorCode);
 		}
 	}
 }

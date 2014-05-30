@@ -15,6 +15,7 @@
  */
 package io.xidobi.win32;
 
+import static com.sun.jna.platform.win32.WinBase.*;
 import static org.xidobi.StopBits.STOPBITS_1_5;
 import static org.xidobi.StopBits.STOPBITS_2;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
@@ -26,7 +27,7 @@ import org.xidobi.SerialPortSettings;
 import org.xidobi.StopBits;
 
 import com.sun.jna.platform.win32.WinBase.DCB;
-import static com.sun.jna.platform.win32.WinBase.DCB.*;
+
 /**
  * Configures the native {@link DCB} with the values from the {@link SerialPortSettings}.
  * Additionally it verifies the settings to be valid.
@@ -43,12 +44,6 @@ public class DCBConfigurator {
 	/** <code>int</code> value for <code>false</code> */
 	private static final int FALSE = 0;
 
-	
-	public static final DCBConfigurator DCB_CONFIGURATOR = new DCBConfigurator();
-	
-	private DCBConfigurator() {
-	}
-	
 	/**
 	 * Configures the native {@link DCB} with the values from the given serial port settings.
 	 * 
@@ -152,7 +147,6 @@ public class DCBConfigurator {
 
 	/** Configures the parity on the {@link DCB}. */
 	private void configureParity(DCB dcb, SerialPortSettings settings) {
-		dcb.fParity=FALSE;
 		switch (settings.getParity()) {
 			case PARITY_NONE:
 				dcb.Parity = NOPARITY;
@@ -193,10 +187,7 @@ public class DCBConfigurator {
 
 		// reset the flow control settings:
 		dcb.fRtsControl = RTS_CONTROL_ENABLE;
-		
-		dcb.fOutxCtsFlow = FALSE;
-		//^^ Wenn das auf FALSE gesetzt wird, schlägt SetCommState(..) fehl 
-		
+//		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
 
@@ -232,7 +223,7 @@ public class DCBConfigurator {
 
 		// NOTE: We configure the following values in the same way as they do in the jSSC project.
 		// Please do not change these values, until you know any better.
-		
+
 		dcb.fOutxDsrFlow = FALSE;
 		dcb.fDsrSensitivity = FALSE;
 		dcb.fTXContinueOnXoff = TRUE;

@@ -65,10 +65,8 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	 * @param handle
 	 *            the native handle of the serial port
 	 */
-	public ReaderImpl(SerialPort port, Kernel32 os, HANDLE handle) {
-		super(port, os, handle);
-
-		
+	public ReaderImpl(String portName, Kernel32 os, HANDLE handle) {
+		super(portName, os, handle);
 	}
 
 	/** {@inheritDoc} */
@@ -108,7 +106,7 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	private void awaitArrivalOfData() throws IOException {
 
 		// reset eventMask
-		DWORD eventMask = new DWORD();
+		IntByReference eventMask = new IntByReference();
 
 		boolean succeed = os.WaitCommEvent(handle, eventMask, overlapped);
 		if (succeed) {
@@ -211,8 +209,8 @@ public class ReaderImpl extends IoOperationImpl implements Reader {
 	 * NOTICE: We have to ignore wrong event masks, because some serial port
 	 * drivers are signaling events we haven't registered for.
 	 */
-	private void checkEventMask(DWORD eventMask) throws IOException {
-		int mask = eventMask.intValue();
+	private void checkEventMask(IntByReference eventMask) throws IOException {
+		int mask = eventMask.getValue();
 		if (mask == 0)
 			throw portClosedException("Read operation failed, because a communication error event was signaled!");
 

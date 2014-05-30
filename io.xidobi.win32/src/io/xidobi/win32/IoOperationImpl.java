@@ -58,7 +58,7 @@ public abstract class IoOperationImpl implements IoOperation {
 
 	/** the serial port, never <code>null</code> */
 	@Nonnull
-	protected final SerialPort port;
+	private final String portName;
 	/** the native Win32-API, never <code>null</code> */
 	@Nonnull
 	protected final Kernel32 os;
@@ -102,8 +102,8 @@ public abstract class IoOperationImpl implements IoOperation {
 	 * @param handle
 	 *            the native handle of the serial port
 	 */
-	public IoOperationImpl(@Nonnull SerialPort port, @Nonnull Kernel32 os, HANDLE handle) {
-		this.port = checkArgumentNotNull(port, "port");
+	public IoOperationImpl(@Nonnull String portName, @Nonnull Kernel32 os, HANDLE handle) {
+		this.portName = checkArgumentNotNull(portName, "portName");
 		this.os = checkArgumentNotNull(os, "os");
 		checkArgument(handle != Kernel32.INVALID_HANDLE_VALUE, "handle", "Invalid handle value (-1)!");
 		this.handle = handle;
@@ -247,7 +247,7 @@ public abstract class IoOperationImpl implements IoOperation {
 			message = "";
 		else
 			message = " " + message;
-		return new IOException("Port " + port.getPortName() + " was closed!" + message);
+		return new IOException("Port " + portName + " was closed!" + message);
 	}
 
 	/** {@inheritDoc} */

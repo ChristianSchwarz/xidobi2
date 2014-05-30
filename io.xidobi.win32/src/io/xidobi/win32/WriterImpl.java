@@ -51,10 +51,10 @@ public class WriterImpl extends IoOperationImpl implements Writer {
 	 * @param handle
 	 *            the native handle of the serial port
 	 */
-	public WriterImpl(	@Nonnull SerialPort port,
+	public WriterImpl(	@Nonnull String portName,
 						@Nonnull Kernel32 os,
 						HANDLE handle) {
-		super(port, os, handle);
+		super(portName, os, handle);
 	}
 
 	/** {@inheritDoc} */
