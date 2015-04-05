@@ -59,6 +59,23 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		Map<String, String> portDescs = getPortNamesAndDescription();
 		
 		
+		addNewPorts(portDescs);
+		removeMissingPorts(portDescs);
+		
+		return ports;
+	}
+
+	private void removeMissingPorts(Map<String, String> portDescs) {
+		Set<Entry<String, SerialPort>> entires = new HashSet<Entry<String,SerialPort>>(ports.entrySet());
+		for (Entry<String,SerialPort> e: entires){
+			String portName = e.getKey();
+			if (!portDescs.containsKey(portName)){
+				ports.remove(portName);
+			}
+		}
+	}
+
+	private void addNewPorts(Map<String, String> portDescs) {
 		for(Entry<String,String> port : portDescs.entrySet()){
 			String portName = port.getKey();
 			if (!ports.containsKey(portName)){
@@ -67,42 +84,37 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 				ports.put(portName,serialPort);
 			}
 		}
-		
-		for (Entry<String,SerialPort> e: new HashSet<Entry<String,SerialPort>>(ports.entrySet())){
-			String portName = e.getKey();
-			if (!portDescs.containsKey(portName)){
-				ports.remove(portName);
-			}
-		}
-		
-		return ports;
 	}
 
 	private Map<String, String> getPortNamesAndDescription() {
-		Map<String, String> ports = new HashMap();
 
 		HANDLE hDevInfoSet = getComPortInfoSetHandle();
 		try {
-			// Finally do the enumeration
-
-			int index = 0;
-			while (true) {
-				// Enumerate the current device
-
-				SP_DEVINFO_DATA devInfo = getDeviceInfoData(hDevInfoSet, index++);
-				if (devInfo == null)
-					break;
-
-				String portName = getPortName(hDevInfoSet, devInfo);
-				if (portName == null)
-					continue;
-				String description = getDescription(hDevInfoSet, devInfo);
-				ports.put(portName, description);
-
-			}
+			return getNamesAndDescription(hDevInfoSet);
 		} finally {
 			setupApi.SetupDiDestroyDeviceInfoList(hDevInfoSet);
 		}
+
+	}
+
+	private static Map<String, String> getNamesAndDescription(HANDLE hDevInfoSet) {
+		Map<String, String> ports = new HashMap<String, String>();
+		int index = 0;
+		while (true) {
+			// Enumerate the current device
+			SP_DEVINFO_DATA devInfo = getDeviceInfoData(hDevInfoSet, index++);
+			if (devInfo == null)
+				break;
+
+			String portName = getPortName(hDevInfoSet, devInfo);
+			if (portName == null)
+				continue;
+			
+			String description = getDescription(hDevInfoSet, devInfo);
+			ports.put(portName, description);
+
+		}
+		
 		return ports;
 	}
 
@@ -157,8 +169,4 @@ public class SerialPortFinderImpl implements SerialPortFinder {
 		return new String(bytes).trim();
 
 	}
-
-	
-
-
 }

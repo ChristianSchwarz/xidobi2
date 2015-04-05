@@ -15,10 +15,21 @@
  */
 package io.xidobi.win32;
 
+import static com.sun.jna.platform.win32.WinBase.EV_RXCHAR;
+import static com.sun.jna.platform.win32.WinBase.INVALID_HANDLE_VALUE;
+import static com.sun.jna.platform.win32.WinBase.PURGE_RXABORT;
+import static com.sun.jna.platform.win32.WinBase.PURGE_RXCLEAR;
+import static com.sun.jna.platform.win32.WinBase.PURGE_TXABORT;
+import static com.sun.jna.platform.win32.WinBase.PURGE_TXCLEAR;
+import static com.sun.jna.platform.win32.WinError.ERROR_ACCESS_DENIED;
+import static com.sun.jna.platform.win32.WinError.ERROR_BAD_COMMAND;
+import static com.sun.jna.platform.win32.WinError.ERROR_FILE_NOT_FOUND;
+import static com.sun.jna.platform.win32.WinError.ERROR_GEN_FAILURE;
+import static com.sun.jna.platform.win32.WinError.ERROR_INVALID_HANDLE;
+import static com.sun.jna.platform.win32.WinError.ERROR_NOT_READY;
+import static com.sun.jna.platform.win32.WinError.ERROR_OPERATION_ABORTED;
 import static io.xidobi.win32.Throwables.newNativeCodeException;
 import static java.lang.Thread.sleep;
-import static com.sun.jna.platform.win32.WinBase.*;
-import static com.sun.jna.platform.win32.Kernel32.*;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
 
 import java.io.IOException;
@@ -26,8 +37,7 @@ import java.io.InterruptedIOException;
 
 import javax.annotation.Nonnull;
 
-import static com.sun.jna.platform.win32.WinError.*;
-
+import org.xidobi.SerialConnection;
 import org.xidobi.SerialPort;
 import org.xidobi.spi.BasicSerialConnection;
 import org.xidobi.spi.NativeCodeException;

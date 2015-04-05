@@ -20,6 +20,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.xidobi"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jnalib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/platform"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

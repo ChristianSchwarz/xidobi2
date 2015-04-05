@@ -15,7 +15,6 @@
  */
 package io.xidobi.win32;
 
-import static com.sun.jna.platform.win32.WinBase.*;
 import static org.xidobi.StopBits.STOPBITS_1_5;
 import static org.xidobi.StopBits.STOPBITS_2;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
@@ -26,6 +25,7 @@ import org.xidobi.DataBits;
 import org.xidobi.SerialPortSettings;
 import org.xidobi.StopBits;
 
+import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinBase.DCB;
 
 /**
@@ -134,13 +134,13 @@ public class DCBConfigurator {
 	private void configureStopBits(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getStopBits()) {
 			case STOPBITS_1:
-				dcb.StopBits = ONESTOPBIT;
+				dcb.StopBits = WinBase.DCB.ONESTOPBIT;
 				return;
 			case STOPBITS_1_5:
-				dcb.StopBits = ONE5STOPBITS;
+				dcb.StopBits = WinBase.DCB.ONE5STOPBITS;
 				return;
 			case STOPBITS_2:
-				dcb.StopBits = TWOSTOPBITS;
+				dcb.StopBits = WinBase.DCB.TWOSTOPBITS;
 				return;
 		}
 	}
@@ -149,19 +149,19 @@ public class DCBConfigurator {
 	private void configureParity(DCB dcb, SerialPortSettings settings) {
 		switch (settings.getParity()) {
 			case PARITY_NONE:
-				dcb.Parity = NOPARITY;
+				dcb.Parity = WinBase.DCB.NOPARITY;
 				return;
 			case PARITY_EVEN:
-				dcb.Parity = EVENPARITY;
+				dcb.Parity = WinBase.DCB.EVENPARITY;
 				return;
 			case PARITY_ODD:
-				dcb.Parity = ODDPARITY;
+				dcb.Parity = WinBase.DCB.ODDPARITY;
 				return;
 			case PARITY_MARK:
-				dcb.Parity = MARKPARITY;
+				dcb.Parity = WinBase.DCB.MARKPARITY;
 				return;
 			case PARITY_SPACE:
-				dcb.Parity = SPACEPARITY;
+				dcb.Parity = WinBase.DCB.SPACEPARITY;
 				return;
 		}
 	}
@@ -169,24 +169,24 @@ public class DCBConfigurator {
 	/** Configures the RTS on the {@link DCB}. */
 	private void configureRTS(DCB dcb, SerialPortSettings settings) {
 		if (settings.isRTS())
-			dcb.fRtsControl = RTS_CONTROL_ENABLE;
+			dcb.fRtsControl = WinBase.DCB.RTS_CONTROL_ENABLE;
 		else
-			dcb.fRtsControl = RTS_CONTROL_DISABLE;
+			dcb.fRtsControl = WinBase.DCB.RTS_CONTROL_DISABLE;
 	}
 
 	/** Configures the DTR on the {@link DCB}. */
 	private void configureDTR(DCB dcb, SerialPortSettings settings) {
 		if (settings.isDTR())
-			dcb.fDtrControl = DTR_CONTROL_ENABLE;
+			dcb.fDtrControl = WinBase.DCB.DTR_CONTROL_ENABLE;
 		else
-			dcb.fDtrControl = DTR_CONTROL_DISABLE;
+			dcb.fDtrControl = WinBase.DCB.DTR_CONTROL_DISABLE;
 	}
 
 	/** Configures the flow control on the {@link DCB}. */
 	private void configureFlowControl(DCB dcb, SerialPortSettings settings) {
 
 		// reset the flow control settings:
-		dcb.fRtsControl = RTS_CONTROL_ENABLE;
+		dcb.fRtsControl = WinBase.DCB.RTS_CONTROL_ENABLE;
 //		dcb.fOutxCtsFlow = FALSE;
 		dcb.fOutX = FALSE;
 		dcb.fInX = FALSE;
@@ -196,13 +196,13 @@ public class DCBConfigurator {
 			case FLOWCONTROL_NONE:
 				return;
 			case FLOWCONTROL_RTSCTS_IN:
-				dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+				dcb.fRtsControl = WinBase.DCB.RTS_CONTROL_HANDSHAKE;
 				return;
 			case FLOWCONTROL_RTSCTS_OUT:
 				dcb.fOutxCtsFlow = TRUE;
 				return;
 			case FLOWCONTROL_RTSCTS_IN_OUT:
-				dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+				dcb.fRtsControl = WinBase.DCB.RTS_CONTROL_HANDSHAKE;
 				dcb.fOutxCtsFlow = TRUE;
 				return;
 			case FLOWCONTROL_XONXOFF_IN:

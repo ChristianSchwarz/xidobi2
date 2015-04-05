@@ -15,7 +15,12 @@
  */
 package io.xidobi.win32;
 
-import static com.sun.jna.platform.win32.WinError.*;
+import static com.sun.jna.platform.win32.WinError.ERROR_ACCESS_DENIED;
+import static com.sun.jna.platform.win32.WinError.ERROR_BAD_COMMAND;
+import static com.sun.jna.platform.win32.WinError.ERROR_GEN_FAILURE;
+import static com.sun.jna.platform.win32.WinError.ERROR_INVALID_HANDLE;
+import static com.sun.jna.platform.win32.WinError.ERROR_NOT_READY;
+import static com.sun.jna.platform.win32.WinError.ERROR_OPERATION_ABORTED;
 import static io.xidobi.win32.Throwables.newNativeCodeException;
 import static org.xidobi.spi.Preconditions.checkArgument;
 import static org.xidobi.spi.Preconditions.checkArgumentNotNull;
@@ -28,14 +33,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
-import org.xidobi.SerialPort;
 import org.xidobi.spi.IoOperation;
 import org.xidobi.spi.NativeCodeException;
 
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase.OVERLAPPED;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
-import com.sun.jna.ptr.IntByReference;
 
 /**
  * Abstract class for I/O operations.

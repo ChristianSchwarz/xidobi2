@@ -15,20 +15,22 @@
  */
 package io.xidobi.win32;
 
-import static com.sun.jna.platform.win32.WinError.*;
-import static com.sun.jna.platform.win32.WinBase.*;
-import static com.sun.jna.platform.win32.Kernel32.*;
+import static com.sun.jna.platform.win32.WinBase.WAIT_ABANDONED;
+import static com.sun.jna.platform.win32.WinBase.WAIT_FAILED;
+import static com.sun.jna.platform.win32.WinBase.WAIT_OBJECT_0;
+import static com.sun.jna.platform.win32.WinError.ERROR_IO_PENDING;
+import static com.sun.jna.platform.win32.WinError.WAIT_TIMEOUT;
 import static io.xidobi.win32.Throwables.newNativeCodeException;
 
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-import org.xidobi.SerialPort;
 import org.xidobi.spi.NativeCodeException;
 import org.xidobi.spi.Writer;
 
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.ptr.IntByReference;
 
 /**
